@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="Array&lt;*&gt;">
+		<DisplayString>{{count={m_uCount} capacity={m_uCapacity} data={m_pData}}}</DisplayString>
+		<Expand>
+			<Item Name="[count]">m_uCount</Item>
+			<Item Name="[capacity]">m_uCapacity</Item>
+			<ArrayItems>
+				<Size>m_uCount</Size>
+				<ValuePointer>m_pData</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+</AutoVisualizer>

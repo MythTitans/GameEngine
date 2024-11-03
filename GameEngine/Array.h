@@ -1,0 +1,319 @@
+#pragma once
+
+#include <new>
+#include <utility>
+
+#include "Common.h"
+
+template < typename T >
+class Array
+{
+public:
+	Array()
+		: m_pData( nullptr )
+		, m_uCount( 0 )
+		, m_uCapacity( 0 )
+	{
+	}
+
+	explicit Array( const uint uCount )
+		: m_pData( ( T* )::operator new( uCount * sizeof( T ) ) )
+		, m_uCount( uCount )
+		, m_uCapacity( uCount )
+	{
+		for( uint u = 0; u < m_uCount; ++u )
+			::new( &m_pData[ u ] ) T;
+	}
+
+	Array( const uint uCount, const T& oValue )
+		: m_pData( ( T* )::operator new( uCount * sizeof( T ) ) )
+		, m_uCount( uCount )
+		, m_uCapacity( uCount )
+	{
+		for( uint u = 0; u < m_uCount; ++u )
+			::new( &m_pData[ u ] ) T( oValue );
+	}
+
+	Array( const Array& aArray )
+		: m_pData( ( T* )::operator new( aArray.m_uCount * sizeof( T ) ) )
+		, m_uCount( aArray.m_uCount )
+		, m_uCapacity( aArray.m_uCapacity )
+	{
+		for( uint u = 0; u < m_uCount; ++u )
+			::new( &m_pData[ u ] ) T( aArray[ u ] );
+	}
+
+	Array& operator=( const Array& aArray )
+	{
+		if( &aArray == this )
+			return *this;
+
+		Destroy();
+
+		m_pData = ( T* )::operator new( aArray.m_uCount * sizeof( T ) );
+		m_uCount = aArray.m_uCount;
+		m_uCapacity = aArray.m_uCapacity;
+
+		ASSERT( m_uCount <= m_uCapacity );
+
+		for( uint u = 0; u < m_uCount; ++u )
+			::new( &m_pData[ u ] ) T( aArray[ u ] );
+	}
+
+	Array( Array&& aArray ) noexcept
+		: m_pData( aArray.m_pData )
+		, m_uCount( aArray.m_uCount )
+		, m_uCapacity( aArray.m_uCapacity )
+	{
+		aArray.m_pData = nullptr;
+		aArray.m_uCount = 0;
+		aArray.m_uCapacity = 0;
+	}
+
+	Array& operator=( Array&& aArray ) noexcept
+	{
+		if( &aArray == this )
+			return *this;
+
+		Destroy();
+
+		m_pData = aArray.m_pData;
+		m_uCount = aArray.m_uCount;
+		m_uCapacity = aArray.m_uCapacity;
+
+		ASSERT( m_uCount <= m_uCapacity );
+
+		aArray.m_pData = nullptr;
+		aArray.m_uCount = 0;
+		aArray.m_uCapacity = 0;
+	}
+
+	~Array()
+	{
+		Destroy();
+
+		m_pData = nullptr;
+		m_uCount = 0;
+		m_uCapacity = 0;
+	}
+
+	void PushBack( const T& oElement )
+	{
+		Expand();
+
+		ASSERT( m_pData != nullptr );
+		ASSERT( m_uCount < m_uCapacity );
+
+		::new( &m_pData[ m_uCount++ ] ) T( oElement );
+	}
+
+	void PushFront( const T& oElement )
+	{
+		Array< T > aPush;
+		if( m_uCapacity < m_uCount + 1 )
+			aPush.Reserve( m_uCount + 1 );
+		else
+			aPush.Reserve( m_uCapacity );
+
+		aPush.PushBack( oElement );
+		for( uint u = 0; u < m_uCount; ++u )
+			aPush.PushBack( m_pData[ u ] );
+
+		*this = aPush;
+	}
+
+	void PopBack()
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( m_uCount > 0 );
+
+		m_pData[ --m_uCount ].~T();
+	}
+
+	void PopFront()
+	{
+		Remove( 0 );
+	}
+
+	void Remove( const uint uIndex )
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( m_uCount > 0 );
+		ASSERT( uIndex >= 0 && uIndex < m_uCount );
+
+		m_pData[ uIndex ].~T();
+
+		Array< T > aRemove;
+		aRemove.Reserve( m_uCapacity );
+
+		for( uint u = 0; u < m_uCount; ++u )
+		{
+			if( u != uIndex )
+				aRemove.PushBack( m_pData[ u ] );
+		}
+
+		--m_uCount;
+
+		*this = aRemove;
+	}
+
+	void Clear()
+	{
+		for( uint u = 0; u < m_uCount; ++u )
+			m_pData[ u ]->~T();
+
+		m_uCount = 0;
+	}
+
+	void Resize( const uint uCount )
+	{
+		if( m_uCount < uCount )
+		{
+			const uint uExpansion = m_uCount - uCount;
+			Expand( uExpansion );
+
+			for( uint u = 0; u < uExpansion; ++u )
+				PushBack( T() );
+		}
+	}
+
+	void Resize( const uint uCount, const T& oValue )
+	{
+		if( m_uCount < uCount )
+		{
+			const uint uExpansion = m_uCount - uCount;
+			Expand( uExpansion );
+
+			for( uint u = 0; u < uExpansion; ++u )
+				PushBack( oValue );
+		}
+	}
+
+	void Reserve( const uint uCount )
+	{
+		if( m_uCapacity < uCount )
+		{
+			T* pData = ( T* )::operator new( uCount * sizeof( T ) );
+			for( uint u = 0; u < m_uCount; ++u )
+				::new ( &pData[ u ] ) T( m_pData[ u ] );
+
+			Destroy();
+
+			m_pData = pData;
+			m_uCapacity = uCount;
+
+			ASSERT( m_uCount <= m_uCapacity );
+		}
+	}
+
+	void ShrinkToFit()
+	{
+		if( m_uCapacity == m_uCount )
+			return;
+
+		Array< T > aShrink;
+		aShrink.Reserve( m_uCount );
+
+		for( uint u = 0; u < m_uCount; ++u )
+			aShrink.PushBack( m_pData[ u ] );
+
+		*this = std::move( aShrink );
+
+		ASSERT( m_uCount == m_uCapacity );
+	}
+
+	T& Back()
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( m_uCount > 0 );
+
+		return m_pData[ m_uCount - 1 ];
+	}
+
+	const T& Back() const
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( m_uCount > 0 );
+
+		return m_pData[ m_uCount - 1 ];
+	}
+
+	T& Front()
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( m_uCount > 0 );
+
+		return m_pData[ 0 ];
+	}
+
+	const T& Front() const
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( m_uCount > 0 );
+
+		return m_pData[ 0 ];
+	}
+
+	T& operator[]( const uint uIndex )
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( uIndex >= 0 && uIndex < m_uCount );
+
+		return m_pData[ uIndex ];
+	}
+
+	const T& operator[]( const uint uIndex ) const
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( uIndex >= 0 && uIndex < m_uCount );
+
+		return m_pData[ uIndex ];
+	}
+
+	const uint Count() const
+	{
+		return m_uCount;
+	}
+
+	const uint Capacity() const
+	{
+		return m_uCapacity;
+	}
+
+	T* Data()
+	{
+		return m_pData;
+	}
+
+	const T* Data() const
+	{
+		return m_pData;
+	}
+
+private:
+	void Expand( uint uBy = 1 )
+	{
+		if( m_uCapacity >= m_uCount + uBy )
+			return;
+
+		Array< T > aExpand;
+		aExpand.Reserve( m_uCount + uBy );
+
+		for( uint u = 0; u < m_uCount; ++u )
+			aExpand.PushBack( m_pData[ u ] );
+
+		*this = std::move( aExpand );
+	}
+
+	void Destroy()
+	{
+		for( uint u = 0; u < m_uCount; ++u )
+			m_pData[ u ].~T();
+
+		::operator delete( m_pData );
+	}
+
+	T*		m_pData;
+	uint	m_uCount;
+	uint	m_uCapacity;
+};
