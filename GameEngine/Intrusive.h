@@ -14,11 +14,11 @@ public:
 	friend class WeakPtr;
 	friend class WeakPtrBase;
 
-			Intrusive();
+	Intrusive();
 	virtual ~Intrusive();
 
-	uint	GetReferenceCount() const;
-	uint	CountWeakReferences() const;
+	uint GetReferenceCount() const;
+	uint CountWeakReferences() const;
 
 private:
 	WeakPtrBase*	m_pWeakLink;
@@ -28,16 +28,16 @@ private:
 class StrongPtrBase
 {
 public:
-			StrongPtrBase();
-			StrongPtrBase( Intrusive* pPtr );
+	StrongPtrBase();
+	StrongPtrBase( Intrusive* pPtr );
 
-			StrongPtrBase( const StrongPtrBase& xPtr );
-			StrongPtrBase& operator=( const StrongPtrBase& xPtr );
+	StrongPtrBase( const StrongPtrBase& xPtr );
+	StrongPtrBase& operator=( const StrongPtrBase& xPtr );
 
-			StrongPtrBase( StrongPtrBase&& xPtr ) noexcept;
-			StrongPtrBase& operator=( StrongPtrBase&& xPtr ) noexcept;
+	StrongPtrBase( StrongPtrBase&& xPtr ) noexcept;
+	StrongPtrBase& operator=( StrongPtrBase&& xPtr ) noexcept;
 
-			~StrongPtrBase();
+	~StrongPtrBase();
 
 protected:
 	void	AddReference();
@@ -116,20 +116,20 @@ class WeakPtrBase
 public:
 	friend class Intrusive;
 
-			WeakPtrBase();
-			WeakPtrBase( Intrusive* pPtr );
+	WeakPtrBase();
+	WeakPtrBase( Intrusive* pPtr );
 
-			WeakPtrBase( const WeakPtrBase& xPtr );
-			WeakPtrBase& operator=( const WeakPtrBase& xPtr );
+	WeakPtrBase( const WeakPtrBase& xPtr );
+	WeakPtrBase& operator=( const WeakPtrBase& xPtr );
 
-			WeakPtrBase( WeakPtrBase&& xPtr ) = delete;
-			WeakPtrBase& operator=( WeakPtrBase&& xPtr ) = delete;
+	WeakPtrBase( WeakPtrBase&& xPtr ) = delete;
+	WeakPtrBase& operator=( WeakPtrBase&& xPtr ) = delete;
 
-			~WeakPtrBase();
+	~WeakPtrBase();
 
 protected:
-	void	AddLink();
-	void	RemoveLink();
+	void AddLink();
+	void RemoveLink();
 
 	Intrusive*		m_pPtr;
 	WeakPtrBase*	m_pNext;
