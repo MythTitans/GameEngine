@@ -31,10 +31,28 @@ namespace Tests
 				++s_uAliveCount;
 			}
 
+			TestStruct& operator=( const TestStruct& oOther )
+			{
+				m_iValue = oOther.m_iValue;
+
+				++s_uAliveCount;
+
+				return *this;
+			}
+
 			TestStruct( const TestStruct&& oOther ) noexcept
 				: m_iValue( oOther.m_iValue )
 			{
 				++s_uAliveCount;
+			}
+
+			TestStruct& operator=( TestStruct&& oOther ) noexcept
+			{
+				m_iValue = oOther.m_iValue;
+
+				++s_uAliveCount;
+
+				return *this;
 			}
 
 			~TestStruct()
@@ -213,27 +231,111 @@ namespace Tests
 
 			// Copy assign
 			{
+				Array< TestStruct > aFromArray( 3, TestStruct( 3 ) );
 
+				Array< TestStruct > aArray;
+				aArray = aFromArray;
+				Assert::IsNotNull( aArray.Data() );
+				Assert::AreEqual( 3u, aArray.Count() );
+				Assert::AreEqual( 3u, aArray.Capacity() );
+				for( uint u = 0; u < aArray.Count(); ++u )
+					Assert::AreEqual( 3, aArray[ u ].m_iValue );
+				Assert::AreEqual( 6u, TestStruct::s_uAliveCount );
 			}
 			Assert::AreEqual( 0u, TestStruct::s_uAliveCount );
 
 			// Move assign
 			{
+				Array< TestStruct > aFromArray( 3, TestStruct( 3 ) );
 
+				Array< TestStruct > aArray;
+				aArray = std::move( aFromArray );
+				Assert::IsNotNull( aArray.Data() );
+				Assert::AreEqual( 3u, aArray.Count() );
+				Assert::AreEqual( 3u, aArray.Capacity() );
+				for( uint u = 0; u < aArray.Count(); ++u )
+					Assert::AreEqual( 3, aArray[ u ].m_iValue );
+				Assert::AreEqual( 3u, TestStruct::s_uAliveCount );
+
+				Assert::IsNull( aFromArray.Data() );
+				Assert::AreEqual( 0u, aFromArray.Count() );
+				Assert::AreEqual( 0u, aFromArray.Capacity() );
 			}
 			Assert::AreEqual( 0u, TestStruct::s_uAliveCount );
 
 			// Clear / shrink to fit
 			{
+				Array< TestStruct > aArray( 3, TestStruct( 3 ) );
 
+				aArray.PopBack();
+				aArray.ShrinkToFit();
+				Assert::IsNotNull( aArray.Data() );
+				Assert::AreEqual( 2u, aArray.Count() );
+				Assert::AreEqual( 2u, aArray.Capacity() );
+				Assert::AreEqual( 2u, TestStruct::s_uAliveCount );
+
+				aArray.Clear();
+				Assert::IsNotNull( aArray.Data() );
+				Assert::AreEqual( 0u, aArray.Count() );
+				Assert::AreEqual( 2u, aArray.Capacity() );
+				Assert::AreEqual( 0u, TestStruct::s_uAliveCount );
+
+				aArray.ShrinkToFit();
+				Assert::IsNull( aArray.Data() );
+				Assert::AreEqual( 0u, aArray.Count() );
+				Assert::AreEqual( 0u, aArray.Capacity() );
+				Assert::AreEqual( 0u, TestStruct::s_uAliveCount );
 			}
 			Assert::AreEqual( 0u, TestStruct::s_uAliveCount );
 
 			// Reserve / resize
 			{
+				Array< TestStruct > aArray;
 
+				aArray.Reserve( 2 );
+				Assert::IsNotNull( aArray.Data() );
+				Assert::AreEqual( 0u, aArray.Count() );
+				Assert::AreEqual( 2u, aArray.Capacity() );
+				Assert::AreEqual( 0u, TestStruct::s_uAliveCount );
+
+				aArray.PushBack( TestStruct() );
+				aArray.PushBack( TestStruct() );
+				Assert::IsNotNull( aArray.Data() );
+				Assert::AreEqual( 2u, aArray.Count() );
+				Assert::AreEqual( 2u, aArray.Capacity() );
+				Assert::AreEqual( 2u, TestStruct::s_uAliveCount );
+
+				aArray.Reserve( 1 );
+				Assert::IsNotNull( aArray.Data() );
+				Assert::AreEqual( 2u, aArray.Count() );
+				Assert::AreEqual( 2u, aArray.Capacity() );
+				Assert::AreEqual( 2u, TestStruct::s_uAliveCount );
+
+				aArray.Resize( 3 );
+				aArray.Resize( 5, TestStruct( 10 ) );
+				Assert::IsNotNull( aArray.Data() );
+				Assert::AreEqual( 5u, aArray.Count() );
+				Assert::AreEqual( 5u, aArray.Capacity() );
+				Assert::AreEqual( 0, aArray[ 2 ].m_iValue );
+				Assert::AreEqual( 10, aArray[ 3 ].m_iValue );
+				Assert::AreEqual( 10, aArray[ 4 ].m_iValue );
+				Assert::AreEqual( 5u, TestStruct::s_uAliveCount );
+
+				aArray.Resize( 3 );
+				Assert::IsNotNull( aArray.Data() );
+				Assert::AreEqual( 3u, aArray.Count() );
+				Assert::AreEqual( 5u, aArray.Capacity() );
+				Assert::AreEqual( 3u, TestStruct::s_uAliveCount );
 			}
 			Assert::AreEqual( 0u, TestStruct::s_uAliveCount );
+		}
+
+		TEST_METHOD( FastResize )
+		{
+			Array< int, ArrayFlags::FAST_RESIZE > aArray;
+			aArray.PushBack( 1 );
+			aArray.PushBack( 2 );
+			aArray.PushBack( 3 );
 		}
 	};
 

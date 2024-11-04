@@ -79,4 +79,7 @@ int main()
 	aArray.PushBack( Blublu( 10, 20.f ) );
 	aArray.PushBack( Blublu() );
 	aArray.PushBack( Blublu() );
+
+	Array< int, ArrayFlags::FAST_RESIZE > aFast;
+	Array< int, ArrayFlags::FAST_RESIZE > aFast2( aFast );
 }

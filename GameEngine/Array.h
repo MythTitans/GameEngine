@@ -1,11 +1,17 @@
 #pragma once
 
+#include <cstring>
 #include <new>
-#include <utility>
 
 #include "Common.h"
 
-template < typename T >
+enum ArrayFlags
+{
+	STANDARD = 0,
+	FAST_RESIZE = 1
+};
+
+template < typename T, int Flags = ArrayFlags::STANDARD >
 class Array
 {
 public:
@@ -17,7 +23,7 @@ public:
 	}
 
 	explicit Array( const uint uCount )
-		: m_pData( ( T* )::operator new( uCount * sizeof( T ) ) )
+		: m_pData( ( T* )malloc( uCount * sizeof( T ) ) )
 		, m_uCount( uCount )
 		, m_uCapacity( uCount )
 	{
@@ -26,7 +32,7 @@ public:
 	}
 
 	Array( const uint uCount, const T& oValue )
-		: m_pData( ( T* )::operator new( uCount * sizeof( T ) ) )
+		: m_pData( ( T* )malloc( uCount * sizeof( T ) ) )
 		, m_uCount( uCount )
 		, m_uCapacity( uCount )
 	{
@@ -35,12 +41,20 @@ public:
 	}
 
 	Array( const Array& aArray )
-		: m_pData( ( T* )::operator new( aArray.m_uCount * sizeof( T ) ) )
+		: m_pData( ( T* )malloc( aArray.m_uCount * sizeof( T ) ) )
 		, m_uCount( aArray.m_uCount )
 		, m_uCapacity( aArray.m_uCapacity )
 	{
-		for( uint u = 0; u < m_uCount; ++u )
-			::new( &m_pData[ u ] ) T( aArray[ u ] );
+		if constexpr( Flags & FAST_RESIZE != 0 )
+		{
+			static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
+			memcpy( m_pData, aArray.m_pData, m_uCount * sizeof( T ) );
+		}
+		else
+		{
+			for( uint u = 0; u < m_uCount; ++u )
+				::new( &m_pData[ u ] ) T( aArray[ u ] );
+		}
 	}
 
 	Array& operator=( const Array& aArray )
@@ -50,14 +64,22 @@ public:
 
 		Destroy();
 
-		m_pData = ( T* )::operator new( aArray.m_uCount * sizeof( T ) );
+		m_pData = ( T* )malloc( aArray.m_uCount * sizeof( T ) );
 		m_uCount = aArray.m_uCount;
 		m_uCapacity = aArray.m_uCapacity;
 
 		ASSERT( m_uCount <= m_uCapacity );
 
-		for( uint u = 0; u < m_uCount; ++u )
-			::new( &m_pData[ u ] ) T( aArray[ u ] );
+		if constexpr( Flags & FAST_RESIZE != 0 )
+		{
+			static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
+			memcpy( m_pData, aArray.m_pData, m_uCount * sizeof( T ) );
+		}
+		else
+		{
+			for( uint u = 0; u < m_uCount; ++u )
+				::new( &m_pData[ u ] ) T( aArray[ u ] );
+		}
 	}
 
 	Array( Array&& aArray ) noexcept
@@ -116,8 +138,17 @@ public:
 			aPush.Reserve( m_uCapacity );
 
 		aPush.PushBack( oElement );
-		for( uint u = 0; u < m_uCount; ++u )
-			aPush.PushBack( m_pData[ u ] );
+
+		if constexpr( Flags & FAST_RESIZE != 0 )
+		{
+			static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
+			memcpy( &aPush.m_pData[ 1 ], m_pData, m_uCount * sizeof( T ) );
+		}
+		else
+		{
+			for( uint u = 0; u < m_uCount; ++u )
+				aPush.PushBack( m_pData[ u ] );
+		}
 
 		*this = aPush;
 	}
@@ -143,49 +174,52 @@ public:
 
 		m_pData[ uIndex ].~T();
 
-		Array< T > aRemove;
-		aRemove.Reserve( m_uCapacity );
-
-		for( uint u = 0; u < m_uCount; ++u )
+		if constexpr( Flags & FAST_RESIZE != 0 )
 		{
-			if( u != uIndex )
-				aRemove.PushBack( m_pData[ u ] );
+			static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
+			memmove( m_pData[ uIndex ], m_pData[ uIndex + 1 ], m_uCount - uIndex * sizeof( T ) );
+		}
+		else
+		{
+			for( uint u = uIndex + 1; u < m_uCount; ++u )
+			{
+				m_pData[ u - 1 ] = m_pData[ u ];
+				m_pData[ u ].~T();
+			}
 		}
 
 		--m_uCount;
-
-		*this = aRemove;
 	}
 
 	void Clear()
 	{
 		for( uint u = 0; u < m_uCount; ++u )
-			m_pData[ u ]->~T();
+			m_pData[ u ].~T();
 
 		m_uCount = 0;
 	}
 
 	void Resize( const uint uCount )
 	{
-		if( m_uCount < uCount )
-		{
-			const uint uExpansion = m_uCount - uCount;
-			Expand( uExpansion );
-
-			for( uint u = 0; u < uExpansion; ++u )
-				PushBack( T() );
-		}
+		Resize( uCount, T() );
 	}
 
 	void Resize( const uint uCount, const T& oValue )
 	{
 		if( m_uCount < uCount )
 		{
-			const uint uExpansion = m_uCount - uCount;
-			Expand( uExpansion );
+			const uint uExpansion = uCount - m_uCount;
+			Reserve( uCount );
 
 			for( uint u = 0; u < uExpansion; ++u )
 				PushBack( oValue );
+		}
+		else if( m_uCount > uCount )
+		{
+			const uint uShrink = m_uCount - uCount;
+
+			for( uint u = 0; u < uShrink; ++u )
+				PopBack();
 		}
 	}
 
@@ -193,9 +227,18 @@ public:
 	{
 		if( m_uCapacity < uCount )
 		{
-			T* pData = ( T* )::operator new( uCount * sizeof( T ) );
-			for( uint u = 0; u < m_uCount; ++u )
-				::new ( &pData[ u ] ) T( m_pData[ u ] );
+			T* pData = ( T* )malloc( uCount * sizeof( T ) );
+
+			if constexpr( Flags & FAST_RESIZE != 0 )
+			{
+				static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
+				memcpy( pData, m_pData, m_uCount * sizeof( T ) );
+			}
+			else
+			{
+				for( uint u = 0; u < m_uCount; ++u )
+					::new ( &pData[ u ] ) T( m_pData[ u ] );
+			}
 
 			Destroy();
 
@@ -211,15 +254,9 @@ public:
 		if( m_uCapacity == m_uCount )
 			return;
 
-		Array< T > aShrink;
-		aShrink.Reserve( m_uCount );
+		m_pData = ( T* )realloc( m_pData, m_uCount * sizeof( T ) );
 
-		for( uint u = 0; u < m_uCount; ++u )
-			aShrink.PushBack( m_pData[ u ] );
-
-		*this = std::move( aShrink );
-
-		ASSERT( m_uCount == m_uCapacity );
+		m_uCapacity = m_uCount;
 	}
 
 	T& Back()
@@ -296,13 +333,7 @@ private:
 		if( m_uCapacity >= m_uCount + uBy )
 			return;
 
-		Array< T > aExpand;
-		aExpand.Reserve( m_uCount + uBy );
-
-		for( uint u = 0; u < m_uCount; ++u )
-			aExpand.PushBack( m_pData[ u ] );
-
-		*this = std::move( aExpand );
+		Reserve( m_uCount + uBy );
 	}
 
 	void Destroy()
@@ -310,7 +341,7 @@ private:
 		for( uint u = 0; u < m_uCount; ++u )
 			m_pData[ u ].~T();
 
-		::operator delete( m_pData );
+		free( m_pData );
 	}
 
 	T*		m_pData;
