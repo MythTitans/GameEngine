@@ -332,10 +332,50 @@ namespace Tests
 
 		TEST_METHOD( FastResize )
 		{
-			Array< int, ArrayFlags::FAST_RESIZE > aArray;
-			aArray.PushBack( 1 );
-			aArray.PushBack( 2 );
-			aArray.PushBack( 3 );
+			Array< int, ArrayFlags::FAST_RESIZE > aFromArray;
+			aFromArray.PushBack( 1 );
+			aFromArray.PushBack( 2 );
+			aFromArray.PushBack( 3 );
+
+			Array< int, ArrayFlags::FAST_RESIZE > aArray( aFromArray );
+			Assert::IsNotNull( aArray.Data() );
+			Assert::AreEqual( 3u, aArray.Count() );
+			Assert::AreEqual( 3u, aArray.Capacity() );
+			Assert::AreEqual( 1, aArray[ 0 ] );
+			Assert::AreEqual( 2, aArray[ 1 ] );
+			Assert::AreEqual( 3, aArray[ 2 ] );
+
+			aArray.PushFront( 0 );
+			Assert::IsNotNull( aArray.Data() );
+			Assert::AreEqual( 4u, aArray.Count() );
+			Assert::AreEqual( 4u, aArray.Capacity() );
+			Assert::AreEqual( 0, aArray[ 0 ] );
+			Assert::AreEqual( 1, aArray[ 1 ] );
+			Assert::AreEqual( 2, aArray[ 2 ] );
+			Assert::AreEqual( 3, aArray[ 3 ] );
+			
+			aArray = aFromArray;
+			Assert::IsNotNull( aArray.Data() );
+			Assert::AreEqual( 3u, aArray.Count() );
+			Assert::AreEqual( 3u, aArray.Capacity() );
+			Assert::AreEqual( 1, aArray[ 0 ] );
+			Assert::AreEqual( 2, aArray[ 1 ] );
+			Assert::AreEqual( 3, aArray[ 2 ] );
+
+			aArray.Reserve( 4 );
+			Assert::IsNotNull( aArray.Data() );
+			Assert::AreEqual( 3u, aArray.Count() );
+			Assert::AreEqual( 4u, aArray.Capacity() );
+			Assert::AreEqual( 1, aArray[ 0 ] );
+			Assert::AreEqual( 2, aArray[ 1 ] );
+			Assert::AreEqual( 3, aArray[ 2 ] );
+
+			aArray.Remove( 1 );
+			Assert::IsNotNull( aArray.Data() );
+			Assert::AreEqual( 2u, aArray.Count() );
+			Assert::AreEqual( 4u, aArray.Capacity() );
+			Assert::AreEqual( 1, aArray[ 0 ] );
+			Assert::AreEqual( 3, aArray[ 1 ] );
 		}
 	};
 
