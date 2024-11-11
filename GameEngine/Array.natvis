@@ -11,4 +11,16 @@
 			</ArrayItems>
 		</Expand>
 	</Type>
+	<Type Name="StrongPtr&lt;*&gt;">
+		<DisplayString>{m_pPtr}</DisplayString>
+		<Expand>
+			<Item Name="[m_pPtr]">m_pPtr</Item>
+		</Expand>
+	</Type>
+	<Type Name="WeakPtr&lt;*&gt;">
+		<DisplayString>{m_pPtr}</DisplayString>
+		<Expand>
+			<Item Name="[m_pPtr]">m_pPtr</Item>
+		</Expand>
+	</Type>
 </AutoVisualizer>

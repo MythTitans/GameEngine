@@ -4,6 +4,8 @@
 #include <vector>
 
 #include "Array.h"
+#include "Intrusive.h"
+#include "Logger.h"
 
 class ProfilerBlock
 {
@@ -24,7 +26,7 @@ private:
 	std::chrono::high_resolution_clock::time_point	m_oStart;
 };
 
-struct MyStruct
+struct MyStruct : Intrusive
 {
 	MyStruct( const int iInt, const float fFloat, const bool bBool )
 		: m_iInt( iInt )
@@ -40,83 +42,18 @@ struct MyStruct
 
 int main()
 {
-	{
-		ProfilerBlock oBlk( "Vector pushback primitive 10K" );
-		std::vector<int> aTest;
-		for( int i = 0; i < 10000; ++i )
-			aTest.push_back( i );
-	}
+	LOG_INFO( "Starting application" );
+	LOG_INFO( "Loading resources" );
+	LOG_WARN( "Failed to find resource {}", "config.cfg" );
+	LOG_ERROR( "Could not start application, shutting down..." );
 
-	{
-		ProfilerBlock oBlk( "Array pushback primitive 10K" );
-		Array<int> aTest;
-		for( int i = 0; i < 10000; ++i )
-			aTest.PushBack( i );
-	}
-
-	{
-		ProfilerBlock oBlk( "Vector reserve + pushback primitive 1M" );
-		std::vector<int> aTest;
-		aTest.reserve( 1000000 );
-		for( int i = 0; i < 1000000; ++i )
-			aTest.push_back( i );
-	}
-
-	{
-		ProfilerBlock oBlk( "Array reserve + pushback primitive 1M" );
-		Array<int> aTest;
-		aTest.Reserve( 1000000 );
-		for( int i = 0; i < 1000000; ++i )
-			aTest.PushBack( i );
-	}
-
-	{
-		ProfilerBlock oBlk( "Vector reserve + pushback struct 1M" );
-		std::vector<MyStruct> aTest;
-		aTest.reserve( 1000000 );
-		for( int i = 0; i < 1000000; ++i )
-			aTest.push_back( MyStruct( i, i * 1.f, i % 2 == 0 ) );
-	}
-
-	{
-		ProfilerBlock oBlk( "Array reserve + pushback struct 1M" );
-		Array<MyStruct> aTest;
-		aTest.Reserve( 1000000 );
-		for( int i = 0; i < 1000000; ++i )
-			aTest.PushBack( MyStruct( i, i * 1.f, i % 2 == 0 ) );
-	}
-
-
-
-	{
-		ProfilerBlock oBlk( "Array reserve + pushfront primitive 10K" );
-		Array<int> aTest;
-		aTest.Reserve( 10000 );
-		for( int i = 0; i < 10000; ++i )
-			aTest.PushFront( i );
-	}
-
-	{
-		ProfilerBlock oBlk( "Array reserve + pushfront struct 10K" );
-		Array<MyStruct> aTest;
-		aTest.Reserve( 10000 );
-		for( int i = 0; i < 10000; ++i )
-			aTest.PushFront( MyStruct( i, i * 1.f, i % 2 == 0 ) );
-	}
-
-	{
-		ProfilerBlock oBlk( "Array reserve + pushfront primitive fast resize 10K" );
-		Array<int, ArrayFlags::FAST_RESIZE> aTest;
-		aTest.Reserve( 10000 );
-		for( int i = 0; i < 10000; ++i )
-			aTest.PushFront( i );
-	}
-
-	{
-		ProfilerBlock oBlk( "Array reserve + pushfront struct fast resize 10K" );
-		Array<MyStruct, ArrayFlags::FAST_RESIZE> aTest;
-		aTest.Reserve( 10000 );
-		for( int i = 0; i < 10000; ++i )
-			aTest.PushFront( MyStruct( i, i * 1.f, i % 2 == 0 ) );
-	}
+// 	MyStruct* pPtr = new MyStruct( 1, 2.f, true );
+// 	StrongPtr< MyStruct > xStrongPtr = pPtr;
+// 	WeakPtr< MyStruct > xWeakPtr = pPtr;
+// 
+// 	Array< MyStruct* > aArray( 1, pPtr );
+// 
+// 	aArray[ 58 ]->m_fFloat = 3.f;
+// 
+// 	pPtr->m_iInt;
 }

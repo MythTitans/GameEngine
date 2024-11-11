@@ -48,7 +48,7 @@ public:
 		, m_uCount( aArray.m_uCount )
 		, m_uCapacity( aArray.m_uCapacity )
 	{
-		if constexpr( Flags & ArrayFlags::FAST_RESIZE != 0 )
+		if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
 		{
 			static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
 			memcpy( m_pData, aArray.m_pData, m_uCount * sizeof( T ) );
@@ -73,7 +73,7 @@ public:
 
 		ASSERT( m_uCount <= m_uCapacity );
 
-		if constexpr( Flags & ArrayFlags::FAST_RESIZE != 0 )
+		if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
 		{
 			static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
 			memcpy( m_pData, aArray.m_pData, m_uCount * sizeof( T ) );
@@ -83,6 +83,8 @@ public:
 			for( uint u = 0; u < m_uCount; ++u )
 				::new( &m_pData[ u ] ) T( aArray[ u ] );
 		}
+
+		return *this;
 	}
 
 	Array( Array&& aArray ) noexcept
@@ -111,6 +113,8 @@ public:
 		aArray.m_pData = nullptr;
 		aArray.m_uCount = 0;
 		aArray.m_uCapacity = 0;
+
+		return *this;
 	}
 
 	~Array()
@@ -142,7 +146,7 @@ public:
 
 		aPush.PushBack( oElement );
 
-		if constexpr( Flags & ArrayFlags::FAST_RESIZE != 0 )
+		if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
 		{
 			static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
 			memcpy( &aPush.m_pData[ 1 ], m_pData, m_uCount * sizeof( T ) );
@@ -178,7 +182,7 @@ public:
 
 		m_pData[ uIndex ].~T();
 
-		if constexpr( Flags & ArrayFlags::FAST_RESIZE != 0 )
+		if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
 		{
 			static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
 			memmove( &m_pData[ uIndex ], &m_pData[ uIndex + 1 ], ( m_uCount - uIndex - 1 ) * sizeof( T ) );
@@ -233,7 +237,7 @@ public:
 		{
 			T* pData = ( T* )malloc( uCount * sizeof( T ) );
 
-			if constexpr( Flags & ArrayFlags::FAST_RESIZE != 0 )
+			if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
 			{
 				static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
 				memcpy( pData, m_pData, m_uCount * sizeof( T ) );
@@ -329,6 +333,16 @@ public:
 	const T* Data() const
 	{
 		return m_pData;
+	}
+
+	T* begin()
+	{
+		return &m_pData[ 0 ];
+	}
+
+	T* end()
+	{
+		return &m_pData[ m_uCount ];
 	}
 
 private:
