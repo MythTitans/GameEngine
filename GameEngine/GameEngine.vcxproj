@@ -147,19 +147,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Logger.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Intrusive.cpp" />
-    <ClCompile Include="TaskScheduler.cpp" />
+    <ClCompile Include="Code\Core\Intrusive.cpp" />
+    <ClCompile Include="Code\Core\Logger.cpp" />
+    <ClCompile Include="Code\Core\TaskScheduler.cpp" />
+    <ClCompile Include="Code\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Array.h" />
-    <ClInclude Include="Common.h" />
-    <ClInclude Include="LockLessMultiReadPipe.h" />
-    <ClInclude Include="Intrusive.h" />
-    <ClInclude Include="Logger.h" />
-    <ClInclude Include="TaskScheduler.h" />
-    <ClInclude Include="Types.h" />
+    <ClInclude Include="Code\Core\Array.h" />
+    <ClInclude Include="Code\Core\Common.h" />
+    <ClInclude Include="Code\Core\Intrusive.h" />
+    <ClInclude Include="Code\Core\LockLessMultiReadPipe.h" />
+    <ClInclude Include="Code\Core\Logger.h" />
+    <ClInclude Include="Code\Core\TaskScheduler.h" />
+    <ClInclude Include="Code\Core\Types.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Array.natvis" />

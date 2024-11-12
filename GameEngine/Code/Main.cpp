@@ -3,9 +3,9 @@
 #include <string>
 #include <vector>
 
-#include "Array.h"
-#include "Intrusive.h"
-#include "Logger.h"
+#include "Core/Array.h"
+#include "Core/Intrusive.h"
+#include "Core/Logger.h"
 
 class ProfilerBlock
 {

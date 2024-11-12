@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CppUnitTest.h"
 
-#include "Array.h"
+#include "Core/Array.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CppUnitTest.h"
 
-#include "Intrusive.h"
+#include "Core/Intrusive.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
