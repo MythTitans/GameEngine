@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\ImGui">
+      <UniqueIdentifier>{e21ea5f1-c0a1-4f8b-b3e3-377aeda9f266}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\ImGui">
+      <UniqueIdentifier>{97b02c2e-6e50-4a5a-b3d6-6d20f8205ffa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\Main.cpp">
@@ -25,6 +31,36 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Code\Core\TaskScheduler.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Game\GameEngine.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\ImGui\imgui.cpp">
+      <Filter>Fichiers sources\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\ImGui\imgui_demo.cpp">
+      <Filter>Fichiers sources\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\ImGui\imgui_draw.cpp">
+      <Filter>Fichiers sources\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\ImGui\imgui_impl_glfw.cpp">
+      <Filter>Fichiers sources\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\ImGui\imgui_impl_opengl3.cpp">
+      <Filter>Fichiers sources\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\ImGui\imgui_tables.cpp">
+      <Filter>Fichiers sources\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\ImGui\imgui_widgets.cpp">
+      <Filter>Fichiers sources\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Graphics\Renderer.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Core\Profiler.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,8 +86,47 @@
     <ClInclude Include="Code\Core\Types.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Game\GameEngine.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ImGui\imconfig.h">
+      <Filter>Fichiers d%27en-tête\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ImGui\imgui.h">
+      <Filter>Fichiers d%27en-tête\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ImGui\imgui_impl_glfw.h">
+      <Filter>Fichiers d%27en-tête\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ImGui\imgui_impl_opengl3.h">
+      <Filter>Fichiers d%27en-tête\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ImGui\imgui_impl_opengl3_loader.h">
+      <Filter>Fichiers d%27en-tête\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ImGui\imgui_internal.h">
+      <Filter>Fichiers d%27en-tête\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ImGui\imstb_rectpack.h">
+      <Filter>Fichiers d%27en-tête\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ImGui\imstb_textedit.h">
+      <Filter>Fichiers d%27en-tête\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ImGui\imstb_truetype.h">
+      <Filter>Fichiers d%27en-tête\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Graphics\Renderer.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Core\Profiler.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Array.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

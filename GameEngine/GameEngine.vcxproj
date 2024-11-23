@@ -70,6 +70,18 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Users\myth_\source\repos\GameEngine\GameEngine\Code;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Users\myth_\source\repos\GameEngine\GameEngine\Code;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Users\myth_\source\repos\GameEngine\GameEngine\Code;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Users\myth_\source\repos\GameEngine\GameEngine\Code;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -149,7 +161,17 @@
   <ItemGroup>
     <ClCompile Include="Code\Core\Intrusive.cpp" />
     <ClCompile Include="Code\Core\Logger.cpp" />
+    <ClCompile Include="Code\Core\Profiler.cpp" />
     <ClCompile Include="Code\Core\TaskScheduler.cpp" />
+    <ClCompile Include="Code\Game\GameEngine.cpp" />
+    <ClCompile Include="Code\Graphics\Renderer.cpp" />
+    <ClCompile Include="Code\ImGui\imgui.cpp" />
+    <ClCompile Include="Code\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="Code\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="Code\ImGui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Code\ImGui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Code\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="Code\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Code\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -158,13 +180,37 @@
     <ClInclude Include="Code\Core\Intrusive.h" />
     <ClInclude Include="Code\Core\LockLessMultiReadPipe.h" />
     <ClInclude Include="Code\Core\Logger.h" />
+    <ClInclude Include="Code\Core\Profiler.h" />
     <ClInclude Include="Code\Core\TaskScheduler.h" />
     <ClInclude Include="Code\Core\Types.h" />
+    <ClInclude Include="Code\Game\GameEngine.h" />
+    <ClInclude Include="Code\Graphics\Renderer.h" />
+    <ClInclude Include="Code\ImGui\imconfig.h" />
+    <ClInclude Include="Code\ImGui\imgui.h" />
+    <ClInclude Include="Code\ImGui\imgui_impl_glfw.h" />
+    <ClInclude Include="Code\ImGui\imgui_impl_opengl3.h" />
+    <ClInclude Include="Code\ImGui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="Code\ImGui\imgui_internal.h" />
+    <ClInclude Include="Code\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="Code\ImGui\imstb_textedit.h" />
+    <ClInclude Include="Code\ImGui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Array.natvis" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\glfw.3.4.0\build\native\glfw.targets" Condition="Exists('..\packages\glfw.3.4.0\build\native\glfw.targets')" />
+    <Import Project="..\packages\glew.v140.1.12.0\build\native\glew.v140.targets" Condition="Exists('..\packages\glew.v140.1.12.0\build\native\glew.v140.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\glfw.3.4.0\build\native\glfw.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\glfw.3.4.0\build\native\glfw.targets'))" />
+    <Error Condition="!Exists('..\packages\glew.v140.1.12.0\build\native\glew.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\glew.v140.1.12.0\build\native\glew.v140.targets'))" />
+  </Target>
 </Project>
