@@ -63,7 +63,8 @@ Renderer::~Renderer()
 void Renderer::Render( const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "Render" );
+
 	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
-	glClear( GL_COLOR_BUFFER_BIT );
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }

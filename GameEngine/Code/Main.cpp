@@ -4,14 +4,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "Core/Array.h"
-#include "Core/Intrusive.h"
 #include "Core/Logger.h"
 #include "Game/GameEngine.h"
 #include "Graphics/Renderer.h"
-#include "ImGui/imgui.h"
-#include "ImGUI/imgui_impl_glfw.h"
-#include "ImGUI/imgui_impl_opengl3.h"
 
 static RenderContext* s_pRenderContext = nullptr;
 
@@ -33,7 +28,7 @@ void OnWindowResizeEvent( GLFWwindow* /*pWindow*/, int iWidth, int iHeight )
 int main()
 {
 	LOG_INFO( "Initializing GLFW " );
-	if( !glfwInit() )
+	if( glfwInit() == false )
 	{
 		LOG_ERROR( "Failed to initialize GLFW" );
 		return -1;
@@ -62,28 +57,31 @@ int main()
 
 		glfwMakeContextCurrent( pWindow );
 
+		glewExperimental = GL_TRUE;
+
+		LOG_INFO( "Initializing GLEW" );
+		if( glewInit() != GLEW_OK )
+			LOG_ERROR( "Failed to initialize GLEW" );
+
 		//glfwSetInputMode( pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
 		//glfwSetInputMode( pWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE );
 		glfwSetKeyCallback( pWindow, OnKeyEvent );
 		glfwSetCursorPosCallback( pWindow, OnCursorMoveEvent );
 		glfwSetWindowSizeCallback( pWindow, OnWindowResizeEvent );
 
-		GameEngine oGameEngine( oRenderContext );
-		while( !glfwWindowShouldClose( pWindow ) )
 		{
-			glfwPollEvents();
+			GameEngine oGameEngine( oRenderContext );
+			while( glfwWindowShouldClose( pWindow ) == false )
+			{
+				glfwPollEvents();
 
-			oGameEngine.NewFrame();
-			oGameEngine.ProcessFrame();
-			oGameEngine.EndFrame();
+				oGameEngine.NewFrame();
+				oGameEngine.ProcessFrame();
+				oGameEngine.EndFrame();
 
-			glfwSwapBuffers( pWindow );
+				glfwSwapBuffers( pWindow );
+			}
 		}
-
-		LOG_INFO( "Destroying ImGui" );
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
 
 		LOG_INFO( "Destroying window" );
 		glfwDestroyWindow( pWindow );

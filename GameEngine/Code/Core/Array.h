@@ -315,14 +315,19 @@ public:
 		return m_pData[ uIndex ];
 	}
 
-	const uint Count() const
+	uint Count() const
 	{
 		return m_uCount;
 	}
 
-	const uint Capacity() const
+	uint Capacity() const
 	{
 		return m_uCapacity;
+	}
+
+	bool Empty() const
+	{
+		return m_uCount == 0;
 	}
 
 	T* Data()

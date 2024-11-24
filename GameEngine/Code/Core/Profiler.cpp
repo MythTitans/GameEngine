@@ -2,14 +2,6 @@
 
 #include <format>
 
-
-
-
-
-#include "Logger.h"
-
-
-
 ProfilerBlock::ProfilerBlock( const char* sName )
 	: m_uBlockID( g_pProfiler->StartBlock( sName ) )
 {
@@ -65,12 +57,12 @@ void Profiler::Display()
 		ImGui::Text( "\n Main thread" );
 
 		float fMaxX = 0.f;
-		for( uint u = 0; u < m_aBlocks.Count(); ++u )
+		for( const Block& oBlock : m_aBlocks )
 		{
-			const uint64 uStartMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( m_aBlocks[ u ].m_oStart - m_oFrameStart ).count();
+			const uint64 uStartMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oBlock.m_oStart - m_oFrameStart ).count();
 			const float fStartMilliSeconds = uStartMicroSeconds / 1000.f;
 
-			const uint64 uEndMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( m_aBlocks[ u ].m_oEnd - m_oFrameStart ).count();
+			const uint64 uEndMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oBlock.m_oEnd - m_oFrameStart ).count();
 			const float fEndMilliSeconds = uEndMicroSeconds / 1000.f;
 
 			const float fStart = fStartMilliSeconds * fReferenceWidth;
@@ -79,7 +71,7 @@ void Profiler::Display()
 			if( fMaxX < fEnd )
 				fMaxX = fEnd;
 
-			DrawBlock( std::format( "{} ({} ms)", m_aBlocks[ u ].m_sName, fEndMilliSeconds - fStartMilliSeconds ).c_str(), ImColor( 0.5f, 0.5f, 0.f, 1.f ), fStart, fEnd, m_aBlocks[ u ].m_uDepth );
+			DrawBlock( std::format( "{} ({:.3f} ms)", oBlock.m_sName, fEndMilliSeconds - fStartMilliSeconds ).c_str(), ImColor( 0.5f, 0.5f, 0.f, 1.f ), fStart, fEnd, oBlock.m_uDepth );
 		}
 
 		ImGui::SetCursorScreenPos( ImVec2( ImGui::GetCursorScreenPos().x + fMaxX, ImGui::GetCursorScreenPos().y ) );
@@ -101,7 +93,7 @@ uint Profiler::StartBlock( const char* sName )
 void Profiler::EndBlock( const uint uBlockID )
 {
 	m_aBlocks[ uBlockID ].m_oEnd = std::chrono::high_resolution_clock::now();
-	++m_uBlocksDepth;
+	--m_uBlocksDepth;
 }
 
 void Profiler::DrawGrid( const float fReferenceWidth )

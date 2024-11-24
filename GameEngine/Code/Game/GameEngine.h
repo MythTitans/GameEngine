@@ -2,6 +2,7 @@
 
 #include "Core/Common.h"
 #include "Core/Profiler.h"
+#include "Core/ResourceLoader.h"
 #include "Graphics/Renderer.h"
 
 class Renderer;
@@ -18,6 +19,7 @@ public:
 
 private:
 	Renderer				m_oRenderer;
+	ResourceLoader			m_oResourceLoader;
 	Profiler				m_oProfiler;
 
 	const RenderContext&	m_oRenderContext;

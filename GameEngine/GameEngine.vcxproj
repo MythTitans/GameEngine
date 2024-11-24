@@ -162,9 +162,11 @@
     <ClCompile Include="Code\Core\Intrusive.cpp" />
     <ClCompile Include="Code\Core\Logger.cpp" />
     <ClCompile Include="Code\Core\Profiler.cpp" />
+    <ClCompile Include="Code\Core\ResourceLoader.cpp" />
     <ClCompile Include="Code\Core\TaskScheduler.cpp" />
     <ClCompile Include="Code\Game\GameEngine.cpp" />
     <ClCompile Include="Code\Graphics\Renderer.cpp" />
+    <ClCompile Include="Code\Graphics\Texture.cpp" />
     <ClCompile Include="Code\ImGui\imgui.cpp" />
     <ClCompile Include="Code\ImGui\imgui_demo.cpp" />
     <ClCompile Include="Code\ImGui\imgui_draw.cpp" />
@@ -181,10 +183,13 @@
     <ClInclude Include="Code\Core\LockLessMultiReadPipe.h" />
     <ClInclude Include="Code\Core\Logger.h" />
     <ClInclude Include="Code\Core\Profiler.h" />
+    <ClInclude Include="Code\Core\ResourceLoader.h" />
+    <ClInclude Include="Code\Core\stb_image.h" />
     <ClInclude Include="Code\Core\TaskScheduler.h" />
     <ClInclude Include="Code\Core\Types.h" />
     <ClInclude Include="Code\Game\GameEngine.h" />
     <ClInclude Include="Code\Graphics\Renderer.h" />
+    <ClInclude Include="Code\Graphics\Texture.h" />
     <ClInclude Include="Code\ImGui\imconfig.h" />
     <ClInclude Include="Code\ImGui\imgui.h" />
     <ClInclude Include="Code\ImGui\imgui_impl_glfw.h" />
