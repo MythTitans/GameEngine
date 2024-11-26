@@ -7,7 +7,7 @@
 #include "Logger.h"
 #include "Profiler.h"
 
-constexpr uint IO_THREAD_AFFINITY_MASK = 1 << 1;
+//constexpr uint IO_THREAD_AFFINITY_MASK = 1 << 1;
 
 ResourceLoader::ResourceLoader()
 	: m_oIOThread( &ResourceLoader::Load, this )
@@ -75,6 +75,7 @@ void ResourceLoader::Load()
 	while( true )
 	{
 		std::unique_lock oLock( m_oProcessingCommandsMutex );
+		// TODO #eric improve load queue handling
 		m_oProcessingCommandsConditionVariable.wait( oLock, [ this ]() { return m_aProcessingLoadCommands.Empty() == false; } );
 		oLock.unlock();
 
@@ -83,38 +84,48 @@ void ResourceLoader::Load()
 			if( oLoadCommand.m_eStatus != TextureLoadCommand::Status::PENDING )
 				continue;
 
-			if( std::filesystem::exists( oLoadCommand.m_oFilePath ) == false )
+			ProfilerBlock oBlock( "Load", true );
+
 			{
-				oLock.lock();
-				oLoadCommand.m_eStatus = TextureLoadCommand::Status::NOT_FOUND;
-				oLock.unlock();
-				return;
+				ProfilerBlock oResourceBlock( "CheckResource", true );
+
+				if( std::filesystem::exists( oLoadCommand.m_oFilePath ) == false )
+				{
+					oLock.lock();
+					oLoadCommand.m_eStatus = TextureLoadCommand::Status::NOT_FOUND;
+					oLock.unlock();
+					continue;
+				}
 			}
+			
+			{
+				ProfilerBlock oResourceBlock( "LoadResource", true );
 
-			int iWidth;
-			int iHeight;
-			int iDepth;
-			uint8* pData = stbi_load( oLoadCommand.m_oFilePath.string().c_str(), &iWidth, &iHeight, &iDepth, 0 );
+				int iWidth;
+				int iHeight;
+				int iDepth;
+				uint8* pData = stbi_load( oLoadCommand.m_oFilePath.string().c_str(), &iWidth, &iHeight, &iDepth, 0 );
 
-			oLock.lock();
-			oLoadCommand.m_eStatus = pData != nullptr ? TextureLoadCommand::Status::LOADED : TextureLoadCommand::Status::ERROR_READING;
-			oLoadCommand.m_iWidth = iWidth;
-			oLoadCommand.m_iHeight = iHeight;
-			oLoadCommand.m_iDepth = iDepth;
-			oLoadCommand.m_pData = pData;
-			oLock.unlock();
+				oLock.lock();
+				oLoadCommand.m_eStatus = pData != nullptr ? TextureLoadCommand::Status::LOADED : TextureLoadCommand::Status::ERROR_READING;
+				oLoadCommand.m_iWidth = iWidth;
+				oLoadCommand.m_iHeight = iHeight;
+				oLoadCommand.m_iDepth = iDepth;
+				oLoadCommand.m_pData = pData;
+				oLock.unlock();
+			}
 		}
 	}
 }
 
 void ResourceLoader::ProcessPendingLoadCommands()
 {
-	ProfilerBlock oBlock( "Process load commands" );
+	ProfilerBlock oBlock( "ProcessLoadCommands" );
 
 	std::unique_lock oLock( m_oProcessingCommandsMutex );
 	if( m_aProcessingLoadCommands.Empty() && m_aPendingLoadCommands.Empty() == false )
 	{
-		m_aProcessingLoadCommands = std::move( m_aPendingLoadCommands );
+		m_aProcessingLoadCommands.Grab( m_aPendingLoadCommands );
 		oLock.unlock();
 
 		m_oProcessingCommandsConditionVariable.notify_one();
@@ -123,7 +134,7 @@ void ResourceLoader::ProcessPendingLoadCommands()
 
 void ResourceLoader::CheckFinishedProcessingLoadCommands()
 {
-	ProfilerBlock oBlock( "Check finished load commands" );
+	ProfilerBlock oBlock( "CheckFinishedLoadCommands" );
 
 	uint iFinishedCount = 0;
 
@@ -162,7 +173,7 @@ void ResourceLoader::CheckFinishedProcessingLoadCommands()
 
 void ResourceLoader::DestroyUnusedResources()
 {
-	ProfilerBlock oBlock( "Destroy unused resources" );
+	ProfilerBlock oBlock( "DestroyUnusedResources" );
 
 	// TODO #eric this is temporary code
 	for( auto& oPair : m_mTextureHolders )

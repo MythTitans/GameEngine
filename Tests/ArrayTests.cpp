@@ -263,6 +263,44 @@ namespace Tests
 			}
 			Assert::AreEqual( 0u, TestStruct::s_uAliveCount );
 
+			// Swap
+			{
+				Array< TestStruct > aArrayA( 3, TestStruct( 3 ) );
+				Array< TestStruct > aArrayB( 4, TestStruct( 4 ) );
+
+				aArrayA.Swap( aArrayB );
+				Assert::IsNotNull( aArrayA.Data() );
+				Assert::AreEqual( 4u, aArrayA.Count() );
+				Assert::AreEqual( 4u, aArrayA.Capacity() );
+				Assert::IsNotNull( aArrayB.Data() );
+				Assert::AreEqual( 3u, aArrayB.Count() );
+				Assert::AreEqual( 3u, aArrayB.Capacity() );
+				for( uint u = 0; u < aArrayA.Count(); ++u )
+					Assert::AreEqual( 4, aArrayA[ u ].m_iValue );
+				for( uint u = 0; u < aArrayB.Count(); ++u )
+					Assert::AreEqual( 3, aArrayB[ u ].m_iValue );
+				Assert::AreEqual( 7u, TestStruct::s_uAliveCount );
+			}
+			Assert::AreEqual( 0u, TestStruct::s_uAliveCount );
+
+			// Grab
+			{
+				Array< TestStruct > aArrayA( 3, TestStruct( 3 ) );
+				Array< TestStruct > aArrayB( 4, TestStruct( 4 ) );
+
+				aArrayA.Grab( aArrayB );
+				Assert::IsNotNull( aArrayA.Data() );
+				Assert::AreEqual( 4u, aArrayA.Count() );
+				Assert::AreEqual( 4u, aArrayA.Capacity() );
+				Assert::IsNotNull( aArrayB.Data() );
+				Assert::AreEqual( 0u, aArrayB.Count() );
+				Assert::AreEqual( 3u, aArrayB.Capacity() );
+				for( uint u = 0; u < aArrayA.Count(); ++u )
+					Assert::AreEqual( 4, aArrayA[ u ].m_iValue );
+				Assert::AreEqual( 4u, TestStruct::s_uAliveCount );
+			}
+			Assert::AreEqual( 0u, TestStruct::s_uAliveCount );
+
 			// Clear / shrink to fit
 			{
 				Array< TestStruct > aArray( 3, TestStruct( 3 ) );

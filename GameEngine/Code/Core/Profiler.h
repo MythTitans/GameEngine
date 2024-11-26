@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include <chrono>
 
 #include "Array.h"
@@ -8,11 +9,12 @@
 class ProfilerBlock
 {
 public:
-	explicit ProfilerBlock( const char* sName );
+	explicit ProfilerBlock( const char* sName, const bool bAsync = false );
 	~ProfilerBlock();
 
 private:
 	uint m_uBlockID;
+	bool m_bAsync;
 };
 
 class Profiler
@@ -27,16 +29,24 @@ public:
 	uint StartBlock( const char* sName );
 	void EndBlock( const uint uBlockID );
 
+	uint StartAsyncBlock( const char* sName );
+	void EndAsyncBlock( const uint uBlockID );
+
 private:
 	using TimePoint = std::chrono::high_resolution_clock::time_point;
 
 	struct Block
 	{
-		Block( const char* sName, const Profiler& oProfiler )
+		Block( const char* sName, const uint uDepth )
 			: m_sName( sName )
 			, m_oStart( std::chrono::high_resolution_clock::now() )
-			, m_uDepth( oProfiler.m_uBlocksDepth )
+			, m_uDepth( uDepth )
 		{
+		}
+
+		bool IsFinished() const
+		{
+			return m_oStart <= m_oEnd;
 		}
 
 		const char*	m_sName;
@@ -45,15 +55,29 @@ private:
 		uint		m_uDepth;
 	};
 
-	void	DrawGrid( const float fReferenceWidth );
-	void	DrawBlock( const char* sName, const ImColor& oColor, const float fStart, const float fEnd, const int iDepth );
+	struct Frame
+	{
+		TimePoint					m_oFrameStart;
+		Array< Block, FAST_RESIZE >	m_aBlocks;
+		Array< Block, FAST_RESIZE > m_aAsyncBlocks;
+	};
 
-	Array< Block, FAST_RESIZE >	m_aBlocks;
+	void	DrawGrid( const float fReferenceWidth );
+	ImVec2	DrawBlock( const char* sName, const char* sTooltip, const float fStart, const float fEnd, const int iDepth );
+
+	Frame						m_oCurrentFrame;
+	Frame						m_oPreviousFrame;
+
+	//Array< Block, FAST_RESIZE >	m_aBlocks;
 	uint						m_uBlocksDepth;
+	uint						m_uAsyncBlocksDepth;
+	uint						m_uAsyncBlocksInFlight;
 
 	bool						m_bDisplayProfiler;
 
-	TimePoint					m_oFrameStart;
+	std::mutex					m_oFrameMutex;
+
+	//TimePoint					m_oFrameStart;
 };
 
 extern Profiler* g_pProfiler;

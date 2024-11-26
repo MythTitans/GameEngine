@@ -62,7 +62,7 @@ Renderer::~Renderer()
 
 void Renderer::Render( const RenderContext& oRenderContext )
 {
-	ProfilerBlock oBlock( "Render" );
+	ProfilerBlock oBlock( "Renderer" );
 
 	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );

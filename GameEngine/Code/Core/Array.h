@@ -207,6 +207,27 @@ public:
 		m_uCount = 0;
 	}
 
+	void Swap( Array& aArray )
+	{
+		T* pData = m_pData;
+		uint uCount = m_uCount;
+		uint uCapacity = m_uCapacity;
+
+		m_pData = aArray.m_pData;
+		m_uCount = aArray.m_uCount;
+		m_uCapacity = aArray.m_uCapacity;
+
+		aArray.m_pData = pData;
+		aArray.m_uCount = uCount;
+		aArray.m_uCapacity = uCapacity;
+	}
+
+	void Grab( Array& aArray )
+	{
+		Swap( aArray );
+		aArray.Clear();
+	}
+
 	void Resize( const uint uCount )
 	{
 		Resize( uCount, T() );
