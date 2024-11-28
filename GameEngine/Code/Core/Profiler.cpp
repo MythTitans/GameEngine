@@ -2,6 +2,8 @@
 
 #include <format>
 
+static const uint FRAME_HISTORY_COUNT = 61;
+
 static constexpr ImColor BorderColor( const ImColor& oBackgroundColor )
 {
 	return ImColor( max( 0.f, oBackgroundColor.Value.x * 0.8f ), max( 0.f, oBackgroundColor.Value.y * 0.8f ), max( 0.f, oBackgroundColor.Value.z * 0.8f ), 1.f );
@@ -96,10 +98,13 @@ ProfilerBlock::~ProfilerBlock()
 Profiler* g_pProfiler = nullptr;
 
 Profiler::Profiler()
-	: m_uBlocksDepth( 0 )
+	: m_aFrames( FRAME_HISTORY_COUNT )
+	, m_uCurrentFrameIndex( 0 )
+	, m_uBlocksDepth( 0 )
 	, m_uAsyncBlocksDepth( 0 )
 	, m_uAsyncBlocksInFlight( 0 )
 	, m_bDisplayProfiler( false )
+	, m_bPauseProfiler( false )
 {
 	g_pProfiler = this;
 }
@@ -113,28 +118,35 @@ void Profiler::NewFrame()
 {
 	std::unique_lock oLock( m_oFrameMutex );
 
-	m_oPreviousFrame.m_oFrameStart = m_oCurrentFrame.m_oFrameStart;
-	m_oPreviousFrame.m_aBlocks.Grab( m_oCurrentFrame.m_aBlocks );
+ 	Frame& oPreviousFrame = m_aFrames[ m_uCurrentFrameIndex ];
 
-	m_oCurrentFrame.m_oFrameStart = std::chrono::high_resolution_clock::now();
+	if( m_bPauseProfiler == false)
+ 		m_uCurrentFrameIndex = ( m_uCurrentFrameIndex + 1 ) % FRAME_HISTORY_COUNT;
+	
+ 	Frame& oCurrentFrame = m_aFrames[ m_uCurrentFrameIndex ];
+
+	oCurrentFrame.m_aBlocks.Clear();
+	oCurrentFrame.m_aAsyncBlocks.Clear();
+
+	oCurrentFrame.m_oFrameStart = std::chrono::high_resolution_clock::now();
+	oPreviousFrame.m_oFrameEnd = oCurrentFrame.m_oFrameStart;
 
 	int uAsyncBlocksInFlight = 0;
 
-	m_oPreviousFrame.m_aAsyncBlocks.Grab( m_oCurrentFrame.m_aAsyncBlocks );
-	for( uint u = 0; u < m_oPreviousFrame.m_aAsyncBlocks.Count(); ++u )
+	for( uint u = 0; u < oPreviousFrame.m_aAsyncBlocks.Count(); ++u )
 	{
-		if( m_oPreviousFrame.m_aAsyncBlocks[ u ].IsFinished() == false )
+		if( oPreviousFrame.m_aAsyncBlocks[ u ].IsFinished() == false )
 		{
 			if( uAsyncBlocksInFlight == 0 )
 				uAsyncBlocksInFlight = u;
 
-			m_oCurrentFrame.m_aAsyncBlocks.PushBack( m_oPreviousFrame.m_aAsyncBlocks[ u ] );
-			m_oCurrentFrame.m_aAsyncBlocks.Back().m_oStart = m_oCurrentFrame.m_oFrameStart;
-			m_oPreviousFrame.m_aAsyncBlocks[ u ].m_oEnd = m_oCurrentFrame.m_oFrameStart;
+			oCurrentFrame.m_aAsyncBlocks.PushBack( oPreviousFrame.m_aAsyncBlocks[ u ] );
+			oCurrentFrame.m_aAsyncBlocks.Back().m_oStart = oCurrentFrame.m_oFrameStart;
+			oPreviousFrame.m_aAsyncBlocks[ u ].m_oEnd = oCurrentFrame.m_oFrameStart;
 		}
 	}
 
-	if( m_oCurrentFrame.m_aAsyncBlocks.Empty() )
+	if( oCurrentFrame.m_aAsyncBlocks.Empty() )
 		m_uAsyncBlocksInFlight = 0;
 	else
 		m_uAsyncBlocksInFlight += uAsyncBlocksInFlight;
@@ -149,6 +161,44 @@ void Profiler::Display()
 	{
 		ImGui::Begin( "Profiler" );
 
+		ImGui::Checkbox( "Pause", &m_bPauseProfiler );
+
+		float fMinFrameLength = FLT_MAX;
+		float fMaxFrameLength = 0.f;
+		float fAvgFrameLength = 0.f;
+		float aFrameLengths[ FRAME_HISTORY_COUNT - 1 ];
+		for( uint u = 0; u < FRAME_HISTORY_COUNT - 1; ++u )
+		{
+			int iFrameIndex = ( int )m_uCurrentFrameIndex - ( int )( u + 1 );
+			if( iFrameIndex < 0 )
+				iFrameIndex += FRAME_HISTORY_COUNT;
+
+			const uint64 uLengthMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( m_aFrames[ iFrameIndex ].m_oFrameEnd - m_aFrames[ iFrameIndex ].m_oFrameStart ).count();
+			const float fLengthMilliSeconds = uLengthMicroSeconds / 1000.f;
+
+			if( fLengthMilliSeconds < fMinFrameLength )
+				fMinFrameLength = fLengthMilliSeconds;
+
+			if( fMaxFrameLength < fLengthMilliSeconds )
+				fMaxFrameLength = fLengthMilliSeconds;
+
+			fAvgFrameLength += fLengthMilliSeconds;
+
+			aFrameLengths[ FRAME_HISTORY_COUNT - 2 - u ] = fLengthMilliSeconds;
+		}
+
+		fAvgFrameLength /= FRAME_HISTORY_COUNT;
+
+		const float fHistogramMin = min( fAvgFrameLength, fMinFrameLength ) * 0.8f;
+		const float fHistogramMax = max( fAvgFrameLength, fMaxFrameLength ) * 1.2f;
+
+		ImGui::PlotHistogram( "Frame history", aFrameLengths, IM_ARRAYSIZE( aFrameLengths ), 0, NULL, fHistogramMin, fHistogramMax, ImVec2( 0, 80.0f ) );
+
+		static int iSlider = 0;
+		if( m_bPauseProfiler == false )
+			iSlider = 0;
+		ImGui::SliderInt( "Frame index", &iSlider, -( int )FRAME_HISTORY_COUNT + 2, 0 );
+
 		static float fZoom = 1.f;
 		ImGui::SliderFloat( "Zoom", &fZoom, 0.1f, 10.f, "%.1f" );
 
@@ -162,16 +212,22 @@ void Profiler::Display()
 		const float fReferenceWidth = iBucketBaseSizePx * fZoom;
 		DrawGrid( fReferenceWidth );
 
+		int iDisplayedFrameIndex = ( int )m_uCurrentFrameIndex + iSlider - 1;
+		if( iDisplayedFrameIndex < 0 )
+			iDisplayedFrameIndex += FRAME_HISTORY_COUNT;
+
+		Frame& oDisplayedFrame = m_aFrames[ iDisplayedFrameIndex ];
+
 		ImGui::Text( "\n Main thread" );
 
 		float fMaxX = 0.f;
 		float fMaxY = 0.f;
-		for( const Block& oBlock : m_oPreviousFrame.m_aBlocks )
+		for( const Block& oBlock : oDisplayedFrame.m_aBlocks )
 		{
-			const uint64 uStartMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oBlock.m_oStart - m_oPreviousFrame.m_oFrameStart ).count();
+			const uint64 uStartMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oBlock.m_oStart - oDisplayedFrame.m_oFrameStart ).count();
 			const float fStartMilliSeconds = uStartMicroSeconds / 1000.f;
 
-			const uint64 uEndMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oBlock.m_oEnd - m_oPreviousFrame.m_oFrameStart ).count();
+			const uint64 uEndMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oBlock.m_oEnd - oDisplayedFrame.m_oFrameStart ).count();
 			const float fEndMilliSeconds = uEndMicroSeconds / 1000.f;
 
 			const float fStart = fStartMilliSeconds * fReferenceWidth;
@@ -190,12 +246,12 @@ void Profiler::Display()
 
 		ImGui::Text( "\n IO thread" );
 
-		for( const Block& oBlock : m_oPreviousFrame.m_aAsyncBlocks )
+		for( const Block& oBlock : oDisplayedFrame.m_aAsyncBlocks )
 		{
-			const uint64 uStartMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oBlock.m_oStart - m_oPreviousFrame.m_oFrameStart ).count();
+			const uint64 uStartMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oBlock.m_oStart - oDisplayedFrame.m_oFrameStart ).count();
 			const float fStartMilliSeconds = uStartMicroSeconds / 1000.f;
 
-			const uint64 uEndMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oBlock.m_oEnd - m_oPreviousFrame.m_oFrameStart ).count();
+			const uint64 uEndMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oBlock.m_oEnd - oDisplayedFrame.m_oFrameStart ).count();
 			const float fEndMilliSeconds = uEndMicroSeconds / 1000.f;
 
 			const float fStart = fStartMilliSeconds * fReferenceWidth;
@@ -222,15 +278,15 @@ void Profiler::Display()
 
 uint Profiler::StartBlock( const char* sName )
 {
-	const uint uID = m_oCurrentFrame.m_aBlocks.Count();
-	m_oCurrentFrame.m_aBlocks.PushBack( Block( sName, m_uBlocksDepth ) );
+	const uint uID = m_aFrames[ m_uCurrentFrameIndex ].m_aBlocks.Count();
+	m_aFrames[ m_uCurrentFrameIndex ].m_aBlocks.PushBack( Block( sName, m_uBlocksDepth ) );
 	++m_uBlocksDepth;
 	return uID;
 }
 
 void Profiler::EndBlock( const uint uBlockID )
 {
-	m_oCurrentFrame.m_aBlocks[ uBlockID ].m_oEnd = std::chrono::high_resolution_clock::now();
+	m_aFrames[ m_uCurrentFrameIndex ].m_aBlocks[ uBlockID ].m_oEnd = std::chrono::high_resolution_clock::now();
 	--m_uBlocksDepth;
 }
 
@@ -238,8 +294,8 @@ uint Profiler::StartAsyncBlock( const char* sName )
 {
 	std::unique_lock oLock( m_oFrameMutex );
 
-	const uint uID = m_oCurrentFrame.m_aAsyncBlocks.Count() + m_uAsyncBlocksInFlight;
-	m_oCurrentFrame.m_aAsyncBlocks.PushBack( Block( sName, m_uAsyncBlocksDepth ) );
+	const uint uID = m_aFrames[ m_uCurrentFrameIndex ].m_aAsyncBlocks.Count() + m_uAsyncBlocksInFlight;
+	m_aFrames[ m_uCurrentFrameIndex ].m_aAsyncBlocks.PushBack( Block( sName, m_uAsyncBlocksDepth ) );
 	++m_uAsyncBlocksDepth;
 	return uID;
 }
@@ -248,7 +304,7 @@ void Profiler::EndAsyncBlock( const uint uBlockID )
 {
 	std::unique_lock oLock( m_oFrameMutex );
 
-	m_oCurrentFrame.m_aAsyncBlocks[ uBlockID - m_uAsyncBlocksInFlight ].m_oEnd = std::chrono::high_resolution_clock::now();
+	m_aFrames[ m_uCurrentFrameIndex ].m_aAsyncBlocks[ uBlockID - m_uAsyncBlocksInFlight ].m_oEnd = std::chrono::high_resolution_clock::now();
 	--m_uAsyncBlocksDepth;
 }
 

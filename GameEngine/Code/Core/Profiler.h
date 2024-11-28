@@ -58,6 +58,7 @@ private:
 	struct Frame
 	{
 		TimePoint					m_oFrameStart;
+		TimePoint					m_oFrameEnd;
 		Array< Block, FAST_RESIZE >	m_aBlocks;
 		Array< Block, FAST_RESIZE > m_aAsyncBlocks;
 	};
@@ -65,19 +66,17 @@ private:
 	void	DrawGrid( const float fReferenceWidth );
 	ImVec2	DrawBlock( const char* sName, const char* sTooltip, const float fStart, const float fEnd, const int iDepth );
 
-	Frame						m_oCurrentFrame;
-	Frame						m_oPreviousFrame;
+	Array< Frame >				m_aFrames;
+	uint						m_uCurrentFrameIndex;
 
-	//Array< Block, FAST_RESIZE >	m_aBlocks;
 	uint						m_uBlocksDepth;
 	uint						m_uAsyncBlocksDepth;
 	uint						m_uAsyncBlocksInFlight;
 
 	bool						m_bDisplayProfiler;
+	bool						m_bPauseProfiler;
 
 	std::mutex					m_oFrameMutex;
-
-	//TimePoint					m_oFrameStart;
 };
 
 extern Profiler* g_pProfiler;

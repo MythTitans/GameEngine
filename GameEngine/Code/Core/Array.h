@@ -126,6 +126,16 @@ public:
 		m_uCapacity = 0;
 	}
 
+	void PushBack()
+	{
+		Expand();
+
+		ASSERT( m_pData != nullptr );
+		ASSERT( m_uCount < m_uCapacity );
+
+		::new( &m_pData[ m_uCount++ ] ) T;
+	}
+
 	void PushBack( const T& oElement )
 	{
 		Expand();
@@ -230,7 +240,21 @@ public:
 
 	void Resize( const uint uCount )
 	{
-		Resize( uCount, T() );
+		if( m_uCount < uCount )
+		{
+			const uint uExpansion = uCount - m_uCount;
+			Reserve( uCount );
+
+			for( uint u = 0; u < uExpansion; ++u )
+				PushBack();
+		}
+		else if( m_uCount > uCount )
+		{
+			const uint uShrink = m_uCount - uCount;
+
+			for( uint u = 0; u < uShrink; ++u )
+				PopBack();
+		}
 	}
 
 	void Resize( const uint uCount, const T& oValue )

@@ -1,11 +1,45 @@
 #include "ResourceLoader.h"
 
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include "Common.h"
+#include "Graphics/Utils.h"
 #include "Logger.h"
 #include "Profiler.h"
+
+Resource::Resource()
+	: m_bLoaded( false )
+{
+}
+
+bool Resource::IsLoaded() const
+{
+	return m_bLoaded;
+}
+
+Texture& TextureResource::GetTexture()
+{
+	return m_oTexture;
+}
+
+const Texture& TextureResource::GetTexture() const
+{
+	return m_oTexture;
+}
+
+Array< Mesh >& ModelResource::GetMeshes()
+{
+	return m_aMeshes;
+}
+
+const Array< Mesh >& ModelResource::GetMeshes() const
+{
+	return m_aMeshes;
+}
 
 //constexpr uint IO_THREAD_AFFINITY_MASK = 1 << 1;
 
@@ -29,18 +63,32 @@ void Texture::unuse() const
 }
 */
 
-StrongPtr< TextureHolder > ResourceLoader::LoadTexture( const std::filesystem::path& oFilePath )
+StrongPtr< TextureResource > ResourceLoader::LoadTexture( const std::filesystem::path& oFilePath )
 {
-	StrongPtr< TextureHolder >& xHolderPtr = m_mTextureHolders[ oFilePath ];
-	if( xHolderPtr != nullptr )
-		return xHolderPtr;
+	StrongPtr< TextureResource >& xTexturePtr = m_mTextureResources[ oFilePath ];
+	if( xTexturePtr != nullptr )
+		return xTexturePtr;
 
-	xHolderPtr = new TextureHolder( Texture() );
+	xTexturePtr = new TextureResource();
 
 	LOG_INFO( "Loading {}", oFilePath.string() );
-	m_aPendingLoadCommands.PushBack( TextureLoadCommand( oFilePath, xHolderPtr ) );
+	m_oPendingLoadCommands.m_aTextureLoadCommands.PushBack( TextureLoadCommand( oFilePath, xTexturePtr ) );
 
-	return xHolderPtr;
+	return xTexturePtr;
+}
+
+StrongPtr< ModelResource > ResourceLoader::LoadModel( const std::filesystem::path& oFilePath )
+{
+	StrongPtr< ModelResource >& xModelPtr = m_mModelResources[ oFilePath ];
+	if( xModelPtr != nullptr )
+		return xModelPtr;
+
+	xModelPtr = new ModelResource();
+
+	LOG_INFO( "Loading {}", oFilePath.string() );
+	m_oPendingLoadCommands.m_aModelLoadCommands.PushBack( ModelLoadCommand( oFilePath, xModelPtr ) );
+
+	return xModelPtr;
 }
 
 void ResourceLoader::PreUpdate()
@@ -61,6 +109,7 @@ void ResourceLoader::Update()
 	LoadTexture( std::filesystem::path( "Data/GREEN.png" ) );
 	LoadTexture( std::filesystem::path( "Data/BLUE.png" ) );
 	LoadTexture( std::filesystem::path( "Data/TRANSPARENT.png" ) );
+	LoadModel( std::filesystem::path( "Data/cube.obj" ) );
 }
 
 void ResourceLoader::PostUpdate()
@@ -76,15 +125,15 @@ void ResourceLoader::Load()
 	{
 		std::unique_lock oLock( m_oProcessingCommandsMutex );
 		// TODO #eric improve load queue handling
-		m_oProcessingCommandsConditionVariable.wait( oLock, [ this ]() { return m_aProcessingLoadCommands.Empty() == false; } );
+		m_oProcessingCommandsConditionVariable.wait( oLock, [ this ]() { return m_oProcessingLoadCommands.Empty() == false; } );
 		oLock.unlock();
 
-		for( TextureLoadCommand& oLoadCommand : m_aProcessingLoadCommands )
+		for( TextureLoadCommand& oLoadCommand : m_oProcessingLoadCommands.m_aTextureLoadCommands )
 		{
-			if( oLoadCommand.m_eStatus != TextureLoadCommand::Status::PENDING )
+			if( oLoadCommand.m_eStatus != LoadCommandStatus::PENDING )
 				continue;
 
-			ProfilerBlock oBlock( "Load", true );
+			ProfilerBlock oBlock( "LoadTextures", true );
 
 			{
 				ProfilerBlock oResourceBlock( "CheckResource", true );
@@ -92,14 +141,14 @@ void ResourceLoader::Load()
 				if( std::filesystem::exists( oLoadCommand.m_oFilePath ) == false )
 				{
 					oLock.lock();
-					oLoadCommand.m_eStatus = TextureLoadCommand::Status::NOT_FOUND;
+					oLoadCommand.m_eStatus = LoadCommandStatus::NOT_FOUND;
 					oLock.unlock();
 					continue;
 				}
 			}
 			
 			{
-				ProfilerBlock oResourceBlock( "LoadResource", true );
+				ProfilerBlock oResourceBlock( "LoadTexture", true );
 
 				int iWidth;
 				int iHeight;
@@ -107,11 +156,46 @@ void ResourceLoader::Load()
 				uint8* pData = stbi_load( oLoadCommand.m_oFilePath.string().c_str(), &iWidth, &iHeight, &iDepth, 0 );
 
 				oLock.lock();
-				oLoadCommand.m_eStatus = pData != nullptr ? TextureLoadCommand::Status::LOADED : TextureLoadCommand::Status::ERROR_READING;
+				oLoadCommand.m_eStatus = pData != nullptr ? LoadCommandStatus::LOADED : LoadCommandStatus::ERROR_READING;
 				oLoadCommand.m_iWidth = iWidth;
 				oLoadCommand.m_iHeight = iHeight;
 				oLoadCommand.m_iDepth = iDepth;
 				oLoadCommand.m_pData = pData;
+				oLock.unlock();
+			}
+		}
+
+		for( ModelLoadCommand& oLoadCommand : m_oProcessingLoadCommands.m_aModelLoadCommands )
+		{
+			if( oLoadCommand.m_eStatus != LoadCommandStatus::PENDING )
+				continue;
+
+			ProfilerBlock oBlock( "LoadModels", true );
+
+			{
+				ProfilerBlock oResourceBlock( "CheckResource", true );
+
+				if( std::filesystem::exists( oLoadCommand.m_oFilePath ) == false )
+				{
+					oLock.lock();
+					oLoadCommand.m_eStatus = LoadCommandStatus::NOT_FOUND;
+					oLock.unlock();
+					continue;
+				}
+			}
+
+			{
+				ProfilerBlock oResourceBlock( "LoadModel", true );
+
+				aiScene* pSceneData = nullptr;
+
+				const aiScene* pScene = m_oModelImporter.ReadFile( oLoadCommand.m_oFilePath.string(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace );
+				if( pScene != nullptr )
+					pSceneData = m_oModelImporter.GetOrphanedScene();
+
+				oLock.lock();
+				oLoadCommand.m_eStatus = pSceneData != nullptr ? LoadCommandStatus::LOADED : LoadCommandStatus::ERROR_READING;
+				oLoadCommand.m_pScene = pSceneData;
 				oLock.unlock();
 			}
 		}
@@ -123,9 +207,9 @@ void ResourceLoader::ProcessPendingLoadCommands()
 	ProfilerBlock oBlock( "ProcessLoadCommands" );
 
 	std::unique_lock oLock( m_oProcessingCommandsMutex );
-	if( m_aProcessingLoadCommands.Empty() && m_aPendingLoadCommands.Empty() == false )
+	if( m_oProcessingLoadCommands.Empty() && m_oPendingLoadCommands.Empty() == false )
 	{
-		m_aProcessingLoadCommands.Grab( m_aPendingLoadCommands );
+		m_oProcessingLoadCommands.Grab( m_oPendingLoadCommands );
 		oLock.unlock();
 
 		m_oProcessingCommandsConditionVariable.notify_one();
@@ -139,36 +223,64 @@ void ResourceLoader::CheckFinishedProcessingLoadCommands()
 	uint iFinishedCount = 0;
 
 	std::unique_lock oLock( m_oProcessingCommandsMutex );
-	for( uint u = 0; u < m_aProcessingLoadCommands.Count(); ++u )
+	for( uint u = 0; u < m_oProcessingLoadCommands.m_aTextureLoadCommands.Count(); ++u )
 	{
-		TextureLoadCommand& oLoadCommand = m_aProcessingLoadCommands[ u ];
+		TextureLoadCommand& oLoadCommand = m_oProcessingLoadCommands.m_aTextureLoadCommands[ u ];
 		switch( oLoadCommand.m_eStatus )
 		{
-		case TextureLoadCommand::Status::NOT_FOUND:
+		case LoadCommandStatus::NOT_FOUND:
 			LOG_ERROR( "File not found {}", oLoadCommand.m_oFilePath.string() );
-			oLoadCommand.m_eStatus = TextureLoadCommand::Status::FINISHED;
+			oLoadCommand.m_eStatus = LoadCommandStatus::FINISHED;
 			++iFinishedCount;
 			break;
-		case TextureLoadCommand::Status::ERROR_READING:
+		case LoadCommandStatus::ERROR_READING:
 			LOG_ERROR( "Error reading file {}", oLoadCommand.m_oFilePath.string() );
-			oLoadCommand.m_eStatus = TextureLoadCommand::Status::FINISHED;
+			oLoadCommand.m_eStatus = LoadCommandStatus::FINISHED;
 			++iFinishedCount;
 			break;
-		case TextureLoadCommand::Status::LOADED:
+		case LoadCommandStatus::LOADED:
 			LOG_INFO( "Loaded {}", oLoadCommand.m_oFilePath.string() );
-			oLoadCommand.m_xTextureHolder->m_oResource.Create( oLoadCommand.m_iWidth, oLoadCommand.m_iHeight, TextureFormat::RGBA, oLoadCommand.m_pData ); // TODO #eric handle format
+			oLoadCommand.OnLoaded();
 			stbi_image_free( oLoadCommand.m_pData );
-			oLoadCommand.m_eStatus = TextureLoadCommand::Status::FINISHED;
+			oLoadCommand.m_eStatus = LoadCommandStatus::FINISHED;
 			++iFinishedCount;
 			break;
-		case TextureLoadCommand::Status::FINISHED:
+		case LoadCommandStatus::FINISHED:
 			++iFinishedCount;
 			break;
 		}
 	}
 
-	if( iFinishedCount == m_aProcessingLoadCommands.Count() )
-		m_aProcessingLoadCommands.Clear();
+	for( uint u = 0; u < m_oProcessingLoadCommands.m_aModelLoadCommands.Count(); ++u )
+	{
+		ModelLoadCommand& oLoadCommand = m_oProcessingLoadCommands.m_aModelLoadCommands[ u ];
+		switch( oLoadCommand.m_eStatus )
+		{
+		case LoadCommandStatus::NOT_FOUND:
+			LOG_ERROR( "File not found {}", oLoadCommand.m_oFilePath.string() );
+			oLoadCommand.m_eStatus = LoadCommandStatus::FINISHED;
+			++iFinishedCount;
+			break;
+		case LoadCommandStatus::ERROR_READING:
+			LOG_ERROR( "Error reading file {}", oLoadCommand.m_oFilePath.string() );
+			oLoadCommand.m_eStatus = LoadCommandStatus::FINISHED;
+			++iFinishedCount;
+			break;
+		case LoadCommandStatus::LOADED:
+			LOG_INFO( "Loaded {}", oLoadCommand.m_oFilePath.string() );
+			oLoadCommand.OnLoaded();
+			delete oLoadCommand.m_pScene;
+			oLoadCommand.m_eStatus = LoadCommandStatus::FINISHED;
+			++iFinishedCount;
+			break;
+		case LoadCommandStatus::FINISHED:
+			++iFinishedCount;
+			break;
+		}
+	}
+
+	if( iFinishedCount == m_oProcessingLoadCommands.Count() )
+		m_oProcessingLoadCommands.Clear();
 }
 
 void ResourceLoader::DestroyUnusedResources()
@@ -176,12 +288,137 @@ void ResourceLoader::DestroyUnusedResources()
 	ProfilerBlock oBlock( "DestroyUnusedResources" );
 
 	// TODO #eric this is temporary code
-	for( auto& oPair : m_mTextureHolders )
+	for( auto& oPair : m_mTextureResources )
 	{
 		if( oPair.second->GetReferenceCount() == 1 )
 		{
-			oPair.second->GetResource().Destroy();
+			oPair.second->GetTexture().Destroy();
 			oPair.second = nullptr;
 		}
 	}
+
+	// TODO #eric this is temporary code
+	for( auto& oPair : m_mModelResources )
+	{
+		if( oPair.second->GetReferenceCount() == 1 )
+		{
+			for( Mesh& oMesh : oPair.second->GetMeshes() )
+				oMesh.Destroy();
+			oPair.second = nullptr;
+		}
+	}
+}
+
+ResourceLoader::TextureLoadCommand::TextureLoadCommand( const std::filesystem::path& oFilePath, const StrongPtr< TextureResource >& xResource )
+	: LoadCommand( oFilePath, xResource )
+	, m_iWidth( 0 )
+	, m_iHeight( 0 )
+	, m_iDepth( 0 )
+	, m_pData( nullptr )
+{
+}
+
+void ResourceLoader::TextureLoadCommand::OnLoaded()
+{
+	m_xResource->m_oTexture.Create( m_iWidth, m_iHeight, TextureFormat::RGBA, m_pData ); // TODO #eric handle format
+
+	m_xResource->m_bLoaded = true;
+}
+
+ResourceLoader::ModelLoadCommand::ModelLoadCommand( const std::filesystem::path& oFilePath, const StrongPtr< ModelResource >& xResource )
+	: LoadCommand( oFilePath, xResource )
+	, m_pScene( nullptr )
+{
+}
+
+void ResourceLoader::ModelLoadCommand::OnLoaded()
+{
+	aiNode* pRoot = m_pScene->mRootNode;
+
+	m_xResource->m_aMeshes.Reserve( CountMeshes( pRoot ) );
+
+	LoadMeshes( pRoot );
+
+	m_xResource->m_bLoaded = true;
+}
+
+uint ResourceLoader::ModelLoadCommand::CountMeshes( aiNode* pNode )
+{
+	uint uCount = pNode->mNumMeshes;
+
+	for( uint u = 0; u < pNode->mNumChildren; ++u )
+		uCount += CountMeshes( pNode->mChildren[ u ] );
+
+	return uCount;
+}
+
+void ResourceLoader::ModelLoadCommand::LoadMeshes( aiNode* pNode )
+{
+	for( uint u = 0; u < pNode->mNumMeshes; ++u )
+		LoadMesh( m_pScene->mMeshes[ pNode->mMeshes[ u ] ] );
+
+	for( uint u = 0; u < pNode->mNumChildren; ++u )
+		LoadMeshes( pNode->mChildren[ u ] );
+}
+
+void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
+{
+	const uint uVertexCount = pMesh->mNumVertices;
+
+	Array< Float3 > aVertices( uVertexCount );
+	Array< Float3  > aNormals( uVertexCount );
+	Array< Float3  > aTangents( uVertexCount );
+	Array< Float3  > aBiTangents( uVertexCount );
+	Array< Float2 > aUVs( uVertexCount );
+
+	for( uint u = 0; u < uVertexCount; ++u )
+	{
+		aVertices[ u ] = Float3( pMesh->mVertices[ u ].x, pMesh->mVertices[ u ].y , pMesh->mVertices[ u ].z );
+		aNormals[ u ] = Float3( pMesh->mNormals[ u ].x, pMesh->mNormals[ u ].y, pMesh->mNormals[ u ].z );
+		aTangents[ u ] = Float3( pMesh->mTangents[ u ].x, pMesh->mTangents[ u ].y, pMesh->mTangents[ u ].z );
+		aBiTangents[ u ] = Float3( pMesh->mBitangents[ u ].x, pMesh->mBitangents[ u ].y, pMesh->mBitangents[ u ].z );
+
+		if( pMesh->mTextureCoords[ 0 ] != nullptr )
+			aUVs[ u ] = Float2( pMesh->mTextureCoords[ 0 ][ u ].x, pMesh->mTextureCoords[ 0 ][ u ].y );
+	}
+
+	uint uIndexCount = 0;
+	for( uint u = 0; u < pMesh->mNumFaces; ++u )
+		uIndexCount += pMesh->mFaces[ u ].mNumIndices;
+
+	Array< GLuint > aIndices;
+	aIndices.Reserve( uIndexCount );
+
+	for( uint uFace = 0; uFace < pMesh->mNumFaces; ++uFace )
+	{
+		const aiFace& oFace = pMesh->mFaces[ uFace ];
+		for( uint uIndex = 0; uIndex < oFace.mNumIndices; ++uIndex )
+			aIndices.PushBack( oFace.mIndices[ uIndex ] );
+		
+	}
+
+ 	m_xResource->m_aMeshes.PushBack( Mesh() );
+ 	m_xResource->m_aMeshes.Back().Create( aVertices, aUVs, aNormals, aTangents, aBiTangents, aIndices );
+}
+
+uint ResourceLoader::LoadCommands::Count() const
+{
+	return m_aTextureLoadCommands.Count() + m_aModelLoadCommands.Count();
+}
+
+bool ResourceLoader::LoadCommands::Empty() const
+{
+	return m_aTextureLoadCommands.Empty() && m_aModelLoadCommands.Empty();
+}
+
+void ResourceLoader::LoadCommands::Grab( LoadCommands& oLoadCommands )
+{
+	m_aTextureLoadCommands.Grab( oLoadCommands.m_aTextureLoadCommands );
+	m_aModelLoadCommands.Grab( oLoadCommands.m_aModelLoadCommands );
+}
+
+void ResourceLoader::LoadCommands::Clear()
+{
+	m_aTextureLoadCommands.Clear();
+	m_aModelLoadCommands.Clear();
 }
