@@ -4,25 +4,30 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "ImGUI/imgui_impl_glfw.h"
+#include "ImGUI/imgui_impl_opengl3.h"
+
 #include "Core/Logger.h"
 #include "Game/GameEngine.h"
+#include "Game/InputHandler.h"
 #include "Graphics/Renderer.h"
 
-static RenderContext* s_pRenderContext = nullptr;
+static InputContext s_oInputContext;
+static RenderContext s_oRenderContext;
 
-void OnKeyEvent( GLFWwindow* /*pWindow*/, const int /*iKey*/, const int /*iScancode*/, const int /*iAction*/, const int /*iMods*/ )
+void OnKeyEvent( GLFWwindow* /*pWindow*/, const int iKey, const int iScancode, const int iAction, const int iMods )
 {
-
+	s_oInputContext.OnKeyEvent( iKey, iScancode, iAction, iMods );
 }
 
-void OnCursorMoveEvent( GLFWwindow* /*pWindow*/, const double /*iXPos*/, const double /*iYPos*/ )
+void OnCursorMoveEvent( GLFWwindow* /*pWindow*/, const double dCursorX, const double dCursorY )
 {
-
+	s_oInputContext.OnCursorMoveEvent( ( float )dCursorX, ( float )dCursorY );
 }
 
 void OnWindowResizeEvent( GLFWwindow* /*pWindow*/, int iWidth, int iHeight )
 {
-	s_pRenderContext->OnFrameBufferResized( iWidth, iHeight );
+	s_oRenderContext.OnFrameBufferResized( iWidth, iHeight );
 }
 
 int main()
@@ -50,10 +55,7 @@ int main()
 		int iFrameBufferWidth, iFrameBufferHeight;
 		glfwGetFramebufferSize( pWindow, &iFrameBufferWidth, &iFrameBufferHeight );
 
-		RenderContext oRenderContext( pWindow );
-		s_pRenderContext = &oRenderContext;
-
-		oRenderContext.OnFrameBufferResized( iFrameBufferWidth, iFrameBufferHeight );
+		s_oRenderContext.OnFrameBufferResized( iFrameBufferWidth, iFrameBufferHeight );
 
 		glfwMakeContextCurrent( pWindow );
 
@@ -63,25 +65,46 @@ int main()
 		if( glewInit() != GLEW_OK )
 			LOG_ERROR( "Failed to initialize GLEW" );
 
-		//glfwSetInputMode( pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
-		//glfwSetInputMode( pWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE );
 		glfwSetKeyCallback( pWindow, OnKeyEvent );
 		glfwSetCursorPosCallback( pWindow, OnCursorMoveEvent );
 		glfwSetWindowSizeCallback( pWindow, OnWindowResizeEvent );
 
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+
+		ImGui::StyleColorsDark();
+
+		LOG_INFO( "Initializing ImGui" );
+		if( ImGui_ImplGlfw_InitForOpenGL( pWindow, true ) == false || ImGui_ImplOpenGL3_Init( "#version 330" ) == false )
+			LOG_ERROR( "Failed to initialize ImGui" );
+
 		{
-			GameEngine oGameEngine( oRenderContext );
+			GameEngine oGameEngine( s_oInputContext, s_oRenderContext );
 			while( glfwWindowShouldClose( pWindow ) == false )
 			{
-				glfwPollEvents();
+				ImGui_ImplOpenGL3_NewFrame();
+				ImGui_ImplGlfw_NewFrame();
 
 				oGameEngine.NewFrame();
-				oGameEngine.ProcessFrame();
+
+				{
+					ProfilerBlock oBlock( "Frame" );
+					glfwPollEvents();
+					oGameEngine.ProcessFrame();
+				}
+
 				oGameEngine.EndFrame();
+
+				ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
 
 				glfwSwapBuffers( pWindow );
 			}
 		}
+
+		LOG_INFO( "Destroying ImGui" );
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 
 		LOG_INFO( "Destroying window" );
 		glfwDestroyWindow( pWindow );

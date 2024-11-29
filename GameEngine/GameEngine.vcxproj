@@ -165,6 +165,7 @@
     <ClCompile Include="Code\Core\ResourceLoader.cpp" />
     <ClCompile Include="Code\Core\TaskScheduler.cpp" />
     <ClCompile Include="Code\Game\GameEngine.cpp" />
+    <ClCompile Include="Code\Game\InputHandler.cpp" />
     <ClCompile Include="Code\Graphics\Mesh.cpp" />
     <ClCompile Include="Code\Graphics\Renderer.cpp" />
     <ClCompile Include="Code\Graphics\Texture.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="Code\Core\TaskScheduler.h" />
     <ClInclude Include="Code\Core\Types.h" />
     <ClInclude Include="Code\Game\GameEngine.h" />
+    <ClInclude Include="Code\Game\InputHandler.h" />
     <ClInclude Include="Code\Graphics\Mesh.h" />
     <ClInclude Include="Code\Graphics\Renderer.h" />
     <ClInclude Include="Code\Graphics\Texture.h" />

@@ -15,11 +15,6 @@ RenderRect::RenderRect()
 {
 }
 
-RenderContext::RenderContext( GLFWwindow* pWindow )
-	: m_pWindow( pWindow )
-{
-}
-
 void RenderContext::OnFrameBufferResized( int iWidth, int iHeight )
 {
 	if( iWidth <= 0 )

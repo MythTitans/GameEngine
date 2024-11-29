@@ -2,6 +2,8 @@
 
 #include <format>
 
+#include "Game/InputHandler.h"
+
 static const uint FRAME_HISTORY_COUNT = 61;
 
 static constexpr ImColor BorderColor( const ImColor& oBackgroundColor )
@@ -156,7 +158,9 @@ void Profiler::Display()
 {
 	ProfilerBlock oBlock( "Profiler" );
 
-	m_bDisplayProfiler = true; // TODO #eric
+	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_TOGGLE_PROFILER ) )
+		m_bDisplayProfiler = !m_bDisplayProfiler;
+
 	if( m_bDisplayProfiler )
 	{
 		ImGui::Begin( "Profiler" );
