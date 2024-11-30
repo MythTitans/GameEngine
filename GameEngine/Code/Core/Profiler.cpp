@@ -104,7 +104,7 @@ Profiler::Profiler()
 	, m_uCurrentFrameIndex( 0 )
 	, m_uBlocksDepth( 0 )
 	, m_uAsyncBlocksDepth( 0 )
-	, m_uAsyncBlocksInFlight( 0 )
+	, m_uAsyncBlocksCount( 0 )
 	, m_bDisplayProfiler( false )
 	, m_bPauseProfiler( false )
 {
@@ -147,11 +147,6 @@ void Profiler::NewFrame()
 			oPreviousFrame.m_aAsyncBlocks[ u ].m_oEnd = oCurrentFrame.m_oFrameStart;
 		}
 	}
-
-	if( oCurrentFrame.m_aAsyncBlocks.Empty() )
-		m_uAsyncBlocksInFlight = 0;
-	else
-		m_uAsyncBlocksInFlight += uAsyncBlocksInFlight;
 }
 
 void Profiler::Display()
@@ -298,9 +293,10 @@ uint Profiler::StartAsyncBlock( const char* sName )
 {
 	std::unique_lock oLock( m_oFrameMutex );
 
-	const uint uID = m_aFrames[ m_uCurrentFrameIndex ].m_aAsyncBlocks.Count() + m_uAsyncBlocksInFlight;
-	m_aFrames[ m_uCurrentFrameIndex ].m_aAsyncBlocks.PushBack( Block( sName, m_uAsyncBlocksDepth ) );
+	const uint uID = m_uAsyncBlocksCount;
+	m_aFrames[ m_uCurrentFrameIndex ].m_aAsyncBlocks.PushBack( AsyncBlock( uID, sName, m_uAsyncBlocksDepth ) );
 	++m_uAsyncBlocksDepth;
+	++m_uAsyncBlocksCount;
 	return uID;
 }
 
@@ -308,7 +304,15 @@ void Profiler::EndAsyncBlock( const uint uBlockID )
 {
 	std::unique_lock oLock( m_oFrameMutex );
 
-	m_aFrames[ m_uCurrentFrameIndex ].m_aAsyncBlocks[ uBlockID - m_uAsyncBlocksInFlight ].m_oEnd = std::chrono::high_resolution_clock::now();
+	for( AsyncBlock& oBlock : m_aFrames[ m_uCurrentFrameIndex ].m_aAsyncBlocks )
+	{
+		if( oBlock.m_uID == uBlockID )
+		{
+			oBlock.m_oEnd = std::chrono::high_resolution_clock::now();
+			break;
+		}
+	}
+
 	--m_uAsyncBlocksDepth;
 }
 

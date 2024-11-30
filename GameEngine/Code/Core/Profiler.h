@@ -55,12 +55,23 @@ private:
 		uint		m_uDepth;
 	};
 
+	struct AsyncBlock : Block
+	{
+		AsyncBlock( const uint uID, const char* sName, const uint uDepth )
+			: Block( sName, uDepth )
+			, m_uID( uID )
+		{
+		}
+
+		uint m_uID;
+	};
+
 	struct Frame
 	{
-		TimePoint					m_oFrameStart;
-		TimePoint					m_oFrameEnd;
-		Array< Block, FAST_RESIZE >	m_aBlocks;
-		Array< Block, FAST_RESIZE > m_aAsyncBlocks;
+		TimePoint							m_oFrameStart;
+		TimePoint							m_oFrameEnd;
+		Array< Block, FAST_RESIZE >			m_aBlocks;
+		Array< AsyncBlock, FAST_RESIZE >	m_aAsyncBlocks;
 	};
 
 	void	DrawGrid( const float fReferenceWidth );
@@ -71,7 +82,7 @@ private:
 
 	uint						m_uBlocksDepth;
 	uint						m_uAsyncBlocksDepth;
-	uint						m_uAsyncBlocksInFlight;
+	uint						m_uAsyncBlocksCount;
 
 	bool						m_bDisplayProfiler;
 	bool						m_bPauseProfiler;
