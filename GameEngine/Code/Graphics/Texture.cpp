@@ -35,4 +35,6 @@ void Texture::Create( const int iWidth, const int iHeight, const TextureFormat e
 void Texture::Destroy()
 {
 	glDeleteTextures( 1, &m_uTextureID );
+
+	m_uTextureID = GL_INVALID_VALUE;
 }

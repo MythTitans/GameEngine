@@ -79,4 +79,9 @@ void Mesh::Destroy()
 	glDeleteBuffers( 1, &m_uIndexBufferID );
 	glDeleteBuffers( 1, &m_uVertexBufferID );
 	glDeleteVertexArrays( 1, &m_uVertexArrayID );
+
+	m_uVertexArrayID = GL_INVALID_VALUE;
+	m_uVertexBufferID = GL_INVALID_VALUE;
+	m_uIndexBufferID = GL_INVALID_VALUE;
+	m_iIndexCount = 0;
 }

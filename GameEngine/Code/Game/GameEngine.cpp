@@ -59,11 +59,6 @@ void GameEngine::ProcessFrame()
 		m_oRenderer.Render( m_oRenderContext );
 	}
 
-	{
-		ProfilerBlock oBlock( "Wait" );
-		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) ); // TODO #eric don't forget to remove this at some point
-	}
-
 	++( m_oGameContext.m_uFrameIndex );
 }
 

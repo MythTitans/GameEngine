@@ -11,6 +11,8 @@
 #include "Core/Array.h"
 #include "Core/Intrusive.h"
 #include "Graphics/Mesh.h"
+#include "Graphics/Shader.h"
+#include "Graphics/Technique.h"
 #include "Graphics/Texture.h"
 
 struct aiMesh;
@@ -42,6 +44,8 @@ private:
 	Texture m_oTexture;
 };
 
+using TextureResPtr = StrongPtr< TextureResource >;
+
 class ModelResource : public Resource
 {
 public:
@@ -54,23 +58,58 @@ private:
 	Array< Mesh > m_aMeshes;
 };
 
+using ModelResPtr = StrongPtr< ModelResource >;
+
+class ShaderResource : public Resource
+{
+public:
+	friend class ResourceLoader;
+
+	Shader&			GetShader();
+	const Shader&	GetShader() const;
+
+private:
+	Shader m_oShader;
+};
+
+using ShaderResPtr = StrongPtr< ShaderResource >;
+
+class TechniqueResource : public Resource
+{
+public:
+	friend class ResourceLoader;
+
+	Technique&			GetTechnique();
+	const Technique&	GetTechnique() const;
+
+private:
+	Technique				m_oTechnique;
+
+	Array< ShaderResPtr >	m_aShaderResources;
+};
+
+using TechniqueResPtr = StrongPtr< TechniqueResource >;
+
 class ResourceLoader
 {
 public:
 	ResourceLoader();
+	~ResourceLoader();
 
-	StrongPtr< TextureResource >	LoadTexture( const std::filesystem::path& oFilePath );
-	StrongPtr< ModelResource >		LoadModel( const std::filesystem::path& oFilePath );
+	TextureResPtr	LoadTexture( const std::filesystem::path& oFilePath );
+	ModelResPtr		LoadModel( const std::filesystem::path& oFilePath );
+	ShaderResPtr	LoadShader( const std::filesystem::path& oFilePath );
+	TechniqueResPtr LoadTechnique( const std::filesystem::path& oFilePath );
 
-	void							PreUpdate();
-	void							Update();
-	void							PostUpdate();
+	void			PreUpdate();
+	void			Update();
+	void			PostUpdate();
 
 private:
-	void							Load();
-	void							ProcessPendingLoadCommands();
-	void							CheckFinishedProcessingLoadCommands();
-	void							DestroyUnusedResources();
+	void			Load();
+	void			ProcessPendingLoadCommands();
+	void			CheckFinishedProcessingLoadCommands();
+	void			DestroyUnusedResources();
 
 	enum class LoadCommandStatus : uint8
 	{
@@ -99,7 +138,7 @@ private:
 
 	struct TextureLoadCommand : LoadCommand< TextureResource >
 	{
-		TextureLoadCommand( const std::filesystem::path& oFilePath, const StrongPtr< TextureResource >& xResource );
+		TextureLoadCommand( const std::filesystem::path& oFilePath, const TextureResPtr& xResource );
 
 		void OnLoaded();
 
@@ -111,7 +150,7 @@ private:
 
 	struct ModelLoadCommand : LoadCommand< ModelResource >
 	{
-		ModelLoadCommand( const std::filesystem::path& oFilePath, const StrongPtr< ModelResource >& xResource );
+		ModelLoadCommand( const std::filesystem::path& oFilePath, const ModelResPtr& xResource );
 
 		void OnLoaded();
 
@@ -122,10 +161,31 @@ private:
 		aiScene* m_pScene;
 	};
 
+	struct ShaderLoadCommand : LoadCommand< ShaderResource >
+	{
+		ShaderLoadCommand( const std::filesystem::path& oFilePath, const ShaderResPtr& xResource );
+
+		void OnLoaded();
+
+		std::string m_sShaderCode;
+		ShaderType	m_eShaderType;
+	};
+
+	struct TechniqueLoadCommand : LoadCommand< TechniqueResource >
+	{
+		TechniqueLoadCommand( const std::filesystem::path& oFilePath, const TechniqueResPtr& xResource );
+
+		void OnLoaded();
+
+		Array< ShaderResPtr > m_aShaderResources;
+	};
+
 	struct LoadCommands
 	{
-		Array< TextureLoadCommand > m_aTextureLoadCommands;
-		Array< ModelLoadCommand >	m_aModelLoadCommands;
+		Array< TextureLoadCommand >		m_aTextureLoadCommands;
+		Array< ModelLoadCommand >		m_aModelLoadCommands;
+		Array< ShaderLoadCommand >		m_aShaderLoadCommands;
+		Array< TechniqueLoadCommand >	m_aTechniqueLoadCommands;
 
 		uint Count() const;
 		bool Empty() const;
@@ -133,11 +193,15 @@ private:
 		void Clear();
 	};
 
-	using TextureResourceMap = std::unordered_map< std::filesystem::path, StrongPtr< TextureResource > >;
-	using ModelResourceMap = std::unordered_map< std::filesystem::path, StrongPtr< ModelResource > >;
+	using TextureResourceMap = std::unordered_map< std::filesystem::path, TextureResPtr >;
+	using ModelResourceMap = std::unordered_map< std::filesystem::path, ModelResPtr >;
+	using ShaderResourceMap = std::unordered_map< std::filesystem::path, ShaderResPtr >;
+	using TechniqueResourceMap = std::unordered_map< std::filesystem::path, TechniqueResPtr >;
 
 	TextureResourceMap		m_mTextureResources;
 	ModelResourceMap		m_mModelResources;
+	ShaderResourceMap		m_mShaderResources;
+	TechniqueResourceMap	m_mTechniqueResources;
 
 	LoadCommands			m_oPendingLoadCommands;
 	LoadCommands			m_oProcessingLoadCommands;
@@ -148,3 +212,5 @@ private:
 
 	Assimp::Importer		m_oModelImporter;
 };
+
+extern ResourceLoader* g_pResourceLoader;

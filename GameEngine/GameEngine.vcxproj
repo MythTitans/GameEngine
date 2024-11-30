@@ -164,10 +164,13 @@
     <ClCompile Include="Code\Core\Profiler.cpp" />
     <ClCompile Include="Code\Core\ResourceLoader.cpp" />
     <ClCompile Include="Code\Core\TaskScheduler.cpp" />
+    <ClCompile Include="Code\Core\FileUtils.cpp" />
     <ClCompile Include="Code\Game\GameEngine.cpp" />
     <ClCompile Include="Code\Game\InputHandler.cpp" />
     <ClCompile Include="Code\Graphics\Mesh.cpp" />
     <ClCompile Include="Code\Graphics\Renderer.cpp" />
+    <ClCompile Include="Code\Graphics\Shader.cpp" />
+    <ClCompile Include="Code\Graphics\Technique.cpp" />
     <ClCompile Include="Code\Graphics\Texture.cpp" />
     <ClCompile Include="Code\Graphics\Utils.cpp" />
     <ClCompile Include="Code\ImGui\imgui.cpp" />
@@ -190,10 +193,13 @@
     <ClInclude Include="Code\Core\stb_image.h" />
     <ClInclude Include="Code\Core\TaskScheduler.h" />
     <ClInclude Include="Code\Core\Types.h" />
+    <ClInclude Include="Code\Core\FileUtils.h" />
     <ClInclude Include="Code\Game\GameEngine.h" />
     <ClInclude Include="Code\Game\InputHandler.h" />
     <ClInclude Include="Code\Graphics\Mesh.h" />
     <ClInclude Include="Code\Graphics\Renderer.h" />
+    <ClInclude Include="Code\Graphics\Shader.h" />
+    <ClInclude Include="Code\Graphics\Technique.h" />
     <ClInclude Include="Code\Graphics\Texture.h" />
     <ClInclude Include="Code\Graphics\Utils.h" />
     <ClInclude Include="Code\ImGui\imconfig.h" />

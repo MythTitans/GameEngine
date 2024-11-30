@@ -390,7 +390,17 @@ public:
 		return &m_pData[ 0 ];
 	}
 
+	const T* begin() const
+	{
+		return &m_pData[ 0 ];
+	}
+
 	T* end()
+	{
+		return &m_pData[ m_uCount ];
+	}
+
+	const T* end() const
 	{
 		return &m_pData[ m_uCount ];
 	}
