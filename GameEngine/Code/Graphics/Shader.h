@@ -14,6 +14,7 @@ enum class ShaderType
 class Shader
 {
 public:
+	friend class Renderer;
 	friend class Technique;
 
 	Shader();

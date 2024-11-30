@@ -8,6 +8,8 @@
 class Mesh
 {
 public:
+	friend class Renderer;
+
 	Mesh();
 
 	void Create( const Array< Float3 >& aVertices, const Array< Float2 >& aUVs, const Array< Float3 >& aNormals, const Array< Float3 >& aTangents, const Array< Float3 >& aBiTangents, const Array< GLuint >& aIndices );

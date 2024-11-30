@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Core/Common.h"
+#include "Core/ResourceLoader.h"
+#include "Graphics/TechniqueDefinition.h"
 
 struct GLFWwindow;
 
@@ -36,6 +38,10 @@ public:
 	~Renderer();
 
 	void Render( const RenderContext& oRenderContext );
+
+private:
+	TechniqueResPtr				m_xRenderTechnique;
+	BasicTechniqueDefinition	m_oBasicTechniqueDefinition;
 };
 
 extern Renderer* g_pRenderer;

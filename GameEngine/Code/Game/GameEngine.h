@@ -4,6 +4,7 @@
 #include "Core/Profiler.h"
 #include "Core/ResourceLoader.h"
 #include "Game/InputHandler.h"
+#include "Game/Scene.h"
 #include "Graphics/Renderer.h"
 
 class Renderer;
@@ -22,16 +23,19 @@ public:
 	~GameEngine();
 
 	const GameContext&	GetGameContext() const;
+	const Scene&		GetScene() const;
 
 	void				NewFrame();
 	void				ProcessFrame();
 	void				EndFrame();
 
 private:
+	ResourceLoader			m_oResourceLoader;
 	InputHandler			m_oInputHandler;
 	Renderer				m_oRenderer;
-	ResourceLoader			m_oResourceLoader;
 	Profiler				m_oProfiler;
+
+	Scene					m_oScene;
 
 	const InputContext&		m_oInputContext;
 	const RenderContext&	m_oRenderContext;

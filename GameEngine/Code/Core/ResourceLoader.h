@@ -206,9 +206,11 @@ private:
 	LoadCommands			m_oPendingLoadCommands;
 	LoadCommands			m_oProcessingLoadCommands;
 
+	std::atomic_bool		m_bRunning;
+
 	std::mutex				m_oProcessingCommandsMutex;
 	std::condition_variable m_oProcessingCommandsConditionVariable;
-	std::thread				m_oIOThread;
+	std::jthread			m_oIOThread;
 
 	Assimp::Importer		m_oModelImporter;
 };

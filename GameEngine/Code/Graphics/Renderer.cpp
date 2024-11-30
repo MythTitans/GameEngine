@@ -3,8 +3,11 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "Core/Logger.h"
 #include "Core/Profiler.h"
+#include "Game/GameEngine.h"
 #include "ImGui/imgui.h"
 
 RenderRect::RenderRect()
@@ -44,7 +47,11 @@ float RenderContext::ComputeAspectRatio() const
 Renderer* g_pRenderer = nullptr;
 
 Renderer::Renderer()
+	: m_xRenderTechnique( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/basic" ) ) )
 {
+	glEnable( GL_DEPTH_TEST );
+	glEnable( GL_CULL_FACE );
+
 	glClearColor( 0.f, 0.f, 0.f, 1.f );
 
 	g_pRenderer = this;
@@ -62,4 +69,29 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+	if( m_xRenderTechnique->IsLoaded() )
+	{
+		const Technique& oTechnique = m_xRenderTechnique->GetTechnique();
+
+		if( m_oBasicTechniqueDefinition.IsValid() == false )
+			m_oBasicTechniqueDefinition.Create( oTechnique );
+
+		glUseProgram( oTechnique.m_uProgramID );
+
+		m_oBasicTechniqueDefinition.SetView( glm::lookAt( glm::vec3( 10.f, 10.f, 10.f ), glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 1.f, 0.f ) ) );
+		m_oBasicTechniqueDefinition.SetProjection( glm::perspective( glm::radians( 60.f ), oRenderContext.ComputeAspectRatio(), 0.1f, 1000.f ) );
+
+		if( g_pGameEngine->GetScene().m_xCube->IsLoaded() )
+		{
+			for( const Mesh& oMesh : g_pGameEngine->GetScene().m_xCube->GetMeshes() )
+			{
+				glBindVertexArray( oMesh.m_uVertexArrayID );
+				glDrawElements( GL_TRIANGLES, oMesh.m_iIndexCount, GL_UNSIGNED_INT, nullptr );
+				glBindVertexArray( 0 );
+			}
+		}
+
+		glUseProgram( 0 );
+	}
 }

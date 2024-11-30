@@ -26,6 +26,11 @@ const GameContext& GameEngine::GetGameContext() const
 	return m_oGameContext;
 }
 
+const Scene& GameEngine::GetScene() const
+{
+	return m_oScene;
+}
+
 void GameEngine::NewFrame()
 {
 	ImGui::NewFrame();
@@ -46,7 +51,7 @@ void GameEngine::ProcessFrame()
 	{
 		ProfilerBlock oBlock( "Update" );
 		m_oInputHandler.UpdateInputs( m_oInputContext );
-		m_oResourceLoader.Update();
+		//m_oResourceLoader.Update();
 	}
 
 	{

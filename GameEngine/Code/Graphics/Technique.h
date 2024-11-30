@@ -9,10 +9,14 @@ class Shader;
 class Technique
 {
 public:
+	friend class Renderer;
+
 	Technique();
 
-	void Create( const Array< const Shader* > aShaders );
-	void Destroy();
+	void	Create( const Array< const Shader* > aShaders );
+	void	Destroy();
+
+	GLuint	GetUniformLocation( const char* sUniform ) const;
 
 private:
 	GLuint m_uProgramID;

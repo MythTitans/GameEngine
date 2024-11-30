@@ -1,0 +1,10 @@
+#version 330
+
+in vec2 texCoords;
+
+out vec4 finalColor;
+
+void main()
+{
+    finalColor = vec4( texCoords.x, 0.5, texCoords.y, 1 );
+}

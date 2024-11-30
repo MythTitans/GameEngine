@@ -167,10 +167,12 @@
     <ClCompile Include="Code\Core\FileUtils.cpp" />
     <ClCompile Include="Code\Game\GameEngine.cpp" />
     <ClCompile Include="Code\Game\InputHandler.cpp" />
+    <ClCompile Include="Code\Game\Scene.cpp" />
     <ClCompile Include="Code\Graphics\Mesh.cpp" />
     <ClCompile Include="Code\Graphics\Renderer.cpp" />
     <ClCompile Include="Code\Graphics\Shader.cpp" />
     <ClCompile Include="Code\Graphics\Technique.cpp" />
+    <ClCompile Include="Code\Graphics\TechniqueDefinition.cpp" />
     <ClCompile Include="Code\Graphics\Texture.cpp" />
     <ClCompile Include="Code\Graphics\Utils.cpp" />
     <ClCompile Include="Code\ImGui\imgui.cpp" />
@@ -196,10 +198,12 @@
     <ClInclude Include="Code\Core\FileUtils.h" />
     <ClInclude Include="Code\Game\GameEngine.h" />
     <ClInclude Include="Code\Game\InputHandler.h" />
+    <ClInclude Include="Code\Game\Scene.h" />
     <ClInclude Include="Code\Graphics\Mesh.h" />
     <ClInclude Include="Code\Graphics\Renderer.h" />
     <ClInclude Include="Code\Graphics\Shader.h" />
     <ClInclude Include="Code\Graphics\Technique.h" />
+    <ClInclude Include="Code\Graphics\TechniqueDefinition.h" />
     <ClInclude Include="Code\Graphics\Texture.h" />
     <ClInclude Include="Code\Graphics\Utils.h" />
     <ClInclude Include="Code\ImGui\imconfig.h" />
@@ -223,6 +227,7 @@
     <Import Project="..\packages\glfw.3.4.0\build\native\glfw.targets" Condition="Exists('..\packages\glfw.3.4.0\build\native\glfw.targets')" />
     <Import Project="..\packages\glew.v140.1.12.0\build\native\glew.v140.targets" Condition="Exists('..\packages\glew.v140.1.12.0\build\native\glew.v140.targets')" />
     <Import Project="..\packages\assimp-v143.5.2.5\build\native\assimp-v143.targets" Condition="Exists('..\packages\assimp-v143.5.2.5\build\native\assimp-v143.targets')" />
+    <Import Project="..\packages\glm.1.0.1\build\native\glm.targets" Condition="Exists('..\packages\glm.1.0.1\build\native\glm.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -231,5 +236,6 @@
     <Error Condition="!Exists('..\packages\glfw.3.4.0\build\native\glfw.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\glfw.3.4.0\build\native\glfw.targets'))" />
     <Error Condition="!Exists('..\packages\glew.v140.1.12.0\build\native\glew.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\glew.v140.1.12.0\build\native\glew.v140.targets'))" />
     <Error Condition="!Exists('..\packages\assimp-v143.5.2.5\build\native\assimp-v143.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\assimp-v143.5.2.5\build\native\assimp-v143.targets'))" />
+    <Error Condition="!Exists('..\packages\glm.1.0.1\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\glm.1.0.1\build\native\glm.targets'))" />
   </Target>
 </Project>

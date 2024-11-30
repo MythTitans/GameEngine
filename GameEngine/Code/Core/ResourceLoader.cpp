@@ -67,7 +67,8 @@ ResourceLoader* g_pResourceLoader = nullptr;
 //constexpr uint IO_THREAD_AFFINITY_MASK = 1 << 1;
 
 ResourceLoader::ResourceLoader()
-	: m_oIOThread( &ResourceLoader::Load, this )
+	: m_bRunning( true )
+	, m_oIOThread( &ResourceLoader::Load, this )
 {
 	//SetThreadAffinityMask( m_oIOThread.native_handle(), IO_THREAD_AFFINITY_MASK );
 	SetThreadDescription( m_oIOThread.native_handle(), L"IO thread" );
@@ -77,21 +78,11 @@ ResourceLoader::ResourceLoader()
 
 ResourceLoader::~ResourceLoader()
 {
+	m_bRunning = false;
+	m_oProcessingCommandsConditionVariable.notify_one();
+
 	g_pResourceLoader = nullptr;
 }
-
-/*
-void Texture::use(unsigned int textureUnit) const
-{
-	glActiveTexture(GL_TEXTURE0 + textureUnit);
-	glBindTexture(GL_TEXTURE_2D, textureId);
-}
-
-void Texture::unuse() const
-{
-	glBindTexture(GL_TEXTURE_2D, 0);
-}
-*/
 
 TextureResPtr ResourceLoader::LoadTexture( const std::filesystem::path& oFilePath )
 {
@@ -168,9 +159,9 @@ void ResourceLoader::Update()
 	LoadTexture( std::filesystem::path( "Data/BLUE.png" ) );
 	LoadTexture( std::filesystem::path( "Data/TRANSPARENT.png" ) );
 	LoadModel( std::filesystem::path( "Data/cube.obj" ) );
-	LoadTechnique( std::filesystem::path( "Data/phong" ) );
-	//LoadShader( std::filesystem::path( "Data/phong.vs" ) );
-	//LoadShader( std::filesystem::path( "Data/phong.ps" ) );
+	LoadTechnique( std::filesystem::path( "Data/basic" ) );
+	//LoadShader( std::filesystem::path( "Data/basic.vs" ) );
+	//LoadShader( std::filesystem::path( "Data/basic.ps" ) );
 }
 
 void ResourceLoader::PostUpdate()
@@ -182,12 +173,15 @@ void ResourceLoader::PostUpdate()
 
 void ResourceLoader::Load()
 {
-	while( true )
+	while( m_bRunning )
 	{
 		std::unique_lock oLock( m_oProcessingCommandsMutex );
 		// TODO #eric improve load queue handling
-		m_oProcessingCommandsConditionVariable.wait( oLock, [ this ]() { return m_oProcessingLoadCommands.Empty() == false; } );
+		m_oProcessingCommandsConditionVariable.wait( oLock, [ this ]() { return m_oProcessingLoadCommands.Empty() == false || m_bRunning == false; } );
 		oLock.unlock();
+
+		if( m_bRunning == false )
+			return;
 
 		for( TextureLoadCommand& oLoadCommand : m_oProcessingLoadCommands.m_aTextureLoadCommands )
 		{
