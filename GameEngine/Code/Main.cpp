@@ -116,4 +116,6 @@ int main()
 
 	LOG_INFO( "Terminating GLFW" );
 	glfwTerminate();
+
+	Logger::Flush();
 }

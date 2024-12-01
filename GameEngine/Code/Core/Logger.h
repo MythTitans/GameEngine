@@ -21,11 +21,16 @@ public:
 	static void			RegisterLogger( Logger* pLogger );
 	static void			UnRegisterLogger( Logger* pLogger );
 	static void			Log( const LogLevel eLogLevel, const std::string& sFile, const int iLine, const std::string& sMessage );
+	static void			Flush();
 
-	virtual void		WriteLog( const std::string& sMessage ) = 0;
+protected:
+	static char*			s_pLogBuffer;
+	static uint				s_uLogBufferCursor;
 
 private:
 	static std::string	ProduceLog( const LogLevel eLogLevel, const std::string& sFile, const int iLine, const std::string& sMessage );
+
+	virtual void		FlushLogs() = 0;
 
 	static const char*		s_aLogLevels[ 5 ];
 	static Array< Logger* >	s_aLoggers;
@@ -33,8 +38,8 @@ private:
 
 class OutputLogger : public Logger
 {
-public:
-	void WriteLog( const std::string& sMessage ) override;
+private:
+	void FlushLogs() override;
 };
 
 class FileLogger : public Logger
@@ -43,9 +48,8 @@ public:
 	FileLogger( const std::string& sFileName );
 	~FileLogger();
 
-	void WriteLog( const std::string& sMessage ) override;
-
 private:
+	void FlushLogs() override;
 	std::FILE* m_pFile;
 };
 

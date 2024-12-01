@@ -7,6 +7,11 @@
 #include <fstream>
 #include <string>
 
+static constexpr uint LOG_BUFFER_SIZE = 10 * 1024;
+
+char* Logger::s_pLogBuffer = nullptr;
+uint Logger::s_uLogBufferCursor = 0;
+
 const char* Logger::s_aLogLevels[] = { "TRACE", "DEBUG", "INFO", "WARN", "ERROR" };
 Array< Logger* > Logger::s_aLoggers;
 
@@ -15,11 +20,20 @@ static FileLogger sFileLogger( "GameEngine.log" );
 
 Logger::Logger()
 {
+	if( s_pLogBuffer == nullptr )
+		s_pLogBuffer = new char[ LOG_BUFFER_SIZE ];
+
 	RegisterLogger( this );
 }
 
 Logger::~Logger()
 {
+	if( s_aLoggers.Empty() && s_pLogBuffer != nullptr )
+	{
+		delete[] s_pLogBuffer;
+		s_pLogBuffer = nullptr;
+	}
+
 	UnRegisterLogger( this );
 }
 
@@ -50,8 +64,22 @@ void Logger::Log( const LogLevel eLogLevel, const std::string& sFile, const int 
 {
 	static const std::size_t uFilePrefixLength = std::filesystem::current_path().string().length() + 1;
 
+	std::string sLog = ProduceLog( eLogLevel, sFile.substr( uFilePrefixLength ), iLine, sMessage );
+
+	if( s_uLogBufferCursor + sLog.length() + 1 >= LOG_BUFFER_SIZE )
+		Flush();
+
+	strcpy( &s_pLogBuffer[ s_uLogBufferCursor ], sLog.c_str() );
+	s_uLogBufferCursor += ( uint )sLog.length();
+}
+
+void Logger::Flush()
+{
 	for( Logger* pCurrentLogger : s_aLoggers )
-		pCurrentLogger->WriteLog( ProduceLog( eLogLevel, sFile.substr( uFilePrefixLength ), iLine, sMessage ) );
+		pCurrentLogger->FlushLogs();
+
+	s_pLogBuffer[ 0 ] = '\0';
+	s_uLogBufferCursor = 0;
 }
 
 std::string Logger::ProduceLog( const LogLevel eLogLevel, const std::string& sFile, const int iLine, const std::string& sMessage )
@@ -59,9 +87,9 @@ std::string Logger::ProduceLog( const LogLevel eLogLevel, const std::string& sFi
 	return std::format( "{} [{}] {}({}) : {}\n", std::chrono::system_clock::now(), s_aLogLevels[ eLogLevel ], sFile, iLine, sMessage );
 }
 
-void OutputLogger::WriteLog( const std::string& sMessage )
+void OutputLogger::FlushLogs()
 {
-	std::fputs( sMessage.c_str(), stdout );
+	fputs( s_pLogBuffer, stdout );
 }
 
 FileLogger::FileLogger( const std::string& sFileName )
@@ -90,19 +118,19 @@ FileLogger::FileLogger( const std::string& sFileName )
 		std::filesystem::rename( oFilePath, oNewFilePath );
 	}
 
-	m_pFile = std::fopen( oFilePath.string().c_str(), "w+" );
+	m_pFile = fopen( oFilePath.string().c_str(), "w+" );
 }
 
 FileLogger::~FileLogger()
 {
 	if( m_pFile != nullptr )
 	{
-		std::fclose( m_pFile );
+		fclose( m_pFile );
 		m_pFile = nullptr;
 	}
 }
 
-void FileLogger::WriteLog( const std::string& sMessage )
+void FileLogger::FlushLogs()
 {
-	std::fputs( sMessage.c_str(), m_pFile );
+	fputs( s_pLogBuffer, m_pFile );
 }

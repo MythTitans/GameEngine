@@ -80,4 +80,6 @@ void GameEngine::ProcessFrame()
 void GameEngine::EndFrame()
 {
 	ImGui::Render();
+
+	Logger::Flush();
 }
