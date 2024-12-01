@@ -44,6 +44,6 @@ void BasicTechniqueDefinition::SetProjection( const glm::mat4& mProjection )
 
 void BasicTechniqueDefinition::CreateDefinition( const Technique& oTechnique )
 {
-	m_uViewUniformLocation = oTechnique.GetUniformLocation( "view" );
-	m_uProjectionUniformLocation = oTechnique.GetUniformLocation( "projection" );
+	m_uViewUniformLocation = oTechnique.GetParameterID( "view" );
+	m_uProjectionUniformLocation = oTechnique.GetParameterID( "projection" );
 }

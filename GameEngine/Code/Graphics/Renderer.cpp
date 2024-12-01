@@ -3,8 +3,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "Core/Logger.h"
 #include "Core/Profiler.h"
 #include "Game/GameEngine.h"
@@ -79,8 +77,8 @@ void Renderer::Render( const RenderContext& oRenderContext )
 
 		glUseProgram( oTechnique.m_uProgramID );
 
-		m_oBasicTechniqueDefinition.SetView( glm::lookAt( glm::vec3( 10.f, 10.f, 10.f ), glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 1.f, 0.f ) ) );
-		m_oBasicTechniqueDefinition.SetProjection( glm::perspective( glm::radians( 60.f ), oRenderContext.ComputeAspectRatio(), 0.1f, 1000.f ) );
+		m_oBasicTechniqueDefinition.SetView( m_oCamera.GetViewMatrix() );
+		m_oBasicTechniqueDefinition.SetProjection( m_oCamera.GetProjectionMatrix() );
 
 		if( g_pGameEngine->GetScene().m_xCube->IsLoaded() )
 		{
@@ -94,4 +92,14 @@ void Renderer::Render( const RenderContext& oRenderContext )
 
 		glUseProgram( 0 );
 	}
+}
+
+Camera& Renderer::GetCamera()
+{
+	return m_oCamera;
+}
+
+const Camera& Renderer::GetCamera() const
+{
+	return m_oCamera;
 }

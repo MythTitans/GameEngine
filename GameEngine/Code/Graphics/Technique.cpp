@@ -41,7 +41,7 @@ void Technique::Destroy()
 	m_uProgramID = 0;
 }
 
-GLuint Technique::GetUniformLocation( const char* sUniform ) const
+GLuint Technique::GetParameterID( const char* sParameter ) const
 {
-	return glGetUniformLocation( m_uProgramID, sUniform );
+	return glGetUniformLocation( m_uProgramID, sParameter );
 }

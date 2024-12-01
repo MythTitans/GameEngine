@@ -3,6 +3,7 @@
 #include "Core/Common.h"
 #include "Core/Profiler.h"
 #include "Core/ResourceLoader.h"
+#include "Game/FreeCamera.h"
 #include "Game/InputHandler.h"
 #include "Game/Scene.h"
 #include "Graphics/Renderer.h"
@@ -13,7 +14,10 @@ struct GameContext
 {
 	GameContext();
 
-	uint64 m_uFrameIndex;
+	GameTimePoint	m_oFrameStart;
+	uint64			m_uFrameIndex;
+
+	float			m_fLastDeltaTime;
 };
 
 class GameEngine
@@ -36,6 +40,8 @@ private:
 	Profiler				m_oProfiler;
 
 	Scene					m_oScene;
+
+	FreeCamera				m_oFreeCamera;
 
 	const InputContext&		m_oInputContext;
 	const RenderContext&	m_oRenderContext;

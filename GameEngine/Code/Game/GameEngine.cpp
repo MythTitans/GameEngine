@@ -4,6 +4,7 @@
 
 GameContext::GameContext()
 	: m_uFrameIndex( 0 )
+	, m_fLastDeltaTime( 0.f )
 {
 }
 
@@ -33,6 +34,14 @@ const Scene& GameEngine::GetScene() const
 
 void GameEngine::NewFrame()
 {
+	const GameTimePoint oNow = std::chrono::high_resolution_clock::now();
+	if( m_oGameContext.m_uFrameIndex != 0 )
+	{
+		const uint64 uMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oNow - m_oGameContext.m_oFrameStart ).count();
+		m_oGameContext.m_fLastDeltaTime = uMicroSeconds / 1000000.f;
+	}
+	m_oGameContext.m_oFrameStart = oNow;
+
 	ImGui::NewFrame();
 
 	m_oProfiler.NewFrame();
@@ -51,6 +60,7 @@ void GameEngine::ProcessFrame()
 	{
 		ProfilerBlock oBlock( "Update" );
 		m_oInputHandler.UpdateInputs( m_oInputContext );
+		m_oFreeCamera.Update( m_oGameContext.m_fLastDeltaTime );
 		//m_oResourceLoader.Update();
 	}
 

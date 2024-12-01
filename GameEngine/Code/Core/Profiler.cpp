@@ -2,13 +2,14 @@
 
 #include <format>
 
+#include "Game/GameEngine.h"
 #include "Game/InputHandler.h"
 
 static const uint FRAME_HISTORY_COUNT = 61;
 
 static constexpr ImColor BorderColor( const ImColor& oBackgroundColor )
 {
-	return ImColor( max( 0.f, oBackgroundColor.Value.x * 0.8f ), max( 0.f, oBackgroundColor.Value.y * 0.8f ), max( 0.f, oBackgroundColor.Value.z * 0.8f ), 1.f );
+	return ImColor( glm::max( 0.f, oBackgroundColor.Value.x * 0.8f ), glm::max( 0.f, oBackgroundColor.Value.y * 0.8f ), glm::max( 0.f, oBackgroundColor.Value.z * 0.8f ), 1.f );
 }
 
 static constexpr ImColor TextColor( const ImColor& oBackgroundColor )
@@ -130,7 +131,7 @@ void Profiler::NewFrame()
 	oCurrentFrame.m_aBlocks.Clear();
 	oCurrentFrame.m_aAsyncBlocks.Clear();
 
-	oCurrentFrame.m_oFrameStart = std::chrono::high_resolution_clock::now();
+	oCurrentFrame.m_oFrameStart = g_pGameEngine->GetGameContext().m_oFrameStart;
 	oPreviousFrame.m_oFrameEnd = oCurrentFrame.m_oFrameStart;
 
 	int uAsyncBlocksInFlight = 0;
@@ -188,8 +189,8 @@ void Profiler::Display()
 
 		fAvgFrameLength /= FRAME_HISTORY_COUNT;
 
-		const float fHistogramMin = min( fAvgFrameLength, fMinFrameLength ) * 0.8f;
-		const float fHistogramMax = max( fAvgFrameLength, fMaxFrameLength ) * 1.2f;
+		const float fHistogramMin = glm::min( fAvgFrameLength, fMinFrameLength ) * 0.8f;
+		const float fHistogramMax = glm::max( fAvgFrameLength, fMaxFrameLength ) * 1.2f;
 
 		ImGui::PlotHistogram( "Frame history", aFrameLengths, IM_ARRAYSIZE( aFrameLengths ), 0, NULL, fHistogramMin, fHistogramMax, ImVec2( 0, 80.0f ) );
 

@@ -33,8 +33,6 @@ public:
 	void EndAsyncBlock( const uint uBlockID );
 
 private:
-	using TimePoint = std::chrono::high_resolution_clock::time_point;
-
 	struct Block
 	{
 		Block( const char* sName, const uint uDepth )
@@ -49,10 +47,10 @@ private:
 			return m_oStart <= m_oEnd;
 		}
 
-		const char*	m_sName;
-		TimePoint	m_oStart;
-		TimePoint	m_oEnd;
-		uint		m_uDepth;
+		const char*		m_sName;
+		GameTimePoint	m_oStart;
+		GameTimePoint	m_oEnd;
+		uint			m_uDepth;
 	};
 
 	struct AsyncBlock : Block
@@ -68,8 +66,8 @@ private:
 
 	struct Frame
 	{
-		TimePoint							m_oFrameStart;
-		TimePoint							m_oFrameEnd;
+		GameTimePoint						m_oFrameStart;
+		GameTimePoint						m_oFrameEnd;
 		Array< Block, FAST_RESIZE >			m_aBlocks;
 		Array< AsyncBlock, FAST_RESIZE >	m_aAsyncBlocks;
 	};

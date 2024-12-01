@@ -16,7 +16,7 @@ public:
 	void	Create( const Array< const Shader* > aShaders );
 	void	Destroy();
 
-	GLuint	GetUniformLocation( const char* sUniform ) const;
+	GLuint	GetParameterID( const char* sUniform ) const;
 
 private:
 	GLuint m_uProgramID;

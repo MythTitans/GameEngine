@@ -89,7 +89,7 @@ int main()
 
 				{
 					ProfilerBlock oBlock( "Frame" );
-					glfwPollEvents();
+					s_oInputContext.Refresh();
 					oGameEngine.ProcessFrame();
 				}
 

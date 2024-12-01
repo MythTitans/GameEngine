@@ -2,6 +2,7 @@
 
 #include "Core/Common.h"
 #include "Core/ResourceLoader.h"
+#include "Graphics/Camera.h"
 #include "Graphics/TechniqueDefinition.h"
 
 struct GLFWwindow;
@@ -37,9 +38,14 @@ public:
 	Renderer();
 	~Renderer();
 
-	void Render( const RenderContext& oRenderContext );
+	void			Render( const RenderContext& oRenderContext );
+
+	Camera&			GetCamera();
+	const Camera&	GetCamera() const;
 
 private:
+	Camera						m_oCamera;
+
 	TechniqueResPtr				m_xRenderTechnique;
 	BasicTechniqueDefinition	m_oBasicTechniqueDefinition;
 };
