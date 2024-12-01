@@ -26,6 +26,8 @@ public:
 
 	Resource();
 
+	virtual void	Destroy() = 0;
+
 	bool			IsLoaded() const;
 
 protected:
@@ -36,6 +38,8 @@ class TextureResource : public Resource
 {
 public:
 	friend class ResourceLoader;
+
+	void			Destroy() override;
 
 	Texture&		GetTexture();
 	const Texture&	GetTexture() const;
@@ -51,6 +55,8 @@ class ModelResource : public Resource
 public:
 	friend class ResourceLoader;
 
+	void					Destroy() override;
+
 	Array< Mesh >&			GetMeshes();
 	const Array< Mesh >&	GetMeshes() const;
 
@@ -64,6 +70,8 @@ class ShaderResource : public Resource
 {
 public:
 	friend class ResourceLoader;
+
+	void			Destroy() override;
 
 	Shader&			GetShader();
 	const Shader&	GetShader() const;
@@ -79,6 +87,8 @@ class TechniqueResource : public Resource
 public:
 	friend class ResourceLoader;
 
+	void				Destroy() override;
+
 	Technique&			GetTechnique();
 	const Technique&	GetTechnique() const;
 
@@ -93,6 +103,12 @@ using TechniqueResPtr = StrongPtr< TechniqueResource >;
 class ResourceLoader
 {
 public:
+	template < typename LoadCommand >
+	friend void Load( Array< LoadCommand >& aLoadCommands, std::unique_lock< std::mutex >& oLock, const char* sCommandName );
+
+	template < typename LoadCommand >
+	friend uint CheckFinishedProcessingLoadCommands( Array< LoadCommand >& aLoadCommands );
+
 	ResourceLoader();
 	~ResourceLoader();
 
@@ -140,6 +156,7 @@ private:
 	{
 		TextureLoadCommand( const std::filesystem::path& oFilePath, const TextureResPtr& xResource );
 
+		void Load( std::unique_lock< std::mutex >& oLock );
 		void OnLoaded();
 
 		int		m_iWidth;
@@ -150,21 +167,24 @@ private:
 
 	struct ModelLoadCommand : LoadCommand< ModelResource >
 	{
-		ModelLoadCommand( const std::filesystem::path& oFilePath, const ModelResPtr& xResource );
+		ModelLoadCommand( const std::filesystem::path& oFilePath, const ModelResPtr& xResource, Assimp::Importer& oModelImporter );
 
+		void Load( std::unique_lock< std::mutex >& oLock );
 		void OnLoaded();
 
 		uint CountMeshes( aiNode* pNode );
 		void LoadMeshes( aiNode* pNode );
 		void LoadMesh( aiMesh* pMesh );
 
-		aiScene* m_pScene;
+		Assimp::Importer&	m_oModelImporter;
+		aiScene*			m_pScene;
 	};
 
 	struct ShaderLoadCommand : LoadCommand< ShaderResource >
 	{
 		ShaderLoadCommand( const std::filesystem::path& oFilePath, const ShaderResPtr& xResource );
 
+		void Load( std::unique_lock< std::mutex >& oLock );
 		void OnLoaded();
 
 		std::string m_sShaderCode;
