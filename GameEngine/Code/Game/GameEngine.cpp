@@ -61,6 +61,10 @@ void GameEngine::ProcessFrame()
 		ProfilerBlock oBlock( "Update" );
 		m_oInputHandler.UpdateInputs( m_oInputContext );
 		m_oFreeCamera.Update( m_oGameContext.m_fLastDeltaTime );
+// 		for( uint u = 0; u < 1000; ++u )
+// 		{
+// 			LOG_INFO( "this is a test" );
+// 		}
 		//m_oResourceLoader.Update();
 	}
 

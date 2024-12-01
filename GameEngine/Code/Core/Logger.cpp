@@ -82,9 +82,49 @@ void Logger::Flush()
 	s_uLogBufferCursor = 0;
 }
 
+// std::string Logger::ProduceLog( const LogLevel eLogLevel, const std::string& sFile, const int iLine, const std::string& sMessage )
+// {
+// 	std::chrono::system_clock::time_point oNow = std::chrono::system_clock::now();
+// 
+// 	return std::format( "{} [{}] {}({}) : {}\n", oNow, s_aLogLevels[ eLogLevel ], sFile, iLine, sMessage );
+// }
+
+// std::string Logger::ProduceLog( const LogLevel eLogLevel, const std::string& sFile, const int iLine, const std::string& sMessage )
+// {
+// 	std::chrono::system_clock::time_point oNow = std::chrono::system_clock::now();
+// 
+// 	std::chrono::year_month_day oYMD( std::chrono::floor< std::chrono::days >( oNow ) );
+// 	std::chrono::hh_mm_ss oHMS( std::chrono::floor< std::chrono::milliseconds >( oNow - std::chrono::floor< std::chrono::days >( oNow ) ) );
+// 	
+// 	const int iYear = ( int )oYMD.year();
+// 	const uint uMonth = ( uint )oYMD.month();
+// 	const uint uDay = ( uint )oYMD.day();
+// 	const int uHour = ( int )oHMS.hours().count();
+// 	const int uMinute = ( int )oHMS.minutes().count();
+// 	const int uSecond = ( int )oHMS.seconds().count();
+// 	const int uMilliSecond = ( int )oHMS.subseconds().count();
+// 
+// 	return std::format( "{}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}.{:03d} [{}] {}({}) : {}\n", iYear, uMonth, uDay, uHour, uMinute, uSecond, uMilliSecond, s_aLogLevels[ eLogLevel ], sFile, iLine, sMessage );
+// }
+
 std::string Logger::ProduceLog( const LogLevel eLogLevel, const std::string& sFile, const int iLine, const std::string& sMessage )
 {
-	return std::format( "{} [{}] {}({}) : {}\n", std::chrono::system_clock::now(), s_aLogLevels[ eLogLevel ], sFile, iLine, sMessage );
+	std::chrono::system_clock::time_point oNow = std::chrono::system_clock::now();
+
+	std::chrono::year_month_day oYMD( std::chrono::floor< std::chrono::days >( oNow ) );
+	std::chrono::hh_mm_ss oHMS( std::chrono::floor< std::chrono::milliseconds >( oNow - std::chrono::floor< std::chrono::days >( oNow ) ) );
+	
+	const int iYear = ( int )oYMD.year();
+	const uint uMonth = ( uint )oYMD.month();
+	const uint uDay = ( uint )oYMD.day();
+	const int uHour = ( int )oHMS.hours().count();
+	const int uMinute = ( int )oHMS.minutes().count();
+	const int uSecond = ( int )oHMS.seconds().count();
+	const int uMilliSecond = ( int )oHMS.subseconds().count();
+	
+	char sBuffer[ 1024 ];
+	snprintf( sBuffer, 1024, "%d-%02d-%02d %02d:%02d:%02d.%03d [%s] %s(%d) : %s\n", iYear, uMonth, uDay, uHour, uMinute, uSecond, uMilliSecond, s_aLogLevels[ eLogLevel ], sFile.c_str(), iLine, sMessage.c_str() );
+	return sBuffer;
 }
 
 void OutputLogger::FlushLogs()
