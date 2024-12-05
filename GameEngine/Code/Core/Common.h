@@ -10,7 +10,7 @@
 
 #ifdef _DEBUG
 #define ASSERT( bExpression )																																			\
-if( bExpression == false )																																				\
+if( ( bExpression ) == false )																																			\
 {																																										\
 	static bool s_bAlwaysIgnore = false;																																\
 	if( s_bAlwaysIgnore == false )																																		\

@@ -6,6 +6,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "stb_truetype.h"
+
 #include "Common.h"
 #include "FileUtils.h"
 #include "Graphics/Utils.h"
@@ -20,6 +23,21 @@ Resource::Resource()
 bool Resource::IsLoaded() const
 {
 	return m_bLoaded;
+}
+
+void FontResource::Destroy()
+{
+	m_oAtlas.Destroy();
+}
+
+const Texture& FontResource::GetAtlas() const
+{
+	return m_oAtlas;
+}
+
+const Array< stbtt_packedchar > FontResource::GetGlyphs() const
+{
+	return m_aPackedCharacters;
 }
 
 void TextureResource::Destroy()
@@ -105,6 +123,20 @@ ResourceLoader::~ResourceLoader()
 	g_pResourceLoader = nullptr;
 }
 
+FontResPtr ResourceLoader::LoadFont( const std::filesystem::path& oFilePath )
+{
+	FontResPtr& xFontPtr = m_mFontResources[ oFilePath ];
+	if( xFontPtr != nullptr )
+		return xFontPtr;
+
+	xFontPtr = new FontResource();
+
+	LOG_INFO( "Loading {}", oFilePath.string() );
+	m_oPendingLoadCommands.m_aFontLoadCommands.PushBack( FontLoadCommand( oFilePath, xFontPtr ) );
+
+	return xFontPtr;
+}
+
 TextureResPtr ResourceLoader::LoadTexture( const std::filesystem::path& oFilePath )
 {
 	TextureResPtr& xTexturePtr = m_mTextureResources[ oFilePath ];
@@ -183,6 +215,7 @@ void ResourceLoader::Update()
 	LoadTechnique( std::filesystem::path( "Data/basic" ) );
 	//LoadShader( std::filesystem::path( "Data/basic.vs" ) );
 	//LoadShader( std::filesystem::path( "Data/basic.ps" ) );
+	LoadFont( std::filesystem::path( "C:/Windows/Fonts/arialbd.ttf" ) );
 }
 
 void ResourceLoader::PostUpdate()
@@ -230,6 +263,7 @@ void ResourceLoader::Load()
 		if( m_bRunning == false )
 			return;
 
+		::Load( m_oProcessingLoadCommands.m_aFontLoadCommands, oLock, "LoadFont" );
 		::Load( m_oProcessingLoadCommands.m_aTextureLoadCommands, oLock, "LoadTexture" );
 		::Load( m_oProcessingLoadCommands.m_aModelLoadCommands, oLock, "LoadModel" );
 		::Load( m_oProcessingLoadCommands.m_aShaderLoadCommands, oLock, "LoadShader" );
@@ -293,6 +327,7 @@ void ResourceLoader::CheckFinishedProcessingLoadCommands()
 
 	std::unique_lock oLock( m_oProcessingCommandsMutex );
 
+	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aFontLoadCommands );
 	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aTextureLoadCommands );
 	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aModelLoadCommands );
 	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aShaderLoadCommands );
@@ -332,6 +367,7 @@ void DestroyUnusedResources( std::unordered_map< std::filesystem::path, StrongPt
 	{
 		if( oPair.second->GetReferenceCount() == 1 )
 		{
+			LOG_INFO( "Unloading {}", oPair.first.string() );
 			oPair.second->Destroy();
 			oPair.second = nullptr;
 		}
@@ -342,10 +378,44 @@ void ResourceLoader::DestroyUnusedResources()
 {
 	ProfilerBlock oBlock( "DestroyUnusedResources" );
 
+	::DestroyUnusedResources( m_mFontResources );
 	::DestroyUnusedResources( m_mTextureResources );
 	::DestroyUnusedResources( m_mModelResources );
 	::DestroyUnusedResources( m_mTechniqueResources );
 	::DestroyUnusedResources( m_mShaderResources );
+}
+
+ResourceLoader::FontLoadCommand::FontLoadCommand( const std::filesystem::path& oFilePath, const FontResPtr& xResource )
+	: LoadCommand( oFilePath, xResource )
+{
+}
+
+void ResourceLoader::FontLoadCommand::Load( std::unique_lock< std::mutex >& oLock )
+{
+	Array< uint8 > aAtlasData( FontResource::ATLAS_WIDTH * FontResource::ATLAS_HEIGHT );
+	Array< stbtt_packedchar > aPackedCharacters( FontResource::GLYPH_COUNT );
+
+	Array< uint8 > aFontData = ReadBinaryFile( m_oFilePath );
+
+	stbtt_pack_context oAtlasContext;
+	stbtt_PackBegin( &oAtlasContext, aAtlasData.Data(), FontResource::ATLAS_WIDTH, FontResource::ATLAS_HEIGHT, 0, 1, nullptr );
+	stbtt_PackFontRange( &oAtlasContext, aFontData.Data(), 0, ( float )FontResource::FONT_HEIGHT, FontResource::FIRST_GLYPH, FontResource::GLYPH_COUNT, aPackedCharacters.Data() );
+	stbtt_PackEnd( &oAtlasContext );
+
+	oLock.lock();
+	m_eStatus = aAtlasData.Empty() == false ? LoadCommandStatus::LOADED : LoadCommandStatus::ERROR_READING;
+	m_aAtlasData = std::move( aAtlasData );
+	m_aPackedCharacters = std::move( aPackedCharacters );
+	oLock.unlock();
+}
+
+void ResourceLoader::FontLoadCommand::OnLoaded()
+{
+	m_xResource->m_oAtlas.Create( FontResource::ATLAS_WIDTH, FontResource::ATLAS_HEIGHT, TextureFormat::RED, m_aAtlasData.Data() );
+
+	m_xResource->m_aPackedCharacters = std::move( m_aPackedCharacters );
+
+	m_xResource->m_bLoaded = true;
 }
 
 ResourceLoader::TextureLoadCommand::TextureLoadCommand( const std::filesystem::path& oFilePath, const TextureResPtr& xResource )
@@ -468,11 +538,15 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
 		const aiFace& oFace = pMesh->mFaces[ uFace ];
 		for( uint uIndex = 0; uIndex < oFace.mNumIndices; ++uIndex )
 			aIndices.PushBack( oFace.mIndices[ uIndex ] );
-		
 	}
 
- 	m_xResource->m_aMeshes.PushBack( Mesh() );
- 	m_xResource->m_aMeshes.Back().Create( aVertices, aUVs, aNormals, aTangents, aBiTangents, aIndices );
+	MeshBuilder oMeshBuilder = MeshBuilder( std::move( aVertices ), std::move( aIndices ) )
+		.WithUVs( std::move( aUVs ) )
+		.WithNormals( std::move( aNormals ) )
+		.WithTangents( std::move( aTangents ) )
+		.WithBiTangents( std::move( aBiTangents ) );
+
+	m_xResource->m_aMeshes.PushBack( oMeshBuilder.Build() );
 }
 
 ResourceLoader::ShaderLoadCommand::ShaderLoadCommand( const std::filesystem::path& oFilePath, const ShaderResPtr& xResource )
@@ -487,7 +561,7 @@ ResourceLoader::ShaderLoadCommand::ShaderLoadCommand( const std::filesystem::pat
 
 void ResourceLoader::ShaderLoadCommand::Load( std::unique_lock< std::mutex >& oLock )
 {
-	std::string sContent = ReadFileContent( m_oFilePath );
+	std::string sContent = ReadTextFile( m_oFilePath );
 
 	oLock.lock();
 	m_eStatus = LoadCommandStatus::LOADED;
@@ -531,16 +605,17 @@ void ResourceLoader::TechniqueLoadCommand::OnLoaded()
 
 uint ResourceLoader::LoadCommands::Count() const
 {
-	return m_aTextureLoadCommands.Count() + m_aModelLoadCommands.Count() + m_aShaderLoadCommands.Count() + m_aTechniqueLoadCommands.Count();
+	return m_aFontLoadCommands.Count() + m_aTextureLoadCommands.Count() + m_aModelLoadCommands.Count() + m_aShaderLoadCommands.Count() + m_aTechniqueLoadCommands.Count();
 }
 
 bool ResourceLoader::LoadCommands::Empty() const
 {
-	return m_aTextureLoadCommands.Empty() && m_aModelLoadCommands.Empty() && m_aShaderLoadCommands.Empty() && m_aTechniqueLoadCommands.Empty();
+	return m_aFontLoadCommands.Empty() && m_aTextureLoadCommands.Empty() && m_aModelLoadCommands.Empty() && m_aShaderLoadCommands.Empty() && m_aTechniqueLoadCommands.Empty();
 }
 
 void ResourceLoader::LoadCommands::Grab( LoadCommands& oLoadCommands )
 {
+	m_aFontLoadCommands.Grab( oLoadCommands.m_aFontLoadCommands );
 	m_aTextureLoadCommands.Grab( oLoadCommands.m_aTextureLoadCommands );
 	m_aModelLoadCommands.Grab( oLoadCommands.m_aModelLoadCommands );
 	m_aShaderLoadCommands.Grab( oLoadCommands.m_aShaderLoadCommands );
@@ -549,6 +624,7 @@ void ResourceLoader::LoadCommands::Grab( LoadCommands& oLoadCommands )
 
 void ResourceLoader::LoadCommands::Clear()
 {
+	m_aFontLoadCommands.Clear();
 	m_aTextureLoadCommands.Clear();
 	m_aModelLoadCommands.Clear();
 	m_aShaderLoadCommands.Clear();

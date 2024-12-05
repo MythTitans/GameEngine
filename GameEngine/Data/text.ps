@@ -1,0 +1,15 @@
+#version 330
+
+in vec2 uv;
+
+out vec4 finalColor;
+
+uniform vec2 glyphOffset;
+uniform vec2 glyphSize;
+uniform vec4 glyphColor;
+uniform sampler2D atlasTexture;
+
+void main()
+{
+    finalColor = vec4( texture( atlasTexture, glyphOffset + vec2( uv.x, 1 - uv.y ) * glyphSize ).r * glyphColor );
+}

@@ -175,6 +175,7 @@
     <ClCompile Include="Code\Graphics\Shader.cpp" />
     <ClCompile Include="Code\Graphics\Technique.cpp" />
     <ClCompile Include="Code\Graphics\TechniqueDefinition.cpp" />
+    <ClCompile Include="Code\Graphics\TextRenderer.cpp" />
     <ClCompile Include="Code\Graphics\Texture.cpp" />
     <ClCompile Include="Code\Graphics\Utils.cpp" />
     <ClCompile Include="Code\ImGui\imgui.cpp" />
@@ -195,6 +196,8 @@
     <ClInclude Include="Code\Core\Profiler.h" />
     <ClInclude Include="Code\Core\ResourceLoader.h" />
     <ClInclude Include="Code\Core\stb_image.h" />
+    <ClInclude Include="Code\Core\stb_image_write.h" />
+    <ClInclude Include="Code\Core\stb_truetype.h" />
     <ClInclude Include="Code\Core\TaskScheduler.h" />
     <ClInclude Include="Code\Core\Types.h" />
     <ClInclude Include="Code\Core\FileUtils.h" />
@@ -208,6 +211,7 @@
     <ClInclude Include="Code\Graphics\Shader.h" />
     <ClInclude Include="Code\Graphics\Technique.h" />
     <ClInclude Include="Code\Graphics\TechniqueDefinition.h" />
+    <ClInclude Include="Code\Graphics\TextRenderer.h" />
     <ClInclude Include="Code\Graphics\Texture.h" />
     <ClInclude Include="Code\Graphics\Utils.h" />
     <ClInclude Include="Code\ImGui\imconfig.h" />

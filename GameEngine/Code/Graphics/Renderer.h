@@ -1,9 +1,10 @@
 #pragma once
 
+#include "Camera.h"
 #include "Core/Common.h"
 #include "Core/ResourceLoader.h"
-#include "Graphics/Camera.h"
-#include "Graphics/TechniqueDefinition.h"
+#include "TechniqueDefinition.h"
+#include "TextRenderer.h"
 
 struct GLFWwindow;
 
@@ -44,6 +45,7 @@ public:
 	const Camera&	GetCamera() const;
 
 private:
+	TextRenderer				m_oTextRenderer;
 	Camera						m_oCamera;
 
 	TechniqueResPtr				m_xRenderTechnique;

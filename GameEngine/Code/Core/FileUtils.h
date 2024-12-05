@@ -3,4 +3,7 @@
 #include <filesystem>
 #include <string>
 
-std::string ReadFileContent( const std::filesystem::path& oFilePath );
+#include "Array.h"
+
+std::string		ReadTextFile( const std::filesystem::path& oFilePath );
+Array< uint8 >	ReadBinaryFile( const std::filesystem::path& oFilePath );

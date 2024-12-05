@@ -8,12 +8,14 @@
 
 #include <assimp/Importer.hpp>
 
-#include "Core/Array.h"
-#include "Core/Intrusive.h"
+#include "stb_truetype.h"
+
+#include "Array.h"
 #include "Graphics/Mesh.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Technique.h"
 #include "Graphics/Texture.h"
+#include "Intrusive.h"
 
 struct aiMesh;
 struct aiNode;
@@ -26,13 +28,36 @@ public:
 
 	Resource();
 
-	virtual void	Destroy() = 0;
+	virtual void	Destroy() = 0; // TODO #eric this could probably be a destructor ?
 
 	bool			IsLoaded() const;
 
 protected:
 	bool m_bLoaded;
 };
+
+class FontResource : public Resource
+{
+public:
+	friend class ResourceLoader;
+
+	void							Destroy() override;
+
+	const Texture&					GetAtlas() const;
+	const Array< stbtt_packedchar > GetGlyphs() const;
+
+	static const int ATLAS_WIDTH = 512;
+	static const int ATLAS_HEIGHT = 512;
+	static const int FIRST_GLYPH = 32;
+	static const int GLYPH_COUNT = 96;
+	static const int FONT_HEIGHT = 16;
+
+private:
+	Texture						m_oAtlas;
+	Array< stbtt_packedchar >	m_aPackedCharacters;
+};
+
+using FontResPtr = StrongPtr< FontResource >;
 
 class TextureResource : public Resource
 {
@@ -112,6 +137,7 @@ public:
 	ResourceLoader();
 	~ResourceLoader();
 
+	FontResPtr		LoadFont( const std::filesystem::path& oFilePath );
 	TextureResPtr	LoadTexture( const std::filesystem::path& oFilePath );
 	ModelResPtr		LoadModel( const std::filesystem::path& oFilePath );
 	ShaderResPtr	LoadShader( const std::filesystem::path& oFilePath );
@@ -150,6 +176,17 @@ private:
 		std::filesystem::path	m_oFilePath;
 		StrongPtr< Resource >	m_xResource;
 		LoadCommandStatus		m_eStatus;
+	};
+
+	struct FontLoadCommand : LoadCommand< FontResource >
+	{
+		FontLoadCommand( const std::filesystem::path& oFilePath, const FontResPtr& xResource );
+
+		void Load( std::unique_lock< std::mutex >& oLock );
+		void OnLoaded();
+
+		Array< uint8 >				m_aAtlasData;
+		Array< stbtt_packedchar >	m_aPackedCharacters;
 	};
 
 	struct TextureLoadCommand : LoadCommand< TextureResource >
@@ -202,6 +239,7 @@ private:
 
 	struct LoadCommands
 	{
+		Array< FontLoadCommand >		m_aFontLoadCommands;
 		Array< TextureLoadCommand >		m_aTextureLoadCommands;
 		Array< ModelLoadCommand >		m_aModelLoadCommands;
 		Array< ShaderLoadCommand >		m_aShaderLoadCommands;
@@ -213,11 +251,13 @@ private:
 		void Clear();
 	};
 
+	using FontResourceMap = std::unordered_map< std::filesystem::path, FontResPtr >;
 	using TextureResourceMap = std::unordered_map< std::filesystem::path, TextureResPtr >;
 	using ModelResourceMap = std::unordered_map< std::filesystem::path, ModelResPtr >;
 	using ShaderResourceMap = std::unordered_map< std::filesystem::path, ShaderResPtr >;
 	using TechniqueResourceMap = std::unordered_map< std::filesystem::path, TechniqueResPtr >;
 
+	FontResourceMap			m_mFontResources;
 	TextureResourceMap		m_mTextureResources;
 	ModelResourceMap		m_mModelResources;
 	ShaderResourceMap		m_mShaderResources;

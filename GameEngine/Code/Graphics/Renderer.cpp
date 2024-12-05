@@ -47,7 +47,6 @@ Renderer* g_pRenderer = nullptr;
 Renderer::Renderer()
 	: m_xRenderTechnique( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/basic" ) ) )
 {
-	glEnable( GL_DEPTH_TEST );
 	glEnable( GL_CULL_FACE );
 
 	glClearColor( 0.f, 0.f, 0.f, 1.f );
@@ -68,6 +67,7 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+	glEnable( GL_DEPTH_TEST );
 	if( m_xRenderTechnique->IsLoaded() )
 	{
 		const Technique& oTechnique = m_xRenderTechnique->GetTechnique();
@@ -92,6 +92,9 @@ void Renderer::Render( const RenderContext& oRenderContext )
 
 		glUseProgram( 0 );
 	}
+
+	glDisable( GL_DEPTH_TEST );
+	m_oTextRenderer.Render( oRenderContext );
 }
 
 Camera& Renderer::GetCamera()

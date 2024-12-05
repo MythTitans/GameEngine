@@ -9,6 +9,7 @@ class Mesh
 {
 public:
 	friend class Renderer;
+	friend class TextRenderer;
 
 	Mesh();
 
@@ -20,4 +21,29 @@ private:
 	GLuint	m_uVertexBufferID;
 	GLuint	m_uIndexBufferID;
 	GLsizei m_iIndexCount;
+};
+
+class MeshBuilder
+{
+public:
+	MeshBuilder( Array< Float3 >&& aVertices, Array< GLuint >&& aIndices );
+
+	MeshBuilder& WithUVs();
+	MeshBuilder& WithUVs( Array< Float2 >&& aUVs );
+	MeshBuilder& WithNormals();
+	MeshBuilder& WithNormals( Array< Float3 >&& aNormals );
+	MeshBuilder& WithTangents();
+	MeshBuilder& WithTangents( Array< Float3 >&& aTangents );
+	MeshBuilder& WithBiTangents();
+	MeshBuilder& WithBiTangents( Array< Float3 >&& aBiTangents );
+
+	Mesh			Build();
+
+private:
+	Array< Float3 > m_aVertices;
+	Array< GLuint > m_aIndices;
+	Array< Float2 > m_aUVs;
+	Array< Float3 > m_aNormals;
+	Array< Float3 > m_aTangents;
+	Array< Float3 > m_aBiTangents;
 };

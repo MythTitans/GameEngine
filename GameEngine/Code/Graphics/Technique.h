@@ -10,6 +10,7 @@ class Technique
 {
 public:
 	friend class Renderer;
+	friend class TextRenderer;
 
 	Technique();
 
