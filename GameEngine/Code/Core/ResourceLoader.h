@@ -154,9 +154,9 @@ public:
 	ShaderResPtr	LoadShader( const std::filesystem::path& oFilePath );
 	TechniqueResPtr LoadTechnique( const std::filesystem::path& oFilePath );
 
-	void			PreUpdate();
+	void			HandleLoadedResources();
 	void			Update();
-	void			PostUpdate();
+	void			ProcessLoadCommands();
 
 private:
 	void			Load();

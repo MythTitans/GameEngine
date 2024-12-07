@@ -213,9 +213,9 @@ TechniqueResPtr ResourceLoader::LoadTechnique( const std::filesystem::path& oFil
 	return xTechniquePtr;
 }
 
-void ResourceLoader::PreUpdate()
+void ResourceLoader::HandleLoadedResources()
 {
-	ProfilerBlock oBlock( "ResourceLoader" );
+	ProfilerBlock oBlock( "HandleLoadedResources" );
 
 	CheckFinishedProcessingLoadCommands();
 	DestroyUnusedResources();
@@ -238,9 +238,9 @@ void ResourceLoader::Update()
 	LoadFont( std::filesystem::path( "C:/Windows/Fonts/arialbd.ttf" ) );
 }
 
-void ResourceLoader::PostUpdate()
+void ResourceLoader::ProcessLoadCommands()
 {
-	ProfilerBlock oBlock( "ResourceLoader" );
+	ProfilerBlock oBlock( "ProcessLoadCommands" );
 
 	ProcessPendingLoadCommands();
 }
@@ -284,10 +284,10 @@ void ResourceLoader::Load()
 			return;
 
 		::Load( m_oProcessingLoadCommands.m_aFontLoadCommands, oLock, "LoadFont" );
-		::Load( m_oProcessingLoadCommands.m_aTextureLoadCommands, oLock, "LoadTexture" );
-		::Load( m_oProcessingLoadCommands.m_aModelLoadCommands, oLock, "LoadModel" );
 		::Load( m_oProcessingLoadCommands.m_aShaderLoadCommands, oLock, "LoadShader" );
 		::Load( m_oProcessingLoadCommands.m_aTechniqueLoadCommands, oLock, "LoadTechnique", true );
+		::Load( m_oProcessingLoadCommands.m_aTextureLoadCommands, oLock, "LoadTexture" );
+		::Load( m_oProcessingLoadCommands.m_aModelLoadCommands, oLock, "LoadModel" );
 	}
 }
 
@@ -364,10 +364,10 @@ void ResourceLoader::CheckFinishedProcessingLoadCommands()
 	std::unique_lock oLock( m_oProcessingCommandsMutex );
 
 	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aFontLoadCommands );
-	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aTextureLoadCommands );
-	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aModelLoadCommands );
 	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aShaderLoadCommands );
 	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aTechniqueLoadCommands );
+	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aTextureLoadCommands );
+	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aModelLoadCommands );
 
 	if( uFinishedCount == m_oProcessingLoadCommands.Count() )
 		m_oProcessingLoadCommands.Clear();
@@ -400,10 +400,10 @@ void ResourceLoader::DestroyUnusedResources()
 	ProfilerBlock oBlock( "DestroyUnusedResources" );
 
 	::DestroyUnusedResources( m_mFontResources );
-	::DestroyUnusedResources( m_mTextureResources );
-	::DestroyUnusedResources( m_mModelResources );
 	::DestroyUnusedResources( m_mTechniqueResources );
 	::DestroyUnusedResources( m_mShaderResources );
+	::DestroyUnusedResources( m_mTextureResources );
+	::DestroyUnusedResources( m_mModelResources );
 }
 
 ResourceLoader::FontLoadCommand::FontLoadCommand( const std::filesystem::path& oFilePath, const FontResPtr& xResource )

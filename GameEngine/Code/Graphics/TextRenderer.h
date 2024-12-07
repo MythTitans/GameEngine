@@ -28,6 +28,8 @@ public:
 	void RenderText( const Array< Text >& aTexts, const RenderContext& oRenderContext );
 	void RenderText( const Text& oText, const RenderContext& oRenderContext );
 
+	bool OnLoading();
+
 private:
 	void DrawText( const Text& oText, const RenderContext& oRenderContext );
 

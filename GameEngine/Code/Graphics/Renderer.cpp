@@ -68,30 +68,25 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	glEnable( GL_DEPTH_TEST );
-	if( m_xRenderTechnique->IsLoaded() )
+
+	const Technique& oTechnique = m_xRenderTechnique->GetTechnique();
+
+	glUseProgram( oTechnique.m_uProgramID );
+
+	m_oBasicTechniqueDefinition.SetView( m_oCamera.GetViewMatrix() );
+	m_oBasicTechniqueDefinition.SetProjection( m_oCamera.GetProjectionMatrix() );
+
+	if( g_pGameEngine->GetScene().m_xCube->IsLoaded() )
 	{
-		const Technique& oTechnique = m_xRenderTechnique->GetTechnique();
-
-		if( m_oBasicTechniqueDefinition.IsValid() == false )
-			m_oBasicTechniqueDefinition.Create( oTechnique );
-
-		glUseProgram( oTechnique.m_uProgramID );
-
-		m_oBasicTechniqueDefinition.SetView( m_oCamera.GetViewMatrix() );
-		m_oBasicTechniqueDefinition.SetProjection( m_oCamera.GetProjectionMatrix() );
-
-		if( g_pGameEngine->GetScene().m_xCube->IsLoaded() )
+		for( const Mesh& oMesh : g_pGameEngine->GetScene().m_xCube->GetMeshes() )
 		{
-			for( const Mesh& oMesh : g_pGameEngine->GetScene().m_xCube->GetMeshes() )
-			{
-				glBindVertexArray( oMesh.m_uVertexArrayID );
-				glDrawElements( GL_TRIANGLES, oMesh.m_iIndexCount, GL_UNSIGNED_INT, nullptr );
-				glBindVertexArray( 0 );
-			}
+			glBindVertexArray( oMesh.m_uVertexArrayID );
+			glDrawElements( GL_TRIANGLES, oMesh.m_iIndexCount, GL_UNSIGNED_INT, nullptr );
+			glBindVertexArray( 0 );
 		}
-
-		glUseProgram( 0 );
 	}
+
+	glUseProgram( 0 );
 }
 
 Camera& Renderer::GetCamera()
@@ -112,4 +107,12 @@ TextRenderer& Renderer::GetTextRenderer()
 const TextRenderer& Renderer::GetTextRenderer() const
 {
 	return m_oTextRenderer;
+}
+
+bool Renderer::OnLoading()
+{
+	if( m_xRenderTechnique->IsLoaded() && m_oBasicTechniqueDefinition.IsValid() == false )
+		m_oBasicTechniqueDefinition.Create( m_xRenderTechnique->GetTechnique() );
+
+	return m_xRenderTechnique->IsLoaded() && m_oTextRenderer.OnLoading();
 }

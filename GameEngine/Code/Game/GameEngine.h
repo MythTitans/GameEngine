@@ -37,6 +37,18 @@ public:
 	void				EndFrame();
 
 private:
+	void				Update();
+	void				Render();
+
+	const char*			CurrentStateStr() const;
+
+	enum class GameState
+	{
+		SETUP,
+		LOADING,
+		RUNNING
+	};
+
 	ResourceLoader			m_oResourceLoader;
 	InputHandler			m_oInputHandler;
 	Renderer				m_oRenderer;
@@ -51,6 +63,8 @@ private:
 	const RenderContext&	m_oRenderContext;
 
 	GameContext				m_oGameContext;
+
+	GameState				m_eGameState;
 };
 
 extern GameEngine* g_pGameEngine;

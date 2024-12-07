@@ -47,6 +47,8 @@ public:
 	TextRenderer&		GetTextRenderer();
 	const TextRenderer& GetTextRenderer() const;
 
+	bool				OnLoading();
+
 private:
 	TextRenderer				m_oTextRenderer;
 	Camera						m_oCamera;

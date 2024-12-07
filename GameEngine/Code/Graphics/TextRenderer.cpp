@@ -1,5 +1,6 @@
 #include "TextRenderer.h"
 
+#include "Core/Profiler.h"
 #include "Renderer.h"
 
 glm::vec2 PositionOnScreen( const glm::vec2& vPosition, const RenderContext& oRenderContext )
@@ -52,36 +53,40 @@ TextRenderer::~TextRenderer()
 
 void TextRenderer::RenderText( const Array< Text >& aTexts, const RenderContext& oRenderContext )
 {
-	if( m_xTextTechnique->IsLoaded() && m_xFont->IsLoaded() )
-	{
-		glEnable( GL_BLEND );
-		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	ProfilerBlock oBlock( "Text" );
 
-		const Technique& oTechnique = m_xTextTechnique->GetTechnique();
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-		if( m_oTextTechniqueDefinition.IsValid() == false )
-			m_oTextTechniqueDefinition.Create( oTechnique );
+	const Technique& oTechnique = m_xTextTechnique->GetTechnique();
 
-		glUseProgram( oTechnique.m_uProgramID );
+	glUseProgram( oTechnique.m_uProgramID );
 
-		glActiveTexture( GL_TEXTURE0 );
-		glBindTexture( GL_TEXTURE_2D, m_xFont->GetAtlas().m_uTextureID );
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, m_xFont->GetAtlas().m_uTextureID );
 
- 		for( const Text& oText : aTexts )
- 			DrawText( oText, oRenderContext );
+ 	for( const Text& oText : aTexts )
+ 		DrawText( oText, oRenderContext );
 
-		glBindVertexArray( 0 );
-		glBindTexture( GL_TEXTURE_2D, 0 );
+	glBindVertexArray( 0 );
+	glBindTexture( GL_TEXTURE_2D, 0 );
 
-		glDisable( GL_BLEND );
+	glDisable( GL_BLEND );
 
-		glUseProgram( 0 );
-	}
+	glUseProgram( 0 );
 }
 
 void TextRenderer::RenderText( const Text& oText, const RenderContext& oRenderContext )
 {
 	RenderText( Array< Text >( 1, oText ), oRenderContext );
+}
+
+bool TextRenderer::OnLoading()
+{
+	if( m_xTextTechnique->IsLoaded() && m_oTextTechniqueDefinition.IsValid() == false )
+		m_oTextTechniqueDefinition.Create( m_xTextTechnique->GetTechnique() );
+
+	return m_xFont->IsLoaded() && m_xTextTechnique->IsLoaded() && m_oTextTechniqueDefinition.IsValid();
 }
 
 void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderContext )

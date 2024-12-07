@@ -11,6 +11,8 @@ void DebugDisplay::NewFrame()
 
 void DebugDisplay::Display( const float fDeltaTime, const RenderContext& oRenderContext )
 {
+	ProfilerBlock oBlock( "DebugDisplay" );
+
 	for( int i = m_aTimedTexts.Count() - 1; i >= 0; --i )
 	{
 		m_aTimedTextsRemaining[ i ] -= fDeltaTime;

@@ -13,6 +13,7 @@ GameEngine* g_pGameEngine = nullptr;
 GameEngine::GameEngine( const InputContext& oInputContext, const RenderContext& oRenderContext )
 	: m_oInputContext( oInputContext )
 	, m_oRenderContext( oRenderContext )
+	, m_eGameState( GameState::SETUP )
 {
 	g_pGameEngine = this;
 }
@@ -64,40 +65,68 @@ void GameEngine::ProcessFrame()
 {
 	ProfilerBlock oBlock( "GameEngine" );
 
-	{
-		ProfilerBlock oBlock( "PreUpdate" );
-		m_oResourceLoader.PreUpdate();
-	}
+	m_oResourceLoader.HandleLoadedResources();
 
-	{
-		ProfilerBlock oBlock( "Update" );
-		m_oInputHandler.UpdateInputs( m_oInputContext );
-		m_oFreeCamera.Update( m_oGameContext.m_fLastDeltaTime );
-// 		for( uint u = 0; u < 1000; ++u )
-// 		{
-// 			LOG_INFO( "this is a test" );
-// 		}
-		//m_oResourceLoader.Update();
-	}
+	Update();
 
-	{
-		ProfilerBlock oBlock( "PostUpdate" );
-		m_oResourceLoader.PostUpdate();
-	}
+	m_oResourceLoader.ProcessLoadCommands();
 
-	{
-		ProfilerBlock oBlock( "Render" );
-		m_oRenderer.Render( m_oRenderContext );
-	}
+	Render();
 
 	++( m_oGameContext.m_uFrameIndex );
 }
 
 void GameEngine::EndFrame()
 {
-	m_oDebugDisplay.Display( m_oGameContext.m_fLastDeltaTime, m_oRenderContext );
-
 	ImGui::Render();
 
 	Logger::Flush();
+}
+
+void GameEngine::Update()
+{
+	ProfilerBlock oBlock( "Update" );
+
+	if( m_eGameState != GameState::SETUP )
+	{
+		m_oDebugDisplay.DisplayText( CurrentStateStr(), glm::vec4( 0.f, 1.f, 0.f, 1.f ) );
+
+		m_oInputHandler.UpdateInputs( m_oInputContext );
+
+		if( m_eGameState == GameState::RUNNING )
+			m_oFreeCamera.Update( m_oGameContext.m_fLastDeltaTime );
+		else if( m_oScene.OnLoading() )
+			m_eGameState = GameState::RUNNING;
+	}
+	else
+	{
+		if( m_oRenderer.OnLoading() )
+			m_eGameState = GameState::LOADING;
+	}
+}
+
+void GameEngine::Render()
+{
+	ProfilerBlock oBlock( "Render" );
+
+	if( m_eGameState != GameState::SETUP )
+	{
+		m_oRenderer.Render( m_oRenderContext );
+		m_oDebugDisplay.Display( m_oGameContext.m_fLastDeltaTime, m_oRenderContext );
+	}
+}
+
+const char* GameEngine::CurrentStateStr() const
+{
+	switch( m_eGameState )
+	{
+	case GameEngine::GameState::SETUP:
+		return "SETUP";
+	case GameEngine::GameState::LOADING:
+		return "LOADING";
+	case GameEngine::GameState::RUNNING:
+		return "RUNNING";
+	}
+
+	return "";
 }
