@@ -39,10 +39,13 @@ public:
 	Renderer();
 	~Renderer();
 
-	void			Render( const RenderContext& oRenderContext );
+	void				Render( const RenderContext& oRenderContext );
 
-	Camera&			GetCamera();
-	const Camera&	GetCamera() const;
+	Camera&				GetCamera();
+	const Camera&		GetCamera() const;
+
+	TextRenderer&		GetTextRenderer();
+	const TextRenderer& GetTextRenderer() const;
 
 private:
 	TextRenderer				m_oTextRenderer;

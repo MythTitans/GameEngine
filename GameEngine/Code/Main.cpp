@@ -91,13 +91,13 @@ int main()
 					ProfilerBlock oBlock( "Frame" );
 					s_oInputContext.Refresh();
 					oGameEngine.ProcessFrame();
+
+					oGameEngine.EndFrame();
+
+					ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
+
+					glfwSwapBuffers( pWindow );
 				}
-
-				oGameEngine.EndFrame();
-
-				ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
-
-				glfwSwapBuffers( pWindow );
 			}
 		}
 

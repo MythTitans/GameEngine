@@ -165,6 +165,7 @@
     <ClCompile Include="Code\Core\ResourceLoader.cpp" />
     <ClCompile Include="Code\Core\TaskScheduler.cpp" />
     <ClCompile Include="Code\Core\FileUtils.cpp" />
+    <ClCompile Include="Code\Game\DebugDisplay.cpp" />
     <ClCompile Include="Code\Game\FreeCamera.cpp" />
     <ClCompile Include="Code\Game\GameEngine.cpp" />
     <ClCompile Include="Code\Game\InputHandler.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="Code\Core\TaskScheduler.h" />
     <ClInclude Include="Code\Core\Types.h" />
     <ClInclude Include="Code\Core\FileUtils.h" />
+    <ClInclude Include="Code\Game\DebugDisplay.h" />
     <ClInclude Include="Code\Game\FreeCamera.h" />
     <ClInclude Include="Code\Game\GameEngine.h" />
     <ClInclude Include="Code\Game\InputHandler.h" />

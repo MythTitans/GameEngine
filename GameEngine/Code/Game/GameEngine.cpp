@@ -32,6 +32,16 @@ const Scene& GameEngine::GetScene() const
 	return m_oScene;
 }
 
+DebugDisplay& GameEngine::GetDebugDisplay()
+{
+	return m_oDebugDisplay;
+}
+
+const DebugDisplay& GameEngine::GetDebugDisplay() const
+{
+	return m_oDebugDisplay;
+}
+
 void GameEngine::NewFrame()
 {
 	const GameTimePoint oNow = std::chrono::high_resolution_clock::now();
@@ -46,6 +56,8 @@ void GameEngine::NewFrame()
 
 	m_oProfiler.NewFrame();
 	m_oProfiler.Display();
+
+	m_oDebugDisplay.NewFrame();
 }
 
 void GameEngine::ProcessFrame()
@@ -83,6 +95,8 @@ void GameEngine::ProcessFrame()
 
 void GameEngine::EndFrame()
 {
+	m_oDebugDisplay.Display( m_oGameContext.m_fLastDeltaTime, m_oRenderContext );
+
 	ImGui::Render();
 
 	Logger::Flush();

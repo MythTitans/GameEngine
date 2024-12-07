@@ -92,9 +92,6 @@ void Renderer::Render( const RenderContext& oRenderContext )
 
 		glUseProgram( 0 );
 	}
-
-	glDisable( GL_DEPTH_TEST );
-	m_oTextRenderer.Render( oRenderContext );
 }
 
 Camera& Renderer::GetCamera()
@@ -105,4 +102,14 @@ Camera& Renderer::GetCamera()
 const Camera& Renderer::GetCamera() const
 {
 	return m_oCamera;
+}
+
+TextRenderer& Renderer::GetTextRenderer()
+{
+	return m_oTextRenderer;
+}
+
+const TextRenderer& Renderer::GetTextRenderer() const
+{
+	return m_oTextRenderer;
 }

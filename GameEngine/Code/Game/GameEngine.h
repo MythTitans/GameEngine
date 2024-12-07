@@ -3,6 +3,7 @@
 #include "Core/Common.h"
 #include "Core/Profiler.h"
 #include "Core/ResourceLoader.h"
+#include "Game/DebugDisplay.h"
 #include "Game/FreeCamera.h"
 #include "Game/InputHandler.h"
 #include "Game/Scene.h"
@@ -28,6 +29,8 @@ public:
 
 	const GameContext&	GetGameContext() const;
 	const Scene&		GetScene() const;
+	DebugDisplay&		GetDebugDisplay();
+	const DebugDisplay&	GetDebugDisplay() const;
 
 	void				NewFrame();
 	void				ProcessFrame();
@@ -40,6 +43,7 @@ private:
 	Profiler				m_oProfiler;
 
 	Scene					m_oScene;
+	DebugDisplay			m_oDebugDisplay;
 
 	FreeCamera				m_oFreeCamera;
 

@@ -43,12 +43,6 @@ TextRenderer::TextRenderer()
 	aUVs[ 3 ] = Float2( 0.f, 1.f );
 
 	m_oTextQuad = MeshBuilder( std::move( aVertices ), std::move( aIndices ) ).WithUVs( std::move( aUVs ) ).Build();
-
-// 	for( uint u = 0; u < 18; ++u )
-// 	{
-// 		m_aTexts.PushBack( Text( "Game engine v0.1 - Game engine v0.1 - Game engine v0.1 - Game engine v0.1 - Game engine v0.1 - Game engine v0.1 - Game engine v0.1 - Game engine v0.1 - Game engine v0.1 - Game engine v0.1 - Game engine v0.1 - Game engine v0.1 - Game engine v0.1", glm::vec2( 10.f, 2 * u * 30.f ) ) );
-// 		m_aTexts.PushBack( Text( "Early work in progress build - Early work in progress build - Early work in progress build - Early work in progress build - Early work in progress build - Early work in progress build - Early work in progress build - Early work in progress build", glm::vec2( 10.f, ( 2 * u + 1 ) * 30.f ) ) );
-// 	}
 }
 
 TextRenderer::~TextRenderer()
@@ -56,7 +50,7 @@ TextRenderer::~TextRenderer()
 	m_oTextQuad.Destroy();
 }
 
-void TextRenderer::Render( const RenderContext& oRenderContext )
+void TextRenderer::RenderText( const Array< Text >& aTexts, const RenderContext& oRenderContext )
 {
 	if( m_xTextTechnique->IsLoaded() && m_xFont->IsLoaded() )
 	{
@@ -68,40 +62,13 @@ void TextRenderer::Render( const RenderContext& oRenderContext )
 		if( m_oTextTechniqueDefinition.IsValid() == false )
 			m_oTextTechniqueDefinition.Create( oTechnique );
 
-		const Texture& oAtlas = m_xFont->GetAtlas();
-		const Array< stbtt_packedchar >& aPackedCharacters = m_xFont->GetGlyphs();
-
 		glUseProgram( oTechnique.m_uProgramID );
 
 		glActiveTexture( GL_TEXTURE0 );
 		glBindTexture( GL_TEXTURE_2D, m_xFont->GetAtlas().m_uTextureID );
 
-		for( const Text& oText : m_aTexts )
-		{
-			float fX = oText.m_vPosition.x;
-			float fY = oText.m_vPosition.y + FontResource::FONT_HEIGHT;
-
-			for( const char cCharacter : oText.m_sText )
-			{
-				stbtt_aligned_quad oQuad;
-
-				stbtt_GetPackedQuad( aPackedCharacters.Data(), oAtlas.GetWidth(), oAtlas.GetHeight(), cCharacter - FontResource::FIRST_GLYPH, &fX, &fY, &oQuad, 1 );
-
-				const glm::vec2 vGlyphSize( oQuad.x1 - oQuad.x0, oQuad.y1 - oQuad.y0 );
-
-				const glm::vec2 vOffsetInAtlas( oQuad.s0, oQuad.t0 );
-				const glm::vec2 vSizeInAtlas( oQuad.s1 - oQuad.s0, oQuad.t1 - oQuad.t0 );
-
-				m_oTextTechniqueDefinition.SetScreenPosition( PositionOnScreen( glm::vec2( oQuad.x0, oQuad.y1 ), oRenderContext ) );
-				m_oTextTechniqueDefinition.SetScreenSize( SizeOnScreen( vGlyphSize, oRenderContext ) );
-				m_oTextTechniqueDefinition.SetGlyph( vOffsetInAtlas, vSizeInAtlas );
-				m_oTextTechniqueDefinition.SetColor( glm::vec4( 0.f, 1.f, 0.f, 1.f ) );
-				m_oTextTechniqueDefinition.SetTexture( 0 );
-
-				glBindVertexArray( m_oTextQuad.m_uVertexArrayID );
-				glDrawElements( GL_TRIANGLES, m_oTextQuad.m_iIndexCount, GL_UNSIGNED_INT, nullptr );
-			}
-		}
+ 		for( const Text& oText : aTexts )
+ 			DrawText( oText, oRenderContext );
 
 		glBindVertexArray( 0 );
 		glBindTexture( GL_TEXTURE_2D, 0 );
@@ -109,5 +76,40 @@ void TextRenderer::Render( const RenderContext& oRenderContext )
 		glDisable( GL_BLEND );
 
 		glUseProgram( 0 );
+	}
+}
+
+void TextRenderer::RenderText( const Text& oText, const RenderContext& oRenderContext )
+{
+	RenderText( Array< Text >( 1, oText ), oRenderContext );
+}
+
+void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderContext )
+{
+	const Texture& oAtlas = m_xFont->GetAtlas();
+	const Array< stbtt_packedchar >& aPackedCharacters = m_xFont->GetGlyphs();
+
+	float fX = oText.m_vPosition.x;
+	float fY = oText.m_vPosition.y + FontResource::FONT_HEIGHT;
+
+	for( const char cCharacter : oText.m_sText )
+	{
+		stbtt_aligned_quad oQuad;
+
+		stbtt_GetPackedQuad( aPackedCharacters.Data(), oAtlas.GetWidth(), oAtlas.GetHeight(), cCharacter - FontResource::FIRST_GLYPH, &fX, &fY, &oQuad, 1 );
+
+		const glm::vec2 vGlyphSize( oQuad.x1 - oQuad.x0, oQuad.y1 - oQuad.y0 );
+
+		const glm::vec2 vOffsetInAtlas( oQuad.s0, oQuad.t0 );
+		const glm::vec2 vSizeInAtlas( oQuad.s1 - oQuad.s0, oQuad.t1 - oQuad.t0 );
+
+		m_oTextTechniqueDefinition.SetScreenPosition( PositionOnScreen( glm::vec2( oQuad.x0, oQuad.y1 ), oRenderContext ) );
+		m_oTextTechniqueDefinition.SetScreenSize( SizeOnScreen( vGlyphSize, oRenderContext ) );
+		m_oTextTechniqueDefinition.SetGlyph( vOffsetInAtlas, vSizeInAtlas );
+		m_oTextTechniqueDefinition.SetColor( oText.m_vColor );
+		m_oTextTechniqueDefinition.SetTexture( 0 );
+
+		glBindVertexArray( m_oTextQuad.m_uVertexArrayID );
+		glDrawElements( GL_TRIANGLES, m_oTextQuad.m_iIndexCount, GL_UNSIGNED_INT, nullptr );
 	}
 }
