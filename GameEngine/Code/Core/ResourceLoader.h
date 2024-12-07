@@ -26,14 +26,25 @@ class Resource : public Intrusive
 public:
 	friend class ResourceLoader;
 
+	enum class Status
+	{
+		LOADING,
+		LOADED,
+		FAILED
+	};
+
 	Resource();
+	virtual ~Resource();
 
 	virtual void	Destroy() = 0; // TODO #eric this could probably be a destructor ?
 
+	Status			GetStatus() const;
+	bool			IsLoading() const;
 	bool			IsLoaded() const;
+	bool			IsFailed() const;
 
 protected:
-	bool m_bLoaded;
+	Status m_eStatus;
 };
 
 class FontResource : public Resource
@@ -173,16 +184,34 @@ private:
 		{
 		}
 
-		bool AreDependenciesLoaded() const
+		virtual ~LoadCommand()
+		{
+		}
+
+		bool AnyDependencyFailed() const
 		{
 			for( const StrongPtr< Resource >& xDependency : m_aDependencies )
 			{
-				if( xDependency->m_bLoaded == false )
+				if( xDependency->IsFailed() )
+					return true;
+			}
+
+			return false;
+		}
+
+		bool AllDependenciesLoaded() const
+		{
+			for( const StrongPtr< Resource >& xDependency : m_aDependencies )
+			{
+				if( xDependency->IsLoaded() == false )
 					return false;
 			}
 
 			return true;
 		}
+
+		virtual void Load( std::unique_lock< std::mutex >& oLock ) = 0;
+		virtual void OnFinished() = 0;
 
 		std::filesystem::path			m_oFilePath;
 		StrongPtr< Res >				m_xResource;
@@ -194,8 +223,8 @@ private:
 	{
 		FontLoadCommand( const std::filesystem::path& oFilePath, const FontResPtr& xResource );
 
-		void Load( std::unique_lock< std::mutex >& oLock );
-		void OnLoaded();
+		void Load( std::unique_lock< std::mutex >& oLock ) override;
+		void OnFinished() override;
 
 		Array< uint8 >				m_aAtlasData;
 		Array< stbtt_packedchar >	m_aPackedCharacters;
@@ -205,8 +234,8 @@ private:
 	{
 		TextureLoadCommand( const std::filesystem::path& oFilePath, const TextureResPtr& xResource );
 
-		void Load( std::unique_lock< std::mutex >& oLock );
-		void OnLoaded();
+		void Load( std::unique_lock< std::mutex >& oLock ) override;
+		void OnFinished() override;
 
 		int		m_iWidth;
 		int		m_iHeight;
@@ -218,8 +247,8 @@ private:
 	{
 		ModelLoadCommand( const std::filesystem::path& oFilePath, const ModelResPtr& xResource, Assimp::Importer& oModelImporter );
 
-		void Load( std::unique_lock< std::mutex >& oLock );
-		void OnLoaded();
+		void Load( std::unique_lock< std::mutex >& oLock ) override;
+		void OnFinished() override;
 
 		uint CountMeshes( aiNode* pNode );
 		void LoadMeshes( aiNode* pNode );
@@ -233,8 +262,8 @@ private:
 	{
 		ShaderLoadCommand( const std::filesystem::path& oFilePath, const ShaderResPtr& xResource );
 
-		void Load( std::unique_lock< std::mutex >& oLock );
-		void OnLoaded();
+		void Load( std::unique_lock< std::mutex >& oLock ) override;
+		void OnFinished() override;
 
 		std::string m_sShaderCode;
 		ShaderType	m_eShaderType;
@@ -244,8 +273,8 @@ private:
 	{
 		TechniqueLoadCommand( const std::filesystem::path& oFilePath, const TechniqueResPtr& xResource );
 
-		void Load( std::unique_lock< std::mutex >& oLock );
-		void OnLoaded();
+		void Load( std::unique_lock< std::mutex >& oLock ) override;
+		void OnFinished() override;
 	};
 
 	struct LoadCommands

@@ -17,13 +17,32 @@
 #include "Profiler.h"
 
 Resource::Resource()
-	: m_bLoaded( false )
+	: m_eStatus( Status::LOADING )
 {
+}
+
+Resource::~Resource()
+{
+}
+
+Resource::Status Resource::GetStatus() const
+{
+	return m_eStatus;
+}
+
+bool Resource::IsLoading() const
+{
+	return m_eStatus == Status::LOADING;
 }
 
 bool Resource::IsLoaded() const
 {
-	return m_bLoaded;
+	return m_eStatus == Status::LOADED;
+}
+
+bool Resource::IsFailed() const
+{
+	return m_eStatus == Status::FAILED;
 }
 
 void FontResource::Destroy()
@@ -286,7 +305,6 @@ void ResourceLoader::ProcessPendingLoadCommands()
 	}
 }
 
-// TODO #eric handle errors !
 template < typename LoadCommand >
 uint CheckFinishedProcessingLoadCommands( Array< LoadCommand >& aLoadCommands )
 {
@@ -299,19 +317,31 @@ uint CheckFinishedProcessingLoadCommands( Array< LoadCommand >& aLoadCommands )
 		{
 		case ResourceLoader::LoadCommandStatus::NOT_FOUND:
 			LOG_ERROR( "File not found {}", oLoadCommand.m_oFilePath.string() );
+			oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::NOT_FOUND;
+			oLoadCommand.OnFinished();
 			oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
 			++uFinishedCount;
 			break;
 		case ResourceLoader::LoadCommandStatus::ERROR_READING:
 			LOG_ERROR( "Error reading file {}", oLoadCommand.m_oFilePath.string() );
+			oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::ERROR_READING;
+			oLoadCommand.OnFinished();
 			oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
 			++uFinishedCount;
 			break;
 		case ResourceLoader::LoadCommandStatus::LOADED:
-			if( oLoadCommand.AreDependenciesLoaded() )
+			if( oLoadCommand.AllDependenciesLoaded() )
 			{
 				LOG_INFO( "Loaded {}", oLoadCommand.m_oFilePath.string() );
-				oLoadCommand.OnLoaded();
+				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
+				oLoadCommand.OnFinished();
+				++uFinishedCount;
+			}
+			else if( oLoadCommand.AnyDependencyFailed() )
+			{
+				LOG_INFO( "Failed to load a dependency for {}", oLoadCommand.m_oFilePath.string() );
+				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::ERROR_READING;
+				oLoadCommand.OnFinished();
 				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
 				++uFinishedCount;
 			}
@@ -361,6 +391,8 @@ void DestroyUnusedResources( std::unordered_map< std::filesystem::path, StrongPt
 			oPair.second = nullptr;
 		}
 	}
+
+	std::erase_if( mResources, []( const std::pair< std::filesystem::path, StrongPtr< Resource > >& oPair ) { return oPair.second == nullptr; } );
 }
 
 void ResourceLoader::DestroyUnusedResources()
@@ -398,13 +430,22 @@ void ResourceLoader::FontLoadCommand::Load( std::unique_lock< std::mutex >& oLoc
 	oLock.unlock();
 }
 
-void ResourceLoader::FontLoadCommand::OnLoaded()
+void ResourceLoader::FontLoadCommand::OnFinished()
 {
-	m_xResource->m_oAtlas.Create( FontResource::ATLAS_WIDTH, FontResource::ATLAS_HEIGHT, TextureFormat::RED, m_aAtlasData.Data() );
-
-	m_xResource->m_aPackedCharacters = std::move( m_aPackedCharacters );
-
-	m_xResource->m_bLoaded = true;
+	switch( m_eStatus )
+	{
+	case ResourceLoader::LoadCommandStatus::FINISHED:
+		m_xResource->m_oAtlas.Create( FontResource::ATLAS_WIDTH, FontResource::ATLAS_HEIGHT, TextureFormat::RED, m_aAtlasData.Data() );
+		m_xResource->m_aPackedCharacters = std::move( m_aPackedCharacters );
+		m_xResource->m_eStatus = Resource::Status::LOADED;
+		break;
+	case ResourceLoader::LoadCommandStatus::NOT_FOUND:
+	case ResourceLoader::LoadCommandStatus::ERROR_READING:
+		m_xResource->m_eStatus = Resource::Status::FAILED;
+		break;
+	default:
+		break;
+	}
 }
 
 ResourceLoader::TextureLoadCommand::TextureLoadCommand( const std::filesystem::path& oFilePath, const TextureResPtr& xResource )
@@ -432,13 +473,22 @@ void ResourceLoader::TextureLoadCommand::Load( std::unique_lock< std::mutex >& o
 	oLock.unlock();
 }
 
-void ResourceLoader::TextureLoadCommand::OnLoaded()
+void ResourceLoader::TextureLoadCommand::OnFinished()
 {
-	m_xResource->m_oTexture.Create( m_iWidth, m_iHeight, TextureFormat::RGBA, m_pData ); // TODO #eric handle format
-
-	stbi_image_free( m_pData );
-
-	m_xResource->m_bLoaded = true;
+	switch( m_eStatus )
+	{
+	case ResourceLoader::LoadCommandStatus::FINISHED:
+		m_xResource->m_oTexture.Create( m_iWidth, m_iHeight, TextureFormat::RGBA, m_pData ); // TODO #eric handle format
+		stbi_image_free( m_pData );
+		m_xResource->m_eStatus = Resource::Status::LOADED;
+		break;
+	case ResourceLoader::LoadCommandStatus::NOT_FOUND:
+	case ResourceLoader::LoadCommandStatus::ERROR_READING:
+		m_xResource->m_eStatus = Resource::Status::FAILED;
+		break;
+	default:
+		break;
+	}
 }
 
 ResourceLoader::ModelLoadCommand::ModelLoadCommand( const std::filesystem::path& oFilePath, const ModelResPtr& xResource, Assimp::Importer& oImporter )
@@ -462,17 +512,26 @@ void ResourceLoader::ModelLoadCommand::Load( std::unique_lock< std::mutex >& oLo
 	oLock.unlock();
 }
 
-void ResourceLoader::ModelLoadCommand::OnLoaded()
+void ResourceLoader::ModelLoadCommand::OnFinished()
 {
-	aiNode* pRoot = m_pScene->mRootNode;
-
-	m_xResource->m_aMeshes.Reserve( CountMeshes( pRoot ) );
-
-	LoadMeshes( pRoot );
-
-	delete m_pScene;
-
-	m_xResource->m_bLoaded = true;
+	switch( m_eStatus )
+	{
+	case ResourceLoader::LoadCommandStatus::FINISHED:
+	{
+		aiNode* pRoot = m_pScene->mRootNode;
+		m_xResource->m_aMeshes.Reserve( CountMeshes( pRoot ) );
+		LoadMeshes( pRoot );
+		delete m_pScene;
+		m_xResource->m_eStatus = Resource::Status::LOADED;
+		break;
+	}
+	case ResourceLoader::LoadCommandStatus::NOT_FOUND:
+	case ResourceLoader::LoadCommandStatus::ERROR_READING:
+		m_xResource->m_eStatus = Resource::Status::FAILED;
+		break;
+	default:
+		break;
+	}
 }
 
 uint ResourceLoader::ModelLoadCommand::CountMeshes( aiNode* pNode )
@@ -558,11 +617,21 @@ void ResourceLoader::ShaderLoadCommand::Load( std::unique_lock< std::mutex >& oL
 	oLock.unlock();
 }
 
-void ResourceLoader::ShaderLoadCommand::OnLoaded()
+void ResourceLoader::ShaderLoadCommand::OnFinished()
 {
-	m_xResource->m_oShader.Create( m_sShaderCode, m_eShaderType );
-
-	m_xResource->m_bLoaded = true;
+	switch( m_eStatus )
+	{
+	case ResourceLoader::LoadCommandStatus::FINISHED:
+		m_xResource->m_oShader.Create( m_sShaderCode, m_eShaderType );
+		m_xResource->m_eStatus = Resource::Status::LOADED;
+		break;
+	case ResourceLoader::LoadCommandStatus::NOT_FOUND:
+	case ResourceLoader::LoadCommandStatus::ERROR_READING:
+		m_xResource->m_eStatus = Resource::Status::FAILED;
+		break;
+	default:
+		break;
+	}
 }
 
 ResourceLoader::TechniqueLoadCommand::TechniqueLoadCommand( const std::filesystem::path& oFilePath, const TechniqueResPtr& xResource )
@@ -584,20 +653,34 @@ void ResourceLoader::TechniqueLoadCommand::Load( std::unique_lock< std::mutex >&
 	oLock.unlock();
 }
 
-void ResourceLoader::TechniqueLoadCommand::OnLoaded()
+void ResourceLoader::TechniqueLoadCommand::OnFinished()
 {
-	Array< const Shader* > aShaders;
-	aShaders.Reserve( m_aDependencies.Count() );
-	for( const StrongPtr< Resource >& pDependency : m_aDependencies )
+	switch( m_eStatus )
 	{
-		const ShaderResource* pShaderResource = static_cast< const ShaderResource* >( pDependency.GetPtr() );
-		ASSERT( pShaderResource->IsLoaded() );
-		aShaders.PushBack( &pShaderResource->m_oShader );
-	}
-	m_xResource->m_oTechnique.Create( aShaders );
+	case ResourceLoader::LoadCommandStatus::FINISHED:
+	{
+		Array< const Shader* > aShaders;
+		aShaders.Reserve( m_aDependencies.Count() );
+		for( const StrongPtr< Resource >& pDependency : m_aDependencies )
+		{
+			const ShaderResource* pShaderResource = static_cast< const ShaderResource* >( pDependency.GetPtr() );
+			ASSERT( pShaderResource->IsLoaded() );
+			aShaders.PushBack( &pShaderResource->m_oShader );
+		}
+		m_xResource->m_oTechnique.Create( aShaders );
 
-	m_xResource->m_aShaderResources = std::move( m_aDependencies );
-	m_xResource->m_bLoaded = true;
+		m_xResource->m_aShaderResources = std::move( m_aDependencies );
+		m_xResource->m_eStatus = Resource::Status::LOADED;
+		break;
+	}
+	case ResourceLoader::LoadCommandStatus::NOT_FOUND:
+	case ResourceLoader::LoadCommandStatus::ERROR_READING:
+		m_xResource->m_aShaderResources = std::move( m_aDependencies );
+		m_xResource->m_eStatus = Resource::Status::FAILED;
+		break;
+	default:
+		break;
+	}
 }
 
 uint ResourceLoader::LoadCommands::Count() const
