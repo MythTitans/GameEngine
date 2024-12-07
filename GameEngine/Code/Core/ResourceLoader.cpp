@@ -10,6 +10,7 @@
 #include "stb_truetype.h"
 
 #include "Common.h"
+#include "Game/GameEngine.h"
 #include "FileUtils.h"
 #include "Graphics/Utils.h"
 #include "Logger.h"
@@ -226,7 +227,7 @@ void ResourceLoader::PostUpdate()
 }
 
 template < typename LoadCommand >
-void Load( Array< LoadCommand >& aLoadCommands, std::unique_lock< std::mutex >& oLock, const char* sCommandName )
+void Load( Array< LoadCommand >& aLoadCommands, std::unique_lock< std::mutex >& oLock, const char* sCommandName, const bool bIgnoreFileCheck = false )
 {
 	for( LoadCommand& oLoadCommand : aLoadCommands )
 	{
@@ -238,7 +239,7 @@ void Load( Array< LoadCommand >& aLoadCommands, std::unique_lock< std::mutex >& 
 		{
 			ProfilerBlock oResourceBlock( "CheckResource", true );
 
-			if( std::filesystem::exists( oLoadCommand.m_oFilePath ) == false )
+			if( bIgnoreFileCheck == false && std::filesystem::exists( oLoadCommand.m_oFilePath ) == false )
 			{
 				oLock.lock();
 				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::NOT_FOUND;
@@ -267,6 +268,7 @@ void ResourceLoader::Load()
 		::Load( m_oProcessingLoadCommands.m_aTextureLoadCommands, oLock, "LoadTexture" );
 		::Load( m_oProcessingLoadCommands.m_aModelLoadCommands, oLock, "LoadModel" );
 		::Load( m_oProcessingLoadCommands.m_aShaderLoadCommands, oLock, "LoadShader" );
+		::Load( m_oProcessingLoadCommands.m_aTechniqueLoadCommands, oLock, "LoadTechnique", true );
 	}
 }
 
@@ -284,6 +286,7 @@ void ResourceLoader::ProcessPendingLoadCommands()
 	}
 }
 
+// TODO #eric handle errors !
 template < typename LoadCommand >
 uint CheckFinishedProcessingLoadCommands( Array< LoadCommand >& aLoadCommands )
 {
@@ -305,10 +308,13 @@ uint CheckFinishedProcessingLoadCommands( Array< LoadCommand >& aLoadCommands )
 			++uFinishedCount;
 			break;
 		case ResourceLoader::LoadCommandStatus::LOADED:
-			LOG_INFO( "Loaded {}", oLoadCommand.m_oFilePath.string() );
-			oLoadCommand.OnLoaded();
-			oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
-			++uFinishedCount;
+			if( oLoadCommand.AreDependenciesLoaded() )
+			{
+				LOG_INFO( "Loaded {}", oLoadCommand.m_oFilePath.string() );
+				oLoadCommand.OnLoaded();
+				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
+				++uFinishedCount;
+			}
 			break;
 		case ResourceLoader::LoadCommandStatus::FINISHED:
 			++uFinishedCount;
@@ -331,33 +337,16 @@ void ResourceLoader::CheckFinishedProcessingLoadCommands()
 	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aTextureLoadCommands );
 	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aModelLoadCommands );
 	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aShaderLoadCommands );
-
-	// TODO #eric should have a way to check that shaders are not in error, otherwise the loading will hang forever
-	for( uint u = 0; u < m_oProcessingLoadCommands.m_aTechniqueLoadCommands.Count(); ++u )
-	{
-		TechniqueLoadCommand& oLoadCommand = m_oProcessingLoadCommands.m_aTechniqueLoadCommands[ u ];
-
-		bool bLoaded = true;
-		for( const ShaderResPtr& xShaderResource : oLoadCommand.m_aShaderResources )
-		{
-			if( xShaderResource->m_bLoaded == false )
-			{
-				bLoaded = false;
-				break;
-			}
-		}
-
-		if( bLoaded )
-		{
-			LOG_INFO( "Loaded {}", oLoadCommand.m_oFilePath.string() );
-			oLoadCommand.OnLoaded();
-			oLoadCommand.m_eStatus = LoadCommandStatus::FINISHED;
-			++uFinishedCount;
-		}
-	}
+	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aTechniqueLoadCommands );
 
 	if( uFinishedCount == m_oProcessingLoadCommands.Count() )
 		m_oProcessingLoadCommands.Clear();
+
+	if( m_oPendingLoadCommands.Empty() == false )
+		g_pGameEngine->GetDebugDisplay().DisplayText( std::format( "Pending load commands {}", m_oPendingLoadCommands.Count() ), glm::vec4( 1.f, 0.5f, 0.f, 1.f ) );
+
+	if( m_oProcessingLoadCommands.Empty() == false )
+		g_pGameEngine->GetDebugDisplay().DisplayText( std::format( "Processing load commands {}", m_oProcessingLoadCommands.Count() ), glm::vec4( 0.f, 0.5f, 1.f, 1.f ) );
 }
 
 template < typename Resource >
@@ -582,24 +571,32 @@ ResourceLoader::TechniqueLoadCommand::TechniqueLoadCommand( const std::filesyste
 	std::filesystem::path oShaderPath = oFilePath;
 
 	oShaderPath.replace_extension( ".vs" );
-	m_aShaderResources.PushBack( g_pResourceLoader->LoadShader( oShaderPath ) );
+	m_aDependencies.PushBack( g_pResourceLoader->LoadShader( oShaderPath ).GetPtr() );
 
 	oShaderPath.replace_extension( ".ps" );
-	m_aShaderResources.PushBack( g_pResourceLoader->LoadShader( oShaderPath ) );
+	m_aDependencies.PushBack( g_pResourceLoader->LoadShader( oShaderPath ).GetPtr() );
+}
+
+void ResourceLoader::TechniqueLoadCommand::Load( std::unique_lock< std::mutex >& oLock )
+{
+	oLock.lock();
+	m_eStatus = LoadCommandStatus::LOADED;
+	oLock.unlock();
 }
 
 void ResourceLoader::TechniqueLoadCommand::OnLoaded()
 {
 	Array< const Shader* > aShaders;
-	aShaders.Reserve( m_aShaderResources.Count() );
-	for( const ShaderResPtr pShader : m_aShaderResources )
+	aShaders.Reserve( m_aDependencies.Count() );
+	for( const StrongPtr< Resource >& pDependency : m_aDependencies )
 	{
-		ASSERT( pShader->IsLoaded() );
-		aShaders.PushBack( &pShader->m_oShader );
+		const ShaderResource* pShaderResource = static_cast< const ShaderResource* >( pDependency.GetPtr() );
+		ASSERT( pShaderResource->IsLoaded() );
+		aShaders.PushBack( &pShaderResource->m_oShader );
 	}
 	m_xResource->m_oTechnique.Create( aShaders );
 
-	m_xResource->m_aShaderResources = std::move( m_aShaderResources );
+	m_xResource->m_aShaderResources = std::move( m_aDependencies );
 	m_xResource->m_bLoaded = true;
 }
 

@@ -118,9 +118,9 @@ public:
 	const Technique&	GetTechnique() const;
 
 private:
-	Technique				m_oTechnique;
+	Technique						m_oTechnique;
 
-	Array< ShaderResPtr >	m_aShaderResources;
+	Array< StrongPtr< Resource > >	m_aShaderResources;
 };
 
 using TechniqueResPtr = StrongPtr< TechniqueResource >;
@@ -129,7 +129,7 @@ class ResourceLoader
 {
 public:
 	template < typename LoadCommand >
-	friend void Load( Array< LoadCommand >& aLoadCommands, std::unique_lock< std::mutex >& oLock, const char* sCommandName );
+	friend void Load( Array< LoadCommand >& aLoadCommands, std::unique_lock< std::mutex >& oLock, const char* sCommandName, const bool bIgnoreFileCheck );
 
 	template < typename LoadCommand >
 	friend uint CheckFinishedProcessingLoadCommands( Array< LoadCommand >& aLoadCommands );
@@ -163,19 +163,31 @@ private:
 		ERROR_READING
 	};
 
-	template < typename Resource >
+	template < typename Res >
 	struct LoadCommand
 	{
-		LoadCommand( const std::filesystem::path& oFilePath, const StrongPtr< Resource >& xResource )
+		LoadCommand( const std::filesystem::path& oFilePath, const StrongPtr< Res >& xResource )
 			: m_oFilePath( oFilePath )
 			, m_xResource( xResource )
 			, m_eStatus( LoadCommandStatus::PENDING )
 		{
 		}
 
-		std::filesystem::path	m_oFilePath;
-		StrongPtr< Resource >	m_xResource;
-		LoadCommandStatus		m_eStatus;
+		bool AreDependenciesLoaded() const
+		{
+			for( const StrongPtr< Resource >& xDependency : m_aDependencies )
+			{
+				if( xDependency->m_bLoaded == false )
+					return false;
+			}
+
+			return true;
+		}
+
+		std::filesystem::path			m_oFilePath;
+		StrongPtr< Res >				m_xResource;
+		LoadCommandStatus				m_eStatus;
+		Array< StrongPtr< Resource > >	m_aDependencies;
 	};
 
 	struct FontLoadCommand : LoadCommand< FontResource >
@@ -232,9 +244,8 @@ private:
 	{
 		TechniqueLoadCommand( const std::filesystem::path& oFilePath, const TechniqueResPtr& xResource );
 
+		void Load( std::unique_lock< std::mutex >& oLock );
 		void OnLoaded();
-
-		Array< ShaderResPtr > m_aShaderResources;
 	};
 
 	struct LoadCommands
