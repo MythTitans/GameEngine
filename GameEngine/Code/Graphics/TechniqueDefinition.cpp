@@ -29,6 +29,8 @@ bool TechniqueDefinitionBase::IsValid() const
 BasicTechniqueDefinition::BasicTechniqueDefinition()
 	: m_uViewUniform( GL_INVALID_VALUE )
 	, m_uProjectionUniform( GL_INVALID_VALUE )
+	, m_uDiffuseColorUniform( GL_INVALID_VALUE )
+	, m_uDiffuseTextureUniform( GL_INVALID_VALUE )
 {
 }
 
@@ -42,10 +44,22 @@ void BasicTechniqueDefinition::SetProjection( const glm::mat4& mProjection )
 	glUniformMatrix4fv( m_uProjectionUniform, 1, GL_FALSE, glm::value_ptr( mProjection ) );
 }
 
+void BasicTechniqueDefinition::SetDiffuseColor( const glm::vec3& vColor )
+{
+	glUniform3fv( m_uDiffuseColorUniform, 1, glm::value_ptr( vColor ) );
+}
+
+void BasicTechniqueDefinition::SetDiffuseTexture( const int iTextureUnit )
+{
+	glUniform1i( m_uDiffuseTextureUniform, iTextureUnit );
+}
+
 void BasicTechniqueDefinition::CreateDefinition( const Technique& oTechnique )
 {
 	m_uViewUniform = oTechnique.GetParameterID( "view" );
 	m_uProjectionUniform = oTechnique.GetParameterID( "projection" );
+	m_uDiffuseColorUniform = oTechnique.GetParameterID( "diffuseColor" );
+	m_uDiffuseTextureUniform = oTechnique.GetParameterID( "diffuseTexture" );
 }
 
 TextTechniqueDefinition::TextTechniqueDefinition()

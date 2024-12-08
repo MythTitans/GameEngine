@@ -29,12 +29,16 @@ public:
 
 	void SetView( const glm::mat4& mView );
 	void SetProjection( const glm::mat4& mProjection );
+	void SetDiffuseColor( const glm::vec3& vColor );
+	void SetDiffuseTexture( const int iTextureUnit );
 
 private:
 	void CreateDefinition( const Technique& oTechnique ) override;
 
 	GLuint	m_uViewUniform;
 	GLuint	m_uProjectionUniform;
+	GLuint	m_uDiffuseColorUniform;
+	GLuint	m_uDiffuseTextureUniform;
 };
 
 class TextTechniqueDefinition : public TechniqueDefinitionBase

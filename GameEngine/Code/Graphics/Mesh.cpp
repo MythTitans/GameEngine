@@ -7,10 +7,11 @@ Mesh::Mesh()
 	, m_uVertexBufferID( GL_INVALID_VALUE )
 	, m_uIndexBufferID( GL_INVALID_VALUE )
 	, m_iIndexCount( 0 )
+	, m_pMaterial( nullptr )
 {
 }
 
-void Mesh::Create( const Array< Float3 >& aVertices, const Array< Float2 >& aUVs, const Array< Float3 >& aNormals, const Array< Float3 >& aTangents, const Array< Float3 >& aBiTangents, const Array< GLuint >& aIndices )
+void Mesh::Create( const Array< Float3 >& aVertices, const Array< Float2 >& aUVs, const Array< Float3 >& aNormals, const Array< Float3 >& aTangents, const Array< Float3 >& aBiTangents, const Array< GLuint >& aIndices, const Material* pMaterial )
 {
 	ASSERT( aVertices.Empty() == false && aIndices.Empty() == false );
 	ASSERT( aUVs.Empty() || aUVs.Count() == aVertices.Count() );
@@ -122,6 +123,8 @@ void Mesh::Create( const Array< Float3 >& aVertices, const Array< Float2 >& aUVs
 	glBindVertexArray( 0 );
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+
+	m_pMaterial = pMaterial;
 }
 
 void Mesh::Destroy()
@@ -135,11 +138,14 @@ void Mesh::Destroy()
 	m_uVertexBufferID = GL_INVALID_VALUE;
 	m_uIndexBufferID = GL_INVALID_VALUE;
 	m_iIndexCount = 0;
+
+	m_pMaterial = nullptr;
 }
 
 MeshBuilder::MeshBuilder( Array< Float3 >&& aVertices, Array< GLuint >&& aIndices )
 	: m_aVertices( aVertices )
 	, m_aIndices( aIndices )
+	, m_pMaterial( nullptr )
 {
 }
 
@@ -191,10 +197,16 @@ MeshBuilder& MeshBuilder::WithBiTangents( Array< Float3 >&& aBiTangents )
 	return *this;
 }
 
+MeshBuilder& MeshBuilder::WithMaterial( const Material* pMaterial )
+{
+	m_pMaterial = pMaterial;
+	return *this;
+}
+
 Mesh MeshBuilder::Build()
 {
 	Mesh oMesh;
-	oMesh.Create( m_aVertices, m_aUVs, m_aNormals, m_aTangents, m_aBiTangents, m_aIndices );
+	oMesh.Create( m_aVertices, m_aUVs, m_aNormals, m_aTangents, m_aBiTangents, m_aIndices, m_pMaterial );
 
 	return oMesh;
 }

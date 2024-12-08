@@ -81,6 +81,16 @@ void ModelResource::Destroy()
 		oMesh.Destroy();
 }
 
+Array< Material >& ModelResource::GetMaterials()
+{
+	return m_aMaterials;
+}
+
+const Array< Material >& ModelResource::GetMaterials() const
+{
+	return m_aMaterials;
+}
+
 Array< Mesh >& ModelResource::GetMeshes()
 {
 	return m_aMeshes;
@@ -180,7 +190,7 @@ ModelResPtr ResourceLoader::LoadModel( const std::filesystem::path& oFilePath )
 	xModelPtr = new ModelResource();
 
 	LOG_INFO( "Loading {}", oFilePath.string() );
-	m_oPendingLoadCommands.m_aModelLoadCommands.PushBack( ModelLoadCommand( oFilePath, xModelPtr, m_oModelImporter ) );
+	m_oPendingLoadCommands.m_aModelLoadCommands.PushBack( ModelLoadCommand( oFilePath, xModelPtr ) );
 
 	return xModelPtr;
 }
@@ -330,24 +340,56 @@ uint CheckFinishedProcessingLoadCommands( Array< LoadCommand >& aLoadCommands )
 			++uFinishedCount;
 			break;
 		case ResourceLoader::LoadCommandStatus::LOADED:
+			LOG_INFO( "Loaded {}", oLoadCommand.m_oFilePath.string() );
+			oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
+			oLoadCommand.OnFinished();
+			if( oLoadCommand.HasDependencies() )
+			{
+				LOG_INFO( "Waiting dependencies for {}", oLoadCommand.m_oFilePath.string() );
+				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::WAITING_DEPENDENCIES;
+			}
+			++uFinishedCount;
+			break;
+		case ResourceLoader::LoadCommandStatus::FINISHED:
+		case ResourceLoader::LoadCommandStatus::WAITING_DEPENDENCIES:
+			++uFinishedCount;
+			break;
+		}
+	}
+
+	return uFinishedCount;
+}
+
+template < typename LoadCommand >
+uint CheckWaitingDependenciesLoadCommands( Array< LoadCommand >& aLoadCommands )
+{
+	uint uFinishedCount = 0;
+
+	for( uint u = 0; u < aLoadCommands.Count(); ++u )
+	{
+		LoadCommand& oLoadCommand = aLoadCommands[ u ];
+		switch( oLoadCommand.m_eStatus )
+		{
+		case ResourceLoader::LoadCommandStatus::WAITING_DEPENDENCIES:
 			if( oLoadCommand.AllDependenciesLoaded() )
 			{
-				LOG_INFO( "Loaded {}", oLoadCommand.m_oFilePath.string() );
+				LOG_INFO( "Dependencies ready for {}", oLoadCommand.m_oFilePath.string() );
 				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
-				oLoadCommand.OnFinished();
+				oLoadCommand.OnDependenciesReady();
 				++uFinishedCount;
 			}
 			else if( oLoadCommand.AnyDependencyFailed() )
 			{
 				LOG_INFO( "Failed to load a dependency for {}", oLoadCommand.m_oFilePath.string() );
 				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::ERROR_READING;
-				oLoadCommand.OnFinished();
-				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
+				oLoadCommand.OnDependenciesReady();
 				++uFinishedCount;
 			}
 			break;
 		case ResourceLoader::LoadCommandStatus::FINISHED:
 			++uFinishedCount;
+			break;
+		default:
 			break;
 		}
 	}
@@ -370,13 +412,31 @@ void ResourceLoader::CheckFinishedProcessingLoadCommands()
 	uFinishedCount += ::CheckFinishedProcessingLoadCommands( m_oProcessingLoadCommands.m_aModelLoadCommands );
 
 	if( uFinishedCount == m_oProcessingLoadCommands.Count() )
+	{
+		m_oWaitingDependenciesLoadCommands.CopyWaitingDependencies( m_oProcessingLoadCommands );
 		m_oProcessingLoadCommands.Clear();
+	}
+
+	uFinishedCount = 0;
+
+	uFinishedCount += ::CheckWaitingDependenciesLoadCommands( m_oWaitingDependenciesLoadCommands.m_aFontLoadCommands );
+	uFinishedCount += ::CheckWaitingDependenciesLoadCommands( m_oWaitingDependenciesLoadCommands.m_aShaderLoadCommands );
+	uFinishedCount += ::CheckWaitingDependenciesLoadCommands( m_oWaitingDependenciesLoadCommands.m_aTechniqueLoadCommands );
+	uFinishedCount += ::CheckWaitingDependenciesLoadCommands( m_oWaitingDependenciesLoadCommands.m_aTextureLoadCommands );
+	uFinishedCount += ::CheckWaitingDependenciesLoadCommands( m_oWaitingDependenciesLoadCommands.m_aModelLoadCommands );
+
+	// TODO #eric not ideal, the list will only be cleared when all waiting commands are completed at the same time
+	if( uFinishedCount == m_oWaitingDependenciesLoadCommands.Count() )
+		m_oWaitingDependenciesLoadCommands.Clear();
 
 	if( m_oPendingLoadCommands.Empty() == false )
 		g_pGameEngine->GetDebugDisplay().DisplayText( std::format( "Pending load commands {}", m_oPendingLoadCommands.Count() ), glm::vec4( 1.f, 0.5f, 0.f, 1.f ) );
 
 	if( m_oProcessingLoadCommands.Empty() == false )
 		g_pGameEngine->GetDebugDisplay().DisplayText( std::format( "Processing load commands {}", m_oProcessingLoadCommands.Count() ), glm::vec4( 0.f, 0.5f, 1.f, 1.f ) );
+
+	if( m_oWaitingDependenciesLoadCommands.Empty() == false )
+		g_pGameEngine->GetDebugDisplay().DisplayText( std::format( "Waiting dependencies load commands {}", m_oWaitingDependenciesLoadCommands.Count() ), glm::vec4( 0.5f, 1.f, 0.f, 1.f ) );
 }
 
 template < typename Resource >
@@ -448,6 +508,10 @@ void ResourceLoader::FontLoadCommand::OnFinished()
 	}
 }
 
+void ResourceLoader::FontLoadCommand::OnDependenciesReady()
+{
+}
+
 ResourceLoader::TextureLoadCommand::TextureLoadCommand( const std::filesystem::path& oFilePath, const TextureResPtr& xResource )
 	: LoadCommand( oFilePath, xResource )
 	, m_iWidth( 0 )
@@ -478,7 +542,7 @@ void ResourceLoader::TextureLoadCommand::OnFinished()
 	switch( m_eStatus )
 	{
 	case ResourceLoader::LoadCommandStatus::FINISHED:
-		m_xResource->m_oTexture.Create( m_iWidth, m_iHeight, TextureFormat::RGBA, m_pData ); // TODO #eric handle format
+		m_xResource->m_oTexture.Create( m_iWidth, m_iHeight, m_iDepth == 3 ? TextureFormat::RGB : TextureFormat::RGBA, m_pData );
 		stbi_image_free( m_pData );
 		m_xResource->m_eStatus = Resource::Status::LOADED;
 		break;
@@ -491,9 +555,12 @@ void ResourceLoader::TextureLoadCommand::OnFinished()
 	}
 }
 
-ResourceLoader::ModelLoadCommand::ModelLoadCommand( const std::filesystem::path& oFilePath, const ModelResPtr& xResource, Assimp::Importer& oImporter )
+void ResourceLoader::TextureLoadCommand::OnDependenciesReady()
+{
+}
+
+ResourceLoader::ModelLoadCommand::ModelLoadCommand( const std::filesystem::path& oFilePath, const ModelResPtr& xResource )
 	: LoadCommand( oFilePath, xResource )
-	, m_oModelImporter( oImporter )
 	, m_pScene( nullptr )
 {
 }
@@ -502,9 +569,9 @@ void ResourceLoader::ModelLoadCommand::Load( std::unique_lock< std::mutex >& oLo
 {
 	aiScene* pSceneData = nullptr;
 
-	const aiScene* pScene = m_oModelImporter.ReadFile( m_oFilePath.string(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace );
+	const aiScene* pScene = g_pResourceLoader->m_oModelImporter.ReadFile( m_oFilePath.string(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace );
 	if( pScene != nullptr )
-		pSceneData = m_oModelImporter.GetOrphanedScene();
+		pSceneData = g_pResourceLoader->m_oModelImporter.GetOrphanedScene();
 
 	oLock.lock();
 	m_eStatus = pSceneData != nullptr ? LoadCommandStatus::LOADED : LoadCommandStatus::ERROR_READING;
@@ -520,9 +587,11 @@ void ResourceLoader::ModelLoadCommand::OnFinished()
 	{
 		aiNode* pRoot = m_pScene->mRootNode;
 		m_xResource->m_aMeshes.Reserve( CountMeshes( pRoot ) );
+		LoadMaterials( m_pScene );
 		LoadMeshes( pRoot );
 		delete m_pScene;
-		m_xResource->m_eStatus = Resource::Status::LOADED;
+		if( HasDependencies() == false )
+			m_xResource->m_eStatus = Resource::Status::LOADED;
 		break;
 	}
 	case ResourceLoader::LoadCommandStatus::NOT_FOUND:
@@ -534,6 +603,23 @@ void ResourceLoader::ModelLoadCommand::OnFinished()
 	}
 }
 
+void ResourceLoader::ModelLoadCommand::OnDependenciesReady()
+{
+	switch( m_eStatus )
+	{
+	case ResourceLoader::LoadCommandStatus::FINISHED:
+		m_xResource->m_eStatus = Resource::Status::LOADED;
+		break;
+	case ResourceLoader::LoadCommandStatus::ERROR_READING:
+		m_xResource->m_eStatus = Resource::Status::FAILED;
+		break;
+	default:
+		break;
+	}
+
+	m_aDependencies.Clear();
+}
+
 uint ResourceLoader::ModelLoadCommand::CountMeshes( aiNode* pNode )
 {
 	uint uCount = pNode->mNumMeshes;
@@ -542,6 +628,35 @@ uint ResourceLoader::ModelLoadCommand::CountMeshes( aiNode* pNode )
 		uCount += CountMeshes( pNode->mChildren[ u ] );
 
 	return uCount;
+}
+
+void ResourceLoader::ModelLoadCommand::LoadMaterials( aiScene* pScene )
+{
+	m_xResource->m_aMaterials.Resize( pScene->mNumMaterials );
+
+	for( uint u = 0; u < pScene->mNumMaterials; ++u )
+	{
+		//TechniqueResPtr xTechniqueResource = g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/basic" ) );
+		//m_xResource->m_aMaterials[ u ].m_xTechniqueResource = xTechniqueResource;
+		//m_aDependencies.PushBack( xTechniqueResource.GetPtr() );
+
+		const aiMaterial* pMaterial = pScene->mMaterials[ u ];
+
+		aiColor3D oDiffuseColor;
+		pMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, oDiffuseColor );
+		m_xResource->m_aMaterials[ u ].m_vDiffuseColor = glm::vec3( oDiffuseColor.r, oDiffuseColor.g, oDiffuseColor.b );
+
+		if( pMaterial->GetTextureCount( aiTextureType_DIFFUSE ) != 0 )
+		{
+			aiString sFile;
+			if( pMaterial->GetTexture( aiTextureType_DIFFUSE, 0, &sFile ) == AI_SUCCESS )
+			{
+				TextureResPtr xTextureResource = g_pResourceLoader->LoadTexture( std::filesystem::path( sFile.C_Str() ) );
+				m_xResource->m_aMaterials[ u ].m_xDiffuseTextureResource = xTextureResource;
+				m_aDependencies.PushBack( xTextureResource.GetPtr() );
+			}
+		}
+	}
 }
 
 void ResourceLoader::ModelLoadCommand::LoadMeshes( aiNode* pNode )
@@ -558,9 +673,9 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
 	const uint uVertexCount = pMesh->mNumVertices;
 
 	Array< Float3 > aVertices( uVertexCount );
-	Array< Float3  > aNormals( uVertexCount );
-	Array< Float3  > aTangents( uVertexCount );
-	Array< Float3  > aBiTangents( uVertexCount );
+	Array< Float3 > aNormals( uVertexCount );
+	Array< Float3 > aTangents( uVertexCount );
+	Array< Float3 > aBiTangents( uVertexCount );
 	Array< Float2 > aUVs( uVertexCount );
 
 	for( uint u = 0; u < uVertexCount; ++u )
@@ -593,6 +708,9 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
 		.WithNormals( std::move( aNormals ) )
 		.WithTangents( std::move( aTangents ) )
 		.WithBiTangents( std::move( aBiTangents ) );
+
+	if( pMesh->mMaterialIndex >= 0 && pMesh->mMaterialIndex < m_xResource->m_aMaterials.Count() )
+		oMeshBuilder.WithMaterial( &m_xResource->m_aMaterials[ pMesh->mMaterialIndex ] );
 
 	m_xResource->m_aMeshes.PushBack( oMeshBuilder.Build() );
 }
@@ -634,6 +752,10 @@ void ResourceLoader::ShaderLoadCommand::OnFinished()
 	}
 }
 
+void ResourceLoader::ShaderLoadCommand::OnDependenciesReady()
+{
+}
+
 ResourceLoader::TechniqueLoadCommand::TechniqueLoadCommand( const std::filesystem::path& oFilePath, const TechniqueResPtr& xResource )
 	: LoadCommand( oFilePath, xResource )
 {
@@ -668,19 +790,22 @@ void ResourceLoader::TechniqueLoadCommand::OnFinished()
 			aShaders.PushBack( &pShaderResource->m_oShader );
 		}
 		m_xResource->m_oTechnique.Create( aShaders );
-
-		m_xResource->m_aShaderResources = std::move( m_aDependencies );
+		
 		m_xResource->m_eStatus = Resource::Status::LOADED;
 		break;
 	}
 	case ResourceLoader::LoadCommandStatus::NOT_FOUND:
 	case ResourceLoader::LoadCommandStatus::ERROR_READING:
-		m_xResource->m_aShaderResources = std::move( m_aDependencies );
 		m_xResource->m_eStatus = Resource::Status::FAILED;
 		break;
 	default:
 		break;
 	}
+}
+
+void ResourceLoader::TechniqueLoadCommand::OnDependenciesReady()
+{
+	m_xResource->m_aShaderResources = std::move( m_aDependencies );
 }
 
 uint ResourceLoader::LoadCommands::Count() const
@@ -700,6 +825,45 @@ void ResourceLoader::LoadCommands::Grab( LoadCommands& oLoadCommands )
 	m_aModelLoadCommands.Grab( oLoadCommands.m_aModelLoadCommands );
 	m_aShaderLoadCommands.Grab( oLoadCommands.m_aShaderLoadCommands );
 	m_aTechniqueLoadCommands.Grab( oLoadCommands.m_aTechniqueLoadCommands );
+}
+
+void ResourceLoader::LoadCommands::CopyWaitingDependencies( LoadCommands& oLoadCommands )
+{
+	m_aFontLoadCommands.Expand( oLoadCommands.m_aFontLoadCommands.Count() );
+	m_aTextureLoadCommands.Expand( oLoadCommands.m_aTextureLoadCommands.Count() );
+	m_aModelLoadCommands.Expand( oLoadCommands.m_aModelLoadCommands.Count() );
+	m_aShaderLoadCommands.Expand( oLoadCommands.m_aShaderLoadCommands.Count() );
+	m_aTechniqueLoadCommands.Expand( oLoadCommands.m_aTechniqueLoadCommands.Count() );
+
+	for( const FontLoadCommand& oLoadCommand : oLoadCommands.m_aFontLoadCommands )
+	{
+		if( oLoadCommand.m_eStatus == LoadCommandStatus::WAITING_DEPENDENCIES )
+			m_aFontLoadCommands.PushBack( oLoadCommand );
+	}
+
+	for( const TextureLoadCommand& oLoadCommand : oLoadCommands.m_aTextureLoadCommands )
+	{
+		if( oLoadCommand.m_eStatus == LoadCommandStatus::WAITING_DEPENDENCIES )
+			m_aTextureLoadCommands.PushBack( oLoadCommand );
+	}
+
+	for( const ModelLoadCommand& oLoadCommand : oLoadCommands.m_aModelLoadCommands )
+	{
+		if( oLoadCommand.m_eStatus == LoadCommandStatus::WAITING_DEPENDENCIES )
+			m_aModelLoadCommands.PushBack( oLoadCommand );
+	}
+
+	for( const ShaderLoadCommand& oLoadCommand : oLoadCommands.m_aShaderLoadCommands )
+	{
+		if( oLoadCommand.m_eStatus == LoadCommandStatus::WAITING_DEPENDENCIES )
+			m_aShaderLoadCommands.PushBack( oLoadCommand );
+	}
+
+	for( const TechniqueLoadCommand& oLoadCommand : oLoadCommands.m_aTechniqueLoadCommands )
+	{
+		if( oLoadCommand.m_eStatus == LoadCommandStatus::WAITING_DEPENDENCIES )
+			m_aTechniqueLoadCommands.PushBack( oLoadCommand );
+	}
 }
 
 void ResourceLoader::LoadCommands::Clear()

@@ -5,6 +5,8 @@
 #include "Core/Array.h"
 #include "Utils.h"
 
+struct Material;
+
 class Mesh
 {
 public:
@@ -13,14 +15,16 @@ public:
 
 	Mesh();
 
-	void Create( const Array< Float3 >& aVertices, const Array< Float2 >& aUVs, const Array< Float3 >& aNormals, const Array< Float3 >& aTangents, const Array< Float3 >& aBiTangents, const Array< GLuint >& aIndices );
+	void Create( const Array< Float3 >& aVertices, const Array< Float2 >& aUVs, const Array< Float3 >& aNormals, const Array< Float3 >& aTangents, const Array< Float3 >& aBiTangents, const Array< GLuint >& aIndices, const Material* pMaterial );
 	void Destroy();
 
 private:
-	GLuint	m_uVertexArrayID;
-	GLuint	m_uVertexBufferID;
-	GLuint	m_uIndexBufferID;
-	GLsizei m_iIndexCount;
+	GLuint			m_uVertexArrayID;
+	GLuint			m_uVertexBufferID;
+	GLuint			m_uIndexBufferID;
+	GLsizei			m_iIndexCount;
+
+	const Material*	m_pMaterial;
 };
 
 class MeshBuilder
@@ -36,6 +40,7 @@ public:
 	MeshBuilder& WithTangents( Array< Float3 >&& aTangents );
 	MeshBuilder& WithBiTangents();
 	MeshBuilder& WithBiTangents( Array< Float3 >&& aBiTangents );
+	MeshBuilder& WithMaterial( const Material* pMaterial );
 
 	Mesh			Build();
 
@@ -46,4 +51,6 @@ private:
 	Array< Float3 > m_aNormals;
 	Array< Float3 > m_aTangents;
 	Array< Float3 > m_aBiTangents;
+
+	const Material* m_pMaterial;
 };

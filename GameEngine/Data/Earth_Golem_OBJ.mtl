@@ -1,0 +1,15 @@
+# Blender MTL File: 'Earth_Golem.blend'
+# Material Count: 1
+
+newmtl Material
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd Data/EarthGolem_albedo.jpeg
+map_Kn data/textures/golem/lambert1_normal.png
+map_Ke data/textures/golem/earth_emissive.jpeg

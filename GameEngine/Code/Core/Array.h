@@ -302,6 +302,14 @@ public:
 		}
 	}
 
+	void Expand( uint uBy = 1 )
+	{
+		if( m_uCapacity >= m_uCount + uBy )
+			return;
+
+		Reserve( m_uCount + uBy );
+	}
+
 	void ShrinkToFit()
 	{
 		if( m_uCapacity == m_uCount )
@@ -406,14 +414,6 @@ public:
 	}
 
 private:
-	void Expand( uint uBy = 1 )
-	{
-		if( m_uCapacity >= m_uCount + uBy )
-			return;
-
-		Reserve( m_uCount + uBy );
-	}
-
 	void Destroy()
 	{
 		for( uint u = 0; u < m_uCount; ++u )

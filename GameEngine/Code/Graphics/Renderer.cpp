@@ -80,9 +80,20 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	{
 		for( const Mesh& oMesh : g_pGameEngine->GetScene().m_xCube->GetMeshes() )
 		{
+			if( oMesh.m_pMaterial != nullptr )
+			{
+				GLuint uTextureID = oMesh.m_pMaterial->m_xDiffuseTextureResource->GetTexture().m_uTextureID;
+				glActiveTexture( GL_TEXTURE0 );
+				glBindTexture( GL_TEXTURE_2D, uTextureID );
+				m_oBasicTechniqueDefinition.SetDiffuseColor( oMesh.m_pMaterial->m_vDiffuseColor );
+				m_oBasicTechniqueDefinition.SetDiffuseTexture( 0 );
+			}
+
 			glBindVertexArray( oMesh.m_uVertexArrayID );
 			glDrawElements( GL_TRIANGLES, oMesh.m_iIndexCount, GL_UNSIGNED_INT, nullptr );
 			glBindVertexArray( 0 );
+
+			glBindTexture( GL_TEXTURE_2D, 0 );
 		}
 	}
 

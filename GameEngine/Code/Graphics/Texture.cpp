@@ -28,13 +28,17 @@ void Texture::Create( const int iWidth, const int iHeight, const TextureFormat e
 	GLint iInternalFormat = GL_RGBA;
 	switch( eTextureFormat )
 	{
-	case TextureFormat::RGBA:
-		iFormat = GL_RGBA;
-		iInternalFormat = GL_RGBA;
-		break;
 	case TextureFormat::RED:
 		iFormat = GL_RED;
 		iInternalFormat = GL_R8;
+		break;
+	case TextureFormat::RGB:
+		iFormat = GL_RGB;
+		iInternalFormat = GL_RGB;
+		break;
+	case TextureFormat::RGBA:
+		iFormat = GL_RGBA;
+		iInternalFormat = GL_RGBA;
 		break;
 	}
 

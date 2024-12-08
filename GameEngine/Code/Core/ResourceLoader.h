@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include <assimp/Importer.hpp>
+#include <glm/glm.hpp>
 
 #include "stb_truetype.h"
 
@@ -70,38 +71,6 @@ private:
 
 using FontResPtr = StrongPtr< FontResource >;
 
-class TextureResource : public Resource
-{
-public:
-	friend class ResourceLoader;
-
-	void			Destroy() override;
-
-	Texture&		GetTexture();
-	const Texture&	GetTexture() const;
-
-private:
-	Texture m_oTexture;
-};
-
-using TextureResPtr = StrongPtr< TextureResource >;
-
-class ModelResource : public Resource
-{
-public:
-	friend class ResourceLoader;
-
-	void					Destroy() override;
-
-	Array< Mesh >&			GetMeshes();
-	const Array< Mesh >&	GetMeshes() const;
-
-private:
-	Array< Mesh > m_aMeshes;
-};
-
-using ModelResPtr = StrongPtr< ModelResource >;
-
 class ShaderResource : public Resource
 {
 public:
@@ -136,6 +105,50 @@ private:
 
 using TechniqueResPtr = StrongPtr< TechniqueResource >;
 
+class TextureResource : public Resource
+{
+public:
+	friend class ResourceLoader;
+
+	void			Destroy() override;
+
+	Texture&		GetTexture();
+	const Texture&	GetTexture() const;
+
+private:
+	Texture m_oTexture;
+};
+
+using TextureResPtr = StrongPtr< TextureResource >;
+
+struct Material
+{
+	glm::vec3		m_vDiffuseColor;
+
+	//TechniqueResPtr m_xTechniqueResource;
+	TextureResPtr	m_xDiffuseTextureResource;
+};
+
+class ModelResource : public Resource
+{
+public:
+	friend class ResourceLoader;
+
+	void						Destroy() override;
+
+	Array< Material >&			GetMaterials();
+	const Array< Material >&	GetMaterials() const;
+
+	Array< Mesh >&				GetMeshes();
+	const Array< Mesh >&		GetMeshes() const;
+
+private:
+	Array< Material >	m_aMaterials;
+	Array< Mesh >		m_aMeshes;
+};
+
+using ModelResPtr = StrongPtr< ModelResource >;
+
 class ResourceLoader
 {
 public:
@@ -144,6 +157,9 @@ public:
 
 	template < typename LoadCommand >
 	friend uint CheckFinishedProcessingLoadCommands( Array< LoadCommand >& aLoadCommands );
+
+	template < typename LoadCommand >
+	friend uint CheckWaitingDependenciesLoadCommands( Array< LoadCommand >& aLoadCommands );
 
 	ResourceLoader();
 	~ResourceLoader();
@@ -170,6 +186,7 @@ private:
 		LOADING,
 		LOADED,
 		FINISHED,
+		WAITING_DEPENDENCIES,
 		NOT_FOUND,
 		ERROR_READING
 	};
@@ -186,6 +203,11 @@ private:
 
 		virtual ~LoadCommand()
 		{
+		}
+
+		bool HasDependencies() const
+		{
+			return m_aDependencies.Empty() == false;
 		}
 
 		bool AnyDependencyFailed() const
@@ -212,6 +234,7 @@ private:
 
 		virtual void Load( std::unique_lock< std::mutex >& oLock ) = 0;
 		virtual void OnFinished() = 0;
+		virtual void OnDependenciesReady() = 0;
 
 		std::filesystem::path			m_oFilePath;
 		StrongPtr< Res >				m_xResource;
@@ -225,6 +248,7 @@ private:
 
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
+		void OnDependenciesReady() override;
 
 		Array< uint8 >				m_aAtlasData;
 		Array< stbtt_packedchar >	m_aPackedCharacters;
@@ -236,6 +260,7 @@ private:
 
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
+		void OnDependenciesReady() override;
 
 		int		m_iWidth;
 		int		m_iHeight;
@@ -245,17 +270,18 @@ private:
 
 	struct ModelLoadCommand : LoadCommand< ModelResource >
 	{
-		ModelLoadCommand( const std::filesystem::path& oFilePath, const ModelResPtr& xResource, Assimp::Importer& oModelImporter );
+		ModelLoadCommand( const std::filesystem::path& oFilePath, const ModelResPtr& xResource );
 
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
+		void OnDependenciesReady() override;
 
 		uint CountMeshes( aiNode* pNode );
+		void LoadMaterials( aiScene* pScene );
 		void LoadMeshes( aiNode* pNode );
 		void LoadMesh( aiMesh* pMesh );
 
-		Assimp::Importer&	m_oModelImporter;
-		aiScene*			m_pScene;
+		aiScene* m_pScene;
 	};
 
 	struct ShaderLoadCommand : LoadCommand< ShaderResource >
@@ -264,6 +290,7 @@ private:
 
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
+		void OnDependenciesReady() override;
 
 		std::string m_sShaderCode;
 		ShaderType	m_eShaderType;
@@ -275,6 +302,7 @@ private:
 
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
+		void OnDependenciesReady() override;
 	};
 
 	struct LoadCommands
@@ -288,6 +316,7 @@ private:
 		uint Count() const;
 		bool Empty() const;
 		void Grab( LoadCommands& oLoadCommands );
+		void CopyWaitingDependencies( LoadCommands& oLoadCommands );
 		void Clear();
 	};
 
@@ -305,6 +334,7 @@ private:
 
 	LoadCommands			m_oPendingLoadCommands;
 	LoadCommands			m_oProcessingLoadCommands;
+	LoadCommands			m_oWaitingDependenciesLoadCommands;
 
 	std::atomic_bool		m_bRunning;
 
