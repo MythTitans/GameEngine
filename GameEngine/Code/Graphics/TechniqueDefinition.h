@@ -22,6 +22,19 @@ private:
 	bool m_bValid;
 };
 
+class PresentToScreenTechniqueDefinition : public TechniqueDefinitionBase
+{
+public:
+	PresentToScreenTechniqueDefinition();
+
+	void SetTexture( const int iTextureUnit );
+
+private:
+	void CreateDefinition( const Technique& oTechnique ) override;
+
+	GLuint m_uTextureUniform;
+};
+
 class BasicTechniqueDefinition : public TechniqueDefinitionBase
 {
 public:

@@ -26,6 +26,21 @@ bool TechniqueDefinitionBase::IsValid() const
 	return m_bValid;
 }
 
+PresentToScreenTechniqueDefinition::PresentToScreenTechniqueDefinition()
+	: m_uTextureUniform( GL_INVALID_VALUE )
+{
+}
+
+void PresentToScreenTechniqueDefinition::SetTexture( const int iTextureUnit )
+{
+	glUniform1i( m_uTextureUniform, iTextureUnit );
+}
+
+void PresentToScreenTechniqueDefinition::CreateDefinition( const Technique& oTechnique )
+{
+	m_uTextureUniform = oTechnique.GetParameterID( "frameTexture" );
+}
+
 BasicTechniqueDefinition::BasicTechniqueDefinition()
 	: m_uViewUniform( GL_INVALID_VALUE )
 	, m_uProjectionUniform( GL_INVALID_VALUE )

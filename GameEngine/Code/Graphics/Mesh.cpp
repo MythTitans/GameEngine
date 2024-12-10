@@ -11,7 +11,7 @@ Mesh::Mesh()
 {
 }
 
-void Mesh::Create( const Array< Float3 >& aVertices, const Array< Float2 >& aUVs, const Array< Float3 >& aNormals, const Array< Float3 >& aTangents, const Array< Float3 >& aBiTangents, const Array< GLuint >& aIndices, const Material* pMaterial )
+void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< glm::vec3 >& aBiTangents, const Array< GLuint >& aIndices, const Material* pMaterial )
 {
 	ASSERT( aVertices.Empty() == false && aIndices.Empty() == false );
 	ASSERT( aUVs.Empty() || aUVs.Count() == aVertices.Count() );
@@ -40,35 +40,35 @@ void Mesh::Create( const Array< Float3 >& aVertices, const Array< Float2 >& aUVs
 
 	for( uint u = 0; u < aVertices.Count(); ++u )
 	{
-		aPackedVertices[ u * uVertexSize ] = aVertices[ u ].m_fX;
-		aPackedVertices[ u * uVertexSize + 1 ] = aVertices[ u ].m_fY;
-		aPackedVertices[ u * uVertexSize + 2 ] = aVertices[ u ].m_fZ;
+		aPackedVertices[ u * uVertexSize ] = aVertices[ u ].x;
+		aPackedVertices[ u * uVertexSize + 1 ] = aVertices[ u ].y;
+		aPackedVertices[ u * uVertexSize + 2 ] = aVertices[ u ].z;
 
 		if( uUVsSize != 0 )
 		{
-			aPackedVertices[ u * uVertexSize + uUVsOffset ] = aUVs[ u ].m_fX;
-			aPackedVertices[ u * uVertexSize + uUVsOffset + 1] = aUVs[ u ].m_fY;
+			aPackedVertices[ u * uVertexSize + uUVsOffset ] = aUVs[ u ].x;
+			aPackedVertices[ u * uVertexSize + uUVsOffset + 1] = aUVs[ u ].y;
 		}
 
 		if( uNormalsSize != 0 )
 		{
-			aPackedVertices[ u * uVertexSize + uNormalsOffset ] = aNormals[ u ].m_fX;
-			aPackedVertices[ u * uVertexSize + uNormalsOffset + 1 ] = aNormals[ u ].m_fY;
-			aPackedVertices[ u * uVertexSize + uNormalsOffset + 2 ] = aNormals[ u ].m_fZ;
+			aPackedVertices[ u * uVertexSize + uNormalsOffset ] = aNormals[ u ].x;
+			aPackedVertices[ u * uVertexSize + uNormalsOffset + 1 ] = aNormals[ u ].y;
+			aPackedVertices[ u * uVertexSize + uNormalsOffset + 2 ] = aNormals[ u ].z;
 		}
 		
 		if( uTangentsSize != 0 )
 		{
-			aPackedVertices[ u * uVertexSize + uTangentsOffset ] = aTangents[ u ].m_fX;
-			aPackedVertices[ u * uVertexSize + uTangentsOffset + 1 ] = aTangents[ u ].m_fY;
-			aPackedVertices[ u * uVertexSize + uTangentsOffset + 2 ] = aTangents[ u ].m_fZ;
+			aPackedVertices[ u * uVertexSize + uTangentsOffset ] = aTangents[ u ].x;
+			aPackedVertices[ u * uVertexSize + uTangentsOffset + 1 ] = aTangents[ u ].y;
+			aPackedVertices[ u * uVertexSize + uTangentsOffset + 2 ] = aTangents[ u ].z;
 		}
 
 		if( uBiTangentsSize != 0 )
 		{
-			aPackedVertices[ u * uVertexSize + uBiTangentsOffset ] = aBiTangents[ u ].m_fX;
-			aPackedVertices[ u * uVertexSize + uBiTangentsOffset + 1 ] = aBiTangents[ u ].m_fY;
-			aPackedVertices[ u * uVertexSize + uBiTangentsOffset + 2 ] = aBiTangents[ u ].m_fZ;
+			aPackedVertices[ u * uVertexSize + uBiTangentsOffset ] = aBiTangents[ u ].x;
+			aPackedVertices[ u * uVertexSize + uBiTangentsOffset + 1 ] = aBiTangents[ u ].y;
+			aPackedVertices[ u * uVertexSize + uBiTangentsOffset + 2 ] = aBiTangents[ u ].z;
 		}
 	}
 
@@ -142,7 +142,7 @@ void Mesh::Destroy()
 	m_pMaterial = nullptr;
 }
 
-MeshBuilder::MeshBuilder( Array< Float3 >&& aVertices, Array< GLuint >&& aIndices )
+MeshBuilder::MeshBuilder( Array< glm::vec3 >&& aVertices, Array< GLuint >&& aIndices )
 	: m_aVertices( aVertices )
 	, m_aIndices( aIndices )
 	, m_pMaterial( nullptr )
@@ -155,7 +155,7 @@ MeshBuilder& MeshBuilder::WithUVs()
 	return *this;
 }
 
-MeshBuilder& MeshBuilder::WithUVs( Array< Float2 >&& aUVs )
+MeshBuilder& MeshBuilder::WithUVs( Array< glm::vec2 >&& aUVs )
 {
 	m_aUVs = aUVs;
 	return *this;
@@ -167,7 +167,7 @@ MeshBuilder& MeshBuilder::WithNormals()
 	return *this;
 }
 
-MeshBuilder& MeshBuilder::WithNormals( Array< Float3 >&& aNormals )
+MeshBuilder& MeshBuilder::WithNormals( Array< glm::vec3 >&& aNormals )
 {
 	m_aNormals = aNormals;
 	return *this;
@@ -179,7 +179,7 @@ MeshBuilder& MeshBuilder::WithTangents()
 	return *this;
 }
 
-MeshBuilder& MeshBuilder::WithTangents( Array< Float3 >&& aTangents )
+MeshBuilder& MeshBuilder::WithTangents( Array< glm::vec3 >&& aTangents )
 {
 	m_aTangents = aTangents;
 	return *this;
@@ -191,7 +191,7 @@ MeshBuilder& MeshBuilder::WithBiTangents()
 	return *this;
 }
 
-MeshBuilder& MeshBuilder::WithBiTangents( Array< Float3 >&& aBiTangents )
+MeshBuilder& MeshBuilder::WithBiTangents( Array< glm::vec3 >&& aBiTangents )
 {
 	m_aBiTangents = aBiTangents;
 	return *this;

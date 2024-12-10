@@ -173,12 +173,12 @@
     <ClCompile Include="Code\Graphics\Camera.cpp" />
     <ClCompile Include="Code\Graphics\Mesh.cpp" />
     <ClCompile Include="Code\Graphics\Renderer.cpp" />
+    <ClCompile Include="Code\Graphics\RenderTarget.cpp" />
     <ClCompile Include="Code\Graphics\Shader.cpp" />
     <ClCompile Include="Code\Graphics\Technique.cpp" />
     <ClCompile Include="Code\Graphics\TechniqueDefinition.cpp" />
     <ClCompile Include="Code\Graphics\TextRenderer.cpp" />
     <ClCompile Include="Code\Graphics\Texture.cpp" />
-    <ClCompile Include="Code\Graphics\Utils.cpp" />
     <ClCompile Include="Code\ImGui\imgui.cpp" />
     <ClCompile Include="Code\ImGui\imgui_demo.cpp" />
     <ClCompile Include="Code\ImGui\imgui_draw.cpp" />
@@ -210,12 +210,12 @@
     <ClInclude Include="Code\Graphics\Camera.h" />
     <ClInclude Include="Code\Graphics\Mesh.h" />
     <ClInclude Include="Code\Graphics\Renderer.h" />
+    <ClInclude Include="Code\Graphics\RenderTarget.h" />
     <ClInclude Include="Code\Graphics\Shader.h" />
     <ClInclude Include="Code\Graphics\Technique.h" />
     <ClInclude Include="Code\Graphics\TechniqueDefinition.h" />
     <ClInclude Include="Code\Graphics\TextRenderer.h" />
     <ClInclude Include="Code\Graphics\Texture.h" />
-    <ClInclude Include="Code\Graphics\Utils.h" />
     <ClInclude Include="Code\ImGui\imconfig.h" />
     <ClInclude Include="Code\ImGui\imgui.h" />
     <ClInclude Include="Code\ImGui\imgui_impl_glfw.h" />

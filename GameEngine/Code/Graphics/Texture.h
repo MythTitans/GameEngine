@@ -3,13 +3,13 @@
 #include <GL/glew.h>
 
 #include "Core/Array.h"
-#include "Core/Types.h"
 
 enum class TextureFormat
 {
 	RED,
 	RGB,
 	RGBA,
+	DEPTH
 };
 
 class Texture
@@ -17,6 +17,7 @@ class Texture
 public:
 	friend class Renderer;
 	friend class TextRenderer;
+	friend class RenderTarget;
 
 	Texture();
 

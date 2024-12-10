@@ -23,11 +23,11 @@ TextRenderer::TextRenderer()
 	: m_xFont( g_pResourceLoader->LoadFont( std::filesystem::path( "C:/Windows/Fonts/arialbd.ttf" ) ) )
 	, m_xTextTechnique( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/text" ) ) )
 {
-	Array< Float3 > aVertices( 4 );
-	aVertices[ 0 ] = Float3( 0.f, 0.f, 0.f );
-	aVertices[ 1 ] = Float3( 1.f, 0.f, 0.f );
-	aVertices[ 2 ] = Float3( 1.f, 1.f, 0.f );
-	aVertices[ 3 ] = Float3( 0.f, 1.f, 0.f );
+	Array< glm::vec3 > aVertices( 4 );
+	aVertices[ 0 ] = glm::vec3( 0.f, 0.f, 0.f );
+	aVertices[ 1 ] = glm::vec3( 1.f, 0.f, 0.f );
+	aVertices[ 2 ] = glm::vec3( 1.f, 1.f, 0.f );
+	aVertices[ 3 ] = glm::vec3( 0.f, 1.f, 0.f );
 
 	Array< GLuint > aIndices( 6 );
 	aIndices[ 0 ] = 0;
@@ -37,11 +37,11 @@ TextRenderer::TextRenderer()
 	aIndices[ 4 ] = 2;
 	aIndices[ 5 ] = 3;
 
-	Array< Float2 > aUVs( 4 );
-	aUVs[ 0 ] = Float2( 0.f, 0.f );
-	aUVs[ 1 ] = Float2( 1.f, 0.f );
-	aUVs[ 2 ] = Float2( 1.f, 1.f );
-	aUVs[ 3 ] = Float2( 0.f, 1.f );
+	Array< glm::vec2 > aUVs( 4 );
+	aUVs[ 0 ] = glm::vec2( 0.f, 0.f );
+	aUVs[ 1 ] = glm::vec2( 1.f, 0.f );
+	aUVs[ 2 ] = glm::vec2( 1.f, 1.f );
+	aUVs[ 3 ] = glm::vec2( 0.f, 1.f );
 
 	m_oTextQuad = MeshBuilder( std::move( aVertices ), std::move( aIndices ) ).WithUVs( std::move( aUVs ) ).Build();
 }

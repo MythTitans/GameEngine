@@ -3,11 +3,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 Camera::Camera()
-	: m_vPosition( 0.f, 00.f, 0.f )
+	: m_vPosition( 0.f, 0.f, 0.f )
 	, m_vTarget( 0.f, 0.f, -1.f )
 	, m_vUp( 0.f, 1.f, 0.f )
-	, m_fNear( 0.1f )
-	, m_fFar( 1000.f )
+	, m_fNear( 0.2f )
+	, m_fFar( 200.f )
 	, m_fFov( glm::radians( 60.f ) )
 	, m_fAspectRatio( 16.f / 9.f )
 	, m_bViewDirty( true )

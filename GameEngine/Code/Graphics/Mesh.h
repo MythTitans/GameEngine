@@ -2,8 +2,9 @@
 
 #include <GL/glew.h>
 
+#include <glm/glm.hpp>
+
 #include "Core/Array.h"
-#include "Utils.h"
 
 struct Material;
 
@@ -15,7 +16,7 @@ public:
 
 	Mesh();
 
-	void Create( const Array< Float3 >& aVertices, const Array< Float2 >& aUVs, const Array< Float3 >& aNormals, const Array< Float3 >& aTangents, const Array< Float3 >& aBiTangents, const Array< GLuint >& aIndices, const Material* pMaterial );
+	void Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< glm::vec3>& aBiTangents, const Array< GLuint >& aIndices, const Material* pMaterial );
 	void Destroy();
 
 private:
@@ -30,27 +31,27 @@ private:
 class MeshBuilder
 {
 public:
-	MeshBuilder( Array< Float3 >&& aVertices, Array< GLuint >&& aIndices );
+	MeshBuilder( Array< glm::vec3 >&& aVertices, Array< GLuint >&& aIndices );
 
 	MeshBuilder& WithUVs();
-	MeshBuilder& WithUVs( Array< Float2 >&& aUVs );
+	MeshBuilder& WithUVs( Array< glm::vec2 >&& aUVs );
 	MeshBuilder& WithNormals();
-	MeshBuilder& WithNormals( Array< Float3 >&& aNormals );
+	MeshBuilder& WithNormals( Array< glm::vec3 >&& aNormals );
 	MeshBuilder& WithTangents();
-	MeshBuilder& WithTangents( Array< Float3 >&& aTangents );
+	MeshBuilder& WithTangents( Array< glm::vec3 >&& aTangents );
 	MeshBuilder& WithBiTangents();
-	MeshBuilder& WithBiTangents( Array< Float3 >&& aBiTangents );
+	MeshBuilder& WithBiTangents( Array< glm::vec3 >&& aBiTangents );
 	MeshBuilder& WithMaterial( const Material* pMaterial );
 
 	Mesh			Build();
 
 private:
-	Array< Float3 > m_aVertices;
+	Array< glm::vec3 > m_aVertices;
 	Array< GLuint > m_aIndices;
-	Array< Float2 > m_aUVs;
-	Array< Float3 > m_aNormals;
-	Array< Float3 > m_aTangents;
-	Array< Float3 > m_aBiTangents;
+	Array< glm::vec2 > m_aUVs;
+	Array< glm::vec3 > m_aNormals;
+	Array< glm::vec3 > m_aTangents;
+	Array< glm::vec3 > m_aBiTangents;
 
 	const Material* m_pMaterial;
 };

@@ -12,7 +12,6 @@
 #include "Common.h"
 #include "Game/GameEngine.h"
 #include "FileUtils.h"
-#include "Graphics/Utils.h"
 #include "Logger.h"
 #include "Profiler.h"
 
@@ -672,21 +671,21 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
 {
 	const uint uVertexCount = pMesh->mNumVertices;
 
-	Array< Float3 > aVertices( uVertexCount );
-	Array< Float3 > aNormals( uVertexCount );
-	Array< Float3 > aTangents( uVertexCount );
-	Array< Float3 > aBiTangents( uVertexCount );
-	Array< Float2 > aUVs( uVertexCount );
+	Array< glm::vec3 > aVertices( uVertexCount );
+	Array< glm::vec3 > aNormals( uVertexCount );
+	Array< glm::vec3 > aTangents( uVertexCount );
+	Array< glm::vec3 > aBiTangents( uVertexCount );
+	Array< glm::vec2 > aUVs( uVertexCount );
 
 	for( uint u = 0; u < uVertexCount; ++u )
 	{
-		aVertices[ u ] = Float3( pMesh->mVertices[ u ].x, pMesh->mVertices[ u ].y , pMesh->mVertices[ u ].z );
-		aNormals[ u ] = Float3( pMesh->mNormals[ u ].x, pMesh->mNormals[ u ].y, pMesh->mNormals[ u ].z );
-		aTangents[ u ] = Float3( pMesh->mTangents[ u ].x, pMesh->mTangents[ u ].y, pMesh->mTangents[ u ].z );
-		aBiTangents[ u ] = Float3( pMesh->mBitangents[ u ].x, pMesh->mBitangents[ u ].y, pMesh->mBitangents[ u ].z );
+		aVertices[ u ] = glm::vec3( pMesh->mVertices[ u ].x, pMesh->mVertices[ u ].y, pMesh->mVertices[ u ].z );
+		aNormals[ u ] = glm::vec3( pMesh->mNormals[ u ].x, pMesh->mNormals[ u ].y, pMesh->mNormals[ u ].z );
+		aTangents[ u ] = glm::vec3( pMesh->mTangents[ u ].x, pMesh->mTangents[ u ].y, pMesh->mTangents[ u ].z );
+		aBiTangents[ u ] = glm::vec3( pMesh->mBitangents[ u ].x, pMesh->mBitangents[ u ].y, pMesh->mBitangents[ u ].z );
 
 		if( pMesh->mTextureCoords[ 0 ] != nullptr )
-			aUVs[ u ] = Float2( pMesh->mTextureCoords[ 0 ][ u ].x, pMesh->mTextureCoords[ 0 ][ u ].y );
+			aUVs[ u ] = glm::vec2( pMesh->mTextureCoords[ 0 ][ u ].x, pMesh->mTextureCoords[ 0 ][ u ].y );
 	}
 
 	uint uIndexCount = 0;

@@ -26,6 +26,7 @@ void Texture::Create( const int iWidth, const int iHeight, const TextureFormat e
 
 	GLint iFormat = GL_RGBA;
 	GLint iInternalFormat = GL_RGBA;
+	GLenum eType = GL_UNSIGNED_BYTE;
 	switch( eTextureFormat )
 	{
 	case TextureFormat::RED:
@@ -40,9 +41,13 @@ void Texture::Create( const int iWidth, const int iHeight, const TextureFormat e
 		iFormat = GL_RGBA;
 		iInternalFormat = GL_RGBA;
 		break;
+	case TextureFormat::DEPTH:
+		iFormat = GL_DEPTH_COMPONENT;
+		iInternalFormat = GL_DEPTH_COMPONENT;
+		eType = GL_FLOAT;
 	}
 
-	glTexImage2D( GL_TEXTURE_2D, 0, iInternalFormat, iWidth, iHeight, 0, iFormat, GL_UNSIGNED_BYTE, pData );
+	glTexImage2D( GL_TEXTURE_2D, 0, iInternalFormat, iWidth, iHeight, 0, iFormat, eType, pData );
 
 	glGenerateMipmap( GL_TEXTURE_2D );
 

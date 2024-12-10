@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Core/Common.h"
 #include "Core/ResourceLoader.h"
+#include "RenderTarget.h"
 #include "TechniqueDefinition.h"
 #include "TextRenderer.h"
 
@@ -50,11 +51,23 @@ public:
 	bool				OnLoading();
 
 private:
-	TextRenderer				m_oTextRenderer;
-	Camera						m_oCamera;
+	void				SetTechnique( const Technique& oTechnique );
+	void				ClearTechnique();
+	void				SetTextureSlot( const Texture& oTexture, const uint uTextureUnit );
+	void				ClearTextureSlot( const uint uTextureUnit );
+	void				SetRenderTarget( const RenderTarget& oRenderTarget );
+	void				ClearRenderTarget();
+	void				DrawMesh( const Mesh& oMesh );
 
-	TechniqueResPtr				m_xRenderTechnique;
-	BasicTechniqueDefinition	m_oBasicTechniqueDefinition;
+	TextRenderer						m_oTextRenderer;
+	Camera								m_oCamera;
+	RenderTarget						m_oRenderTarget;
+	Mesh								m_oRenderMesh;
+
+	TechniqueResPtr						m_xRenderTechnique;
+	TechniqueResPtr						m_xPresentToScreenTechnique;
+	BasicTechniqueDefinition			m_oBasicTechniqueDefinition;
+	PresentToScreenTechniqueDefinition	m_oPresentToScreenTechniqueDefinition;
 };
 
 extern Renderer* g_pRenderer;
