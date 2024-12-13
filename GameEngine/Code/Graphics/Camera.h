@@ -21,6 +21,7 @@ public:
 	const glm::mat4&	GetViewMatrix() const;
 	const glm::mat4&	GetProjectionMatrix() const;
 	const glm::mat4&	GetViewProjectionMatrix() const;
+	const glm::mat4&	GetInverseViewProjectionMatrix() const;
 
 private:
 	glm::vec3			m_vPosition;
@@ -35,8 +36,10 @@ private:
 	mutable	glm::mat4	m_mView;
 	mutable	glm::mat4	m_mProjection;
 	mutable	glm::mat4	m_mViewProjection;
+	mutable	glm::mat4	m_mInverseViewProjection;
 
 	mutable bool		m_bViewDirty;
 	mutable bool		m_bProjectionDirty;
 	mutable bool		m_bViewProjectionDirty;
+	mutable bool		m_bInverseViewProjectionDirty;
 };

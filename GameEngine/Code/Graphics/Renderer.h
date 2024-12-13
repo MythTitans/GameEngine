@@ -59,15 +59,15 @@ private:
 	void				ClearRenderTarget();
 	void				DrawMesh( const Mesh& oMesh );
 
-	TextRenderer						m_oTextRenderer;
-	Camera								m_oCamera;
-	RenderTarget						m_oRenderTarget;
-	Mesh								m_oRenderMesh;
+	TextRenderer				m_oTextRenderer;
+	Camera						m_oCamera;
+	RenderTarget				m_oRenderTarget;
+	Mesh						m_oRenderMesh;
 
-	TechniqueResPtr						m_xRenderTechnique;
-	TechniqueResPtr						m_xPresentToScreenTechnique;
-	BasicTechniqueDefinition			m_oBasicTechniqueDefinition;
-	PresentToScreenTechniqueDefinition	m_oPresentToScreenTechniqueDefinition;
+	TechniqueResPtr				m_xDeferredMaps;
+	TechniqueResPtr				m_xDeferredCompose;
+	DeferredMapsDefinition		m_oDeferredMaps;
+	DeferredComposeDefinition	m_oDeferredCompose;
 };
 
 extern Renderer* g_pRenderer;

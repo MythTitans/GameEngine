@@ -1,5 +1,6 @@
 #include "Camera.h"
 
+#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 Camera::Camera()
@@ -12,6 +13,8 @@ Camera::Camera()
 	, m_fAspectRatio( 16.f / 9.f )
 	, m_bViewDirty( true )
 	, m_bProjectionDirty( true )
+	, m_bViewProjectionDirty( true )
+	, m_bInverseViewProjectionDirty( true )
 {
 }
 
@@ -21,6 +24,7 @@ void Camera::SetPosition( const glm::vec3& vPosition )
 
 	m_bViewDirty = true;
 	m_bViewProjectionDirty = true;
+	m_bInverseViewProjectionDirty = true;
 }
 
 void Camera::SetTarget( const glm::vec3& vTarget )
@@ -29,6 +33,7 @@ void Camera::SetTarget( const glm::vec3& vTarget )
 
 	m_bViewDirty = true;
 	m_bViewProjectionDirty = true;
+	m_bInverseViewProjectionDirty = true;
 }
 
 void Camera::SetUp( const glm::vec3& vUp )
@@ -37,6 +42,7 @@ void Camera::SetUp( const glm::vec3& vUp )
 
 	m_bViewDirty = true;
 	m_bViewProjectionDirty = true;
+	m_bInverseViewProjectionDirty = true;
 }
 
 void Camera::SetNear( const float fNear )
@@ -45,6 +51,7 @@ void Camera::SetNear( const float fNear )
 
 	m_bProjectionDirty = true;
 	m_bViewProjectionDirty = true;
+	m_bInverseViewProjectionDirty = true;
 }
 
 void Camera::SetFar( const float fFar )
@@ -53,6 +60,7 @@ void Camera::SetFar( const float fFar )
 
 	m_bProjectionDirty = true;
 	m_bViewProjectionDirty = true;
+	m_bInverseViewProjectionDirty = true;
 }
 
 void Camera::SetFov( const float fFov )
@@ -61,6 +69,7 @@ void Camera::SetFov( const float fFov )
 
 	m_bProjectionDirty = true;
 	m_bViewProjectionDirty = true;
+	m_bInverseViewProjectionDirty = true;
 }
 
 void Camera::SetAspectRatio( const float fAspectRatio )
@@ -69,6 +78,7 @@ void Camera::SetAspectRatio( const float fAspectRatio )
 
 	m_bProjectionDirty = true;
 	m_bViewProjectionDirty = true;
+	m_bInverseViewProjectionDirty = true;
 }
 
 const glm::mat4& Camera::GetViewMatrix() const
@@ -102,4 +112,15 @@ const glm::mat4& Camera::GetViewProjectionMatrix() const
 	}
 
 	return m_mViewProjection;
+}
+
+const glm::mat4& Camera::GetInverseViewProjectionMatrix() const
+{
+	if( m_bInverseViewProjectionDirty )
+	{
+		m_mInverseViewProjection = glm::inverse( GetViewProjectionMatrix() );
+		m_bInverseViewProjectionDirty = false;
+	}
+
+	return m_mInverseViewProjection;
 }

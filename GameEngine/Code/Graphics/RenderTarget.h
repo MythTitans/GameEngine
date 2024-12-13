@@ -12,16 +12,20 @@ public:
 
 	RenderTarget();
 
-	void			Create( const int iWidth, const int iHeight );
+	void			Create( const int iWidth, const int iHeight, const Array< TextureFormat >& aFormats, const bool bDepthMap );
 	void			Destroy();
 
 	int				GetWidth() const;
 	int				GetHeight() const;
 
+	const Texture&	GetColorMap( const uint uIndex ) const;
+	const Texture&	GetDepthMap() const;
+
 private:
-	Texture			m_oColorTexture;
-	Texture			m_oDepthTexture;
-	GLuint			m_uFrameBufferID;
-	int				m_iWidth;
-	int				m_iHeight;
+	Array< Texture >	m_aTextures;
+	GLuint				m_uFrameBufferID;
+	int					m_iWidth;
+	int					m_iHeight;
+	uint8				m_uColorMapCount;
+	bool				m_bDepthMap;
 };

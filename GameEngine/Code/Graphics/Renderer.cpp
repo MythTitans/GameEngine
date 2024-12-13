@@ -45,8 +45,8 @@ float RenderContext::ComputeAspectRatio() const
 Renderer* g_pRenderer = nullptr;
 
 Renderer::Renderer()
-	: m_xRenderTechnique( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/basic" ) ) )
-	, m_xPresentToScreenTechnique( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/PresentToScreen" ) ) )
+	: m_xDeferredMaps( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/deferred_maps" ) ) )
+	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/deferred_compose" ) ) )
 {
 	glEnable( GL_CULL_FACE );
 
@@ -87,7 +87,11 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	if( oRenderRect.m_uWidth != m_oRenderTarget.GetWidth() || oRenderRect.m_uHeight != m_oRenderTarget.GetHeight() )
 	{
 		m_oRenderTarget.Destroy();
-		m_oRenderTarget.Create( oRenderRect.m_uWidth, oRenderRect.m_uHeight );
+
+		Array< TextureFormat > aFormats( 2 );
+		aFormats[ 0 ] = TextureFormat::RGB;
+		aFormats[ 1 ] = TextureFormat::NORMAL;
+		m_oRenderTarget.Create( oRenderRect.m_uWidth, oRenderRect.m_uHeight, aFormats, true );
 
 		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
 	}
@@ -97,18 +101,21 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
 
-	SetTechnique( m_xRenderTechnique->GetTechnique() );
+	SetTechnique( m_xDeferredMaps->GetTechnique() );
 
-	m_oBasicTechniqueDefinition.SetView( m_oCamera.GetViewMatrix() );
-	m_oBasicTechniqueDefinition.SetProjection( m_oCamera.GetProjectionMatrix() );
+	m_oDeferredMaps.SetViewProjection( m_oCamera.GetViewProjectionMatrix() );
 
 	for( const Mesh& oMesh : g_pGameEngine->GetScene().m_xCube->GetMeshes() )
 	{
 		if( oMesh.m_pMaterial != nullptr )
 		{
-			SetTextureSlot( oMesh.m_pMaterial->m_xDiffuseTextureResource->GetTexture(), 0 );
-			m_oBasicTechniqueDefinition.SetDiffuseColor( oMesh.m_pMaterial->m_vDiffuseColor );
-			m_oBasicTechniqueDefinition.SetDiffuseTexture( 0 );
+			m_oDeferredMaps.SetDiffuseColor( oMesh.m_pMaterial->m_vDiffuseColor );
+
+			if( oMesh.m_pMaterial->m_xDiffuseTextureResource != nullptr )
+			{
+				SetTextureSlot( oMesh.m_pMaterial->m_xDiffuseTextureResource->GetTexture(), 0 );
+				m_oDeferredMaps.SetDiffuseTexture( 0 );
+			}
 		}
 		else
 		{
@@ -123,10 +130,15 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	glClear( GL_COLOR_BUFFER_BIT );
 	glDisable( GL_DEPTH_TEST );
 
-	SetTechnique( m_xPresentToScreenTechnique->GetTechnique() );
+	SetTechnique( m_xDeferredCompose->GetTechnique() );
 
-	SetTextureSlot( m_oRenderTarget.m_oColorTexture, 0 );
-	m_oPresentToScreenTechniqueDefinition.SetTexture( 0 );
+	SetTextureSlot( m_oRenderTarget.GetColorMap( 0 ), 0 );
+	m_oDeferredCompose.SetColor( 0 );
+	SetTextureSlot( m_oRenderTarget.GetColorMap( 1 ), 1 );
+	m_oDeferredCompose.SetNormal( 1 );
+	SetTextureSlot( m_oRenderTarget.GetDepthMap(), 2 );
+	m_oDeferredCompose.SetDepth( 2 );
+	m_oDeferredCompose.SetInverseViewProjection( m_oCamera.GetInverseViewProjectionMatrix() );
 	DrawMesh( m_oRenderMesh );
 
 	ClearTextureSlot( 0 );
@@ -155,13 +167,13 @@ const TextRenderer& Renderer::GetTextRenderer() const
 
 bool Renderer::OnLoading()
 {
-	if( m_xRenderTechnique->IsLoaded() && m_oBasicTechniqueDefinition.IsValid() == false )
-		m_oBasicTechniqueDefinition.Create( m_xRenderTechnique->GetTechnique() );
+	if( m_xDeferredMaps->IsLoaded() && m_oDeferredMaps.IsValid() == false )
+		m_oDeferredMaps.Create( m_xDeferredMaps->GetTechnique() );
 
-	if( m_xPresentToScreenTechnique->IsLoaded() && m_oPresentToScreenTechniqueDefinition.IsValid() == false )
-		m_oPresentToScreenTechniqueDefinition.Create( m_xPresentToScreenTechnique->GetTechnique() );
+	if( m_xDeferredCompose->IsLoaded() && m_oDeferredCompose.IsValid() == false )
+		m_oDeferredCompose.Create( m_xDeferredCompose->GetTechnique() );
 
-	return m_xRenderTechnique->IsLoaded() && m_xPresentToScreenTechnique->IsLoaded() && m_oTextRenderer.OnLoading();
+	return m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_oTextRenderer.OnLoading();
 }
 
 void Renderer::SetTechnique( const Technique& oTechnique )

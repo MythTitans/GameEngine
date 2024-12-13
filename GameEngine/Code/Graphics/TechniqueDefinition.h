@@ -22,36 +22,40 @@ private:
 	bool m_bValid;
 };
 
-class PresentToScreenTechniqueDefinition : public TechniqueDefinitionBase
+class DeferredMapsDefinition : public TechniqueDefinitionBase
 {
 public:
-	PresentToScreenTechniqueDefinition();
+	DeferredMapsDefinition();
 
-	void SetTexture( const int iTextureUnit );
-
-private:
-	void CreateDefinition( const Technique& oTechnique ) override;
-
-	GLuint m_uTextureUniform;
-};
-
-class BasicTechniqueDefinition : public TechniqueDefinitionBase
-{
-public:
-	BasicTechniqueDefinition();
-
-	void SetView( const glm::mat4& mView );
-	void SetProjection( const glm::mat4& mProjection );
+	void SetViewProjection( const glm::mat4& mViewProjection );
 	void SetDiffuseColor( const glm::vec3& vColor );
 	void SetDiffuseTexture( const int iTextureUnit );
 
 private:
 	void CreateDefinition( const Technique& oTechnique ) override;
 
-	GLuint	m_uViewUniform;
-	GLuint	m_uProjectionUniform;
+	GLuint	m_uViewProjectionUniform;
 	GLuint	m_uDiffuseColorUniform;
 	GLuint	m_uDiffuseTextureUniform;
+};
+
+class DeferredComposeDefinition : public TechniqueDefinitionBase
+{
+public:
+	DeferredComposeDefinition();
+
+	void SetColor( const int iTextureUnit );
+	void SetNormal( const int iTextureUnit );
+	void SetDepth( const int iTextureUnit );
+	void SetInverseViewProjection( const glm::mat4& mInverseViewProjection );
+
+private:
+	void CreateDefinition( const Technique& oTechnique ) override;
+
+	GLuint m_uColorUniform;
+	GLuint m_uNormalUniform;
+	GLuint m_uDepthUniform;
+	GLuint m_uInverseViewProjectionUniform;
 };
 
 class TextTechniqueDefinition : public TechniqueDefinitionBase

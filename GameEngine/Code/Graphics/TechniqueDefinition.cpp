@@ -26,55 +26,69 @@ bool TechniqueDefinitionBase::IsValid() const
 	return m_bValid;
 }
 
-PresentToScreenTechniqueDefinition::PresentToScreenTechniqueDefinition()
-	: m_uTextureUniform( GL_INVALID_VALUE )
-{
-}
-
-void PresentToScreenTechniqueDefinition::SetTexture( const int iTextureUnit )
-{
-	glUniform1i( m_uTextureUniform, iTextureUnit );
-}
-
-void PresentToScreenTechniqueDefinition::CreateDefinition( const Technique& oTechnique )
-{
-	m_uTextureUniform = oTechnique.GetParameterID( "frameTexture" );
-}
-
-BasicTechniqueDefinition::BasicTechniqueDefinition()
-	: m_uViewUniform( GL_INVALID_VALUE )
-	, m_uProjectionUniform( GL_INVALID_VALUE )
+DeferredMapsDefinition::DeferredMapsDefinition()
+	: m_uViewProjectionUniform( GL_INVALID_VALUE )
 	, m_uDiffuseColorUniform( GL_INVALID_VALUE )
 	, m_uDiffuseTextureUniform( GL_INVALID_VALUE )
 {
 }
 
-void BasicTechniqueDefinition::SetView( const glm::mat4& mView )
+void DeferredMapsDefinition::SetViewProjection( const glm::mat4& mViewProjection )
 {
-	glUniformMatrix4fv( m_uViewUniform, 1, GL_FALSE, glm::value_ptr( mView ) );
+	glUniformMatrix4fv( m_uViewProjectionUniform, 1, GL_FALSE, glm::value_ptr( mViewProjection ) );
 }
 
-void BasicTechniqueDefinition::SetProjection( const glm::mat4& mProjection )
-{
-	glUniformMatrix4fv( m_uProjectionUniform, 1, GL_FALSE, glm::value_ptr( mProjection ) );
-}
-
-void BasicTechniqueDefinition::SetDiffuseColor( const glm::vec3& vColor )
+void DeferredMapsDefinition::SetDiffuseColor( const glm::vec3& vColor )
 {
 	glUniform3fv( m_uDiffuseColorUniform, 1, glm::value_ptr( vColor ) );
 }
 
-void BasicTechniqueDefinition::SetDiffuseTexture( const int iTextureUnit )
+void DeferredMapsDefinition::SetDiffuseTexture( const int iTextureUnit )
 {
 	glUniform1i( m_uDiffuseTextureUniform, iTextureUnit );
 }
 
-void BasicTechniqueDefinition::CreateDefinition( const Technique& oTechnique )
+void DeferredMapsDefinition::CreateDefinition( const Technique& oTechnique )
 {
-	m_uViewUniform = oTechnique.GetParameterID( "view" );
-	m_uProjectionUniform = oTechnique.GetParameterID( "projection" );
+	m_uViewProjectionUniform = oTechnique.GetParameterID( "viewProjection" );
 	m_uDiffuseColorUniform = oTechnique.GetParameterID( "diffuseColor" );
 	m_uDiffuseTextureUniform = oTechnique.GetParameterID( "diffuseTexture" );
+}
+
+DeferredComposeDefinition::DeferredComposeDefinition()
+	: m_uColorUniform( GL_INVALID_VALUE )
+	, m_uNormalUniform( GL_INVALID_VALUE )
+	, m_uDepthUniform( GL_INVALID_VALUE )
+	, m_uInverseViewProjectionUniform( GL_INVALID_VALUE )
+{
+}
+
+void DeferredComposeDefinition::SetColor( const int iTextureUnit )
+{
+	glUniform1i( m_uColorUniform, iTextureUnit );
+}
+
+void DeferredComposeDefinition::SetNormal( const int iTextureUnit )
+{
+	glUniform1i( m_uNormalUniform, iTextureUnit );
+}
+
+void DeferredComposeDefinition::SetDepth( const int iTextureUnit )
+{
+	glUniform1i( m_uDepthUniform, iTextureUnit );
+}
+
+void DeferredComposeDefinition::SetInverseViewProjection( const glm::mat4& mInverseViewProjection )
+{
+	glUniformMatrix4fv( m_uInverseViewProjectionUniform, 1, GL_FALSE, glm::value_ptr( mInverseViewProjection ) );
+}
+
+void DeferredComposeDefinition::CreateDefinition( const Technique& oTechnique )
+{
+	m_uColorUniform = oTechnique.GetParameterID( "colorMap" );
+	m_uNormalUniform = oTechnique.GetParameterID( "normalMap" );
+	m_uDepthUniform = oTechnique.GetParameterID( "depthMap" );
+	m_uInverseViewProjectionUniform = oTechnique.GetParameterID( "inverseViewProjection" );
 }
 
 TextTechniqueDefinition::TextTechniqueDefinition()

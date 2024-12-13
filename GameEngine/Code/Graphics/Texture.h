@@ -9,6 +9,7 @@ enum class TextureFormat
 	RED,
 	RGB,
 	RGBA,
+	NORMAL,
 	DEPTH
 };
 

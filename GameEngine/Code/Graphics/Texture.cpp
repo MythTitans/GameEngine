@@ -41,9 +41,13 @@ void Texture::Create( const int iWidth, const int iHeight, const TextureFormat e
 		iFormat = GL_RGBA;
 		iInternalFormat = GL_RGBA;
 		break;
+	case TextureFormat::NORMAL:
+		iFormat = GL_RGB;
+		iInternalFormat = GL_RGB16F;
+		break;
 	case TextureFormat::DEPTH:
 		iFormat = GL_DEPTH_COMPONENT;
-		iInternalFormat = GL_DEPTH_COMPONENT;
+		iInternalFormat = GL_DEPTH_COMPONENT24;
 		eType = GL_FLOAT;
 	}
 
