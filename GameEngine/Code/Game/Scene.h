@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/ResourceLoader.h"
+#include "Game/ResourceLoader.h"
 
 struct Scene
 {

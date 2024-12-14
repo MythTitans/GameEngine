@@ -4,16 +4,15 @@
 #include <assimp/scene.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 #define STB_TRUETYPE_IMPLEMENTATION
-#include "stb_truetype.h"
 
-#include "Common.h"
-#include "Game/GameEngine.h"
-#include "FileUtils.h"
-#include "Logger.h"
-#include "Profiler.h"
+#include "Core/Common.h"
+#include "Core/FileUtils.h"
+#include "Core/Logger.h"
+#include "Core/Profiler.h"
+#include "Core/stb_image.h"
+#include "Core/stb_truetype.h"
+#include "GameEngine.h"
 
 Resource::Resource()
 	: m_eStatus( Status::LOADING )

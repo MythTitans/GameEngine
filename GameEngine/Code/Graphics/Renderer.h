@@ -2,7 +2,7 @@
 
 #include "Camera.h"
 #include "Core/Common.h"
-#include "Core/ResourceLoader.h"
+#include "Game/ResourceLoader.h"
 #include "RenderTarget.h"
 #include "TechniqueDefinition.h"
 #include "TextRenderer.h"

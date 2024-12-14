@@ -63,9 +63,6 @@
     <ClCompile Include="Code\Core\Profiler.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Core\ResourceLoader.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Graphics\Texture.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
@@ -103,6 +100,9 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graphics\RenderTarget.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Game\ResourceLoader.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -167,9 +167,6 @@
     <ClInclude Include="Code\Core\stb_image.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Core\ResourceLoader.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="Code\Graphics\Texture.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
@@ -213,6 +210,9 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Code\Graphics\RenderTarget.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Game\ResourceLoader.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>

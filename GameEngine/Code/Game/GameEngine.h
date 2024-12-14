@@ -2,10 +2,10 @@
 
 #include "Core/Common.h"
 #include "Core/Profiler.h"
-#include "Core/ResourceLoader.h"
 #include "Game/DebugDisplay.h"
 #include "Game/FreeCamera.h"
 #include "Game/InputHandler.h"
+#include "Game/ResourceLoader.h"
 #include "Game/Scene.h"
 #include "Graphics/Renderer.h"
 
