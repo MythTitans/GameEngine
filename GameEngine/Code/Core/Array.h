@@ -426,3 +426,113 @@ private:
 	uint	m_uCount;
 	uint	m_uCapacity;
 };
+
+// TODO #eric should rename, this is not really an array view
+template < typename T >
+class ArrayView
+{
+public:
+	ArrayView()
+		: m_pData( nullptr )
+		, m_uCount( 0 )
+	{
+	}
+
+	ArrayView( Array< T >& aArray )
+		: m_pData( aArray.Data() )
+		, m_uCount( aArray.Count() )
+	{
+	}
+
+	T& Back()
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( m_uCount > 0 );
+
+		return m_pData[ m_uCount - 1 ];
+	}
+
+	const T& Back() const
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( m_uCount > 0 );
+
+		return m_pData[ m_uCount - 1 ];
+	}
+
+	T& Front()
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( m_uCount > 0 );
+
+		return m_pData[ 0 ];
+	}
+
+	const T& Front() const
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( m_uCount > 0 );
+
+		return m_pData[ 0 ];
+	}
+
+	T& operator[]( const uint uIndex )
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( uIndex >= 0 && uIndex < m_uCount );
+
+		return m_pData[ uIndex ];
+	}
+
+	const T& operator[]( const uint uIndex ) const
+	{
+		ASSERT( m_pData != nullptr );
+		ASSERT( uIndex >= 0 && uIndex < m_uCount );
+
+		return m_pData[ uIndex ];
+	}
+
+	uint Count() const
+	{
+		return m_uCount;
+	}
+
+	bool Empty() const
+	{
+		return m_uCount == 0;
+	}
+
+// 	T* Data()
+// 	{
+// 		return m_pData;
+// 	}
+
+	const T* Data() const
+	{
+		return m_pData;
+	}
+
+	T* begin()
+	{
+		return &m_pData[ 0 ];
+	}
+
+	const T* begin() const
+	{
+		return &m_pData[ 0 ];
+	}
+
+	T* end()
+	{
+		return &m_pData[ m_uCount ];
+	}
+
+	const T* end() const
+	{
+		return &m_pData[ m_uCount ];
+	}
+
+private:
+	T*		m_pData;
+	uint	m_uCount;
+};

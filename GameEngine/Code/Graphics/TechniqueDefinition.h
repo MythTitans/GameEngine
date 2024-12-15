@@ -27,14 +27,14 @@ class DeferredMapsDefinition : public TechniqueDefinitionBase
 public:
 	DeferredMapsDefinition();
 
-	void SetViewProjection( const glm::mat4& mViewProjection );
+	void SetModelViewProjection( const glm::mat4& mViewProjection );
 	void SetDiffuseColor( const glm::vec3& vColor );
 	void SetDiffuseTexture( const int iTextureUnit );
 
 private:
 	void CreateDefinition( const Technique& oTechnique ) override;
 
-	GLuint	m_uViewProjectionUniform;
+	GLuint	m_uModelViewProjectionUniform;
 	GLuint	m_uDiffuseColorUniform;
 	GLuint	m_uDiffuseTextureUniform;
 };

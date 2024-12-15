@@ -28,6 +28,7 @@ public:
 	~GameEngine();
 
 	const GameContext&	GetGameContext() const;
+	Scene&				GetScene();
 	const Scene&		GetScene() const;
 	DebugDisplay&		GetDebugDisplay();
 	const DebugDisplay&	GetDebugDisplay() const;

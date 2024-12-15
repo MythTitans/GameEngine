@@ -190,6 +190,7 @@ private:
 		ERROR_READING
 	};
 
+	// This class is not polymorphic, it just defines an interface for subclasses to follow
 	template < typename Res >
 	struct LoadCommand
 	{
@@ -197,10 +198,6 @@ private:
 			: m_oFilePath( oFilePath )
 			, m_xResource( xResource )
 			, m_eStatus( LoadCommandStatus::PENDING )
-		{
-		}
-
-		virtual ~LoadCommand()
 		{
 		}
 

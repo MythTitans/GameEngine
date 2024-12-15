@@ -103,26 +103,35 @@ void Renderer::Render( const RenderContext& oRenderContext )
 
 	SetTechnique( m_xDeferredMaps->GetTechnique() );
 
-	m_oDeferredMaps.SetViewProjection( m_oCamera.GetViewProjectionMatrix() );
-
-	for( const Mesh& oMesh : g_pGameEngine->GetScene().m_xCube->GetMeshes() )
+	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->GetScene().m_oComponentManager.GetComponentsOfType< VisualComponent >();
+	for( const VisualComponent& oVisualComponent : aVisualComponents )
 	{
-		if( oMesh.m_pMaterial != nullptr )
-		{
-			m_oDeferredMaps.SetDiffuseColor( oMesh.m_pMaterial->m_vDiffuseColor );
+		m_oDeferredMaps.SetModelViewProjection( m_oCamera.GetViewProjectionMatrix() * oVisualComponent.GetEntity().GetMatrix().GetMatrix() );
 
-			if( oMesh.m_pMaterial->m_xDiffuseTextureResource != nullptr )
+		const Array< Mesh >& aMeshes = oVisualComponent.GetResource()->GetMeshes();
+		for( const Mesh& oMesh : aMeshes )
+		{
+			if( oMesh.m_pMaterial != nullptr )
 			{
-				SetTextureSlot( oMesh.m_pMaterial->m_xDiffuseTextureResource->GetTexture(), 0 );
-				m_oDeferredMaps.SetDiffuseTexture( 0 );
-			}
-		}
-		else
-		{
-			ClearTextureSlot( 0 );
-		}
+				m_oDeferredMaps.SetDiffuseColor( oMesh.m_pMaterial->m_vDiffuseColor );
 
-		DrawMesh( oMesh );
+				if( oMesh.m_pMaterial->m_xDiffuseTextureResource != nullptr )
+				{
+					SetTextureSlot( oMesh.m_pMaterial->m_xDiffuseTextureResource->GetTexture(), 0 );
+					m_oDeferredMaps.SetDiffuseTexture( 0 );
+				}
+				else
+				{
+					ClearTextureSlot( 0 );
+				}
+			}
+			else
+			{
+				ClearTextureSlot( 0 );
+			}
+
+			DrawMesh( oMesh );
+		}
 	}
 
 	ClearRenderTarget();

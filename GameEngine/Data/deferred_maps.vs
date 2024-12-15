@@ -8,7 +8,7 @@ out vec2 texCoords;
 out vec3 position;
 out vec3 normal;
 
-uniform mat4 viewProjection;
+uniform mat4 modelViewProjection;
 
 void main()
 {
@@ -16,5 +16,5 @@ void main()
     position = vertPosition;
     normal = vertNormal;
 
-    gl_Position = viewProjection * vec4( vertPosition, 1 );
+    gl_Position = modelViewProjection * vec4( vertPosition, 1 );
 }

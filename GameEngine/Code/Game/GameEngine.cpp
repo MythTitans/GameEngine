@@ -28,6 +28,11 @@ const GameContext& GameEngine::GetGameContext() const
 	return m_oGameContext;
 }
 
+Scene& GameEngine::GetScene()
+{
+	return m_oScene;
+}
+
 const Scene& GameEngine::GetScene() const
 {
 	return m_oScene;
@@ -94,9 +99,15 @@ void GameEngine::Update()
 		m_oInputHandler.UpdateInputs( m_oInputContext );
 
 		if( m_eGameState == GameState::RUNNING )
+		{
 			m_oFreeCamera.Update( m_oGameContext.m_fLastDeltaTime );
+			m_oScene.Update( m_oGameContext.m_fLastDeltaTime );
+		}
 		else if( m_oScene.OnLoading() )
+		{
 			m_eGameState = GameState::RUNNING;
+			m_oScene.Start();
+		}
 	}
 	else
 	{

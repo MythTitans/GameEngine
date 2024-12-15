@@ -27,15 +27,15 @@ bool TechniqueDefinitionBase::IsValid() const
 }
 
 DeferredMapsDefinition::DeferredMapsDefinition()
-	: m_uViewProjectionUniform( GL_INVALID_VALUE )
+	: m_uModelViewProjectionUniform( GL_INVALID_VALUE )
 	, m_uDiffuseColorUniform( GL_INVALID_VALUE )
 	, m_uDiffuseTextureUniform( GL_INVALID_VALUE )
 {
 }
 
-void DeferredMapsDefinition::SetViewProjection( const glm::mat4& mViewProjection )
+void DeferredMapsDefinition::SetModelViewProjection( const glm::mat4& mViewProjection )
 {
-	glUniformMatrix4fv( m_uViewProjectionUniform, 1, GL_FALSE, glm::value_ptr( mViewProjection ) );
+	glUniformMatrix4fv( m_uModelViewProjectionUniform, 1, GL_FALSE, glm::value_ptr( mViewProjection ) );
 }
 
 void DeferredMapsDefinition::SetDiffuseColor( const glm::vec3& vColor )
@@ -50,7 +50,7 @@ void DeferredMapsDefinition::SetDiffuseTexture( const int iTextureUnit )
 
 void DeferredMapsDefinition::CreateDefinition( const Technique& oTechnique )
 {
-	m_uViewProjectionUniform = oTechnique.GetParameterID( "viewProjection" );
+	m_uModelViewProjectionUniform = oTechnique.GetParameterID( "modelViewProjection" );
 	m_uDiffuseColorUniform = oTechnique.GetParameterID( "diffuseColor" );
 	m_uDiffuseTextureUniform = oTechnique.GetParameterID( "diffuseTexture" );
 }
