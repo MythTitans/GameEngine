@@ -2,11 +2,12 @@
 
 #include "Core/Common.h"
 #include "Core/Profiler.h"
-#include "Game/DebugDisplay.h"
-#include "Game/FreeCamera.h"
-#include "Game/InputHandler.h"
-#include "Game/ResourceLoader.h"
-#include "Game/Scene.h"
+#include "ComponentManager.h"
+#include "DebugDisplay.h"
+#include "FreeCamera.h"
+#include "InputHandler.h"
+#include "ResourceLoader.h"
+#include "Scene.h"
 #include "Graphics/Renderer.h"
 
 class Renderer;
@@ -27,21 +28,23 @@ public:
 	GameEngine( const InputContext& oInputContext, const RenderContext& oRenderContext );
 	~GameEngine();
 
-	const GameContext&	GetGameContext() const;
-	Scene&				GetScene();
-	const Scene&		GetScene() const;
-	DebugDisplay&		GetDebugDisplay();
-	const DebugDisplay&	GetDebugDisplay() const;
+	const GameContext&		GetGameContext() const;
+	ComponentManager&		GetComponentManager();
+	const ComponentManager&	GetComponentManager() const;
+	Scene&					GetScene();
+	const Scene&			GetScene() const;
+	DebugDisplay&			GetDebugDisplay();
+	const DebugDisplay&		GetDebugDisplay() const;
 
-	void				NewFrame();
-	void				ProcessFrame();
-	void				EndFrame();
+	void					NewFrame();
+	void					ProcessFrame();
+	void					EndFrame();
 
 private:
-	void				Update();
-	void				Render();
+	void					Update();
+	void					Render();
 
-	const char*			CurrentStateStr() const;
+	const char*				CurrentStateStr() const;
 
 	enum class GameState
 	{
@@ -55,6 +58,7 @@ private:
 	Renderer				m_oRenderer;
 	Profiler				m_oProfiler;
 
+	ComponentManager		m_oComponentManager;
 	Scene					m_oScene;
 	DebugDisplay			m_oDebugDisplay;
 

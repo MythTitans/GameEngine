@@ -2,6 +2,7 @@
 
 #include <glm/gtc/quaternion.hpp>
 
+#include "Component.h"
 #include "GameEngine.h"
 
 Mat3x4::Mat3x4()
@@ -179,77 +180,28 @@ Scene::Scene()
 	m_aEntities.PushBack( Entity( 0, "Entity 1" ) );
 	m_aEntities.Back().SetPosition( -5.f, 0.f, -5.f );
 	m_aEntities.Back().SetRotationY( glm::radians( 45.f ) );
-	m_oComponentManager.CreateComponent< MyFirstComponent >( m_aEntities.Back() );
-	m_oComponentManager.CreateComponent<VisualComponent >( m_aEntities.Back() ).Setup( m_xCube );
+	g_pComponentManager->CreateComponent< MyFirstComponent >( m_aEntities.Back() );
+	g_pComponentManager->CreateComponent<VisualComponent >( m_aEntities.Back() ).Setup( m_xCube );
 	m_aEntities.PushBack( Entity( 1, "Entity 2" ) );
 	m_aEntities.Back().SetPosition( 5.f, 0.f, -5.f );
 	m_aEntities.Back().SetRotationY( glm::radians( 90.f ) );
-	m_oComponentManager.CreateComponent<VisualComponent >( m_aEntities.Back() ).Setup( m_xSphere );
+	g_pComponentManager->CreateComponent<VisualComponent >( m_aEntities.Back() ).Setup( m_xSphere );
 	m_aEntities.PushBack( Entity( 2, "Entity 3" ) );
 	m_aEntities.Back().SetPosition( -5.f, 0.f, 5.f );
 	m_aEntities.Back().SetRotationY( glm::radians( 135.f ) );
-	m_oComponentManager.CreateComponent<VisualComponent >( m_aEntities.Back() ).Setup( m_xGolem );
+	g_pComponentManager->CreateComponent<VisualComponent >( m_aEntities.Back() ).Setup( m_xGolem );
 	m_aEntities.PushBack( Entity( 3, "Entity 4" ) );
 	m_aEntities.Back().SetPosition( 5.f, 0.f, 5.f );
 	m_aEntities.Back().SetRotationY( glm::radians( 180.f ) );
-	m_oComponentManager.CreateComponent<VisualComponent >( m_aEntities.Back() ).Setup( m_xCube);
+	g_pComponentManager->CreateComponent<VisualComponent >( m_aEntities.Back() ).Setup( m_xCube );
 	m_aEntities.PushBack( Entity( 4, "Entity 5" ) );
 	m_aEntities.Back().SetPosition( 0.f, 0.f, 0.f );
 	m_aEntities.Back().SetScale( 1.5f, 1.5f, 1.5f );
-	m_oComponentManager.CreateComponent< MyFirstComponent >( m_aEntities.Back() );
-	m_oComponentManager.CreateComponent<VisualComponent >( m_aEntities.Back() ).Setup( m_xGolem );
+	g_pComponentManager->CreateComponent< MyFirstComponent >( m_aEntities.Back() );
+	g_pComponentManager->CreateComponent<VisualComponent >( m_aEntities.Back() ).Setup( m_xGolem );
 }
 
 bool Scene::OnLoading()
 {
 	return m_xCube->IsLoaded() && m_xSphere->IsLoaded() && m_xGolem->IsLoaded();
-}
-
-void Scene::Start()
-{
-	m_oComponentManager.Start();
-}
-
-void Scene::Stop()
-{
-	m_oComponentManager.Stop();
-}
-
-void Scene::Update( const float fDeltaTime )
-{
-	m_oComponentManager.Update( fDeltaTime );
-}
-
-MyFirstComponent::MyFirstComponent( const Entity& oEntity )
-	: Component( oEntity )
-	, m_fTotal( 0.f )
-	, m_fScale( 0.f )
-{
-}
-
-void MyFirstComponent::Start()
-{
-	m_fScale = GetEntity().GetScale().y;
-}
-
-void MyFirstComponent::Update( const float fDeltaTime )
-{
-	m_fTotal += fDeltaTime;
-
-	GetEntity().SetScale( 1.f, m_fScale + sin( m_fTotal ) * 0.5f, 1.f );
-}
-
-VisualComponent::VisualComponent( const Entity& oEntity )
-	: Component( oEntity )
-{
-}
-
-void VisualComponent::Setup( const ModelResPtr& xResource )
-{
-	m_xResource = xResource;
-}
-
-const ModelResPtr& VisualComponent::GetResource() const
-{
-	return m_xResource;
 }

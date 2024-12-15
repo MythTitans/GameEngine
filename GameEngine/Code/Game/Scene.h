@@ -4,7 +4,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Component.h"
 #include "Core/Types.h"
 #include "ResourceLoader.h"
 
@@ -69,41 +68,9 @@ struct Scene
 
 	bool OnLoading();
 
-	void Start();
-	void Stop();
-	void Update( const float fDeltaTime );
-
 	ModelResPtr m_xCube;
 	ModelResPtr m_xSphere;
 	ModelResPtr m_xGolem;
 
 	Array< Entity > m_aEntities;
-	ComponentManager m_oComponentManager;
-};
-
-class MyFirstComponent : public Component
-{
-public:
-	explicit MyFirstComponent( const Entity& oEntity );
-
-	void Start() override;
-	void Update( const float fDeltaTime ) override;
-
-private:
-	float m_fTotal;
-	float m_fScale;
-};
-
-// TODO #eric would be better that the component create/update a graph node
-class VisualComponent : public Component
-{
-public:
-	explicit VisualComponent( const Entity& oEntity );
-
-	void				Setup( const ModelResPtr& xResource );
-
-	const ModelResPtr& GetResource() const;
-
-private:
-	ModelResPtr m_xResource;
 };

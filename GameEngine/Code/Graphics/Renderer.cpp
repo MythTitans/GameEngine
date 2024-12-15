@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "Game/Component.h"
 #include "Core/Logger.h"
 #include "Core/Profiler.h"
 #include "Game/GameEngine.h"
@@ -103,7 +104,7 @@ void Renderer::Render( const RenderContext& oRenderContext )
 
 	SetTechnique( m_xDeferredMaps->GetTechnique() );
 
-	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->GetScene().m_oComponentManager.GetComponentsOfType< VisualComponent >();
+	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->GetComponentManager().GetComponents< VisualComponent >();
 	for( const VisualComponent& oVisualComponent : aVisualComponents )
 	{
 		m_oDeferredMaps.SetModelViewProjection( m_oCamera.GetViewProjectionMatrix() * oVisualComponent.GetEntity().GetMatrix().GetMatrix() );

@@ -28,6 +28,16 @@ const GameContext& GameEngine::GetGameContext() const
 	return m_oGameContext;
 }
 
+ComponentManager& GameEngine::GetComponentManager()
+{
+	return m_oComponentManager;
+}
+
+const ComponentManager& GameEngine::GetComponentManager() const
+{
+	return m_oComponentManager;
+}
+
 Scene& GameEngine::GetScene()
 {
 	return m_oScene;
@@ -101,12 +111,12 @@ void GameEngine::Update()
 		if( m_eGameState == GameState::RUNNING )
 		{
 			m_oFreeCamera.Update( m_oGameContext.m_fLastDeltaTime );
-			m_oScene.Update( m_oGameContext.m_fLastDeltaTime );
+			m_oComponentManager.Update( m_oGameContext.m_fLastDeltaTime );
 		}
 		else if( m_oScene.OnLoading() )
 		{
 			m_eGameState = GameState::RUNNING;
-			m_oScene.Start();
+			m_oComponentManager.Start();
 		}
 	}
 	else

@@ -3,10 +3,6 @@
 #include "GameEngine.h"
 #include "Scene.h"
 
-ComponentsHolderBase::~ComponentsHolderBase()
-{
-}
-
 Component::Component( const Entity& oEntity )
 	: m_uEntityID( oEntity.GetID() )
 {
@@ -38,20 +34,44 @@ Entity& Component::GetEntity() const
 	return sFakeEntity; // TODO #eric this is impossible and crappy, change this
 }
 
-void ComponentManager::Start()
+MyFirstComponent::MyFirstComponent( const Entity& oEntity )
+	: Component( oEntity )
+	, m_fScale( 1.f )
 {
-	for( auto& oPair : m_mComponentsHolders )
-		oPair.second->Start();
 }
 
-void ComponentManager::Stop()
+void MyFirstComponent::Update( const float /*fDeltaTime*/ )
 {
-	for( auto& oPair : m_mComponentsHolders )
-		oPair.second->Stop();
+	GetEntity().SetScale( 1.f, m_fScale, 1.f );
 }
 
-void ComponentManager::Update( const float fDeltaTime )
+void MyFirstComponent::SetScale( const float fScale )
 {
-	for( auto& oPair : m_mComponentsHolders )
-		oPair.second->Update( fDeltaTime );
+	m_fScale = fScale;
+}
+
+VisualComponent::VisualComponent( const Entity& oEntity )
+	: Component( oEntity )
+{
+}
+
+void VisualComponent::Setup( const ModelResPtr& xResource )
+{
+	m_xResource = xResource;
+}
+
+void VisualComponent::Start()
+{
+	m_hTest = GetComponent< MyFirstComponent >();
+}
+
+void VisualComponent::Update( const float fDeltaTime )
+{
+	if( m_hTest.IsValid() )
+		m_hTest->SetScale( 2.f );
+}
+
+const ModelResPtr& VisualComponent::GetResource() const
+{
+	return m_xResource;
 }

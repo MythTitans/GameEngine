@@ -1,104 +1,156 @@
 #pragma once
 
-#include <typeindex>
-#include <unordered_map>
-
+#include "ComponentManager.h"
 #include "Core/Array.h"
-#include "Core/Profiler.h"
 
 class Entity;
-
-struct ComponentsHolderBase
-{
-	virtual ~ComponentsHolderBase();
-
-	virtual void Start() = 0;
-	virtual void Stop() = 0;
-	virtual void Update( const float fDeltaTime ) = 0;
-};
-
-template < typename ComponentType >
-struct ComponentsHolder : ComponentsHolderBase
-{
-	void Start() override
-	{
-		ProfilerBlock oBlock( PROFILER_BLOCK_NAME.c_str() );
-
-		for( ComponentType& oComponent : m_aComponents )
-			oComponent.Start();
-	}
-
-	void Stop() override
-	{
-		ProfilerBlock oBlock( PROFILER_BLOCK_NAME.c_str() );
-
-		for( ComponentType& oComponent : m_aComponents )
-			oComponent.Stop();
-	}
-
-	void Update( const float fDeltaTime ) override
-	{
-		ProfilerBlock oBlock( PROFILER_BLOCK_NAME.c_str() );
-
-		for( ComponentType& oComponent : m_aComponents )
-			oComponent.Update( fDeltaTime );
-	}
-
-	std::string PROFILER_BLOCK_NAME = []() {
-		const std::string sName = std::string( typeid( ComponentType ).name() );
-		return sName.substr( sName.find( " " ) + 1 );
-	}();
-
-	Array< ComponentType > m_aComponents;
-};
 
 // This class is not polymorphic, it just defines an interface for subclasses to follow
 class Component
 {
 public:
+	template < typename ComponentType >
+	friend struct ComponentsHolder;
+
+	template < typename ComponentType >
+	friend class ComponentHandle;
+
 	explicit Component( const Entity& oEntity );
 
-	virtual void	Start();
-	virtual void	Stop();
-	virtual void	Update( const float fDeltaTime );
+	virtual void						Start();
+	virtual void						Stop();
+	virtual void						Update( const float fDeltaTime );
 
-	Entity&			GetEntity() const;
+	Entity&								GetEntity() const;
+	
+	template < typename ComponentType >
+	ComponentHandle< ComponentType >	GetComponent()
+	{
+		return g_pComponentManager->GetComponent< ComponentType >( m_uEntityID );
+	}
 
 private:
 	uint64 m_uEntityID;
 };
 
-class ComponentManager
+template < typename ComponentType >
+class ComponentHandle
 {
 public:
-	template < typename ComponentType >
-	ComponentType& CreateComponent( Entity& oEntity )
+	ComponentHandle()
+		: m_uEntityID( UINT64_MAX )
+		, m_uVersion( UINT_MAX )
+		, m_iIndex( -1 )
 	{
-		ComponentsHolderBase*& pComponentsHolderBase = m_mComponentsHolders[ std::type_index( typeid( ComponentType ) ) ];
-		if( pComponentsHolderBase == nullptr )
-			pComponentsHolderBase = new ComponentsHolder< ComponentType >;
-
-		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( pComponentsHolderBase );
-		pComponentsHolder->m_aComponents.PushBack( ComponentType( oEntity ) );
-
-		return pComponentsHolder->m_aComponents.Back();
 	}
 
-	template < typename ComponentType >
-	ArrayView< ComponentType > GetComponentsOfType()
+	ComponentHandle( ComponentType* pComponent )
+		: m_uEntityID( pComponent != nullptr ? pComponent->m_uEntityID : UINT64_MAX )
+		, m_uVersion( UINT_MAX )
+		, m_iIndex( -1 )
 	{
-		auto it = m_mComponentsHolders.find( std::type_index( typeid( ComponentType ) ) );
-		if( it == m_mComponentsHolders.end() || it->second == nullptr )
-			return ArrayView< ComponentType >();
-
-		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( it->second );
-		return pComponentsHolder->m_aComponents;
+		Refresh();
 	}
 
-	void Start();
-	void Stop();
-	void Update( const float fDeltaTime );
+	ComponentType* operator->()
+	{
+		Refresh();
+
+		ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
+
+		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
+		return &aComponents[ m_iIndex ];
+	}
+
+	const ComponentType* operator->() const
+	{
+		Refresh();
+
+		ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
+
+		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
+		return &aComponents[ m_iIndex ];
+	}
+
+	ComponentType& operator*()
+	{
+		Refresh();
+
+		ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
+
+		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
+		return aComponents[ m_iIndex ];
+	}
+
+	const ComponentType& operator*() const
+	{
+		Refresh();
+
+		ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
+
+		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
+		return aComponents[ m_iIndex ];
+	}
+
+	bool IsValid() const
+	{
+		Refresh();
+
+		return m_iIndex != -1;
+	}
 
 private:
-	std::unordered_map< std::type_index, ComponentsHolderBase* > m_mComponentsHolders;
+	void Refresh() const
+	{
+		const uint uVersion = g_pComponentManager->GetVersion< ComponentType >();
+		if( m_uVersion != uVersion )
+		{
+			m_iIndex = -1;
+			m_uVersion = uVersion;
+
+			ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
+			for( uint u = 0; u < aComponents.Count(); ++u )
+			{
+				if( aComponents[ u ].m_uEntityID == m_uEntityID )
+				{
+					m_iIndex = u;
+					break;
+				}
+			}
+		}
+	}
+
+	uint64			m_uEntityID;
+	mutable uint	m_uVersion;
+	mutable int		m_iIndex;
+};
+
+class MyFirstComponent : public Component
+{
+public:
+	explicit MyFirstComponent( const Entity& oEntity );
+
+	void Update( const float fDeltaTime ) override;
+
+	void SetScale( const float fScale );
+
+private:
+	float m_fScale;
+};
+
+// TODO #eric would be better that the component create/update a graph node
+class VisualComponent : public Component
+{
+public:
+	explicit VisualComponent( const Entity& oEntity );
+
+	void				Setup( const ModelResPtr& xResource );
+	void				Start() override;
+	void				Update( const float fDeltaTime ) override;
+
+	const ModelResPtr&	GetResource() const;
+
+private:
+	ModelResPtr							m_xResource;
+	ComponentHandle< MyFirstComponent > m_hTest;
 };
