@@ -21,20 +21,37 @@ ComponentManager::~ComponentManager()
 	g_pComponentManager = nullptr;
 }
 
-void ComponentManager::Start()
+void ComponentManager::InitializeComponents()
 {
 	for( auto& oPair : m_mComponentsHolders )
-		oPair.second->Start();
+		oPair.second->InitializeComponents();
 }
 
-void ComponentManager::Stop()
+bool ComponentManager::AreComponentsInitialized() const
 {
 	for( auto& oPair : m_mComponentsHolders )
-		oPair.second->Stop();
+	{
+		if( oPair.second->AreComponentsInitialized() == false )
+			return false;
+	}
+
+	return true;
 }
 
-void ComponentManager::Update( const float fDeltaTime )
+void ComponentManager::StartComponents()
 {
 	for( auto& oPair : m_mComponentsHolders )
-		oPair.second->Update( fDeltaTime );
+		oPair.second->StartComponents();
+}
+
+void ComponentManager::StopComponents()
+{
+	for( auto& oPair : m_mComponentsHolders )
+		oPair.second->StopComponents();
+}
+
+void ComponentManager::UpdateComponents( const float fDeltaTime )
+{
+	for( auto& oPair : m_mComponentsHolders )
+		oPair.second->UpdateComponents( fDeltaTime );
 }

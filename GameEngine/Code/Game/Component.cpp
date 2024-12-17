@@ -8,6 +8,15 @@ Component::Component( const Entity& oEntity )
 {
 }
 
+void Component::Initialize()
+{
+}
+
+bool Component::IsInitialized()
+{
+	return true;
+}
+
 void Component::Start()
 {
 }
@@ -22,16 +31,10 @@ void Component::Update( const float /*fDeltaTime*/ )
 
 Entity& Component::GetEntity() const
 {
-	static Entity sFakeEntity( 0, "" );
+	Entity* pEntity = g_pGameEngine->GetScene().FindEntity( m_uEntityID );
+	ASSERT( pEntity != nullptr );
 
-	for( Entity& oEntity : g_pGameEngine->GetScene().m_aEntities )
-	{
-		if( oEntity.GetID() == m_uEntityID )
-			return oEntity;
-	}
-
-	ASSERT( false );
-	return sFakeEntity; // TODO #eric this is impossible and crappy, change this
+	return *pEntity;
 }
 
 MyFirstComponent::MyFirstComponent( const Entity& oEntity )
@@ -55,9 +58,19 @@ VisualComponent::VisualComponent( const Entity& oEntity )
 {
 }
 
-void VisualComponent::Setup( const ModelResPtr& xResource )
+void VisualComponent::Setup( const std::filesystem::path& oModelFile )
 {
-	m_xResource = xResource;
+	m_oModelFile = oModelFile;
+}
+
+void VisualComponent::Initialize()
+{
+	m_xModel = g_pResourceLoader->LoadModel( m_oModelFile );
+}
+
+bool VisualComponent::IsInitialized()
+{
+	return m_xModel->IsLoaded();
 }
 
 void VisualComponent::Start()
@@ -69,9 +82,16 @@ void VisualComponent::Update( const float fDeltaTime )
 {
 	if( m_hTest.IsValid() )
 		m_hTest->SetScale( 2.f );
+
+	m_mWorldMatrix = GetEntity().GetMatrix().GetMatrix();
 }
 
 const ModelResPtr& VisualComponent::GetResource() const
 {
-	return m_xResource;
+	return m_xModel;
+}
+
+const glm::mat4& VisualComponent::GetWorldMatrix() const
+{
+	return m_mWorldMatrix;
 }

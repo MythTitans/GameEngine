@@ -48,7 +48,7 @@ private:
 
 	enum class GameState
 	{
-		SETUP,
+		INITIALIZING,
 		LOADING,
 		RUNNING
 	};

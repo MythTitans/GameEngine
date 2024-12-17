@@ -11,9 +11,11 @@ struct ComponentsHolderBase
 	ComponentsHolderBase();
 	virtual ~ComponentsHolderBase();
 
-	virtual void Start() = 0;
-	virtual void Stop() = 0;
-	virtual void Update( const float fDeltaTime ) = 0;
+	virtual void InitializeComponents() = 0;
+	virtual bool AreComponentsInitialized() = 0;
+	virtual void StartComponents() = 0;
+	virtual void StopComponents() = 0;
+	virtual void UpdateComponents( const float fDeltaTime ) = 0;
 
 	uint m_uVersion;
 };
@@ -21,7 +23,28 @@ struct ComponentsHolderBase
 template < typename ComponentType >
 struct ComponentsHolder : ComponentsHolderBase
 {
-	void Start() override
+	void InitializeComponents()
+	{
+		ProfilerBlock oBlock( PROFILER_BLOCK_NAME.c_str() );
+
+		for( ComponentType& oComponent : m_aComponents )
+			oComponent.Initialize();
+	}
+
+	bool AreComponentsInitialized()
+	{
+		ProfilerBlock oBlock( PROFILER_BLOCK_NAME.c_str() );
+
+		for( ComponentType& oComponent : m_aComponents )
+		{
+			if( oComponent.IsInitialized() == false )
+				return false;
+		}
+
+		return true;
+	}
+
+	void StartComponents() override
 	{
 		ProfilerBlock oBlock( PROFILER_BLOCK_NAME.c_str() );
 
@@ -29,7 +52,7 @@ struct ComponentsHolder : ComponentsHolderBase
 			oComponent.Start();
 	}
 
-	void Stop() override
+	void StopComponents() override
 	{
 		ProfilerBlock oBlock( PROFILER_BLOCK_NAME.c_str() );
 
@@ -37,7 +60,7 @@ struct ComponentsHolder : ComponentsHolderBase
 			oComponent.Stop();
 	}
 
-	void Update( const float fDeltaTime ) override
+	void UpdateComponents( const float fDeltaTime ) override
 	{
 		ProfilerBlock oBlock( PROFILER_BLOCK_NAME.c_str() );
 
@@ -115,9 +138,11 @@ public:
 		return pComponentsHolder->m_aComponents;
 	}
 
-	void Start();
-	void Stop();
-	void Update( const float fDeltaTime );
+	void InitializeComponents();
+	bool AreComponentsInitialized() const;
+	void StartComponents();
+	void StopComponents();
+	void UpdateComponents( const float fDeltaTime );
 
 private:
 	template < typename ComponentType >

@@ -107,7 +107,7 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->GetComponentManager().GetComponents< VisualComponent >();
 	for( const VisualComponent& oVisualComponent : aVisualComponents )
 	{
-		m_oDeferredMaps.SetModelViewProjection( m_oCamera.GetViewProjectionMatrix() * oVisualComponent.GetEntity().GetMatrix().GetMatrix() );
+		m_oDeferredMaps.SetModelViewProjection( m_oCamera.GetViewProjectionMatrix() * oVisualComponent.GetWorldMatrix() );
 
 		const Array< Mesh >& aMeshes = oVisualComponent.GetResource()->GetMeshes();
 		for( const Mesh& oMesh : aMeshes )

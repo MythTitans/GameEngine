@@ -13,7 +13,7 @@ GameEngine* g_pGameEngine = nullptr;
 GameEngine::GameEngine( const InputContext& oInputContext, const RenderContext& oRenderContext )
 	: m_oInputContext( oInputContext )
 	, m_oRenderContext( oRenderContext )
-	, m_eGameState( GameState::SETUP )
+	, m_eGameState( GameState::INITIALIZING )
 {
 	g_pGameEngine = this;
 }
@@ -102,7 +102,7 @@ void GameEngine::Update()
 {
 	ProfilerBlock oBlock( "Update" );
 
-	if( m_eGameState != GameState::SETUP )
+	if( m_eGameState != GameState::INITIALIZING )
 	{
 		m_oDebugDisplay.DisplayText( CurrentStateStr(), glm::vec4( 0.f, 1.f, 0.f, 1.f ) );
 
@@ -111,18 +111,21 @@ void GameEngine::Update()
 		if( m_eGameState == GameState::RUNNING )
 		{
 			m_oFreeCamera.Update( m_oGameContext.m_fLastDeltaTime );
-			m_oComponentManager.Update( m_oGameContext.m_fLastDeltaTime );
+			m_oComponentManager.UpdateComponents( m_oGameContext.m_fLastDeltaTime );
 		}
-		else if( m_oScene.OnLoading() )
+		else if( m_oComponentManager.AreComponentsInitialized() )
 		{
 			m_eGameState = GameState::RUNNING;
-			m_oComponentManager.Start();
+			m_oComponentManager.StartComponents();
 		}
 	}
 	else
 	{
 		if( m_oRenderer.OnLoading() )
+		{
 			m_eGameState = GameState::LOADING;
+			m_oComponentManager.InitializeComponents();
+		}
 	}
 }
 
@@ -130,7 +133,7 @@ void GameEngine::Render()
 {
 	ProfilerBlock oBlock( "Render" );
 
-	if( m_eGameState != GameState::SETUP )
+	if( m_eGameState != GameState::INITIALIZING )
 	{
 		m_oRenderer.Render( m_oRenderContext );
 		m_oDebugDisplay.Display( m_oGameContext.m_fLastDeltaTime, m_oRenderContext );
@@ -141,7 +144,7 @@ const char* GameEngine::CurrentStateStr() const
 {
 	switch( m_eGameState )
 	{
-	case GameEngine::GameState::SETUP:
+	case GameEngine::GameState::INITIALIZING:
 		return "SETUP";
 	case GameEngine::GameState::LOADING:
 		return "LOADING";

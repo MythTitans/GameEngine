@@ -2,6 +2,7 @@
 
 #include "ComponentManager.h"
 #include "Core/Array.h"
+#include "ResourceLoader.h"
 
 class Entity;
 
@@ -17,6 +18,8 @@ public:
 
 	explicit Component( const Entity& oEntity );
 
+	virtual void						Initialize();
+	virtual bool						IsInitialized();
 	virtual void						Start();
 	virtual void						Stop();
 	virtual void						Update( const float fDeltaTime );
@@ -144,13 +147,20 @@ class VisualComponent : public Component
 public:
 	explicit VisualComponent( const Entity& oEntity );
 
-	void				Setup( const ModelResPtr& xResource );
+	void				Setup( const std::filesystem::path& oModelFile );
+	void				Initialize() override;
+	bool				IsInitialized() override;
 	void				Start() override;
 	void				Update( const float fDeltaTime ) override;
 
 	const ModelResPtr&	GetResource() const;
 
+	const glm::mat4&	GetWorldMatrix() const;
+
 private:
-	ModelResPtr							m_xResource;
+	std::filesystem::path				m_oModelFile;
+	ModelResPtr							m_xModel;
 	ComponentHandle< MyFirstComponent > m_hTest;
+
+	glm::mat4							m_mWorldMatrix;
 };
