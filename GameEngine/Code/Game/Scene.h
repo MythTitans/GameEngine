@@ -8,6 +8,8 @@
 class Scene
 {
 public:
+	friend class Editor;
+
 	Scene();
 
 	Entity*			FindEntity( const uint64 uEntityID );

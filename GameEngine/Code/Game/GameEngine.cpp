@@ -73,6 +73,8 @@ void GameEngine::NewFrame()
 	m_oProfiler.NewFrame();
 	m_oProfiler.Display();
 
+	m_oEditor.Display();
+
 	m_oDebugDisplay.NewFrame();
 }
 

@@ -49,6 +49,7 @@ enum class ActionType : uint8
 
 enum class InputActionID : uint16
 {
+	ACTION_TOGGLE_EDITOR,
 	ACTION_TOGGLE_PROFILER
 };
 

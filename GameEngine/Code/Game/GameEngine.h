@@ -1,14 +1,15 @@
 #pragma once
 
+#include "ComponentManager.h"
 #include "Core/Common.h"
 #include "Core/Profiler.h"
-#include "ComponentManager.h"
 #include "DebugDisplay.h"
+#include "Editor/Editor.h"
 #include "FreeCamera.h"
+#include "Graphics/Renderer.h"
 #include "InputHandler.h"
 #include "ResourceLoader.h"
 #include "Scene.h"
-#include "Graphics/Renderer.h"
 
 class Renderer;
 
@@ -57,6 +58,7 @@ private:
 	InputHandler			m_oInputHandler;
 	Renderer				m_oRenderer;
 	Profiler				m_oProfiler;
+	Editor					m_oEditor;
 
 	ComponentManager		m_oComponentManager;
 	Scene					m_oScene;
