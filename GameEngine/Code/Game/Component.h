@@ -16,7 +16,7 @@ public:
 	template < typename ComponentType >
 	friend class ComponentHandle;
 
-	explicit Component( const Entity& oEntity );
+	explicit Component( Entity* pEntity );
 
 	virtual void						Initialize();
 	virtual bool						IsInitialized();
@@ -24,16 +24,17 @@ public:
 	virtual void						Stop();
 	virtual void						Update( const float fDeltaTime );
 
-	Entity&								GetEntity() const;
+	Entity*								GetEntity();
+	const Entity*						GetEntity() const;
 	
 	template < typename ComponentType >
 	ComponentHandle< ComponentType >	GetComponent()
 	{
-		return g_pComponentManager->GetComponent< ComponentType >( m_uEntityID );
+		return g_pComponentManager->GetComponent< ComponentType >( m_pEntity );
 	}
 
 private:
-	uint64 m_uEntityID;
+	Entity* m_pEntity;
 };
 
 template < typename ComponentType >
@@ -41,14 +42,14 @@ class ComponentHandle
 {
 public:
 	ComponentHandle()
-		: m_uEntityID( UINT64_MAX )
+		: m_pEntity( nullptr )
 		, m_uVersion( UINT_MAX )
 		, m_iIndex( -1 )
 	{
 	}
 
 	ComponentHandle( ComponentType* pComponent )
-		: m_uEntityID( pComponent != nullptr ? pComponent->m_uEntityID : UINT64_MAX )
+		: m_pEntity( pComponent != nullptr ? pComponent->m_pEntity : nullptr )
 		, m_uVersion( UINT_MAX )
 		, m_iIndex( -1 )
 	{
@@ -114,7 +115,7 @@ private:
 			ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
 			for( uint u = 0; u < aComponents.Count(); ++u )
 			{
-				if( aComponents[ u ].m_uEntityID == m_uEntityID )
+				if( aComponents[ u ].m_pEntity == m_pEntity )
 				{
 					m_iIndex = u;
 					break;
@@ -123,7 +124,7 @@ private:
 		}
 	}
 
-	uint64			m_uEntityID;
+	Entity*			m_pEntity;
 	mutable uint	m_uVersion;
 	mutable int		m_iIndex;
 };
@@ -131,7 +132,7 @@ private:
 class MyFirstComponent : public Component
 {
 public:
-	explicit MyFirstComponent( const Entity& oEntity );
+	explicit MyFirstComponent( Entity* pEntity );
 
 	void Update( const float fDeltaTime ) override;
 
@@ -145,12 +146,11 @@ private:
 class VisualComponent : public Component
 {
 public:
-	explicit VisualComponent( const Entity& oEntity );
+	explicit VisualComponent( Entity* pEntity );
 
 	void				Setup( const std::filesystem::path& oModelFile );
 	void				Initialize() override;
 	bool				IsInitialized() override;
-	void				Start() override;
 	void				Update( const float fDeltaTime ) override;
 
 	const ModelResPtr&	GetResource() const;
@@ -160,7 +160,6 @@ public:
 private:
 	std::filesystem::path				m_oModelFile;
 	ModelResPtr							m_xModel;
-	ComponentHandle< MyFirstComponent > m_hTest;
 
 	glm::mat4							m_mWorldMatrix;
 };

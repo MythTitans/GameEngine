@@ -2,6 +2,7 @@
 
 #include "Game/GameEngine.h"
 #include "Core/Profiler.h"
+#include "Game/Entity.h"
 #include "Game/InputHandler.h"
 #include "Game/Scene.h"
 
@@ -22,7 +23,7 @@ void Editor::Display()
 		ImGui::Begin( "Editor" );
 
 		for( const auto it : g_pGameEngine->GetScene().m_mEntities )
-			ImGui::BulletText( it.second.GetName() );
+			ImGui::BulletText( it.second->GetName() );
 
 		ImGui::End();
 	}

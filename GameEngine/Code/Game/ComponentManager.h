@@ -68,11 +68,11 @@ struct ComponentsHolder : ComponentsHolderBase
 			oComponent.Update( fDeltaTime );
 	}
 
-	ComponentType* GetComponent( const uint64 uEntityID )
+	ComponentType* GetComponent( const Entity* pEntity )
 	{
 		for( ComponentType& oComponent : m_aComponents )
 		{
-			if( oComponent.m_uEntityID == uEntityID )
+			if( oComponent.m_pEntity == pEntity )
 				return &oComponent;
 		}
 
@@ -97,8 +97,9 @@ public:
 	ComponentManager();
 	~ComponentManager();
 
+	// TODO #eric maybe we should always return component handles ?
 	template < typename ComponentType >
-	ComponentType& CreateComponent( const Entity& oEntity )
+	ComponentType& CreateComponent( Entity* oEntity )
 	{
 		ComponentsHolderBase*& pComponentsHolderBase = m_mComponentsHolders[ std::type_index( typeid( ComponentType ) ) ];
 		if( pComponentsHolderBase == nullptr )
@@ -111,20 +112,14 @@ public:
 	}
 
 	template < typename ComponentType >
-	ComponentType* GetComponent( const uint64 uEntityID )
+	ComponentType* GetComponent( const Entity* pEntity )
 	{
 		auto it = m_mComponentsHolders.find( std::type_index( typeid( ComponentType ) ) );
 		if( it == m_mComponentsHolders.end() || it->second == nullptr )
 			return nullptr;
 
 		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( it->second );
-		return pComponentsHolder->GetComponent( uEntityID );
-	}
-
-	template < typename ComponentType >
-	ComponentType* GetComponent( const Entity& oEntity )
-	{
-		return GetComponent( oEntity.GetID() );
+		return pComponentsHolder->GetComponent( pEntity );
 	}
 
 	template < typename ComponentType >

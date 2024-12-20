@@ -46,12 +46,12 @@ public:
 	Mesh			Build();
 
 private:
-	Array< glm::vec3 > m_aVertices;
-	Array< GLuint > m_aIndices;
-	Array< glm::vec2 > m_aUVs;
-	Array< glm::vec3 > m_aNormals;
-	Array< glm::vec3 > m_aTangents;
-	Array< glm::vec3 > m_aBiTangents;
+	Array< glm::vec3 >	m_aVertices;
+	Array< GLuint >		m_aIndices;
+	Array< glm::vec2 >	m_aUVs;
+	Array< glm::vec3 >	m_aNormals;
+	Array< glm::vec3 >	m_aTangents;
+	Array< glm::vec3 >	m_aBiTangents;
 
 	const Material* m_pMaterial;
 };
