@@ -41,6 +41,7 @@ struct Transform
 
 	glm::mat3 m_mMatrix;
 	glm::vec3 m_vPosition;
+	glm::vec3 m_vScale;
 };
 
 // TODO #eric we should have a way to specify which callbacks should be called (i.e. Update(), ...)

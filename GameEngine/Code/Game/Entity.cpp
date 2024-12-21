@@ -7,15 +7,17 @@
 Transform::Transform()
 	: m_mMatrix( 1.f )
 	, m_vPosition( 0.f )
+	, m_vScale( 1.f )
 {
 }
 
 Transform::Transform( const glm::mat4& mMatrix )
 {
-	m_mMatrix[ 0 ] = glm::vec3( mMatrix[ 0 ] );
-	m_mMatrix[ 1 ] = glm::vec3( mMatrix[ 1 ] );
-	m_mMatrix[ 2 ] = glm::vec3( mMatrix[ 2 ] );
+	m_mMatrix[ 0 ] = glm::normalize( glm::vec3( mMatrix[ 0 ] ) );
+	m_mMatrix[ 1 ] = glm::normalize( glm::vec3( mMatrix[ 1 ] ) );
+	m_mMatrix[ 2 ] = glm::normalize( glm::vec3( mMatrix[ 2 ] ) );
 	m_vPosition = glm::vec3( mMatrix[ 3 ] );
+	m_vScale = glm::vec3( glm::length( mMatrix[ 0 ] ), glm::length( mMatrix[ 1 ] ), glm::length( mMatrix[ 2 ] ) );
 }
 
 glm::vec3& Transform::GetI()
@@ -75,14 +77,12 @@ void Transform::SetPosition( const float fX, const float fY, const float fZ )
 
 glm::vec3 Transform::GetScale() const
 {
-	return glm::vec3( glm::length( m_mMatrix[ 0 ] ), glm::length( m_mMatrix[ 1 ] ), glm::length( m_mMatrix[ 2 ] ) );
+	return m_vScale;
 }
 
 void Transform::SetScale( const glm::vec3& vScale )
 {
-	m_mMatrix[ 0 ] = glm::normalize( m_mMatrix[ 0 ] ) * vScale.x;
-	m_mMatrix[ 1 ] = glm::normalize( m_mMatrix[ 1 ] ) * vScale.y;
-	m_mMatrix[ 2 ] = glm::normalize( m_mMatrix[ 2 ] ) * vScale.z;
+	m_vScale = vScale;
 }
 
 void Transform::SetScale( const float fX, const float fY, const float fZ )
@@ -99,9 +99,9 @@ void Transform::SetRotation( const glm::quat& qRotation )
 {
 	const glm::vec3 vScale = GetScale();
 	m_mMatrix = glm::mat3_cast( qRotation );
-	m_mMatrix[ 0 ] = glm::normalize( m_mMatrix[ 0 ] ) * vScale.x;
-	m_mMatrix[ 1 ] = glm::normalize( m_mMatrix[ 1 ] ) * vScale.y;
-	m_mMatrix[ 2 ] = glm::normalize( m_mMatrix[ 2 ] ) * vScale.z;
+	m_mMatrix[ 0 ] = glm::normalize( m_mMatrix[ 0 ] );
+	m_mMatrix[ 1 ] = glm::normalize( m_mMatrix[ 1 ] );
+	m_mMatrix[ 2 ] = glm::normalize( m_mMatrix[ 2 ] );
 }
 
 void Transform::SetRotation( const glm::vec3& vAxis, const float fAngle )
@@ -127,9 +127,9 @@ void Transform::SetRotationZ( const float fAngle )
 glm::mat4 Transform::GetMatrix() const
 {
 	glm::mat4 mResult;
-	mResult[ 0 ] = glm::vec4( m_mMatrix[ 0 ], 0.f );
-	mResult[ 1 ] = glm::vec4( m_mMatrix[ 1 ], 0.f );
-	mResult[ 2 ] = glm::vec4( m_mMatrix[ 2 ], 0.f );
+	mResult[ 0 ] = glm::vec4( m_mMatrix[ 0 ] * m_vScale.x, 0.f );
+	mResult[ 1 ] = glm::vec4( m_mMatrix[ 1 ] * m_vScale.y, 0.f );
+	mResult[ 2 ] = glm::vec4( m_mMatrix[ 2 ] * m_vScale.z, 0.f );
 	mResult[ 3 ] = glm::vec4( m_vPosition, 1.f );
 
 	return mResult;

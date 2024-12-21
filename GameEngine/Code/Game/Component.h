@@ -134,8 +134,6 @@ class MyFirstComponent : public Component
 public:
 	explicit MyFirstComponent( Entity* pEntity );
 
-	void Update( const float fDeltaTime ) override;
-
 	void SetScale( const float fScale );
 
 private:

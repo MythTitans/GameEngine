@@ -46,11 +46,6 @@ MyFirstComponent::MyFirstComponent( Entity* pEntity )
 {
 }
 
-void MyFirstComponent::Update( const float /*fDeltaTime*/ )
-{
-	GetEntity()->SetScale( 1.f, m_fScale, 1.f );
-}
-
 void MyFirstComponent::SetScale( const float fScale )
 {
 	m_fScale = fScale;
@@ -78,8 +73,6 @@ bool VisualComponent::IsInitialized()
 
 void VisualComponent::Update( const float fDeltaTime )
 {
-	GetEntity()->SetScale( 1.f, 2.f, 1.f );
-
 	m_mWorldMatrix = GetEntity()->GetMatrix();
 }
 
