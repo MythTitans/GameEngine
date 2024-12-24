@@ -134,10 +134,10 @@ class MyFirstComponent : public Component
 public:
 	explicit MyFirstComponent( Entity* pEntity );
 
-	void SetScale( const float fScale );
+	void Update( const float fDeltaTime ) override;
 
 private:
-	float m_fScale;
+	float m_fRotation;
 };
 
 // TODO #eric would be better that the component create/update a graph node
@@ -160,4 +160,17 @@ private:
 	ModelResPtr							m_xModel;
 
 	glm::mat4							m_mWorldMatrix;
+};
+
+class LightComponent : public Component
+{
+public:
+	explicit LightComponent( Entity* pEntity );
+
+	void				Update( const float fDeltaTime ) override;
+
+	const glm::vec3&	GetPosition() const;
+
+private:
+	glm::vec3 m_vPosition;
 };

@@ -50,7 +50,19 @@ public:
 
 	bool				OnLoading();
 
+	void				DisplayDebug();
+
 private:
+	enum RenderingType : uint8
+	{
+		FORWARD,
+		DEFERRED,
+		_COUNT
+	};
+
+	void				RenderForward( const RenderContext& oRenderContext );
+	void				RenderDeferred( const RenderContext& oRenderContext );
+
 	void				SetTechnique( const Technique& oTechnique );
 	void				ClearTechnique();
 	void				SetTextureSlot( const Texture& oTexture, const uint uTextureUnit );
@@ -64,10 +76,16 @@ private:
 	RenderTarget				m_oRenderTarget;
 	Mesh						m_oRenderMesh;
 
+	TechniqueResPtr				m_xForwardOpaque;
 	TechniqueResPtr				m_xDeferredMaps;
 	TechniqueResPtr				m_xDeferredCompose;
+	ForwardOpaqueDefinition		m_oForwardOpaque;
 	DeferredMapsDefinition		m_oDeferredMaps;
 	DeferredComposeDefinition	m_oDeferredCompose;
+
+	RenderingType				m_eRenderingType;
+
+	bool						m_bDisplayDebug;
 };
 
 extern Renderer* g_pRenderer;

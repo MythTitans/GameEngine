@@ -1,0 +1,26 @@
+#version 330
+
+in vec2 texCoords;
+in vec3 position;
+in vec3 normal;
+
+out vec4 finalColor;
+
+uniform vec3 diffuseColor;
+uniform sampler2D diffuseTexture;
+
+uniform vec3 lightPositions[ 16 ];
+uniform int lightCount;
+
+void main()
+{
+    float intensity = 0.0;
+    for( int i = 0; i < lightCount; ++i )
+    {
+        vec3 lightDirection = normalize( lightPositions[ i ] - position );
+        intensity += max( dot( lightDirection, normalize( normal ) ), 0.0 );
+    }
+    
+    finalColor = vec4( intensity * diffuseColor * texture( diffuseTexture, texCoords ).rgb, 1.0 );
+    //finalColor = vec4( normalize( normal ), 1.0 );
+}

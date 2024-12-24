@@ -240,7 +240,7 @@ void ResourceLoader::Update()
 	LoadTexture( std::filesystem::path( "Data/BLUE.png" ) );
 	LoadTexture( std::filesystem::path( "Data/TRANSPARENT.png" ) );
 	LoadModel( std::filesystem::path( "Data/cube.obj" ) );
-	LoadTechnique( std::filesystem::path( "Data/basic" ) );
+	LoadTechnique( std::filesystem::path( "Data/Shader/basic" ) );
 	//LoadShader( std::filesystem::path( "Data/basic.vs" ) );
 	//LoadShader( std::filesystem::path( "Data/basic.ps" ) );
 	LoadFont( std::filesystem::path( "C:/Windows/Fonts/arialbd.ttf" ) );
@@ -378,7 +378,7 @@ uint CheckWaitingDependenciesLoadCommands( Array< LoadCommand >& aLoadCommands )
 			}
 			else if( oLoadCommand.AnyDependencyFailed() )
 			{
-				LOG_INFO( "Failed to load a dependency for {}", oLoadCommand.m_oFilePath.string() );
+				LOG_ERROR( "Failed to load a dependency for {}", oLoadCommand.m_oFilePath.string() );
 				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::ERROR_READING;
 				oLoadCommand.OnDependenciesReady();
 				++uFinishedCount;
@@ -777,21 +777,6 @@ void ResourceLoader::TechniqueLoadCommand::OnFinished()
 {
 	switch( m_eStatus )
 	{
-	case ResourceLoader::LoadCommandStatus::FINISHED:
-	{
-		Array< const Shader* > aShaders;
-		aShaders.Reserve( m_aDependencies.Count() );
-		for( const StrongPtr< Resource >& pDependency : m_aDependencies )
-		{
-			const ShaderResource* pShaderResource = static_cast< const ShaderResource* >( pDependency.GetPtr() );
-			ASSERT( pShaderResource->IsLoaded() );
-			aShaders.PushBack( &pShaderResource->m_oShader );
-		}
-		m_xResource->m_oTechnique.Create( aShaders );
-		
-		m_xResource->m_eStatus = Resource::Status::LOADED;
-		break;
-	}
 	case ResourceLoader::LoadCommandStatus::NOT_FOUND:
 	case ResourceLoader::LoadCommandStatus::ERROR_READING:
 		m_xResource->m_eStatus = Resource::Status::FAILED;
@@ -803,6 +788,32 @@ void ResourceLoader::TechniqueLoadCommand::OnFinished()
 
 void ResourceLoader::TechniqueLoadCommand::OnDependenciesReady()
 {
+	switch( m_eStatus )
+	{
+	case LoadCommandStatus::FINISHED:
+	{
+		Array< const Shader* > aShaders;
+		aShaders.Reserve( m_aDependencies.Count() );
+		for( const StrongPtr< Resource >& pDependency : m_aDependencies )
+		{
+			const ShaderResource* pShaderResource = static_cast< const ShaderResource* >( pDependency.GetPtr() );
+			ASSERT( pShaderResource->IsLoaded() );
+			aShaders.PushBack( &pShaderResource->m_oShader );
+		}
+		m_xResource->m_oTechnique.Create( aShaders );
+
+		m_xResource->m_eStatus = Resource::Status::LOADED;
+
+		break;
+	}
+	case ResourceLoader::LoadCommandStatus::NOT_FOUND:
+	case ResourceLoader::LoadCommandStatus::ERROR_READING:
+		m_xResource->m_eStatus = Resource::Status::FAILED;
+		break;
+	default:
+		break;
+	}
+
 	m_xResource->m_aShaderResources = std::move( m_aDependencies );
 }
 

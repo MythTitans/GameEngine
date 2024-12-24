@@ -46,8 +46,11 @@ float RenderContext::ComputeAspectRatio() const
 Renderer* g_pRenderer = nullptr;
 
 Renderer::Renderer()
-	: m_xDeferredMaps( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/deferred_maps" ) ) )
-	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/deferred_compose" ) ) )
+	: m_xForwardOpaque( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/forward_opaque" ) ) )
+	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/deferred_maps" ) ) )
+	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/deferred_compose" ) ) )
+	, m_eRenderingType( RenderingType::FORWARD )
+	, m_bDisplayDebug( false )
 {
 	glEnable( GL_CULL_FACE );
 
@@ -82,6 +85,141 @@ void Renderer::Render( const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "Renderer" );
 
+	switch( m_eRenderingType )
+	{
+	case RenderingType::FORWARD:
+		RenderForward( oRenderContext );
+		break;
+	case RenderingType::DEFERRED:
+		RenderDeferred( oRenderContext );
+		break;
+	}
+}
+
+Camera& Renderer::GetCamera()
+{
+	return m_oCamera;
+}
+
+const Camera& Renderer::GetCamera() const
+{
+	return m_oCamera;
+}
+
+TextRenderer& Renderer::GetTextRenderer()
+{
+	return m_oTextRenderer;
+}
+
+const TextRenderer& Renderer::GetTextRenderer() const
+{
+	return m_oTextRenderer;
+}
+
+bool Renderer::OnLoading()
+{
+	if( m_xForwardOpaque->IsLoaded() && m_oForwardOpaque.IsValid() == false )
+		m_oForwardOpaque.Create( m_xForwardOpaque->GetTechnique() );
+
+	if( m_xDeferredMaps->IsLoaded() && m_oDeferredMaps.IsValid() == false )
+		m_oDeferredMaps.Create( m_xDeferredMaps->GetTechnique() );
+
+	if( m_xDeferredCompose->IsLoaded() && m_oDeferredCompose.IsValid() == false )
+		m_oDeferredCompose.Create( m_xDeferredCompose->GetTechnique() );
+
+	return m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_oTextRenderer.OnLoading();
+}
+
+void Renderer::DisplayDebug()
+{
+	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_TOGGLE_RENDERER_DEBUG ) )
+		m_bDisplayDebug = !m_bDisplayDebug;
+
+	if( m_bDisplayDebug == false )
+		return;
+
+	auto GetRenderingTypeName = []( const RenderingType eRenderingType ) -> const char* {
+		switch( eRenderingType )
+		{
+		case RenderingType::FORWARD:
+			return "Forward";
+		case RenderingType::DEFERRED:
+			return "Deferred";
+		case RenderingType::_COUNT:
+			return "";
+		}
+
+		return "";
+	};
+
+	ImGui::Begin( "Renderer" );
+
+	if( ImGui::BeginCombo( "Rendering type", GetRenderingTypeName( m_eRenderingType ) ) )
+	{
+		for( uint u = 0; u < RenderingType::_COUNT; ++u )
+		{
+			RenderingType eRenderingType = RenderingType( u );
+			if( ImGui::Selectable( GetRenderingTypeName( eRenderingType ), eRenderingType == m_eRenderingType ) )
+				m_eRenderingType = eRenderingType;
+		}
+		ImGui::EndCombo();
+	}
+
+	ImGui::End();
+}
+
+void Renderer::RenderForward( const RenderContext& oRenderContext )
+{
+	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
+	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
+
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glEnable( GL_DEPTH_TEST );
+
+	SetTechnique( m_xForwardOpaque->GetTechnique() );
+
+	ArrayView< LightComponent > aLightComponents = g_pGameEngine->GetComponentManager().GetComponents< LightComponent >();
+	Array< glm::vec3 > aLights( aLightComponents.Count() );
+	for( uint u = 0; u < aLightComponents.Count(); ++u )
+		aLights[ u ] = aLightComponents[ u ].GetPosition();
+	m_oForwardOpaque.SetLights( aLights );
+
+	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->GetComponentManager().GetComponents< VisualComponent >();
+	for( const VisualComponent& oVisualComponent : aVisualComponents )
+	{
+		m_oForwardOpaque.SetModelAndViewProjection( oVisualComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
+
+		const Array< Mesh >& aMeshes = oVisualComponent.GetResource()->GetMeshes();
+		for( const Mesh& oMesh : aMeshes )
+		{
+			if( oMesh.m_pMaterial != nullptr )
+			{
+				m_oForwardOpaque.SetDiffuseColor( oMesh.m_pMaterial->m_vDiffuseColor );
+
+				if( oMesh.m_pMaterial->m_xDiffuseTextureResource != nullptr )
+				{
+					SetTextureSlot( oMesh.m_pMaterial->m_xDiffuseTextureResource->GetTexture(), 0 );
+					m_oForwardOpaque.SetDiffuseTexture( 0 );
+				}
+				else
+				{
+					ClearTextureSlot( 0 );
+				}
+			}
+			else
+			{
+				ClearTextureSlot( 0 );
+			}
+
+			DrawMesh( oMesh );
+		}
+	}
+
+	ClearTechnique();
+}
+
+void Renderer::RenderDeferred( const RenderContext& oRenderContext )
+{
 	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 
@@ -107,7 +245,7 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->GetComponentManager().GetComponents< VisualComponent >();
 	for( const VisualComponent& oVisualComponent : aVisualComponents )
 	{
-		m_oDeferredMaps.SetModelViewProjection( m_oCamera.GetViewProjectionMatrix() * oVisualComponent.GetWorldMatrix() );
+		m_oDeferredMaps.SetModelAndViewProjection( oVisualComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
 
 		const Array< Mesh >& aMeshes = oVisualComponent.GetResource()->GetMeshes();
 		for( const Mesh& oMesh : aMeshes )
@@ -149,41 +287,17 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	SetTextureSlot( m_oRenderTarget.GetDepthMap(), 2 );
 	m_oDeferredCompose.SetDepth( 2 );
 	m_oDeferredCompose.SetInverseViewProjection( m_oCamera.GetInverseViewProjectionMatrix() );
+
+	ArrayView< LightComponent > aLightComponents = g_pGameEngine->GetComponentManager().GetComponents< LightComponent >();
+	Array< glm::vec3 > aLights( aLightComponents.Count() );
+	for( uint u = 0; u < aLightComponents.Count(); ++u )
+		aLights[ u ] = aLightComponents[ u ].GetPosition();
+	m_oDeferredCompose.SetLights( aLights );
+
 	DrawMesh( m_oRenderMesh );
 
 	ClearTextureSlot( 0 );
 	ClearTechnique();
-}
-
-Camera& Renderer::GetCamera()
-{
-	return m_oCamera;
-}
-
-const Camera& Renderer::GetCamera() const
-{
-	return m_oCamera;
-}
-
-TextRenderer& Renderer::GetTextRenderer()
-{
-	return m_oTextRenderer;
-}
-
-const TextRenderer& Renderer::GetTextRenderer() const
-{
-	return m_oTextRenderer;
-}
-
-bool Renderer::OnLoading()
-{
-	if( m_xDeferredMaps->IsLoaded() && m_oDeferredMaps.IsValid() == false )
-		m_oDeferredMaps.Create( m_xDeferredMaps->GetTechnique() );
-
-	if( m_xDeferredCompose->IsLoaded() && m_oDeferredCompose.IsValid() == false )
-		m_oDeferredCompose.Create( m_xDeferredCompose->GetTechnique() );
-
-	return m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_oTextRenderer.OnLoading();
 }
 
 void Renderer::SetTechnique( const Technique& oTechnique )

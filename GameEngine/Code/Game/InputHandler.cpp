@@ -92,6 +92,7 @@ InputHandler::InputHandler()
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_EDITOR, GLFW_KEY_F1, ActionType::PRESSED ) );
+	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_RENDERER_DEBUG, GLFW_KEY_F2, ActionType::PRESSED ) );
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_PROFILER, GLFW_KEY_F4, ActionType::PRESSED ) );
 
 	m_aInputActionResults.Reserve( m_aInputActions.Count() );

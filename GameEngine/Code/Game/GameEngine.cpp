@@ -137,6 +137,7 @@ void GameEngine::Render()
 
 	if( m_eGameState != GameState::INITIALIZING )
 	{
+		m_oRenderer.DisplayDebug();
 		m_oRenderer.Render( m_oRenderContext );
 		m_oDebugDisplay.Display( m_oGameContext.m_fLastDeltaTime, m_oRenderContext );
 	}

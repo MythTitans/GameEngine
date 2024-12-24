@@ -43,11 +43,11 @@ void Texture::Create( const int iWidth, const int iHeight, const TextureFormat e
 		break;
 	case TextureFormat::NORMAL:
 		iFormat = GL_RGB;
-		iInternalFormat = GL_RGB16F;
+		iInternalFormat = GL_RGB32F; // TODO #eric 16 bits is probably enough
 		break;
 	case TextureFormat::DEPTH:
 		iFormat = GL_DEPTH_COMPONENT;
-		iInternalFormat = GL_DEPTH_COMPONENT24;
+		iInternalFormat = GL_DEPTH_COMPONENT32; // TODO #eric 24 bits is probably enough
 		eType = GL_FLOAT;
 	}
 

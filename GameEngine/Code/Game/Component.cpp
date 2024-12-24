@@ -42,13 +42,14 @@ const Entity* Component::GetEntity() const
 
 MyFirstComponent::MyFirstComponent( Entity* pEntity )
 	: Component( pEntity )
-	, m_fScale( 1.f )
+	, m_fRotation( 0.f )
 {
 }
 
-void MyFirstComponent::SetScale( const float fScale )
+void MyFirstComponent::Update( const float fDeltaTime )
 {
-	m_fScale = fScale;
+	m_fRotation += 10.f * fDeltaTime;
+	GetEntity()->SetRotationY( glm::radians( m_fRotation ) );
 }
 
 VisualComponent::VisualComponent( Entity* pEntity )
@@ -84,4 +85,20 @@ const ModelResPtr& VisualComponent::GetResource() const
 const glm::mat4& VisualComponent::GetWorldMatrix() const
 {
 	return m_mWorldMatrix;
+}
+
+LightComponent::LightComponent( Entity* pEntity )
+	: Component( pEntity )
+	, m_vPosition( 0.f )
+{
+}
+
+void LightComponent::Update( const float fDeltaTime )
+{
+	m_vPosition = GetEntity()->GetPosition();
+}
+
+const glm::vec3& LightComponent::GetPosition() const
+{
+	return m_vPosition;
 }

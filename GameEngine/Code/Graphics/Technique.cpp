@@ -1,5 +1,7 @@
 #include "Technique.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Core/Logger.h"
 #include "Shader.h"
 
@@ -41,7 +43,26 @@ void Technique::Destroy()
 	m_uProgramID = 0;
 }
 
-GLuint Technique::GetParameterID( const char* sParameter ) const
+bool Technique::IsValid() const
 {
-	return glGetUniformLocation( m_uProgramID, sParameter );
+	return m_uProgramID != 0;
+}
+
+GLint Technique::GetParameterID( const char* sParameter ) const
+{
+	GLint iUniform = glGetUniformLocation( m_uProgramID, sParameter );
+	ASSERT( iUniform != -1 );
+	return iUniform;
+}
+
+Array< GLint > Technique::GetParameterIDArray( const char* sUniform, const uint uCount ) const
+{
+	Array< GLint > aUniforms( uCount, -1 );
+	for( uint u = 0; u < uCount; ++u )
+	{
+		aUniforms[ u ] = GetParameterID( std::format( "{}[{}]", sUniform, u ).c_str() );
+		ASSERT( aUniforms[ u ] != -1 );
+	}
+
+	return aUniforms;
 }

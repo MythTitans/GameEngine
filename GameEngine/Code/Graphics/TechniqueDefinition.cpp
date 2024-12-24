@@ -1,6 +1,7 @@
 #include "TechniqueDefinition.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 
 #include "Technique.h"
 
@@ -16,6 +17,8 @@ TechniqueDefinitionBase::~TechniqueDefinitionBase()
 
 void TechniqueDefinitionBase::Create( const Technique& oTechnique )
 {
+	ASSERT( oTechnique.IsValid() );
+
 	CreateDefinition( oTechnique );
 
 	m_bValid = true;
@@ -26,113 +29,215 @@ bool TechniqueDefinitionBase::IsValid() const
 	return m_bValid;
 }
 
-DeferredMapsDefinition::DeferredMapsDefinition()
-	: m_uModelViewProjectionUniform( GL_INVALID_VALUE )
-	, m_uDiffuseColorUniform( GL_INVALID_VALUE )
-	, m_uDiffuseTextureUniform( GL_INVALID_VALUE )
+void TechniqueDefinitionBase::SetParameterID( const GLint iParameterID, const int iValue )
+{
+	ASSERT( iParameterID != -1 );
+	glUniform1i( iParameterID, iValue );
+}
+
+void TechniqueDefinitionBase::SetParameterID( const GLint iParameterID, const float fValue )
+{
+	ASSERT( iParameterID != -1 );
+	glUniform1f( iParameterID, fValue );
+}
+
+void TechniqueDefinitionBase::SetParameterID( const GLint iParameterID, const glm::vec2& vValue )
+{
+	ASSERT( iParameterID != -1 );
+	glUniform2fv( iParameterID, 1, glm::value_ptr( vValue ) );
+}
+
+void TechniqueDefinitionBase::SetParameterID( const GLint iParameterID, const glm::vec3& vValue )
+{
+	ASSERT( iParameterID != -1 );
+	glUniform3fv( iParameterID, 1, glm::value_ptr( vValue ) );
+}
+
+void TechniqueDefinitionBase::SetParameterID( const GLint iParameterID, const glm::vec4& vValue )
+{
+	ASSERT( iParameterID != -1 );
+	glUniform4fv( iParameterID, 1, glm::value_ptr( vValue ) );
+}
+
+void TechniqueDefinitionBase::SetParameterID( const GLint iParameterID, const glm::mat3& mValue )
+{
+	ASSERT( iParameterID != -1 );
+	glUniformMatrix3fv( iParameterID, 1, GL_FALSE, glm::value_ptr( mValue ) );
+}
+
+void TechniqueDefinitionBase::SetParameterID( const GLint iParameterID, const glm::mat4& mValue )
+{
+	ASSERT( iParameterID != -1 );
+	glUniformMatrix4fv( iParameterID, 1, GL_FALSE, glm::value_ptr( mValue ) );
+}
+
+ForwardOpaqueDefinition::ForwardOpaqueDefinition()
+	: m_iModelViewProjectionUniform( -1 )
+	, m_iModelUniform( -1 )
+	, m_iModelInverseTransposeUniform( -1 )
+	, m_iDiffuseColorUniform( -1 )
+	, m_iDiffuseTextureUniform( -1 )
+	, m_iLightCountUniform( -1 )
 {
 }
 
-void DeferredMapsDefinition::SetModelViewProjection( const glm::mat4& mViewProjection )
+void ForwardOpaqueDefinition::SetModelAndViewProjection( const glm::mat4& mModel, const glm::mat4& mViewProjection )
 {
-	glUniformMatrix4fv( m_uModelViewProjectionUniform, 1, GL_FALSE, glm::value_ptr( mViewProjection ) );
+	SetParameterID( m_iModelViewProjectionUniform, mViewProjection * mModel );
+	SetParameterID( m_iModelUniform, mModel );
+	SetParameterID( m_iModelInverseTransposeUniform, glm::inverseTranspose( mModel ) );
+}
+
+void ForwardOpaqueDefinition::SetDiffuseColor( const glm::vec3& vColor )
+{
+	SetParameterID( m_iDiffuseColorUniform, vColor );
+}
+
+void ForwardOpaqueDefinition::SetDiffuseTexture( const int iTextureUnit )
+{
+	SetParameterID( m_iDiffuseTextureUniform, iTextureUnit );
+}
+
+void ForwardOpaqueDefinition::SetLights( const Array< glm::vec3 >& aLights )
+{
+	for( uint u = 0; u < aLights.Count(); ++u )
+		SetParameterID( m_aLightUniforms[ u ], aLights[ u ] );
+
+	SetParameterID( m_iLightCountUniform, ( int )aLights.Count() );
+}
+
+void ForwardOpaqueDefinition::CreateDefinition( const Technique& oTechnique )
+{
+	m_iModelViewProjectionUniform = oTechnique.GetParameterID( "modelViewProjection" );
+	m_iModelUniform = oTechnique.GetParameterID( "model" );
+	m_iModelInverseTransposeUniform = oTechnique.GetParameterID( "modelInverseTranspose" );
+	m_iDiffuseColorUniform = oTechnique.GetParameterID( "diffuseColor" );
+	m_iDiffuseTextureUniform = oTechnique.GetParameterID( "diffuseTexture" );
+	m_aLightUniforms = oTechnique.GetParameterIDArray( "lightPositions", 16 );
+	m_iLightCountUniform = oTechnique.GetParameterID( "lightCount" );
+}
+
+DeferredMapsDefinition::DeferredMapsDefinition()
+	: m_iModelViewProjectionUniform( -1 )
+	, m_iModelInverseTransposeUniform( -1 )
+	, m_iDiffuseColorUniform( -1 )
+	, m_iDiffuseTextureUniform( -1 )
+{
+}
+
+void DeferredMapsDefinition::SetModelAndViewProjection( const glm::mat4& mModel, const glm::mat4& mViewProjection )
+{
+	SetParameterID( m_iModelViewProjectionUniform, mViewProjection * mModel );
+	SetParameterID( m_iModelInverseTransposeUniform, glm::inverseTranspose( mModel ) );
 }
 
 void DeferredMapsDefinition::SetDiffuseColor( const glm::vec3& vColor )
 {
-	glUniform3fv( m_uDiffuseColorUniform, 1, glm::value_ptr( vColor ) );
+	SetParameterID( m_iDiffuseColorUniform, vColor );
 }
 
 void DeferredMapsDefinition::SetDiffuseTexture( const int iTextureUnit )
 {
-	glUniform1i( m_uDiffuseTextureUniform, iTextureUnit );
+	SetParameterID( m_iDiffuseTextureUniform, iTextureUnit );
 }
 
 void DeferredMapsDefinition::CreateDefinition( const Technique& oTechnique )
 {
-	m_uModelViewProjectionUniform = oTechnique.GetParameterID( "modelViewProjection" );
-	m_uDiffuseColorUniform = oTechnique.GetParameterID( "diffuseColor" );
-	m_uDiffuseTextureUniform = oTechnique.GetParameterID( "diffuseTexture" );
+	m_iModelViewProjectionUniform = oTechnique.GetParameterID( "modelViewProjection" );
+	m_iModelInverseTransposeUniform = oTechnique.GetParameterID( "modelInverseTranspose" );
+	m_iDiffuseColorUniform = oTechnique.GetParameterID( "diffuseColor" );
+	m_iDiffuseTextureUniform = oTechnique.GetParameterID( "diffuseTexture" );
 }
 
 DeferredComposeDefinition::DeferredComposeDefinition()
-	: m_uColorUniform( GL_INVALID_VALUE )
-	, m_uNormalUniform( GL_INVALID_VALUE )
-	, m_uDepthUniform( GL_INVALID_VALUE )
-	, m_uInverseViewProjectionUniform( GL_INVALID_VALUE )
+	: m_iColorUniform( -1 )
+	, m_iNormalUniform( -1 )
+	, m_iDepthUniform( -1 )
+	, m_iInverseViewProjectionUniform( -1 )
+	, m_iLightCountUniform( -1 )
 {
 }
 
 void DeferredComposeDefinition::SetColor( const int iTextureUnit )
 {
-	glUniform1i( m_uColorUniform, iTextureUnit );
+	SetParameterID( m_iColorUniform, iTextureUnit );
 }
 
 void DeferredComposeDefinition::SetNormal( const int iTextureUnit )
 {
-	glUniform1i( m_uNormalUniform, iTextureUnit );
+	SetParameterID( m_iNormalUniform, iTextureUnit );
 }
 
 void DeferredComposeDefinition::SetDepth( const int iTextureUnit )
 {
-	glUniform1i( m_uDepthUniform, iTextureUnit );
+	SetParameterID( m_iDepthUniform, iTextureUnit );
 }
 
 void DeferredComposeDefinition::SetInverseViewProjection( const glm::mat4& mInverseViewProjection )
 {
-	glUniformMatrix4fv( m_uInverseViewProjectionUniform, 1, GL_FALSE, glm::value_ptr( mInverseViewProjection ) );
+	SetParameterID( m_iInverseViewProjectionUniform, mInverseViewProjection );
+}
+
+void DeferredComposeDefinition::SetLights( const Array< glm::vec3 >& aLights )
+{
+	for( uint u = 0; u < aLights.Count(); ++u )
+		SetParameterID( m_aLightUniforms[ u ], aLights[ u ] );
+
+	SetParameterID( m_iLightCountUniform, ( int )aLights.Count() );
 }
 
 void DeferredComposeDefinition::CreateDefinition( const Technique& oTechnique )
 {
-	m_uColorUniform = oTechnique.GetParameterID( "colorMap" );
-	m_uNormalUniform = oTechnique.GetParameterID( "normalMap" );
-	m_uDepthUniform = oTechnique.GetParameterID( "depthMap" );
-	m_uInverseViewProjectionUniform = oTechnique.GetParameterID( "inverseViewProjection" );
+	m_iColorUniform = oTechnique.GetParameterID( "colorMap" );
+	m_iNormalUniform = oTechnique.GetParameterID( "normalMap" );
+	m_iDepthUniform = oTechnique.GetParameterID( "depthMap" );
+	m_iInverseViewProjectionUniform = oTechnique.GetParameterID( "inverseViewProjection" );
+	m_aLightUniforms = oTechnique.GetParameterIDArray( "lightPositions", 128 );
+	m_iLightCountUniform = oTechnique.GetParameterID( "lightCount" );
 }
 
 TextTechniqueDefinition::TextTechniqueDefinition()
-	: m_uPositionUniform( GL_INVALID_VALUE )
-	, m_uSizeUniform( GL_INVALID_VALUE )
-	, m_vGlyphOffsetUniform( GL_INVALID_VALUE )
-	, m_vGlyphSizeUniform( GL_INVALID_VALUE )
-	, m_vGlyphColorUniform( GL_INVALID_VALUE )
-	, m_uAtlasTextureUniform( GL_INVALID_VALUE )
+	: m_iPositionUniform( -1 )
+	, m_iSizeUniform( -1 )
+	, m_iGlyphOffsetUniform( -1 )
+	, m_iGlyphSizeUniform( -1 )
+	, m_iGlyphColorUniform( -1 )
+	, m_iAtlasTextureUniform( -1 )
 {
 }
 
 void TextTechniqueDefinition::SetScreenPosition( const glm::vec2& vPosition )
 {
-	glUniform2fv( m_uPositionUniform, 1, glm::value_ptr( vPosition ) );
+	SetParameterID( m_iPositionUniform, vPosition );
 }
 
 void TextTechniqueDefinition::SetScreenSize( const glm::vec2& vSize )
 {
-	glUniform2fv( m_uSizeUniform, 1, glm::value_ptr( vSize ) );
+	SetParameterID( m_iSizeUniform, vSize );
 }
 
 void TextTechniqueDefinition::SetGlyph( const glm::vec2& vFromUVs, const glm::vec2& vToUVs )
 {
-	glUniform2fv( m_vGlyphOffsetUniform, 1, glm::value_ptr( vFromUVs ) );
-	glUniform2fv( m_vGlyphSizeUniform, 1, glm::value_ptr( vToUVs ) );
+	SetParameterID( m_iGlyphOffsetUniform, vFromUVs );
+	SetParameterID( m_iGlyphSizeUniform, vToUVs );
 }
 
 void TextTechniqueDefinition::SetColor( const glm::vec4& vColor )
 {
-	glUniform4fv( m_vGlyphColorUniform, 1, glm::value_ptr( vColor ) );
+	SetParameterID( m_iGlyphColorUniform, vColor );
 }
 
 void TextTechniqueDefinition::SetTexture( const GLint iTexture )
 {
-	glUniform1i( m_uAtlasTextureUniform, iTexture );
+	SetParameterID( m_iAtlasTextureUniform, iTexture );
 }
 
 void TextTechniqueDefinition::CreateDefinition( const Technique& oTechnique )
 {
-	m_uPositionUniform = oTechnique.GetParameterID( "position" );
-	m_uSizeUniform = oTechnique.GetParameterID( "size" );
-	m_vGlyphOffsetUniform = oTechnique.GetParameterID( "glyphOffset" );
-	m_vGlyphSizeUniform = oTechnique.GetParameterID( "glyphSize" );
-	m_vGlyphColorUniform = oTechnique.GetParameterID( "glyphColor" );
-	m_uAtlasTextureUniform = oTechnique.GetParameterID( "atlasTexture" );
+	m_iPositionUniform = oTechnique.GetParameterID( "position" );
+	m_iSizeUniform = oTechnique.GetParameterID( "size" );
+	m_iGlyphOffsetUniform = oTechnique.GetParameterID( "glyphOffset" );
+	m_iGlyphSizeUniform = oTechnique.GetParameterID( "glyphSize" );
+	m_iGlyphColorUniform = oTechnique.GetParameterID( "glyphColor" );
+	m_iAtlasTextureUniform = oTechnique.GetParameterID( "atlasTexture" );
 }
