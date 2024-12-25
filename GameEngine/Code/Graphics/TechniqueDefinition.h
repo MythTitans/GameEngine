@@ -40,7 +40,7 @@ public:
 	void SetModelAndViewProjection( const glm::mat4& mModel, const glm::mat4& mViewProjection );
 	void SetDiffuseColor( const glm::vec3& vColor );
 	void SetDiffuseTexture( const int iTextureUnit );
-	void SetLights( const Array< glm::vec3 >& aLights );
+	void SetLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightFalloffFactors );
 
 private:
 	void CreateDefinition( const Technique& oTechnique ) override;
@@ -50,7 +50,10 @@ private:
 	GLint			m_iModelInverseTransposeUniform;
 	GLint			m_iDiffuseColorUniform;
 	GLint			m_iDiffuseTextureUniform;
-	Array< GLint >	m_aLightUniforms;
+	Array< GLint >	m_aLightPositionUniforms;
+	Array< GLint >	m_aLightColorUniforms;
+	Array< GLint >	m_aLightIntensityUniforms;
+	Array< GLint >	m_aLightFalloffFactorUniforms;
 	GLint			m_iLightCountUniform;
 };
 
@@ -82,7 +85,7 @@ public:
 	void SetNormal( const int iTextureUnit );
 	void SetDepth( const int iTextureUnit );
 	void SetInverseViewProjection( const glm::mat4& mInverseViewProjection );
-	void SetLights( const Array< glm::vec3 >& aLights );
+	void SetLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightFalloffFactors );
 
 private:
 	void CreateDefinition( const Technique& oTechnique ) override;
@@ -91,7 +94,10 @@ private:
 	GLint			m_iNormalUniform;
 	GLint			m_iDepthUniform;
 	GLint			m_iInverseViewProjectionUniform;
-	Array< GLint >	m_aLightUniforms;
+	Array< GLint >	m_aLightPositionUniforms;
+	Array< GLint >	m_aLightColorUniforms;
+	Array< GLint >	m_aLightIntensityUniforms;
+	Array< GLint >	m_aLightFalloffFactorUniforms;
 	GLint			m_iLightCountUniform;
 };
 

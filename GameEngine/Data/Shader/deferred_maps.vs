@@ -14,7 +14,7 @@ uniform mat4 modelInverseTranspose;
 void main()
 {
     texCoords = vertTexCoords;
-    normal = normalize( modelInverseTranspose * vec4( vertNormal, 0.0 ) ).xyz;
+    normal = ( modelInverseTranspose * vec4( vertNormal, 0.0 ) ).xyz;
 
     gl_Position = modelViewProjection * vec4( vertPosition, 1.0 );
 }

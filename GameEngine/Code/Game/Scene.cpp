@@ -27,11 +27,11 @@ Scene::Scene()
 
 	m_mEntities[ 3 ]->SetPosition( 0.f, 10.f, 0.f );
 	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 3 ].GetPtr() ).Setup( std::filesystem::path( "Data/sphere.obj" ) );
-	g_pComponentManager->CreateComponent< LightComponent >( m_mEntities[ 3 ].GetPtr() );
+	g_pComponentManager->CreateComponent< PointLightComponent >( m_mEntities[ 3 ].GetPtr() );
 
 	m_mEntities[ 4 ]->SetPosition( 10.f, 5.f, 0.f );
 	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 4 ].GetPtr() ).Setup( std::filesystem::path( "Data/sphere.obj" ) );
-	g_pComponentManager->CreateComponent< LightComponent >( m_mEntities[ 4 ].GetPtr() );
+	g_pComponentManager->CreateComponent< PointLightComponent >( m_mEntities[ 4 ].GetPtr() );
 }
 
 Entity* Scene::FindEntity( const uint64 uEntityID )

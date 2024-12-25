@@ -87,18 +87,21 @@ const glm::mat4& VisualComponent::GetWorldMatrix() const
 	return m_mWorldMatrix;
 }
 
-LightComponent::LightComponent( Entity* pEntity )
+PointLightComponent::PointLightComponent( Entity* pEntity )
 	: Component( pEntity )
 	, m_vPosition( 0.f )
+	, m_vColor( 1.f )
+	, m_fIntensity( 1.f )
+	, m_fFalloffFactor( 1.f )
 {
 }
 
-void LightComponent::Update( const float fDeltaTime )
+void PointLightComponent::Update( const float fDeltaTime )
 {
 	m_vPosition = GetEntity()->GetPosition();
 }
 
-const glm::vec3& LightComponent::GetPosition() const
+const glm::vec3& PointLightComponent::GetPosition() const
 {
 	return m_vPosition;
 }

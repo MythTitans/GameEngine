@@ -78,6 +78,14 @@ void Editor::Display()
 					//oTransform.SetPosition( EditableVector3( "Rotation", oTransform.GetRotationXYZ() ) );
 					oTransform.SetScale( EditableVector3( "Scale", oTransform.GetScale() ) );
 
+					PointLightComponent* pPointLightComponent = g_pComponentManager->GetComponent< PointLightComponent >( it.second.GetPtr() );
+					if( pPointLightComponent != nullptr && ImGui::CollapsingHeader( "Point light" ) )
+					{
+						ImGui::DragFloat( "Intensity", &pPointLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+						ImGui::ColorEdit3( "Color", &pPointLightComponent->m_vColor.x );
+						ImGui::DragFloat( "Falloff factor", &pPointLightComponent->m_fFalloffFactor, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+					}
+
 					ImGui::TreePop();
 				}
 			}

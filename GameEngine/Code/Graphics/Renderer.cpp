@@ -49,10 +49,11 @@ Renderer::Renderer()
 	: m_xForwardOpaque( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/forward_opaque" ) ) )
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/deferred_maps" ) ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/deferred_compose" ) ) )
-	, m_eRenderingType( RenderingType::FORWARD )
+	, m_eRenderingMode( RenderingMode::FORWARD )
 	, m_bDisplayDebug( false )
 {
 	glEnable( GL_CULL_FACE );
+	//glEnable( GL_FRAMEBUFFER_SRGB );
 
 	glClearColor( 0.f, 0.f, 0.f, 1.f );
 
@@ -85,12 +86,12 @@ void Renderer::Render( const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "Renderer" );
 
-	switch( m_eRenderingType )
+	switch( m_eRenderingMode )
 	{
-	case RenderingType::FORWARD:
+	case RenderingMode::FORWARD:
 		RenderForward( oRenderContext );
 		break;
-	case RenderingType::DEFERRED:
+	case RenderingMode::DEFERRED:
 		RenderDeferred( oRenderContext );
 		break;
 	}
@@ -138,14 +139,14 @@ void Renderer::DisplayDebug()
 	if( m_bDisplayDebug == false )
 		return;
 
-	auto GetRenderingTypeName = []( const RenderingType eRenderingType ) -> const char* {
+	auto GetRenderingModeName = []( const RenderingMode eRenderingType ) -> const char* {
 		switch( eRenderingType )
 		{
-		case RenderingType::FORWARD:
+		case RenderingMode::FORWARD:
 			return "Forward";
-		case RenderingType::DEFERRED:
+		case RenderingMode::DEFERRED:
 			return "Deferred";
-		case RenderingType::_COUNT:
+		case RenderingMode::_COUNT:
 			return "";
 		}
 
@@ -154,13 +155,13 @@ void Renderer::DisplayDebug()
 
 	ImGui::Begin( "Renderer" );
 
-	if( ImGui::BeginCombo( "Rendering type", GetRenderingTypeName( m_eRenderingType ) ) )
+	if( ImGui::BeginCombo( "Rendering mode", GetRenderingModeName( m_eRenderingMode ) ) )
 	{
-		for( uint u = 0; u < RenderingType::_COUNT; ++u )
+		for( uint u = 0; u < RenderingMode::_COUNT; ++u )
 		{
-			RenderingType eRenderingType = RenderingType( u );
-			if( ImGui::Selectable( GetRenderingTypeName( eRenderingType ), eRenderingType == m_eRenderingType ) )
-				m_eRenderingType = eRenderingType;
+			RenderingMode eRenderingMode = RenderingMode( u );
+			if( ImGui::Selectable( GetRenderingModeName( eRenderingMode ), eRenderingMode == m_eRenderingMode ) )
+				m_eRenderingMode = eRenderingMode;
 		}
 		ImGui::EndCombo();
 	}
@@ -173,16 +174,27 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 
+	if( oRenderRect.m_uWidth != m_oRenderTarget.GetWidth() || oRenderRect.m_uHeight != m_oRenderTarget.GetHeight() )
+		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
+
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
 
 	SetTechnique( m_xForwardOpaque->GetTechnique() );
 
-	ArrayView< LightComponent > aLightComponents = g_pGameEngine->GetComponentManager().GetComponents< LightComponent >();
-	Array< glm::vec3 > aLights( aLightComponents.Count() );
-	for( uint u = 0; u < aLightComponents.Count(); ++u )
-		aLights[ u ] = aLightComponents[ u ].GetPosition();
-	m_oForwardOpaque.SetLights( aLights );
+	ArrayView< PointLightComponent > aPointLightComponents = g_pGameEngine->GetComponentManager().GetComponents< PointLightComponent >();
+	Array< glm::vec3 > aLightPositions( aPointLightComponents.Count() );
+	Array< glm::vec3 > aLightColors( aPointLightComponents.Count() );
+	Array< float > aLightIntensities( aPointLightComponents.Count() );
+	Array< float > aLightFalloffFactors( aPointLightComponents.Count() );
+	for( uint u = 0; u < aPointLightComponents.Count(); ++u )
+	{
+		aLightPositions[ u ] = aPointLightComponents[ u ].GetPosition();
+		aLightColors[ u ] = aPointLightComponents[ u ].m_vColor;
+		aLightIntensities[ u ] = aPointLightComponents[ u ].m_fIntensity;
+		aLightFalloffFactors[ u ] = aPointLightComponents[ u ].m_fFalloffFactor;
+	}
+	m_oForwardOpaque.SetLights( aLightPositions, aLightColors, aLightIntensities, aLightFalloffFactors );
 
 	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->GetComponentManager().GetComponents< VisualComponent >();
 	for( const VisualComponent& oVisualComponent : aVisualComponents )
@@ -288,11 +300,19 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	m_oDeferredCompose.SetDepth( 2 );
 	m_oDeferredCompose.SetInverseViewProjection( m_oCamera.GetInverseViewProjectionMatrix() );
 
-	ArrayView< LightComponent > aLightComponents = g_pGameEngine->GetComponentManager().GetComponents< LightComponent >();
-	Array< glm::vec3 > aLights( aLightComponents.Count() );
-	for( uint u = 0; u < aLightComponents.Count(); ++u )
-		aLights[ u ] = aLightComponents[ u ].GetPosition();
-	m_oDeferredCompose.SetLights( aLights );
+	ArrayView< PointLightComponent > aPointLightComponents = g_pGameEngine->GetComponentManager().GetComponents< PointLightComponent >();
+	Array< glm::vec3 > aLightPositions( aPointLightComponents.Count() );
+	Array< glm::vec3 > aLightColors( aPointLightComponents.Count() );
+	Array< float > aLightIntensities( aPointLightComponents.Count() );
+	Array< float > aLightFalloffFactors( aPointLightComponents.Count() );
+	for( uint u = 0; u < aPointLightComponents.Count(); ++u )
+	{
+		aLightPositions[ u ] = aPointLightComponents[ u ].GetPosition();
+		aLightColors[ u ] = aPointLightComponents[ u ].m_vColor;
+		aLightIntensities[ u ] = aPointLightComponents[ u ].m_fIntensity;
+		aLightFalloffFactors[ u ] = aPointLightComponents[ u ].m_fFalloffFactor;
+	}
+	m_oDeferredCompose.SetLights( aLightPositions, aLightColors, aLightIntensities, aLightFalloffFactors );
 
 	DrawMesh( m_oRenderMesh );
 

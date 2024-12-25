@@ -162,15 +162,20 @@ private:
 	glm::mat4							m_mWorldMatrix;
 };
 
-class LightComponent : public Component
+class PointLightComponent : public Component
 {
 public:
-	explicit LightComponent( Entity* pEntity );
+	explicit PointLightComponent( Entity* pEntity );
 
 	void				Update( const float fDeltaTime ) override;
 
 	const glm::vec3&	GetPosition() const;
 
 private:
-	glm::vec3 m_vPosition;
+	glm::vec3	m_vPosition;
+
+public:
+	glm::vec3	m_vColor;
+	float		m_fIntensity;
+	float		m_fFalloffFactor;
 };

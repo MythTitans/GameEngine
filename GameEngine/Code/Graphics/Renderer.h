@@ -53,7 +53,7 @@ public:
 	void				DisplayDebug();
 
 private:
-	enum RenderingType : uint8
+	enum RenderingMode : uint8
 	{
 		FORWARD,
 		DEFERRED,
@@ -83,7 +83,7 @@ private:
 	DeferredMapsDefinition		m_oDeferredMaps;
 	DeferredComposeDefinition	m_oDeferredCompose;
 
-	RenderingType				m_eRenderingType;
+	RenderingMode				m_eRenderingMode;
 
 	bool						m_bDisplayDebug;
 };
