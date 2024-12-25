@@ -39,7 +39,8 @@ public:
 
 	void SetModelAndViewProjection( const glm::mat4& mModel, const glm::mat4& mViewProjection );
 	void SetDiffuseColor( const glm::vec3& vColor );
-	void SetDiffuseTexture( const int iTextureUnit );
+	void SetDiffuseMap( const int iTextureUnit );
+	void SetNormalMap( const int iTextureUnit );
 	void SetLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightFalloffFactors );
 
 private:
@@ -49,7 +50,8 @@ private:
 	GLint			m_iModelUniform;
 	GLint			m_iModelInverseTransposeUniform;
 	GLint			m_iDiffuseColorUniform;
-	GLint			m_iDiffuseTextureUniform;
+	GLint			m_iDiffuseMapUniform;
+	GLint			m_iNormalMapUniform;
 	Array< GLint >	m_aLightPositionUniforms;
 	Array< GLint >	m_aLightColorUniforms;
 	Array< GLint >	m_aLightIntensityUniforms;

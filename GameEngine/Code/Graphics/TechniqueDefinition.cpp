@@ -76,7 +76,8 @@ ForwardOpaqueDefinition::ForwardOpaqueDefinition()
 	, m_iModelUniform( -1 )
 	, m_iModelInverseTransposeUniform( -1 )
 	, m_iDiffuseColorUniform( -1 )
-	, m_iDiffuseTextureUniform( -1 )
+	, m_iDiffuseMapUniform( -1 )
+	, m_iNormalMapUniform( -1 )
 	, m_iLightCountUniform( -1 )
 {
 }
@@ -93,9 +94,14 @@ void ForwardOpaqueDefinition::SetDiffuseColor( const glm::vec3& vColor )
 	SetParameterID( m_iDiffuseColorUniform, vColor );
 }
 
-void ForwardOpaqueDefinition::SetDiffuseTexture( const int iTextureUnit )
+void ForwardOpaqueDefinition::SetDiffuseMap( const int iTextureUnit )
 {
-	SetParameterID( m_iDiffuseTextureUniform, iTextureUnit );
+	SetParameterID( m_iDiffuseMapUniform, iTextureUnit );
+}
+
+void ForwardOpaqueDefinition::SetNormalMap( const int iTextureUnit )
+{
+	SetParameterID( m_iNormalMapUniform, iTextureUnit );
 }
 
 void ForwardOpaqueDefinition::SetLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightFalloffFactors )
@@ -121,7 +127,8 @@ void ForwardOpaqueDefinition::CreateDefinition( const Technique& oTechnique )
 	m_iModelUniform = oTechnique.GetParameterID( "model" );
 	m_iModelInverseTransposeUniform = oTechnique.GetParameterID( "modelInverseTranspose" );
 	m_iDiffuseColorUniform = oTechnique.GetParameterID( "diffuseColor" );
-	m_iDiffuseTextureUniform = oTechnique.GetParameterID( "diffuseTexture" );
+	m_iDiffuseMapUniform = oTechnique.GetParameterID( "diffuseMap" );
+	m_iNormalMapUniform = oTechnique.GetParameterID( "normalMap" );
 	m_aLightPositionUniforms = oTechnique.GetParameterIDArray( "lightPositions", 16 );
 	m_aLightColorUniforms = oTechnique.GetParameterIDArray( "lightColors", 16 );
 	m_aLightIntensityUniforms = oTechnique.GetParameterIDArray( "lightIntensities", 16 );

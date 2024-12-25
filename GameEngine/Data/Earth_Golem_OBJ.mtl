@@ -11,5 +11,5 @@ Ni 1.000000
 d 1.000000
 illum 1
 map_Kd Data/EarthGolem_albedo.jpeg
-map_Kn data/textures/golem/lambert1_normal.png
+map_Kn Data/EarthGolem_normal.png
 map_Ke data/textures/golem/earth_emissive.jpeg

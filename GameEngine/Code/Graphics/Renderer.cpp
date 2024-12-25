@@ -211,11 +211,21 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 				if( oMesh.m_pMaterial->m_xDiffuseTextureResource != nullptr )
 				{
 					SetTextureSlot( oMesh.m_pMaterial->m_xDiffuseTextureResource->GetTexture(), 0 );
-					m_oForwardOpaque.SetDiffuseTexture( 0 );
+					m_oForwardOpaque.SetDiffuseMap( 0 );
 				}
 				else
 				{
 					ClearTextureSlot( 0 );
+				}
+
+				if( oMesh.m_pMaterial->m_xNormalTextureResource != nullptr )
+				{
+					SetTextureSlot( oMesh.m_pMaterial->m_xNormalTextureResource->GetTexture(), 1 );
+					m_oForwardOpaque.SetNormalMap( 1 );
+				}
+				else
+				{
+					ClearTextureSlot( 1 );
 				}
 			}
 			else

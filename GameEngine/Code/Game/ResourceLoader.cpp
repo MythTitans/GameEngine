@@ -654,6 +654,17 @@ void ResourceLoader::ModelLoadCommand::LoadMaterials( aiScene* pScene )
 				m_aDependencies.PushBack( xTextureResource.GetPtr() );
 			}
 		}
+
+		if( pMaterial->GetTextureCount( aiTextureType_NORMALS ) != 0 )
+		{
+			aiString sFile;
+			if( pMaterial->GetTexture( aiTextureType_NORMALS, 0, &sFile ) == AI_SUCCESS )
+			{
+				TextureResPtr xTextureResource = g_pResourceLoader->LoadTexture( std::filesystem::path( sFile.C_Str() ) );
+				m_xResource->m_aMaterials[ u ].m_xNormalTextureResource = xTextureResource;
+				m_aDependencies.PushBack( xTextureResource.GetPtr() );
+			}
+		}
 	}
 }
 

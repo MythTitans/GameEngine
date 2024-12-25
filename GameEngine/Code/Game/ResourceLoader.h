@@ -126,6 +126,7 @@ struct Material
 
 	//TechniqueResPtr m_xTechniqueResource;
 	TextureResPtr	m_xDiffuseTextureResource;
+	TextureResPtr	m_xNormalTextureResource;
 };
 
 class ModelResource : public Resource
