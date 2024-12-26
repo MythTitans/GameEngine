@@ -16,7 +16,7 @@ public:
 
 	Mesh();
 
-	void Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< glm::vec3>& aBiTangents, const Array< GLuint >& aIndices, const Material* pMaterial );
+	void Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< GLuint >& aIndices, const Material* pMaterial );
 	void Destroy();
 
 private:
@@ -39,8 +39,6 @@ public:
 	MeshBuilder& WithNormals( Array< glm::vec3 >&& aNormals );
 	MeshBuilder& WithTangents();
 	MeshBuilder& WithTangents( Array< glm::vec3 >&& aTangents );
-	MeshBuilder& WithBiTangents();
-	MeshBuilder& WithBiTangents( Array< glm::vec3 >&& aBiTangents );
 	MeshBuilder& WithMaterial( const Material* pMaterial );
 
 	Mesh			Build();
@@ -51,7 +49,6 @@ private:
 	Array< glm::vec2 >	m_aUVs;
 	Array< glm::vec3 >	m_aNormals;
 	Array< glm::vec3 >	m_aTangents;
-	Array< glm::vec3 >	m_aBiTangents;
 
 	const Material* m_pMaterial;
 };

@@ -171,7 +171,6 @@ public:
 	TechniqueResPtr LoadTechnique( const std::filesystem::path& oFilePath );
 
 	void			HandleLoadedResources();
-	void			Update();
 	void			ProcessLoadCommands();
 
 private:

@@ -229,23 +229,6 @@ void ResourceLoader::HandleLoadedResources()
 	DestroyUnusedResources();
 }
 
-void ResourceLoader::Update()
-{
-	ProfilerBlock oBlock( "ResourceLoader" );
-
-	LoadTexture( std::filesystem::path( "Data/WHITE.png" ) );
-	LoadTexture( std::filesystem::path( "Data/BLACK.png" ) );
-	LoadTexture( std::filesystem::path( "Data/RED.png" ) );
-	LoadTexture( std::filesystem::path( "Data/GREEN.png" ) );
-	LoadTexture( std::filesystem::path( "Data/BLUE.png" ) );
-	LoadTexture( std::filesystem::path( "Data/TRANSPARENT.png" ) );
-	LoadModel( std::filesystem::path( "Data/cube.obj" ) );
-	LoadTechnique( std::filesystem::path( "Data/Shader/basic" ) );
-	//LoadShader( std::filesystem::path( "Data/basic.vs" ) );
-	//LoadShader( std::filesystem::path( "Data/basic.ps" ) );
-	LoadFont( std::filesystem::path( "C:/Windows/Fonts/arialbd.ttf" ) );
-}
-
 void ResourceLoader::ProcessLoadCommands()
 {
 	ProfilerBlock oBlock( "ProcessLoadCommands" );
@@ -684,7 +667,6 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
 	Array< glm::vec3 > aVertices( uVertexCount );
 	Array< glm::vec3 > aNormals( uVertexCount );
 	Array< glm::vec3 > aTangents( uVertexCount );
-	Array< glm::vec3 > aBiTangents( uVertexCount );
 	Array< glm::vec2 > aUVs( uVertexCount );
 
 	for( uint u = 0; u < uVertexCount; ++u )
@@ -692,7 +674,6 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
 		aVertices[ u ] = glm::vec3( pMesh->mVertices[ u ].x, pMesh->mVertices[ u ].y, pMesh->mVertices[ u ].z );
 		aNormals[ u ] = glm::vec3( pMesh->mNormals[ u ].x, pMesh->mNormals[ u ].y, pMesh->mNormals[ u ].z );
 		aTangents[ u ] = glm::vec3( pMesh->mTangents[ u ].x, pMesh->mTangents[ u ].y, pMesh->mTangents[ u ].z );
-		aBiTangents[ u ] = glm::vec3( pMesh->mBitangents[ u ].x, pMesh->mBitangents[ u ].y, pMesh->mBitangents[ u ].z );
 
 		if( pMesh->mTextureCoords[ 0 ] != nullptr )
 			aUVs[ u ] = glm::vec2( pMesh->mTextureCoords[ 0 ][ u ].x, pMesh->mTextureCoords[ 0 ][ u ].y );
@@ -715,8 +696,7 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
 	MeshBuilder oMeshBuilder = MeshBuilder( std::move( aVertices ), std::move( aIndices ) )
 		.WithUVs( std::move( aUVs ) )
 		.WithNormals( std::move( aNormals ) )
-		.WithTangents( std::move( aTangents ) )
-		.WithBiTangents( std::move( aBiTangents ) );
+		.WithTangents( std::move( aTangents ) );
 
 	if( pMesh->mMaterialIndex >= 0 && pMesh->mMaterialIndex < m_xResource->m_aMaterials.Count() )
 		oMeshBuilder.WithMaterial( &m_xResource->m_aMaterials[ pMesh->mMaterialIndex ] );

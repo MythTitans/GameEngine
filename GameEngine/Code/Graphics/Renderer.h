@@ -76,6 +76,8 @@ private:
 	RenderTarget				m_oRenderTarget;
 	Mesh						m_oRenderMesh;
 
+	TextureResPtr				m_xDefaultDiffuseMap;
+	TextureResPtr				m_xDefaultNormalMap;
 	TechniqueResPtr				m_xForwardOpaque;
 	TechniqueResPtr				m_xDeferredMaps;
 	TechniqueResPtr				m_xDeferredCompose;

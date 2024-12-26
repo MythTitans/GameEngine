@@ -66,7 +66,8 @@ public:
 
 	void SetModelAndViewProjection( const glm::mat4& mModel, const glm::mat4& mViewProjection );
 	void SetDiffuseColor( const glm::vec3& vColor );
-	void SetDiffuseTexture( const int iTextureUnit );
+	void SetDiffuseMap( const int iTextureUnit );
+	void SetNormalMap( const int iTextureUnit );
 
 private:
 	void CreateDefinition( const Technique& oTechnique ) override;
@@ -74,7 +75,8 @@ private:
 	GLint m_iModelViewProjectionUniform;
 	GLint m_iModelInverseTransposeUniform;
 	GLint m_iDiffuseColorUniform;
-	GLint m_iDiffuseTextureUniform;
+	GLint m_iDiffuseMapUniform;
+	GLint m_iNormalMapUniform;
 };
 
 // TODO #eric use SSBO to store light data

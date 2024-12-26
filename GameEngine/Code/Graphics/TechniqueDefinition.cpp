@@ -140,7 +140,8 @@ DeferredMapsDefinition::DeferredMapsDefinition()
 	: m_iModelViewProjectionUniform( -1 )
 	, m_iModelInverseTransposeUniform( -1 )
 	, m_iDiffuseColorUniform( -1 )
-	, m_iDiffuseTextureUniform( -1 )
+	, m_iDiffuseMapUniform( -1 )
+	, m_iNormalMapUniform( -1 )
 {
 }
 
@@ -155,9 +156,14 @@ void DeferredMapsDefinition::SetDiffuseColor( const glm::vec3& vColor )
 	SetParameterID( m_iDiffuseColorUniform, vColor );
 }
 
-void DeferredMapsDefinition::SetDiffuseTexture( const int iTextureUnit )
+void DeferredMapsDefinition::SetDiffuseMap( const int iTextureUnit )
 {
-	SetParameterID( m_iDiffuseTextureUniform, iTextureUnit );
+	SetParameterID( m_iDiffuseMapUniform, iTextureUnit );
+}
+
+void DeferredMapsDefinition::SetNormalMap( const int iTextureUnit )
+{
+	SetParameterID( m_iNormalMapUniform, iTextureUnit );
 }
 
 void DeferredMapsDefinition::CreateDefinition( const Technique& oTechnique )
@@ -165,7 +171,8 @@ void DeferredMapsDefinition::CreateDefinition( const Technique& oTechnique )
 	m_iModelViewProjectionUniform = oTechnique.GetParameterID( "modelViewProjection" );
 	m_iModelInverseTransposeUniform = oTechnique.GetParameterID( "modelInverseTranspose" );
 	m_iDiffuseColorUniform = oTechnique.GetParameterID( "diffuseColor" );
-	m_iDiffuseTextureUniform = oTechnique.GetParameterID( "diffuseTexture" );
+	m_iDiffuseMapUniform = oTechnique.GetParameterID( "diffuseMap" );
+	m_iNormalMapUniform = oTechnique.GetParameterID( "normalMap" );
 }
 
 DeferredComposeDefinition::DeferredComposeDefinition()

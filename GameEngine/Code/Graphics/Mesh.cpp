@@ -11,13 +11,12 @@ Mesh::Mesh()
 {
 }
 
-void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< glm::vec3 >& aBiTangents, const Array< GLuint >& aIndices, const Material* pMaterial )
+void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< GLuint >& aIndices, const Material* pMaterial )
 {
 	ASSERT( aVertices.Empty() == false && aIndices.Empty() == false );
 	ASSERT( aUVs.Empty() || aUVs.Count() == aVertices.Count() );
 	ASSERT( aNormals.Empty() || aNormals.Count() == aVertices.Count() );
 	ASSERT( aTangents.Empty() || aTangents.Count() == aVertices.Count() );
-	ASSERT( aBiTangents.Empty() || aBiTangents.Count() == aVertices.Count() );
 
 	if( aVertices.Empty() || aIndices.Empty() )
 		return;
@@ -26,14 +25,12 @@ void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >
 	const uint uUVsSize = aUVs.Empty() ? 0 : sizeof( aUVs[ 0 ] ) / sizeof( GLfloat );
 	const uint uNormalsSize = aNormals.Empty() ? 0 : sizeof( aNormals[ 0 ] ) / sizeof( GLfloat );
 	const uint uTangentsSize = aTangents.Empty() ? 0 : sizeof( aTangents[ 0 ] ) / sizeof( GLfloat );
-	const uint uBiTangentsSize = aBiTangents.Empty() ? 0 : sizeof( aBiTangents[ 0 ] ) / sizeof( GLfloat );
 
 	const uint uUVsOffset = uVerticesSize;
 	const uint uNormalsOffset = uUVsOffset + uUVsSize;
 	const uint uTangentsOffset = uNormalsOffset + uNormalsSize;
-	const uint uBiTangentsOffset = uTangentsOffset + uTangentsSize;
 
-	const uint uVertexSize = uBiTangentsOffset + uBiTangentsSize;
+	const uint uVertexSize = uTangentsOffset + uTangentsSize;
 
 	Array< GLfloat > aPackedVertices;
 	aPackedVertices.Resize( uVertexSize * aVertices.Count() );
@@ -62,13 +59,6 @@ void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >
 			aPackedVertices[ u * uVertexSize + uTangentsOffset ] = aTangents[ u ].x;
 			aPackedVertices[ u * uVertexSize + uTangentsOffset + 1 ] = aTangents[ u ].y;
 			aPackedVertices[ u * uVertexSize + uTangentsOffset + 2 ] = aTangents[ u ].z;
-		}
-
-		if( uBiTangentsSize != 0 )
-		{
-			aPackedVertices[ u * uVertexSize + uBiTangentsOffset ] = aBiTangents[ u ].x;
-			aPackedVertices[ u * uVertexSize + uBiTangentsOffset + 1 ] = aBiTangents[ u ].y;
-			aPackedVertices[ u * uVertexSize + uBiTangentsOffset + 2 ] = aBiTangents[ u ].z;
 		}
 	}
 
@@ -104,13 +94,6 @@ void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >
 	if( uTangentsSize != 0 )
 	{
 		glVertexAttribPointer( uAttributeIndex, uTangentsSize, GL_FLOAT, GL_FALSE, sizeof( aPackedVertices[ 0 ] ) * uVertexSize, ( void* )( sizeof( aPackedVertices[ 0 ] ) * uTangentsOffset ) );
-		glEnableVertexAttribArray( uAttributeIndex );
-		++uAttributeIndex;
-	}
-	
-	if( uBiTangentsSize != 0 )
-	{
-		glVertexAttribPointer( uAttributeIndex, uBiTangentsSize, GL_FLOAT, GL_FALSE, sizeof( aPackedVertices[ 0 ] ) * uVertexSize, ( void* )( sizeof( aPackedVertices[ 0 ] ) * uBiTangentsOffset ) );
 		glEnableVertexAttribArray( uAttributeIndex );
 		++uAttributeIndex;
 	}
@@ -185,18 +168,6 @@ MeshBuilder& MeshBuilder::WithTangents( Array< glm::vec3 >&& aTangents )
 	return *this;
 }
 
-MeshBuilder& MeshBuilder::WithBiTangents()
-{
-	m_aBiTangents.Resize( m_aVertices.Count() );
-	return *this;
-}
-
-MeshBuilder& MeshBuilder::WithBiTangents( Array< glm::vec3 >&& aBiTangents )
-{
-	m_aBiTangents = aBiTangents;
-	return *this;
-}
-
 MeshBuilder& MeshBuilder::WithMaterial( const Material* pMaterial )
 {
 	m_pMaterial = pMaterial;
@@ -206,7 +177,7 @@ MeshBuilder& MeshBuilder::WithMaterial( const Material* pMaterial )
 Mesh MeshBuilder::Build()
 {
 	Mesh oMesh;
-	oMesh.Create( m_aVertices, m_aUVs, m_aNormals, m_aTangents, m_aBiTangents, m_aIndices, m_pMaterial );
+	oMesh.Create( m_aVertices, m_aUVs, m_aNormals, m_aTangents, m_aIndices, m_pMaterial );
 
 	return oMesh;
 }

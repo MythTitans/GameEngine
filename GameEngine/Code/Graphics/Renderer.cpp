@@ -46,7 +46,9 @@ float RenderContext::ComputeAspectRatio() const
 Renderer* g_pRenderer = nullptr;
 
 Renderer::Renderer()
-	: m_xForwardOpaque( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/forward_opaque" ) ) )
+	: m_xDefaultDiffuseMap( g_pResourceLoader->LoadTexture( std::filesystem::path( "Data/Default_diffuse.png" ) ) )
+	, m_xDefaultNormalMap( g_pResourceLoader->LoadTexture( std::filesystem::path( "Data/Default_normal.png" ) ) )
+	, m_xForwardOpaque( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/forward_opaque" ) ) )
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/deferred_maps" ) ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/deferred_compose" ) ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
@@ -128,7 +130,7 @@ bool Renderer::OnLoading()
 	if( m_xDeferredCompose->IsLoaded() && m_oDeferredCompose.IsValid() == false )
 		m_oDeferredCompose.Create( m_xDeferredCompose->GetTechnique() );
 
-	return m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_oTextRenderer.OnLoading();
+	return m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded() && m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_oTextRenderer.OnLoading();
 }
 
 void Renderer::DisplayDebug()
@@ -215,7 +217,8 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 				}
 				else
 				{
-					ClearTextureSlot( 0 );
+					SetTextureSlot( m_xDefaultDiffuseMap->GetTexture(), 0 );
+					m_oForwardOpaque.SetDiffuseMap( 0 );
 				}
 
 				if( oMesh.m_pMaterial->m_xNormalTextureResource != nullptr )
@@ -225,12 +228,14 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 				}
 				else
 				{
-					ClearTextureSlot( 1 );
+					SetTextureSlot( m_xDefaultNormalMap->GetTexture(), 1 );
+					m_oForwardOpaque.SetNormalMap( 1 );
 				}
 			}
 			else
 			{
 				ClearTextureSlot( 0 );
+				ClearTextureSlot( 1 );
 			}
 
 			DrawMesh( oMesh );
@@ -279,16 +284,29 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 				if( oMesh.m_pMaterial->m_xDiffuseTextureResource != nullptr )
 				{
 					SetTextureSlot( oMesh.m_pMaterial->m_xDiffuseTextureResource->GetTexture(), 0 );
-					m_oDeferredMaps.SetDiffuseTexture( 0 );
+					m_oDeferredMaps.SetDiffuseMap( 0 );
 				}
 				else
 				{
-					ClearTextureSlot( 0 );
+					SetTextureSlot( m_xDefaultDiffuseMap->GetTexture(), 0 );
+					m_oDeferredMaps.SetDiffuseMap( 0 );
+				}
+
+				if( oMesh.m_pMaterial->m_xNormalTextureResource != nullptr )
+				{
+					SetTextureSlot( oMesh.m_pMaterial->m_xNormalTextureResource->GetTexture(), 1 );
+					m_oDeferredMaps.SetNormalMap( 1 );
+				}
+				else
+				{
+					SetTextureSlot( m_xDefaultNormalMap->GetTexture(), 1 );
+					m_oDeferredMaps.SetNormalMap( 1 );
 				}
 			}
 			else
 			{
 				ClearTextureSlot( 0 );
+				ClearTextureSlot( 1 );
 			}
 
 			DrawMesh( oMesh );
