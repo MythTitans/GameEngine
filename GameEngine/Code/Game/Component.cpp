@@ -87,6 +87,14 @@ const glm::mat4& VisualComponent::GetWorldMatrix() const
 	return m_mWorldMatrix;
 }
 
+DirectionalLightComponent::DirectionalLightComponent( Entity* pEntity )
+	: Component( pEntity )
+	, m_vDirection( 0.f, -1.f, 0.f )
+	, m_vColor( 1.f )
+	, m_fIntensity( 1.f )
+{
+}
+
 PointLightComponent::PointLightComponent( Entity* pEntity )
 	: Component( pEntity )
 	, m_vPosition( 0.f )
@@ -102,6 +110,28 @@ void PointLightComponent::Update( const float fDeltaTime )
 }
 
 const glm::vec3& PointLightComponent::GetPosition() const
+{
+	return m_vPosition;
+}
+
+SpotLightComponent::SpotLightComponent( Entity* pEntity )
+	: Component( pEntity )
+	, m_vPosition( 0.f )
+	, m_vDirection( 0.f, -1.f, 0.f )
+	, m_vColor( 1.f )
+	, m_fIntensity( 1.f )
+	, m_fInnerAngle( 30.f )
+	, m_fOuterAngle( 60.f )
+	, m_fFalloffFactor( 1.f )
+{
+}
+
+void SpotLightComponent::Update( const float fDeltaTime )
+{
+	m_vPosition = GetEntity()->GetPosition();
+}
+
+const glm::vec3& SpotLightComponent::GetPosition() const
 {
 	return m_vPosition;
 }

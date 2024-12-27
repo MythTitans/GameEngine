@@ -11,6 +11,8 @@ Scene::Scene()
 	m_mEntities[ 2 ] = new Entity( 2, "Entity 3" );
 	m_mEntities[ 3 ] = new Entity( 3, "Light 1" );
 	m_mEntities[ 4 ] = new Entity( 4, "Light 2" );
+	m_mEntities[ 5 ] = new Entity( 5, "Light 3" );
+	m_mEntities[ 6 ] = new Entity( 6, "Light 4" );
 
 // 	m_mEntities[ 0 ]->SetPosition( -5.f, 0.f, -5.f );
 // 	//m_mEntities[ 0 ]->SetRotationY( glm::radians( 45.f ) );
@@ -36,6 +38,9 @@ Scene::Scene()
 	PointLightComponent& oPointLight2 = g_pComponentManager->CreateComponent< PointLightComponent >( m_mEntities[ 4 ].GetPtr() );
 	oPointLight2.m_fIntensity = 10.f;
 	oPointLight2.m_fFalloffFactor = 0.2f;
+
+	g_pComponentManager->CreateComponent< DirectionalLightComponent >( m_mEntities[ 5 ].GetPtr() );
+	g_pComponentManager->CreateComponent< SpotLightComponent >( m_mEntities[ 6 ].GetPtr() );
 }
 
 Entity* Scene::FindEntity( const uint64 uEntityID )

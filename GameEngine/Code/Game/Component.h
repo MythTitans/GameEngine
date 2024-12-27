@@ -162,6 +162,16 @@ private:
 	glm::mat4							m_mWorldMatrix;
 };
 
+class DirectionalLightComponent : public Component
+{
+public:
+	explicit DirectionalLightComponent( Entity* pEntity );
+
+	glm::vec3	m_vDirection;
+	glm::vec3	m_vColor;
+	float		m_fIntensity;
+};
+
 class PointLightComponent : public Component
 {
 public:
@@ -177,5 +187,26 @@ private:
 public:
 	glm::vec3	m_vColor;
 	float		m_fIntensity;
+	float		m_fFalloffFactor;
+};
+
+class SpotLightComponent : public Component
+{
+public:
+	explicit SpotLightComponent( Entity* pEntity );
+
+	void				Update( const float fDeltaTime ) override;
+
+	const glm::vec3&	GetPosition() const;
+
+private:
+	glm::vec3	m_vPosition;
+
+public:
+	glm::vec3	m_vDirection;
+	glm::vec3	m_vColor;
+	float		m_fIntensity;
+	float		m_fInnerAngle;
+	float		m_fOuterAngle;
 	float		m_fFalloffFactor;
 };

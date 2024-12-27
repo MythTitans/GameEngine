@@ -2,11 +2,10 @@
 
 #include <GL/glew.h>
 
-#include <glm/fwd.hpp>
+#include <glm/glm.hpp>
 
 #include "Core/Array.h"
-
-class Technique;
+#include "Technique.h"
 
 class TechniqueDefinitionBase
 {
@@ -32,7 +31,120 @@ private:
 	bool m_bValid;
 };
 
-class ForwardOpaqueDefinition : public TechniqueDefinitionBase
+template < int iMaxDirectionalLightCount, int iMaxPointLightCount, int iMaxSpotLightCount >
+class LightingDefinition : public TechniqueDefinitionBase
+{
+public:
+	LightingDefinition()
+		: m_iDirectionalLightCountUniform( -1 )
+		, m_iPointLightCountUniform( -1 )
+		, m_iSpotLightCountUniform( -1 )
+	{
+	}
+
+	void SetDirectionalLights( const Array< glm::vec3 >& aLightDirections, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities )
+	{
+		ASSERT( aLightDirections.Count() == aLightColors.Count() );
+		ASSERT( aLightDirections.Count() == aLightIntensities.Count() );
+
+		for( uint u = 0; u < aLightDirections.Count(); ++u )
+		{
+			SetParameterID( m_aDirectionalLightDirectionUniforms[ u ], aLightDirections[ u ] );
+			SetParameterID( m_aDirectionalLightColorUniforms[ u ], aLightColors[ u ] );
+			SetParameterID( m_aDirectionalLightIntensityUniforms[ u ], aLightIntensities[ u ] );
+		}
+
+		SetParameterID( m_iDirectionalLightCountUniform, ( int )aLightDirections.Count() );
+	}
+
+	void SetPointLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightFalloffFactors )
+	{
+		ASSERT( aLightPositions.Count() == aLightColors.Count() );
+		ASSERT( aLightPositions.Count() == aLightIntensities.Count() );
+		ASSERT( aLightPositions.Count() == aLightFalloffFactors.Count() );
+
+		for( uint u = 0; u < aLightPositions.Count(); ++u )
+		{
+			SetParameterID( m_aPointLightPositionUniforms[ u ], aLightPositions[ u ] );
+			SetParameterID( m_aPointLightColorUniforms[ u ], aLightColors[ u ] );
+			SetParameterID( m_aPointLightIntensityUniforms[ u ], aLightIntensities[ u ] );
+			SetParameterID( m_aPointLightFalloffFactorUniforms[ u ], aLightFalloffFactors[ u ] );
+		}
+
+		SetParameterID( m_iPointLightCountUniform, ( int )aLightPositions.Count() );
+	}
+
+	void SetSpotLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightDirections, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightInnerAngles, const Array< float >& aLightOuterAngles, const Array< float >& aLightFalloffFactors )
+	{
+		ASSERT( aLightPositions.Count() == aLightColors.Count() );
+		ASSERT( aLightPositions.Count() == aLightDirections.Count() );
+		ASSERT( aLightPositions.Count() == aLightIntensities.Count() );
+		ASSERT( aLightPositions.Count() == aLightInnerAngles.Count() );
+		ASSERT( aLightPositions.Count() == aLightOuterAngles.Count() );
+		ASSERT( aLightPositions.Count() == aLightFalloffFactors.Count() );
+
+		for( uint u = 0; u < aLightPositions.Count(); ++u )
+		{
+			SetParameterID( m_aSpotLightPositionUniforms[ u ], aLightPositions[ u ] );
+			SetParameterID( m_aSpotLightDirectionUniforms[ u ], aLightDirections[ u ] );
+			SetParameterID( m_aSpotLightColorUniforms[ u ], aLightColors[ u ] );
+			SetParameterID( m_aSpotLightIntensityUniforms[ u ], aLightIntensities[ u ] );
+			SetParameterID( m_aSpotLightOuterRangeUniforms[ u ], glm::cos( glm::radians( aLightOuterAngles[ u ] / 2.f ) ) );
+			SetParameterID( m_aSpotLightRangeUniforms[ u ], glm::cos( glm::radians( aLightInnerAngles[ u ] / 2.f ) ) - glm::cos( glm::radians( aLightOuterAngles[ u ] / 2.f ) ) );
+			SetParameterID( m_aSpotLightFalloffFactorUniforms[ u ], aLightFalloffFactors[ u ] );
+		}
+
+		SetParameterID( m_iSpotLightCountUniform, ( int )aLightPositions.Count() );
+	}
+
+protected:
+	void CreateDefinition( const Technique& oTechnique ) override
+	{
+		m_aDirectionalLightDirectionUniforms = oTechnique.GetParameterIDArray( "directionalLightDirections", iMaxDirectionalLightCount );
+		m_aDirectionalLightColorUniforms = oTechnique.GetParameterIDArray( "directionalLightColors", iMaxDirectionalLightCount );
+		m_aDirectionalLightIntensityUniforms = oTechnique.GetParameterIDArray( "directionalLightIntensities", iMaxDirectionalLightCount );
+
+		m_aPointLightPositionUniforms = oTechnique.GetParameterIDArray( "pointLightPositions", iMaxPointLightCount );
+		m_aPointLightColorUniforms = oTechnique.GetParameterIDArray( "pointLightColors", iMaxPointLightCount );
+		m_aPointLightIntensityUniforms = oTechnique.GetParameterIDArray( "pointLightIntensities", iMaxPointLightCount );
+		m_aPointLightFalloffFactorUniforms = oTechnique.GetParameterIDArray( "pointLightFalloffFactor", iMaxPointLightCount );
+
+		m_aSpotLightPositionUniforms = oTechnique.GetParameterIDArray( "spotLightPositions", iMaxSpotLightCount );
+		m_aSpotLightDirectionUniforms = oTechnique.GetParameterIDArray( "spotLightDirections", iMaxSpotLightCount );
+		m_aSpotLightColorUniforms = oTechnique.GetParameterIDArray( "spotLightColors", iMaxSpotLightCount );
+		m_aSpotLightIntensityUniforms = oTechnique.GetParameterIDArray( "spotLightIntensities", iMaxSpotLightCount );
+		m_aSpotLightOuterRangeUniforms = oTechnique.GetParameterIDArray( "spotLightOuterRanges", iMaxSpotLightCount );
+		m_aSpotLightRangeUniforms = oTechnique.GetParameterIDArray( "spotLightRanges", iMaxSpotLightCount );
+		m_aSpotLightFalloffFactorUniforms = oTechnique.GetParameterIDArray( "spotLightFalloffFactors", iMaxSpotLightCount );
+
+		m_iDirectionalLightCountUniform = oTechnique.GetParameterID( "directionalLightCount" );
+		m_iPointLightCountUniform = oTechnique.GetParameterID( "pointLightCount" );
+		m_iSpotLightCountUniform = oTechnique.GetParameterID( "spotLightCount" );
+	}
+
+	Array< GLint >	m_aDirectionalLightDirectionUniforms;
+	Array< GLint >	m_aDirectionalLightColorUniforms;
+	Array< GLint >	m_aDirectionalLightIntensityUniforms;
+
+	Array< GLint >	m_aPointLightPositionUniforms;
+	Array< GLint >	m_aPointLightColorUniforms;
+	Array< GLint >	m_aPointLightIntensityUniforms;
+	Array< GLint >	m_aPointLightFalloffFactorUniforms;
+
+	Array< GLint >	m_aSpotLightPositionUniforms;
+	Array< GLint >	m_aSpotLightDirectionUniforms;
+	Array< GLint >	m_aSpotLightColorUniforms;
+	Array< GLint >	m_aSpotLightIntensityUniforms;
+	Array< GLint >	m_aSpotLightOuterRangeUniforms;
+	Array< GLint >	m_aSpotLightRangeUniforms;
+	Array< GLint >	m_aSpotLightFalloffFactorUniforms;
+
+	GLint			m_iDirectionalLightCountUniform;
+	GLint			m_iPointLightCountUniform;
+	GLint			m_iSpotLightCountUniform;
+};
+
+class ForwardOpaqueDefinition : public LightingDefinition< 2, 8, 6 >
 {
 public:
 	ForwardOpaqueDefinition();
@@ -41,22 +153,16 @@ public:
 	void SetDiffuseColor( const glm::vec3& vColor );
 	void SetDiffuseMap( const int iTextureUnit );
 	void SetNormalMap( const int iTextureUnit );
-	void SetLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightFalloffFactors );
 
 private:
 	void CreateDefinition( const Technique& oTechnique ) override;
 
-	GLint			m_iModelViewProjectionUniform;
-	GLint			m_iModelUniform;
-	GLint			m_iModelInverseTransposeUniform;
-	GLint			m_iDiffuseColorUniform;
-	GLint			m_iDiffuseMapUniform;
-	GLint			m_iNormalMapUniform;
-	Array< GLint >	m_aLightPositionUniforms;
-	Array< GLint >	m_aLightColorUniforms;
-	Array< GLint >	m_aLightIntensityUniforms;
-	Array< GLint >	m_aLightFalloffFactorUniforms;
-	GLint			m_iLightCountUniform;
+	GLint m_iModelViewProjectionUniform;
+	GLint m_iModelUniform;
+	GLint m_iModelInverseTransposeUniform;
+	GLint m_iDiffuseColorUniform;
+	GLint m_iDiffuseMapUniform;
+	GLint m_iNormalMapUniform;
 };
 
 class DeferredMapsDefinition : public TechniqueDefinitionBase
@@ -80,7 +186,7 @@ private:
 };
 
 // TODO #eric use SSBO to store light data
-class DeferredComposeDefinition : public TechniqueDefinitionBase
+class DeferredComposeDefinition : public LightingDefinition< 2, 8, 6 >
 {
 public:
 	DeferredComposeDefinition();
@@ -89,7 +195,6 @@ public:
 	void SetNormal( const int iTextureUnit );
 	void SetDepth( const int iTextureUnit );
 	void SetInverseViewProjection( const glm::mat4& mInverseViewProjection );
-	void SetLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightFalloffFactors );
 
 private:
 	void CreateDefinition( const Technique& oTechnique ) override;
@@ -98,11 +203,6 @@ private:
 	GLint			m_iNormalUniform;
 	GLint			m_iDepthUniform;
 	GLint			m_iInverseViewProjectionUniform;
-	Array< GLint >	m_aLightPositionUniforms;
-	Array< GLint >	m_aLightColorUniforms;
-	Array< GLint >	m_aLightIntensityUniforms;
-	Array< GLint >	m_aLightFalloffFactorUniforms;
-	GLint			m_iLightCountUniform;
 };
 
 class TextTechniqueDefinition : public TechniqueDefinitionBase

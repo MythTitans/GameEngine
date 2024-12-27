@@ -184,19 +184,57 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 
 	SetTechnique( m_xForwardOpaque->GetTechnique() );
 
-	ArrayView< PointLightComponent > aPointLightComponents = g_pGameEngine->GetComponentManager().GetComponents< PointLightComponent >();
-	Array< glm::vec3 > aLightPositions( aPointLightComponents.Count() );
-	Array< glm::vec3 > aLightColors( aPointLightComponents.Count() );
-	Array< float > aLightIntensities( aPointLightComponents.Count() );
-	Array< float > aLightFalloffFactors( aPointLightComponents.Count() );
-	for( uint u = 0; u < aPointLightComponents.Count(); ++u )
 	{
-		aLightPositions[ u ] = aPointLightComponents[ u ].GetPosition();
-		aLightColors[ u ] = aPointLightComponents[ u ].m_vColor;
-		aLightIntensities[ u ] = aPointLightComponents[ u ].m_fIntensity;
-		aLightFalloffFactors[ u ] = aPointLightComponents[ u ].m_fFalloffFactor;
+		ArrayView< DirectionalLightComponent > aDirectionalLightComponents = g_pGameEngine->GetComponentManager().GetComponents< DirectionalLightComponent >();
+		Array< glm::vec3 > aLightDirections( aDirectionalLightComponents.Count() );
+		Array< glm::vec3 > aLightColors( aDirectionalLightComponents.Count() );
+		Array< float > aLightIntensities( aDirectionalLightComponents.Count() );
+		for( uint u = 0; u < aDirectionalLightComponents.Count(); ++u )
+		{
+			aLightDirections[ u ] = aDirectionalLightComponents[ u ].m_vDirection;
+			aLightColors[ u ] = aDirectionalLightComponents[ u ].m_vColor;
+			aLightIntensities[ u ] = aDirectionalLightComponents[ u ].m_fIntensity;
+		}
+		m_oForwardOpaque.SetDirectionalLights( aLightDirections, aLightColors, aLightIntensities );
 	}
-	m_oForwardOpaque.SetLights( aLightPositions, aLightColors, aLightIntensities, aLightFalloffFactors );
+
+	{
+		ArrayView< PointLightComponent > aPointLightComponents = g_pGameEngine->GetComponentManager().GetComponents< PointLightComponent >();
+		Array< glm::vec3 > aLightPositions( aPointLightComponents.Count() );
+		Array< glm::vec3 > aLightColors( aPointLightComponents.Count() );
+		Array< float > aLightIntensities( aPointLightComponents.Count() );
+		Array< float > aLightFalloffFactors( aPointLightComponents.Count() );
+		for( uint u = 0; u < aPointLightComponents.Count(); ++u )
+		{
+			aLightPositions[ u ] = aPointLightComponents[ u ].GetPosition();
+			aLightColors[ u ] = aPointLightComponents[ u ].m_vColor;
+			aLightIntensities[ u ] = aPointLightComponents[ u ].m_fIntensity;
+			aLightFalloffFactors[ u ] = aPointLightComponents[ u ].m_fFalloffFactor;
+		}
+		m_oForwardOpaque.SetPointLights( aLightPositions, aLightColors, aLightIntensities, aLightFalloffFactors );
+	}
+
+	{
+		ArrayView< SpotLightComponent > aLightComponents = g_pGameEngine->GetComponentManager().GetComponents< SpotLightComponent >();
+		Array< glm::vec3 > aLightPositions( aLightComponents.Count() );
+		Array< glm::vec3 > aLightDirections( aLightComponents.Count() );
+		Array< glm::vec3 > aLightColors( aLightComponents.Count() );
+		Array< float > aLightIntensities( aLightComponents.Count() );
+		Array< float > aLightInnerAngles( aLightComponents.Count() );
+		Array< float > aLightOuterAngles( aLightComponents.Count() );
+		Array< float > aLightFalloffFactors( aLightComponents.Count() );
+		for( uint u = 0; u < aLightComponents.Count(); ++u )
+		{
+			aLightPositions[ u ] = aLightComponents[ u ].GetPosition();
+			aLightDirections[ u ] = aLightComponents[ u ].m_vDirection;
+			aLightColors[ u ] = aLightComponents[ u ].m_vColor;
+			aLightIntensities[ u ] = aLightComponents[ u ].m_fIntensity;
+			aLightInnerAngles[ u ] = aLightComponents[ u ].m_fInnerAngle;
+			aLightOuterAngles[ u ] = aLightComponents[ u ].m_fOuterAngle;
+			aLightFalloffFactors[ u ] = aLightComponents[ u ].m_fFalloffFactor;
+		}
+		m_oForwardOpaque.SetSpotLights( aLightPositions, aLightDirections, aLightColors, aLightIntensities, aLightInnerAngles, aLightOuterAngles, aLightFalloffFactors );
+	}
 
 	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->GetComponentManager().GetComponents< VisualComponent >();
 	for( const VisualComponent& oVisualComponent : aVisualComponents )
@@ -328,19 +366,57 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	m_oDeferredCompose.SetDepth( 2 );
 	m_oDeferredCompose.SetInverseViewProjection( m_oCamera.GetInverseViewProjectionMatrix() );
 
-	ArrayView< PointLightComponent > aPointLightComponents = g_pGameEngine->GetComponentManager().GetComponents< PointLightComponent >();
-	Array< glm::vec3 > aLightPositions( aPointLightComponents.Count() );
-	Array< glm::vec3 > aLightColors( aPointLightComponents.Count() );
-	Array< float > aLightIntensities( aPointLightComponents.Count() );
-	Array< float > aLightFalloffFactors( aPointLightComponents.Count() );
-	for( uint u = 0; u < aPointLightComponents.Count(); ++u )
 	{
-		aLightPositions[ u ] = aPointLightComponents[ u ].GetPosition();
-		aLightColors[ u ] = aPointLightComponents[ u ].m_vColor;
-		aLightIntensities[ u ] = aPointLightComponents[ u ].m_fIntensity;
-		aLightFalloffFactors[ u ] = aPointLightComponents[ u ].m_fFalloffFactor;
+		ArrayView< DirectionalLightComponent > aLightComponents = g_pGameEngine->GetComponentManager().GetComponents< DirectionalLightComponent >();
+		Array< glm::vec3 > aLightDirections( aLightComponents.Count() );
+		Array< glm::vec3 > aLightColors( aLightComponents.Count() );
+		Array< float > aLightIntensities( aLightComponents.Count() );
+		for( uint u = 0; u < aLightComponents.Count(); ++u )
+		{
+			aLightDirections[ u ] = aLightComponents[ u ].m_vDirection;
+			aLightColors[ u ] = aLightComponents[ u ].m_vColor;
+			aLightIntensities[ u ] = aLightComponents[ u ].m_fIntensity;
+		}
+		m_oDeferredCompose.SetDirectionalLights( aLightDirections, aLightColors, aLightIntensities );
 	}
-	m_oDeferredCompose.SetLights( aLightPositions, aLightColors, aLightIntensities, aLightFalloffFactors );
+
+	{
+		ArrayView< PointLightComponent > aLightComponents = g_pGameEngine->GetComponentManager().GetComponents< PointLightComponent >();
+		Array< glm::vec3 > aLightPositions( aLightComponents.Count() );
+		Array< glm::vec3 > aLightColors( aLightComponents.Count() );
+		Array< float > aLightIntensities( aLightComponents.Count() );
+		Array< float > aLightFalloffFactors( aLightComponents.Count() );
+		for( uint u = 0; u < aLightComponents.Count(); ++u )
+		{
+			aLightPositions[ u ] = aLightComponents[ u ].GetPosition();
+			aLightColors[ u ] = aLightComponents[ u ].m_vColor;
+			aLightIntensities[ u ] = aLightComponents[ u ].m_fIntensity;
+			aLightFalloffFactors[ u ] = aLightComponents[ u ].m_fFalloffFactor;
+		}
+		m_oDeferredCompose.SetPointLights( aLightPositions, aLightColors, aLightIntensities, aLightFalloffFactors );
+	}
+
+	{
+		ArrayView< SpotLightComponent > aLightComponents = g_pGameEngine->GetComponentManager().GetComponents< SpotLightComponent >();
+		Array< glm::vec3 > aLightPositions( aLightComponents.Count() );
+		Array< glm::vec3 > aLightDirections( aLightComponents.Count() );
+		Array< glm::vec3 > aLightColors( aLightComponents.Count() );
+		Array< float > aLightIntensities( aLightComponents.Count() );
+		Array< float > aLightInnerAngles( aLightComponents.Count() );
+		Array< float > aLightOuterAngles( aLightComponents.Count() );
+		Array< float > aLightFalloffFactors( aLightComponents.Count() );
+		for( uint u = 0; u < aLightComponents.Count(); ++u )
+		{
+			aLightPositions[ u ] = aLightComponents[ u ].GetPosition();
+			aLightDirections[ u ] = aLightComponents[ u ].m_vDirection;
+			aLightColors[ u ] = aLightComponents[ u ].m_vColor;
+			aLightIntensities[ u ] = aLightComponents[ u ].m_fIntensity;
+			aLightInnerAngles[ u ] = aLightComponents[ u ].m_fInnerAngle;
+			aLightOuterAngles[ u ] = aLightComponents[ u ].m_fOuterAngle;
+			aLightFalloffFactors[ u ] = aLightComponents[ u ].m_fFalloffFactor;
+		}
+		m_oDeferredCompose.SetSpotLights( aLightPositions, aLightDirections, aLightColors, aLightIntensities, aLightInnerAngles, aLightOuterAngles, aLightFalloffFactors );
+	}
 
 	DrawMesh( m_oRenderMesh );
 

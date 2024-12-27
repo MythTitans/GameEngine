@@ -78,7 +78,6 @@ ForwardOpaqueDefinition::ForwardOpaqueDefinition()
 	, m_iDiffuseColorUniform( -1 )
 	, m_iDiffuseMapUniform( -1 )
 	, m_iNormalMapUniform( -1 )
-	, m_iLightCountUniform( -1 )
 {
 }
 
@@ -104,36 +103,16 @@ void ForwardOpaqueDefinition::SetNormalMap( const int iTextureUnit )
 	SetParameterID( m_iNormalMapUniform, iTextureUnit );
 }
 
-void ForwardOpaqueDefinition::SetLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightFalloffFactors )
-{
-	ASSERT( aLightPositions.Count() == aLightColors.Count() );
-	ASSERT( aLightPositions.Count() == aLightIntensities.Count() );
-	ASSERT( aLightPositions.Count() == aLightFalloffFactors.Count() );
-
-	for( uint u = 0; u < aLightPositions.Count(); ++u )
-	{
-		SetParameterID( m_aLightPositionUniforms[ u ], aLightPositions[ u ] );
-		SetParameterID( m_aLightColorUniforms[ u ], aLightColors[ u ] );
-		SetParameterID( m_aLightIntensityUniforms[ u ], aLightIntensities[ u ] );
-		SetParameterID( m_aLightFalloffFactorUniforms[ u ], aLightFalloffFactors[ u ] );
-	}
-
-	SetParameterID( m_iLightCountUniform, ( int )aLightPositions.Count() );
-}
-
 void ForwardOpaqueDefinition::CreateDefinition( const Technique& oTechnique )
 {
+	LightingDefinition::CreateDefinition( oTechnique );
+
 	m_iModelViewProjectionUniform = oTechnique.GetParameterID( "modelViewProjection" );
 	m_iModelUniform = oTechnique.GetParameterID( "model" );
 	m_iModelInverseTransposeUniform = oTechnique.GetParameterID( "modelInverseTranspose" );
 	m_iDiffuseColorUniform = oTechnique.GetParameterID( "diffuseColor" );
 	m_iDiffuseMapUniform = oTechnique.GetParameterID( "diffuseMap" );
 	m_iNormalMapUniform = oTechnique.GetParameterID( "normalMap" );
-	m_aLightPositionUniforms = oTechnique.GetParameterIDArray( "lightPositions", 16 );
-	m_aLightColorUniforms = oTechnique.GetParameterIDArray( "lightColors", 16 );
-	m_aLightIntensityUniforms = oTechnique.GetParameterIDArray( "lightIntensities", 16 );
-	m_aLightFalloffFactorUniforms = oTechnique.GetParameterIDArray( "lightFalloffFactor", 16 );
-	m_iLightCountUniform = oTechnique.GetParameterID( "lightCount" );
 }
 
 DeferredMapsDefinition::DeferredMapsDefinition()
@@ -180,7 +159,6 @@ DeferredComposeDefinition::DeferredComposeDefinition()
 	, m_iNormalUniform( -1 )
 	, m_iDepthUniform( -1 )
 	, m_iInverseViewProjectionUniform( -1 )
-	, m_iLightCountUniform( -1 )
 {
 }
 
@@ -204,34 +182,14 @@ void DeferredComposeDefinition::SetInverseViewProjection( const glm::mat4& mInve
 	SetParameterID( m_iInverseViewProjectionUniform, mInverseViewProjection );
 }
 
-void DeferredComposeDefinition::SetLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightFalloffFactors )
-{
-	ASSERT( aLightPositions.Count() == aLightColors.Count() );
-	ASSERT( aLightPositions.Count() == aLightIntensities.Count() );
-	ASSERT( aLightPositions.Count() == aLightFalloffFactors.Count() );
-
-	for( uint u = 0; u < aLightPositions.Count(); ++u )
-	{
-		SetParameterID( m_aLightPositionUniforms[ u ], aLightPositions[ u ] );
-		SetParameterID( m_aLightColorUniforms[ u ], aLightColors[ u ] );
-		SetParameterID( m_aLightIntensityUniforms[ u ], aLightIntensities[ u ] );
-		SetParameterID( m_aLightFalloffFactorUniforms[ u ], aLightFalloffFactors[ u ] );
-	}
-
-	SetParameterID( m_iLightCountUniform, ( int )aLightPositions.Count() );
-}
-
 void DeferredComposeDefinition::CreateDefinition( const Technique& oTechnique )
 {
+	LightingDefinition::CreateDefinition( oTechnique );
+
 	m_iColorUniform = oTechnique.GetParameterID( "colorMap" );
 	m_iNormalUniform = oTechnique.GetParameterID( "normalMap" );
 	m_iDepthUniform = oTechnique.GetParameterID( "depthMap" );
 	m_iInverseViewProjectionUniform = oTechnique.GetParameterID( "inverseViewProjection" );
-	m_aLightPositionUniforms = oTechnique.GetParameterIDArray( "lightPositions", 16 );
-	m_aLightColorUniforms = oTechnique.GetParameterIDArray( "lightColors", 16 );
-	m_aLightIntensityUniforms = oTechnique.GetParameterIDArray( "lightIntensities", 16 );
-	m_aLightFalloffFactorUniforms = oTechnique.GetParameterIDArray( "lightFalloffFactor", 16 );
-	m_iLightCountUniform = oTechnique.GetParameterID( "lightCount" );
 }
 
 TextTechniqueDefinition::TextTechniqueDefinition()
