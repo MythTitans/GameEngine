@@ -22,6 +22,9 @@ public:
 	void			SetParameterID( const GLint iParameterID, const glm::vec2& vValue );
 	void			SetParameterID( const GLint iParameterID, const glm::vec3& vValue );
 	void			SetParameterID( const GLint iParameterID, const glm::vec4& vValue );
+	void			SetParameterID( const GLint iParameterID, const glm::uvec2& vValue );
+	void			SetParameterID( const GLint iParameterID, const glm::uvec3& vValue );
+	void			SetParameterID( const GLint iParameterID, const glm::uvec4& vValue );
 	void			SetParameterID( const GLint iParameterID, const glm::mat3& mValue );
 	void			SetParameterID( const GLint iParameterID, const glm::mat4& mValue );
 
@@ -203,6 +206,21 @@ private:
 	GLint			m_iNormalUniform;
 	GLint			m_iDepthUniform;
 	GLint			m_iInverseViewProjectionUniform;
+};
+
+class PickingDefinition : public TechniqueDefinitionBase
+{
+public:
+	PickingDefinition();
+
+	void SetModelAndViewProjection( const glm::mat4& mModel, const glm::mat4& mViewProjection );
+	void SetID( const uint64 uID );
+
+private:
+	void CreateDefinition( const Technique& oTechnique ) override;
+
+	GLint m_iModelViewProjectionUniform;
+	GLint m_iColorIDUniform;
 };
 
 class TextTechniqueDefinition : public TechniqueDefinitionBase

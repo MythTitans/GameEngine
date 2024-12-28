@@ -36,7 +36,7 @@ void RenderTarget::Create( const int iWidth, const int iHeight, const Array< Tex
 		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + u, GL_TEXTURE_2D, m_aTextures[ u ].m_uTextureID, 0 );
 
 	if( bDepthMap )
-		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_aTextures[ m_uColorMapCount ].m_uTextureID, 0);
+		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_aTextures[ m_uColorMapCount ].m_uTextureID, 0 );
 
 	Array< GLuint > aDrawBuffers( m_uColorMapCount );
 	for( uint u = 0; u < aDrawBuffers.Count(); ++u )

@@ -33,9 +33,9 @@ struct Transform
 	glm::quat			GetRotation() const;
 	void				SetRotation( const glm::quat& qRotation );
 	void				SetRotation( const glm::vec3& vAxis, const float fAngle );
-	void				SetRotationX( const float fAngle );
-	void				SetRotationY( const float fAngle );
-	void				SetRotationZ( const float fAngle );
+	void				SetRotationEuler( const glm::vec3& vEuler );
+	void				SetRotationEuler( const float fX, const float fY, const float fZ );
+	glm::vec3			GetRotationEuler() const;
 
 	glm::mat4			GetMatrix() const;
 

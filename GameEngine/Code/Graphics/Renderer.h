@@ -37,6 +37,8 @@ private:
 class Renderer
 {
 public:
+	friend class Editor;
+
 	Renderer();
 	~Renderer();
 
@@ -62,6 +64,7 @@ private:
 
 	void				RenderForward( const RenderContext& oRenderContext );
 	void				RenderDeferred( const RenderContext& oRenderContext );
+	uint64				RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY );
 
 	void				SetTechnique( const Technique& oTechnique );
 	void				ClearTechnique();
@@ -73,7 +76,10 @@ private:
 
 	TextRenderer				m_oTextRenderer;
 	Camera						m_oCamera;
+
 	RenderTarget				m_oRenderTarget;
+	RenderTarget				m_oPickingTarget;
+
 	Mesh						m_oRenderMesh;
 
 	TextureResPtr				m_xDefaultDiffuseMap;
@@ -81,9 +87,11 @@ private:
 	TechniqueResPtr				m_xForwardOpaque;
 	TechniqueResPtr				m_xDeferredMaps;
 	TechniqueResPtr				m_xDeferredCompose;
+	TechniqueResPtr				m_xPicking;
 	ForwardOpaqueDefinition		m_oForwardOpaque;
 	DeferredMapsDefinition		m_oDeferredMaps;
 	DeferredComposeDefinition	m_oDeferredCompose;
+	PickingDefinition			m_oPicking;
 
 	RenderingMode				m_eRenderingMode;
 

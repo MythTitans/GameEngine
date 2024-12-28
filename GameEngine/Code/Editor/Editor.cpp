@@ -5,6 +5,7 @@
 #include "Game/Entity.h"
 #include "Game/InputHandler.h"
 #include "Game/Scene.h"
+#include "Graphics/Renderer.h"
 
 static glm::vec3 EditableVector3( const char* sName, glm::vec3 vVector )
 {
@@ -55,7 +56,9 @@ Editor::Editor()
 {
 }
 
-void Editor::Display()
+#include "Core/Logger.h"
+
+void Editor::Display( const InputContext& oInputContext, const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "Editor" );
 
@@ -64,6 +67,13 @@ void Editor::Display()
 
 	if( m_bDisplayEditor )
 	{
+		if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_CLICK ) )
+		{
+			const uint64 uPickedID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY() );
+			if( uPickedID != UINT64_MAX )
+				LOG_INFO( "Clicked on entity {}", uPickedID );
+		}
+
 		ImGui::Begin( "Editor" );
 
 		if( ImGui::TreeNode( "Root" ) )
@@ -75,7 +85,15 @@ void Editor::Display()
 					Transform& oTransform = it.second->GetTransform();
 
 					oTransform.SetPosition( EditableVector3( "Position", oTransform.GetPosition() ) );
-					//oTransform.SetPosition( EditableVector3( "Rotation", oTransform.GetRotationXYZ() ) );
+
+					glm::vec3 vEuler = oTransform.GetRotationEuler();
+					vEuler = glm::vec3( glm::degrees( vEuler.x ), glm::degrees( vEuler.y ), glm::degrees( vEuler.z ) );
+					vEuler = EditableVector3( "Rotation", vEuler );
+					if( glm::abs( vEuler.x ) >= 89.999f )
+						vEuler.x = glm::sign( vEuler.x ) * 89.999f;
+					vEuler = glm::vec3( glm::radians( vEuler.x ), glm::radians( vEuler.y ), glm::radians( vEuler.z ) );
+					oTransform.SetRotationEuler( vEuler );
+
 					oTransform.SetScale( EditableVector3( "Scale", oTransform.GetScale() ) );
 
 					DirectionalLightComponent* pDirectionalLightComponent = g_pComponentManager->GetComponent< DirectionalLightComponent >( it.second.GetPtr() );

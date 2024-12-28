@@ -35,28 +35,51 @@ void InputContext::OnKeyEvent( const int iKey, const int iScancode, const int iA
 	m_aKeyboard[ iKey ].m_bNumLock = ( ( iMods & GLFW_MOD_NUM_LOCK ) != 0 );
 }
 
+void InputContext::OnMouseEvent( const int iButton, const int iAction, const int iMods )
+{
+	m_aMouse[ iButton ].m_bPressed = iAction == GLFW_PRESS;
+	m_aMouse[ iButton ].m_bRepeat = false;
+	m_aMouse[ iButton ].m_bShift = ( ( iMods & GLFW_MOD_SHIFT ) != 0 );
+	m_aMouse[ iButton ].m_bControl = ( ( iMods & GLFW_MOD_CONTROL ) != 0 );
+	m_aMouse[ iButton ].m_bAlt = ( ( iMods & GLFW_MOD_ALT ) != 0 );
+	m_aMouse[ iButton ].m_bSuper = ( ( iMods & GLFW_MOD_SUPER ) != 0 );
+	m_aMouse[ iButton ].m_bCapsLock = ( ( iMods & GLFW_MOD_CAPS_LOCK ) != 0 );
+	m_aMouse[ iButton ].m_bNumLock = ( ( iMods & GLFW_MOD_NUM_LOCK ) != 0 );
+}
+
 void InputContext::OnCursorMoveEvent( const float fCursorX, const float fCursorY )
 {
 	m_fCursorX = fCursorX;
 	m_fCursorY = fCursorY;
 }
 
-InputAction::InputAction( const InputActionID uID, const uint16 uKey, const uint8 uButton, const ActionType eActionType )
+int InputContext::GetCursorX() const
+{
+	return ( int )m_fCursorX;
+}
+
+int InputContext::GetCursorY() const
+{
+	return ( int )m_fCursorY;
+}
+
+InputAction::InputAction( const InputActionID uID, const uint16 uKey, const uint8 uButton, const ActionType eActionType, const DeviceType eDeviceType )
 	: m_uID( uID )
 	, m_uKey( uKey )
 	, m_uButton( uButton )
 	, m_eActionType( eActionType )
+	, m_eDeviceType( eDeviceType )
 {
 }
 
 InputAction InputAction::KeyboardAction( const InputActionID uID, const uint16 uKey, const ActionType eActionType )
 {
-	return InputAction( uID, uKey, 0xFF, eActionType );
+	return InputAction( uID, uKey, 0xFF, eActionType, DeviceType::KEYBOARD );
 }
 
-InputAction InputAction::ButtonAction( const InputActionID uID, const uint8 uButton, const ActionType eActionType )
+InputAction InputAction::ButtonAction( const InputActionID uID, const uint8 uButton, const ActionType eActionType, const DeviceType eDeviceType )
 {
-	return InputAction( uID, 0xFFFF, uButton, eActionType );
+	return InputAction( uID, 0xFFFF, uButton, eActionType, eDeviceType );
 }
 
 InputActionResult::InputActionResult( const InputActionID uID )
@@ -94,6 +117,7 @@ InputHandler::InputHandler()
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_EDITOR, GLFW_KEY_F1, ActionType::PRESSED ) );
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_RENDERER_DEBUG, GLFW_KEY_F2, ActionType::PRESSED ) );
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_PROFILER, GLFW_KEY_F4, ActionType::PRESSED ) );
+	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_MOUSE_LEFT_CLICK, GLFW_MOUSE_BUTTON_LEFT, ActionType::PRESSED, DeviceType::MOUSE ) );
 
 	m_aInputActionResults.Reserve( m_aInputActions.Count() );
 	for( const InputAction& oInputAction : m_aInputActions )
@@ -130,10 +154,22 @@ void InputHandler::UpdateInputs( const InputContext& oInputContext )
 		InputActionResult& oInputActionResult = m_aInputActionResults[ u ];
 
 		bool bPressed = false;
+
 		if( oInputAction.m_uKey != 0xFFFF )
 			bPressed |= oInputContext.m_aKeyboard[ oInputAction.m_uKey ].m_bPressed;
+
 		if( oInputAction.m_uButton != 0xFF )
-			bPressed |= oInputContext.m_oGamepad.buttons[ oInputAction.m_uButton ] == GLFW_PRESS;
+		{
+			switch( oInputAction.m_eDeviceType )
+			{
+			case DeviceType::GAMEPAD:
+				bPressed |= oInputContext.m_oGamepad.buttons[ oInputAction.m_uButton ] == GLFW_PRESS;
+				break;
+			case DeviceType::MOUSE:
+				bPressed |= oInputContext.m_aMouse[ oInputAction.m_uButton ].m_bPressed;
+				break;
+			}
+		}
 
 		switch( oInputAction.m_eActionType )
 		{

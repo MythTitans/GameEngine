@@ -25,6 +25,11 @@ void OnCursorMoveEvent( GLFWwindow* /*pWindow*/, const double dCursorX, const do
 	s_oInputContext.OnCursorMoveEvent( ( float )dCursorX, ( float )dCursorY );
 }
 
+void OnMouseButtonEvent( GLFWwindow* /*window*/, const int iButton, const int iAction, const int iMods )
+{
+	s_oInputContext.OnMouseEvent( iButton, iAction, iMods );
+}
+
 void OnWindowResizeEvent( GLFWwindow* /*pWindow*/, int iWidth, int iHeight )
 {
 	s_oRenderContext.OnFrameBufferResized( iWidth, iHeight );
@@ -67,7 +72,10 @@ int main()
 
 		glfwSetKeyCallback( pWindow, OnKeyEvent );
 		glfwSetCursorPosCallback( pWindow, OnCursorMoveEvent );
+		glfwSetMouseButtonCallback( pWindow, OnMouseButtonEvent );
 		glfwSetWindowSizeCallback( pWindow, OnWindowResizeEvent );
+
+		glfwSetInputMode( pWindow, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE );
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();

@@ -12,10 +12,14 @@ class InputContext
 public:
 	friend class InputHandler;
 
-	void					Refresh();
+	void	Refresh();
+			
+	void	OnKeyEvent( const int iKey, const int iScancode, const int iAction, const int iMods );
+	void	OnMouseEvent( const int iButton, const int iAction, const int iMods );
+	void	OnCursorMoveEvent( const float fCursorX, const float fCursorY );
 
-	void					OnKeyEvent( const int iKey, const int iScancode, const int iAction, const int iMods );
-	void					OnCursorMoveEvent( const float fCursorX, const float fCursorY );
+	int		GetCursorX() const;
+	int		GetCursorY() const;
 
 private:
 	struct KeyStatus
@@ -33,10 +37,11 @@ private:
 	};
 
 	KeyStatus			m_aKeyboard[ GLFW_KEY_LAST + 1 ];
+	KeyStatus			m_aMouse[ GLFW_MOUSE_BUTTON_LAST + 1 ];
 	GLFWgamepadstate	m_oGamepad;
 
-	float		m_fCursorX;
-	float		m_fCursorY;
+	float				m_fCursorX;
+	float				m_fCursorY;
 };
 
 enum class ActionType : uint8
@@ -51,20 +56,29 @@ enum class InputActionID : uint16
 {
 	ACTION_TOGGLE_EDITOR,
 	ACTION_TOGGLE_RENDERER_DEBUG,
-	ACTION_TOGGLE_PROFILER
+	ACTION_TOGGLE_PROFILER,
+	ACTION_MOUSE_LEFT_CLICK
+};
+
+enum class DeviceType : uint8
+{
+	KEYBOARD,
+	MOUSE,
+	GAMEPAD
 };
 
 struct InputAction
 {
-	InputAction( const InputActionID uID, const uint16 uKey, const uint8 uButton, const ActionType eActionType );
+	InputAction( const InputActionID uID, const uint16 uKey, const uint8 uButton, const ActionType eActionType, const DeviceType eDeviceType );
 
 	static InputAction KeyboardAction( const InputActionID uID, const uint16 uKey, const ActionType eActionType );
-	static InputAction ButtonAction( const InputActionID uID, const uint8 uButton, const ActionType eActionType );
+	static InputAction ButtonAction( const InputActionID uID, const uint8 uButton, const ActionType eActionType, const DeviceType eDeviceType );
 
 	InputActionID	m_uID;
 	uint16			m_uKey;
 	uint8			m_uButton;
 	ActionType		m_eActionType;
+	DeviceType		m_eDeviceType;
 };
 
 struct InputActionResult

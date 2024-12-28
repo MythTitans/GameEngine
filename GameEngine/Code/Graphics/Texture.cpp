@@ -49,6 +49,11 @@ void Texture::Create( const int iWidth, const int iHeight, const TextureFormat e
 		iFormat = GL_DEPTH_COMPONENT;
 		iInternalFormat = GL_DEPTH_COMPONENT24;
 		eType = GL_FLOAT;
+		break;
+	case TextureFormat::ID:
+		iFormat = GL_RGBA_INTEGER;
+		iInternalFormat = GL_RGBA16UI;
+		break;
 	}
 
 	glTexImage2D( GL_TEXTURE_2D, 0, iInternalFormat, iWidth, iHeight, 0, iFormat, eType, pData );

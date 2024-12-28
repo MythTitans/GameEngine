@@ -71,6 +71,24 @@ void TechniqueDefinitionBase::SetParameterID( const GLint iParameterID, const gl
 	glUniformMatrix4fv( iParameterID, 1, GL_FALSE, glm::value_ptr( mValue ) );
 }
 
+void TechniqueDefinitionBase::SetParameterID( const GLint iParameterID, const glm::uvec2& vValue )
+{
+	ASSERT( iParameterID != -1 );
+	glUniform2uiv( iParameterID, 1, glm::value_ptr( vValue ) );
+}
+
+void TechniqueDefinitionBase::SetParameterID( const GLint iParameterID, const glm::uvec3& vValue )
+{
+	ASSERT( iParameterID != -1 );
+	glUniform3uiv( iParameterID, 1, glm::value_ptr( vValue ) );
+}
+
+void TechniqueDefinitionBase::SetParameterID( const GLint iParameterID, const glm::uvec4& vValue )
+{
+	ASSERT( iParameterID != -1 );
+	glUniform4uiv( iParameterID, 1, glm::value_ptr( vValue ) );
+}
+
 ForwardOpaqueDefinition::ForwardOpaqueDefinition()
 	: m_iModelViewProjectionUniform( -1 )
 	, m_iModelUniform( -1 )
@@ -190,6 +208,34 @@ void DeferredComposeDefinition::CreateDefinition( const Technique& oTechnique )
 	m_iNormalUniform = oTechnique.GetParameterID( "normalMap" );
 	m_iDepthUniform = oTechnique.GetParameterID( "depthMap" );
 	m_iInverseViewProjectionUniform = oTechnique.GetParameterID( "inverseViewProjection" );
+}
+
+PickingDefinition::PickingDefinition()
+	: m_iModelViewProjectionUniform( -1 )
+	, m_iColorIDUniform( -1 )
+{
+}
+
+void PickingDefinition::SetModelAndViewProjection( const glm::mat4& mModel, const glm::mat4& mViewProjection )
+{
+	SetParameterID( m_iModelViewProjectionUniform, mViewProjection * mModel );
+}
+
+void PickingDefinition::SetID( const uint64 uID )
+{
+	const uint16 uRed = ( uID >> 48 ) & 0xFFFF;
+	const uint16 uGreen = ( uID >> 32 ) & 0xFFFF;
+	const uint16 uBlue = ( uID >> 16 ) & 0xFFFF;
+	const uint16 uAlpha = ( uID ) & 0xFFFF;
+
+	const glm::uvec4 vColorID( uRed, uGreen, uBlue, uAlpha );
+	SetParameterID( m_iColorIDUniform, vColorID );
+}
+
+void PickingDefinition::CreateDefinition( const Technique& oTechnique )
+{
+	m_iModelViewProjectionUniform = oTechnique.GetParameterID( "modelViewProjection" );
+	m_iColorIDUniform = oTechnique.GetParameterID( "colorID" );
 }
 
 TextTechniqueDefinition::TextTechniqueDefinition()

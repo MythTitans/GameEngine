@@ -10,7 +10,8 @@ enum class TextureFormat
 	RGB,
 	RGBA,
 	NORMAL,
-	DEPTH
+	DEPTH,
+	ID
 };
 
 class Texture

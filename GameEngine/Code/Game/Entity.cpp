@@ -1,6 +1,8 @@
 #include "Entity.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 #include "Game/ComponentManager.h"
 
@@ -109,19 +111,31 @@ void Transform::SetRotation( const glm::vec3& vAxis, const float fAngle )
 	SetRotation( glm::rotate( glm::quat( 1.f, 0.f, 0.f, 0.f ), fAngle, vAxis ) );
 }
 
-void Transform::SetRotationX( const float fAngle )
+void Transform::SetRotationEuler( const glm::vec3& vEuler )
 {
-	SetRotation( glm::vec3( 1.f, 0.f, 0.f ), fAngle );
+	glm::mat4 mMat = glm::eulerAngleYXZ( vEuler.y, vEuler.x, vEuler.z );
+	m_mMatrix[ 0 ] = glm::normalize( glm::vec3( mMat[ 0 ] ) );
+	m_mMatrix[ 1 ] = glm::normalize( glm::vec3( mMat[ 1 ] ) );
+	m_mMatrix[ 2 ] = glm::normalize( glm::vec3( mMat[ 2 ] ) );
 }
 
-void Transform::SetRotationY( const float fAngle )
+void Transform::SetRotationEuler( const float fX, const float fY, const float fZ )
 {
-	SetRotation( glm::vec3( 0.f, 1.f, 0.f ), fAngle );
+	SetRotationEuler( glm::vec3( fX, fY, fZ ) );
 }
 
-void Transform::SetRotationZ( const float fAngle )
+glm::vec3 Transform::GetRotationEuler() const
 {
-	SetRotation( glm::vec3( 0.f, 0.f, 1.f ), fAngle );
+	glm::mat4 mMatrix;
+	mMatrix[ 0 ] = glm::vec4( m_mMatrix[ 0 ], 0.f );
+	mMatrix[ 1 ] = glm::vec4( m_mMatrix[ 1 ], 0.f );
+	mMatrix[ 2 ] = glm::vec4( m_mMatrix[ 2 ], 0.f );
+	mMatrix[ 3 ] = glm::vec4( m_vPosition, 1.f );
+
+	glm::vec3 vEuler;
+	glm::extractEulerAngleYXZ( mMatrix, vEuler.y, vEuler.x, vEuler.z );
+
+	return vEuler;
 }
 
 glm::mat4 Transform::GetMatrix() const

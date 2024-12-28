@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Game/Component.h"
+#include "Game/Entity.h"
 #include "Core/Logger.h"
 #include "Core/Profiler.h"
 #include "Game/GameEngine.h"
@@ -51,12 +52,13 @@ Renderer::Renderer()
 	, m_xForwardOpaque( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/forward_opaque" ) ) )
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/deferred_maps" ) ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/deferred_compose" ) ) )
+	, m_xPicking( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/picking" ) ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
 	, m_bDisplayDebug( false )
 {
 	glEnable( GL_CULL_FACE );
 	//glEnable( GL_FRAMEBUFFER_SRGB );
-
+	
 	glClearColor( 0.f, 0.f, 0.f, 1.f );
 
 	Array< glm::vec3 > aVertices( 3 );
@@ -130,7 +132,10 @@ bool Renderer::OnLoading()
 	if( m_xDeferredCompose->IsLoaded() && m_oDeferredCompose.IsValid() == false )
 		m_oDeferredCompose.Create( m_xDeferredCompose->GetTechnique() );
 
-	return m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded() && m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_oTextRenderer.OnLoading();
+	if( m_xPicking->IsLoaded() && m_oPicking.IsValid() == false )
+		m_oPicking.Create( m_xPicking->GetTechnique() );
+
+	return m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded() && m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_oTextRenderer.OnLoading();
 }
 
 void Renderer::DisplayDebug()
@@ -173,6 +178,8 @@ void Renderer::DisplayDebug()
 
 void Renderer::RenderForward( const RenderContext& oRenderContext )
 {
+	glClearColor( 0.f, 0.f, 0.f, 1.f );
+
 	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 
@@ -285,6 +292,8 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 
 void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 {
+	glClearColor( 0.f, 0.f, 0.f, 1.f );
+
 	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 
@@ -422,6 +431,58 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 
 	ClearTextureSlot( 0 );
 	ClearTechnique();
+}
+
+uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY )
+{
+	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
+	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
+
+	if( oRenderRect.m_uWidth != m_oPickingTarget.GetWidth() || oRenderRect.m_uHeight != m_oPickingTarget.GetHeight() )
+	{
+		m_oPickingTarget.Destroy();
+
+		Array< TextureFormat > aFormats( 1 );
+		aFormats[ 0 ] = TextureFormat::ID;
+		m_oPickingTarget.Create( oRenderRect.m_uWidth, oRenderRect.m_uHeight, aFormats, true );
+
+		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
+	}
+
+	SetRenderTarget( m_oPickingTarget );
+
+	glClearColor( 1.f, 1.f, 1.f, 1.f );
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glEnable( GL_DEPTH_TEST );
+
+	SetTechnique( m_xPicking->GetTechnique() );
+
+	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->GetComponentManager().GetComponents< VisualComponent >();
+	for( const VisualComponent& oVisualComponent : aVisualComponents )
+	{
+		m_oPicking.SetModelAndViewProjection( oVisualComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
+		m_oPicking.SetID( oVisualComponent.GetEntity()->GetID() );
+
+		const Array< Mesh >& aMeshes = oVisualComponent.GetResource()->GetMeshes();
+		for( const Mesh& oMesh : aMeshes )
+			DrawMesh( oMesh );
+	}
+
+	ClearTechnique();
+
+	GLushort aChannels[ 4 ];
+	glReadPixels( iCursorX, oRenderRect.m_uHeight - iCursorY - 1, 1, 1, GL_RGBA_INTEGER, GL_UNSIGNED_SHORT, &aChannels[ 0 ] );
+
+	ClearRenderTarget();
+
+	const uint64 uRed = ( ( uint64 )aChannels[ 0 ] << 48 ) & 0xFFFF'0000'0000'0000;
+	const uint64 uGreen = ( ( uint64 )aChannels[ 1 ] << 32 ) & 0x0000'FFFF'0000'0000;
+	const uint64 uBlue = ( ( uint64 )aChannels[ 2 ] << 16 ) & 0x0000'0000'FFFF'0000;
+	const uint64 uAlpha = ( ( uint64 )aChannels[ 3 ] ) & 0x0000'0000'0000'FFFF;
+
+	const uint64 uID = uRed | uGreen | uBlue | uAlpha;
+
+	return uID;
 }
 
 void Renderer::SetTechnique( const Technique& oTechnique )
