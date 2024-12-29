@@ -73,8 +73,6 @@ void GameEngine::NewFrame()
 	m_oProfiler.NewFrame();
 	m_oProfiler.Display();
 
-	m_oEditor.Display( m_oInputContext, m_oRenderContext );
-
 	m_oDebugDisplay.NewFrame();
 }
 
@@ -113,6 +111,7 @@ void GameEngine::Update()
 		if( m_eGameState == GameState::RUNNING )
 		{
 			m_oFreeCamera.Update( m_oGameContext.m_fLastDeltaTime );
+			m_oEditor.Update( m_oInputContext, m_oRenderContext );
 			m_oComponentManager.UpdateComponents( m_oGameContext.m_fLastDeltaTime );
 		}
 		else if( m_oComponentManager.AreComponentsInitialized() )
@@ -139,6 +138,7 @@ void GameEngine::Render()
 	{
 		m_oRenderer.DisplayDebug();
 		m_oRenderer.Render( m_oRenderContext );
+		m_oEditor.Render( m_oRenderContext );
 		m_oDebugDisplay.Display( m_oGameContext.m_fLastDeltaTime, m_oRenderContext );
 	}
 }

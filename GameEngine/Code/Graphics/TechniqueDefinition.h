@@ -223,6 +223,23 @@ private:
 	GLint m_iColorIDUniform;
 };
 
+class OutlineDefinition : public TechniqueDefinitionBase
+{
+public:
+	OutlineDefinition();
+
+	void SetModelAndViewProjection( const glm::mat4& mModel, const glm::mat4& mViewProjection );
+	void SetCameraPosition( const glm::vec3& vCameraPosition );
+	void SetDisplacement( const float fDisplacement );
+
+private:
+	void CreateDefinition( const Technique& oTechnique ) override;
+
+	GLint m_iModelViewProjectionUniform;
+	GLint m_iCameraPositionUniform;
+	GLint m_iDisplacementUniform;
+};
+
 class TextTechniqueDefinition : public TechniqueDefinitionBase
 {
 public:

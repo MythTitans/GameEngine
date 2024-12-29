@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Types.h"
+
 class InputContext;
 class RenderContext;
 
@@ -8,8 +10,11 @@ class Editor
 public:
 	Editor();
 
-	void Display( const InputContext& oInputContext, const RenderContext& oRenderContext );
+	void Update( const InputContext& oInputContext, const RenderContext& oRenderContext );
+	void Render( const RenderContext& oRenderContext );
 
 private:
-	bool			m_bDisplayEditor;
+	uint64	m_uSelectedEntityID;
+
+	bool	m_bDisplayEditor;
 };

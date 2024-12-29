@@ -3,6 +3,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
+
 #include "Game/Component.h"
 #include "Game/Entity.h"
 #include "Core/Logger.h"
@@ -53,6 +56,7 @@ Renderer::Renderer()
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/deferred_maps" ) ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/deferred_compose" ) ) )
 	, m_xPicking( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/picking" ) ) )
+	, m_xOutline( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/outline" ) ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
 	, m_bDisplayDebug( false )
 {
@@ -135,7 +139,10 @@ bool Renderer::OnLoading()
 	if( m_xPicking->IsLoaded() && m_oPicking.IsValid() == false )
 		m_oPicking.Create( m_xPicking->GetTechnique() );
 
-	return m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded() && m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_oTextRenderer.OnLoading();
+	if( m_xOutline->IsLoaded() && m_oOutline.IsValid() == false )
+		m_oOutline.Create( m_xOutline->GetTechnique() );
+
+	return m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded() && m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_oTextRenderer.OnLoading();
 }
 
 void Renderer::DisplayDebug()
@@ -483,6 +490,46 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 	const uint64 uID = uRed | uGreen | uBlue | uAlpha;
 
 	return uID;
+}
+
+void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualComponent& oObject )
+{
+	glEnable( GL_DEPTH_TEST );
+	glEnable( GL_STENCIL_TEST );
+
+	glClear( GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+
+	glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE );
+
+	glStencilFunc( GL_ALWAYS, 1, 0xFF );
+	glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
+
+	SetTechnique( m_xOutline->GetTechnique() );
+
+	m_oOutline.SetModelAndViewProjection( oObject.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
+	m_oOutline.SetDisplacement( 0.f );
+
+	const Array< Mesh >& aMeshes = oObject.GetResource()->GetMeshes();
+	for( const Mesh& oMesh : aMeshes )
+		DrawMesh( oMesh );
+
+	glDisable( GL_DEPTH_TEST );
+
+	glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+
+	glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
+	glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
+
+	m_oOutline.SetModelAndViewProjection( oObject.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
+	m_oOutline.SetCameraPosition( glm::vec3( m_oCamera.GetPosition() ) );
+	m_oOutline.SetDisplacement( 0.004f );
+
+	for( const Mesh& oMesh : aMeshes )
+		DrawMesh( oMesh );
+
+	ClearTechnique();
+
+	glDisable( GL_STENCIL_TEST );
 }
 
 void Renderer::SetTechnique( const Technique& oTechnique )

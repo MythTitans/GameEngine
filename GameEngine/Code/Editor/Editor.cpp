@@ -52,13 +52,12 @@ static glm::vec3 EditableVector3( const char* sName, glm::vec3 vVector )
 }
 
 Editor::Editor()
-	: m_bDisplayEditor( false )
+	: m_uSelectedEntityID( UINT64_MAX )
+	, m_bDisplayEditor( false )
 {
 }
 
-#include "Core/Logger.h"
-
-void Editor::Display( const InputContext& oInputContext, const RenderContext& oRenderContext )
+void Editor::Update( const InputContext& oInputContext, const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "Editor" );
 
@@ -68,11 +67,7 @@ void Editor::Display( const InputContext& oInputContext, const RenderContext& oR
 	if( m_bDisplayEditor )
 	{
 		if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_CLICK ) )
-		{
-			const uint64 uPickedID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY() );
-			if( uPickedID != UINT64_MAX )
-				LOG_INFO( "Clicked on entity {}", uPickedID );
-		}
+			m_uSelectedEntityID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY() );
 
 		ImGui::Begin( "Editor" );
 
@@ -131,5 +126,21 @@ void Editor::Display( const InputContext& oInputContext, const RenderContext& oR
 		}
 
 		ImGui::End();
+	}
+}
+
+void Editor::Render( const RenderContext& oRenderContext )
+{
+	ProfilerBlock oBlock( "Editor" );
+
+	if( m_bDisplayEditor )
+	{
+		if( m_uSelectedEntityID != UINT64_MAX )
+		{
+			Entity* pEntity = g_pGameEngine->GetScene().FindEntity( m_uSelectedEntityID );
+			const VisualComponent* pVisualComponent = g_pComponentManager->GetComponent< VisualComponent >( pEntity );
+			if( pVisualComponent != nullptr )
+				g_pRenderer->RenderOutline( oRenderContext, *pVisualComponent );
+		}
 	}
 }

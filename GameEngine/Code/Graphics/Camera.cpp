@@ -27,6 +27,11 @@ void Camera::SetPosition( const glm::vec3& vPosition )
 	m_bInverseViewProjectionDirty = true;
 }
 
+const glm::vec3& Camera::GetPosition() const
+{
+	return m_vPosition;
+}
+
 void Camera::SetTarget( const glm::vec3& vTarget )
 {
 	m_vTarget = vTarget;

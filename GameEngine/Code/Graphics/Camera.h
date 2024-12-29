@@ -10,6 +10,7 @@ public:
 	Camera();
 
 	void				SetPosition( const glm::vec3& vPosition );
+	const glm::vec3&	GetPosition() const;
 	void				SetTarget( const glm::vec3& vTarget );
 	void				SetUp( const glm::vec3& vUp );
 

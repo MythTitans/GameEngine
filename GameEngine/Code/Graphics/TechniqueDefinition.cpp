@@ -238,6 +238,35 @@ void PickingDefinition::CreateDefinition( const Technique& oTechnique )
 	m_iColorIDUniform = oTechnique.GetParameterID( "colorID" );
 }
 
+OutlineDefinition::OutlineDefinition()
+	: m_iModelViewProjectionUniform( -1 )
+	, m_iCameraPositionUniform( -1 )
+	, m_iDisplacementUniform( -1 )
+{
+}
+
+void OutlineDefinition::SetModelAndViewProjection( const glm::mat4& mModel, const glm::mat4& mViewProjection )
+{
+	SetParameterID( m_iModelViewProjectionUniform, mViewProjection * mModel );
+}
+
+void OutlineDefinition::SetCameraPosition( const glm::vec3& vCameraPosition )
+{
+	SetParameterID( m_iCameraPositionUniform, vCameraPosition );
+}
+
+void OutlineDefinition::SetDisplacement( const float fDisplacement )
+{
+	SetParameterID( m_iDisplacementUniform, fDisplacement );
+}
+
+void OutlineDefinition::CreateDefinition( const Technique& oTechnique )
+{
+	m_iModelViewProjectionUniform = oTechnique.GetParameterID( "modelViewProjection" );
+	m_iCameraPositionUniform = oTechnique.GetParameterID( "cameraPosition" );
+	m_iDisplacementUniform = oTechnique.GetParameterID( "displacement" );
+}
+
 TextTechniqueDefinition::TextTechniqueDefinition()
 	: m_iPositionUniform( -1 )
 	, m_iSizeUniform( -1 )

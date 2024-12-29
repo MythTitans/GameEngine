@@ -7,6 +7,7 @@
 #include "TechniqueDefinition.h"
 #include "TextRenderer.h"
 
+class VisualComponent;
 struct GLFWwindow;
 
 struct RenderRect
@@ -65,6 +66,7 @@ private:
 	void				RenderForward( const RenderContext& oRenderContext );
 	void				RenderDeferred( const RenderContext& oRenderContext );
 	uint64				RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY );
+	void				RenderOutline( const RenderContext& oRenderContext, const VisualComponent& oObject );
 
 	void				SetTechnique( const Technique& oTechnique );
 	void				ClearTechnique();
@@ -88,10 +90,12 @@ private:
 	TechniqueResPtr				m_xDeferredMaps;
 	TechniqueResPtr				m_xDeferredCompose;
 	TechniqueResPtr				m_xPicking;
+	TechniqueResPtr				m_xOutline;
 	ForwardOpaqueDefinition		m_oForwardOpaque;
 	DeferredMapsDefinition		m_oDeferredMaps;
 	DeferredComposeDefinition	m_oDeferredCompose;
 	PickingDefinition			m_oPicking;
+	OutlineDefinition			m_oOutline;
 
 	RenderingMode				m_eRenderingMode;
 
