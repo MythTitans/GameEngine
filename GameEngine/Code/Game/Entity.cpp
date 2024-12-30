@@ -99,11 +99,12 @@ glm::quat Transform::GetRotation() const
 
 void Transform::SetRotation( const glm::quat& qRotation )
 {
-	const glm::vec3 vScale = GetScale();
-	m_mMatrix = glm::mat3_cast( qRotation );
-	m_mMatrix[ 0 ] = glm::normalize( m_mMatrix[ 0 ] );
-	m_mMatrix[ 1 ] = glm::normalize( m_mMatrix[ 1 ] );
-	m_mMatrix[ 2 ] = glm::normalize( m_mMatrix[ 2 ] );
+	const glm::mat4 mMatrix = glm::mat4_cast( qRotation );
+	glm::extractEulerAngleYXZ( mMatrix, m_vRotationEuler.y, m_vRotationEuler.x, m_vRotationEuler.z );
+
+	m_mMatrix[ 0 ] = glm::normalize( glm::vec3( mMatrix[ 0 ] ) );
+	m_mMatrix[ 1 ] = glm::normalize( glm::vec3( mMatrix[ 1 ] ) );
+	m_mMatrix[ 2 ] = glm::normalize( glm::vec3( mMatrix[ 2 ] ) );
 }
 
 void Transform::SetRotation( const glm::vec3& vAxis, const float fAngle )
@@ -113,6 +114,8 @@ void Transform::SetRotation( const glm::vec3& vAxis, const float fAngle )
 
 void Transform::SetRotationEuler( const glm::vec3& vEuler )
 {
+	m_vRotationEuler = vEuler;
+
 	glm::mat4 mMat = glm::eulerAngleYXZ( vEuler.y, vEuler.x, vEuler.z );
 	m_mMatrix[ 0 ] = glm::normalize( glm::vec3( mMat[ 0 ] ) );
 	m_mMatrix[ 1 ] = glm::normalize( glm::vec3( mMat[ 1 ] ) );
@@ -126,16 +129,7 @@ void Transform::SetRotationEuler( const float fX, const float fY, const float fZ
 
 glm::vec3 Transform::GetRotationEuler() const
 {
-	glm::mat4 mMatrix;
-	mMatrix[ 0 ] = glm::vec4( m_mMatrix[ 0 ], 0.f );
-	mMatrix[ 1 ] = glm::vec4( m_mMatrix[ 1 ], 0.f );
-	mMatrix[ 2 ] = glm::vec4( m_mMatrix[ 2 ], 0.f );
-	mMatrix[ 3 ] = glm::vec4( m_vPosition, 1.f );
-
-	glm::vec3 vEuler;
-	glm::extractEulerAngleYXZ( mMatrix, vEuler.y, vEuler.x, vEuler.z );
-
-	return vEuler;
+	return m_vRotationEuler;
 }
 
 glm::mat4 Transform::GetMatrix() const
@@ -204,12 +198,12 @@ const Transform& Entity::GetTransform() const
 
 glm::vec3 Entity::GetPosition() const
 {
-	return m_hTransformComponent->m_oTransform.m_vPosition;
+	return m_hTransformComponent->m_oTransform.GetPosition();
 }
 
 void Entity::SetPosition( const glm::vec3& vPosition )
 {
-	m_hTransformComponent->m_oTransform.m_vPosition = vPosition;
+	m_hTransformComponent->m_oTransform.SetPosition( vPosition );
 }
 
 void Entity::SetPosition( const float fX, const float fY, const float fZ )
@@ -219,14 +213,12 @@ void Entity::SetPosition( const float fX, const float fY, const float fZ )
 
 glm::vec3 Entity::GetScale() const
 {
-	return glm::vec3( glm::length( m_hTransformComponent->m_oTransform.m_mMatrix[ 0 ] ), glm::length( m_hTransformComponent->m_oTransform.m_mMatrix[ 1 ] ), glm::length( m_hTransformComponent->m_oTransform.m_mMatrix[ 2 ] ) );
+	return m_hTransformComponent->m_oTransform.GetScale();
 }
 
 void Entity::SetScale( const glm::vec3& vScale )
 {
-	m_hTransformComponent->m_oTransform.m_mMatrix[ 0 ] = glm::normalize( m_hTransformComponent->m_oTransform.m_mMatrix[ 0 ] ) * vScale.x;
-	m_hTransformComponent->m_oTransform.m_mMatrix[ 1 ] = glm::normalize( m_hTransformComponent->m_oTransform.m_mMatrix[ 1 ] ) * vScale.y;
-	m_hTransformComponent->m_oTransform.m_mMatrix[ 2 ] = glm::normalize( m_hTransformComponent->m_oTransform.m_mMatrix[ 2 ] ) * vScale.z;
+	m_hTransformComponent->m_oTransform.SetScale( vScale );
 }
 
 void Entity::SetScale( const float fX, const float fY, const float fZ )
@@ -236,16 +228,12 @@ void Entity::SetScale( const float fX, const float fY, const float fZ )
 
 glm::quat Entity::GetRotation() const
 {
-	return glm::quat_cast( m_hTransformComponent->m_oTransform.m_mMatrix );
+	return m_hTransformComponent->m_oTransform.GetRotation();
 }
 
 void Entity::SetRotation( const glm::quat& qRotation )
 {
-	const glm::vec3 vScale = GetScale();
-	m_hTransformComponent->m_oTransform.m_mMatrix = glm::mat3_cast( qRotation );
-	m_hTransformComponent->m_oTransform.m_mMatrix[ 0 ] = glm::normalize( m_hTransformComponent->m_oTransform.m_mMatrix[ 0 ] ) * vScale.x;
-	m_hTransformComponent->m_oTransform.m_mMatrix[ 1 ] = glm::normalize( m_hTransformComponent->m_oTransform.m_mMatrix[ 1 ] ) * vScale.y;
-	m_hTransformComponent->m_oTransform.m_mMatrix[ 2 ] = glm::normalize( m_hTransformComponent->m_oTransform.m_mMatrix[ 2 ] ) * vScale.z;
+	m_hTransformComponent->m_oTransform.SetRotation( qRotation );
 }
 
 void Entity::SetRotation( const glm::vec3& vAxis, const float fAngle )

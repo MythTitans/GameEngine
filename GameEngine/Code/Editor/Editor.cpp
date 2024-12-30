@@ -66,7 +66,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 	if( m_bDisplayEditor )
 	{
-		if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_CLICK ) )
+		if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_CLICK ) && ImGui::GetIO().WantCaptureMouse == false )
 			m_uSelectedEntityID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY() );
 
 		ImGui::Begin( "Editor" );
@@ -84,8 +84,6 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 					glm::vec3 vEuler = oTransform.GetRotationEuler();
 					vEuler = glm::vec3( glm::degrees( vEuler.x ), glm::degrees( vEuler.y ), glm::degrees( vEuler.z ) );
 					vEuler = EditableVector3( "Rotation", vEuler );
-					if( glm::abs( vEuler.x ) >= 89.999f )
-						vEuler.x = glm::sign( vEuler.x ) * 89.999f;
 					vEuler = glm::vec3( glm::radians( vEuler.x ), glm::radians( vEuler.y ), glm::radians( vEuler.z ) );
 					oTransform.SetRotationEuler( vEuler );
 

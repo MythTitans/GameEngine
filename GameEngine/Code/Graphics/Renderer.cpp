@@ -494,6 +494,7 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 
 void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualComponent& oObject )
 {
+	glDisable( GL_CULL_FACE );
 	glEnable( GL_DEPTH_TEST );
 	glEnable( GL_STENCIL_TEST );
 
@@ -530,6 +531,7 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualC
 	ClearTechnique();
 
 	glDisable( GL_STENCIL_TEST );
+	glEnable( GL_CULL_FACE );
 }
 
 void Renderer::SetTechnique( const Technique& oTechnique )
