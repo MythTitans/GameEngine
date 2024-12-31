@@ -23,7 +23,7 @@ struct ComponentsHolderBase
 template < typename ComponentType >
 struct ComponentsHolder : ComponentsHolderBase
 {
-	void InitializeComponents()
+	void InitializeComponents() override
 	{
 		ProfilerBlock oBlock( PROFILER_BLOCK_NAME.c_str() );
 
@@ -31,7 +31,7 @@ struct ComponentsHolder : ComponentsHolderBase
 			oComponent.Initialize();
 	}
 
-	bool AreComponentsInitialized()
+	bool AreComponentsInitialized() override
 	{
 		ProfilerBlock oBlock( PROFILER_BLOCK_NAME.c_str() );
 

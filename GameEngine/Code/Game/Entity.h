@@ -3,6 +3,7 @@
 #include <string>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "Core/Intrusive.h"
 #include "Core/Types.h"

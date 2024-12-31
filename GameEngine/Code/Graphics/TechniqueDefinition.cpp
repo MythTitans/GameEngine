@@ -312,3 +312,25 @@ void TextTechniqueDefinition::CreateDefinition( const Technique& oTechnique )
 	m_iGlyphColorUniform = oTechnique.GetParameterID( "glyphColor" );
 	m_iAtlasTextureUniform = oTechnique.GetParameterID( "atlasTexture" );
 }
+
+GizmoDefinition::GizmoDefinition()
+	: m_iModelViewProjectionUniform( -1 )
+	, m_iColorUniform( -1 )
+{
+}
+
+void GizmoDefinition::SetModelAndViewProjection( const glm::mat4& mModel, const glm::mat4& mViewProjection )
+{
+	SetParameterID( m_iModelViewProjectionUniform, mViewProjection * mModel );
+}
+
+void GizmoDefinition::SetColor( const glm::vec3& vColor )
+{
+	SetParameterID( m_iColorUniform, vColor );
+}
+
+void GizmoDefinition::CreateDefinition( const Technique& oTechnique )
+{
+	m_iModelViewProjectionUniform = oTechnique.GetParameterID( "modelViewProjection" );
+	m_iColorUniform = oTechnique.GetParameterID( "color" );
+}

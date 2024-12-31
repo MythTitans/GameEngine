@@ -240,6 +240,21 @@ private:
 	GLint m_iDisplacementUniform;
 };
 
+class GizmoDefinition : public TechniqueDefinitionBase
+{
+public:
+	GizmoDefinition();
+
+	void SetModelAndViewProjection( const glm::mat4& mModel, const glm::mat4& mViewProjection );
+	void SetColor( const glm::vec3& vColor );
+
+private:
+	void CreateDefinition( const Technique& oTechnique ) override;
+
+	GLint m_iModelViewProjectionUniform;
+	GLint m_iColorUniform;
+};
+
 class TextTechniqueDefinition : public TechniqueDefinitionBase
 {
 public:

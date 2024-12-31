@@ -54,6 +54,7 @@ void MyFirstComponent::Update( const float fDeltaTime )
 
 VisualComponent::VisualComponent( Entity* pEntity )
 	: Component( pEntity )
+	, m_mWorldMatrix( 1.f )
 {
 }
 
@@ -85,6 +86,45 @@ const ModelResPtr& VisualComponent::GetResource() const
 const glm::mat4& VisualComponent::GetWorldMatrix() const
 {
 	return m_mWorldMatrix;
+}
+
+GizmoComponent::GizmoComponent( Entity* pEntity )
+	: VisualComponent( pEntity )
+	, m_vColor( 0.f )
+{
+}
+
+void GizmoComponent::Start()
+{
+	m_qInitialRotation = GetEntity()->GetRotation();
+}
+
+void GizmoComponent::Update( const float fDeltaTime )
+{
+	if( m_xAnchor != nullptr )
+	{
+		Entity* pEntity = GetEntity();
+		pEntity->SetPosition( m_xAnchor->GetPosition() );
+		pEntity->SetScale( 1.f, 1.f, 1.f );
+		pEntity->SetRotation( m_xAnchor->GetRotation() * m_qInitialRotation );
+	}
+
+	VisualComponent::Update( fDeltaTime );
+}
+
+void GizmoComponent::SetColor( const glm::vec3& vColor )
+{
+	m_vColor = vColor;
+}
+
+const glm::vec3& GizmoComponent::GetColor() const
+{
+	return m_vColor;
+}
+
+void GizmoComponent::SetAnchor( Entity* pEntity )
+{
+	m_xAnchor = pEntity;
 }
 
 DirectionalLightComponent::DirectionalLightComponent( Entity* pEntity )

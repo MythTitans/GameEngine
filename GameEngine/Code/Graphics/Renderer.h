@@ -67,6 +67,7 @@ private:
 	void				RenderDeferred( const RenderContext& oRenderContext );
 	uint64				RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY );
 	void				RenderOutline( const RenderContext& oRenderContext, const VisualComponent& oObject );
+	void				RenderGizmos( const RenderContext& oRenderContext );
 
 	void				SetTechnique( const Technique& oTechnique );
 	void				ClearTechnique();
@@ -91,11 +92,13 @@ private:
 	TechniqueResPtr				m_xDeferredCompose;
 	TechniqueResPtr				m_xPicking;
 	TechniqueResPtr				m_xOutline;
+	TechniqueResPtr				m_xGizmo;
 	ForwardOpaqueDefinition		m_oForwardOpaque;
 	DeferredMapsDefinition		m_oDeferredMaps;
 	DeferredComposeDefinition	m_oDeferredCompose;
 	PickingDefinition			m_oPicking;
 	OutlineDefinition			m_oOutline;
+	GizmoDefinition				m_oGizmo;
 
 	RenderingMode				m_eRenderingMode;
 

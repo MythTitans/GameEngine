@@ -55,6 +55,7 @@ Renderer::Renderer()
 	, m_xForwardOpaque( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/forward_opaque" ) ) )
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/deferred_maps" ) ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/deferred_compose" ) ) )
+	, m_xGizmo( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/gizmo" ) ) )
 	, m_xPicking( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/picking" ) ) )
 	, m_xOutline( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/outline" ) ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
@@ -142,7 +143,10 @@ bool Renderer::OnLoading()
 	if( m_xOutline->IsLoaded() && m_oOutline.IsValid() == false )
 		m_oOutline.Create( m_xOutline->GetTechnique() );
 
-	return m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded() && m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_oTextRenderer.OnLoading();
+	if( m_xGizmo->IsLoaded() && m_oGizmo.IsValid() == false )
+		m_oGizmo.Create( m_xGizmo->GetTechnique() );
+
+	return m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded() && m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded() && m_oTextRenderer.OnLoading();
 }
 
 void Renderer::DisplayDebug()
@@ -532,6 +536,28 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualC
 
 	glDisable( GL_STENCIL_TEST );
 	glEnable( GL_CULL_FACE );
+}
+
+void Renderer::RenderGizmos( const RenderContext& oRenderContext )
+{
+	glEnable( GL_DEPTH_TEST );
+
+	glClear( GL_DEPTH_BUFFER_BIT );
+
+	SetTechnique( m_xGizmo->GetTechnique() );
+
+	ArrayView< GizmoComponent > aGizmoComponents = g_pGameEngine->GetComponentManager().GetComponents< GizmoComponent >();
+	for( const GizmoComponent& oGizmoComponent : aGizmoComponents )
+	{
+		m_oGizmo.SetModelAndViewProjection( oGizmoComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
+		m_oGizmo.SetColor( oGizmoComponent.GetColor() );
+
+		const Array< Mesh >& aMeshes = oGizmoComponent.GetResource()->GetMeshes();
+		for( const Mesh& oMesh : aMeshes )
+			DrawMesh( oMesh );
+	}
+
+	ClearTechnique();
 }
 
 void Renderer::SetTechnique( const Technique& oTechnique )

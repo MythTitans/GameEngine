@@ -10,6 +10,7 @@ Transform::Transform()
 	: m_mMatrix( 1.f )
 	, m_vPosition( 0.f )
 	, m_vScale( 1.f )
+	, m_vRotationEuler( 0.f )
 {
 }
 
@@ -102,9 +103,9 @@ void Transform::SetRotation( const glm::quat& qRotation )
 	const glm::mat4 mMatrix = glm::mat4_cast( qRotation );
 	glm::extractEulerAngleYXZ( mMatrix, m_vRotationEuler.y, m_vRotationEuler.x, m_vRotationEuler.z );
 
-	m_mMatrix[ 0 ] = glm::normalize( glm::vec3( mMatrix[ 0 ] ) );
-	m_mMatrix[ 1 ] = glm::normalize( glm::vec3( mMatrix[ 1 ] ) );
-	m_mMatrix[ 2 ] = glm::normalize( glm::vec3( mMatrix[ 2 ] ) );
+	m_mMatrix[ 0 ] = glm::vec3( mMatrix[ 0 ] );
+	m_mMatrix[ 1 ] = glm::vec3( mMatrix[ 1 ] );
+	m_mMatrix[ 2 ] = glm::vec3( mMatrix[ 2 ] );
 }
 
 void Transform::SetRotation( const glm::vec3& vAxis, const float fAngle )
@@ -117,9 +118,9 @@ void Transform::SetRotationEuler( const glm::vec3& vEuler )
 	m_vRotationEuler = vEuler;
 
 	glm::mat4 mMat = glm::eulerAngleYXZ( vEuler.y, vEuler.x, vEuler.z );
-	m_mMatrix[ 0 ] = glm::normalize( glm::vec3( mMat[ 0 ] ) );
-	m_mMatrix[ 1 ] = glm::normalize( glm::vec3( mMat[ 1 ] ) );
-	m_mMatrix[ 2 ] = glm::normalize( glm::vec3( mMat[ 2 ] ) );
+	m_mMatrix[ 0 ] = glm::vec3( mMat[ 0 ] );
+	m_mMatrix[ 1 ] = glm::vec3( mMat[ 1 ] );
+	m_mMatrix[ 2 ] = glm::vec3( mMat[ 2 ] );
 }
 
 void Transform::SetRotationEuler( const float fX, const float fY, const float fZ )

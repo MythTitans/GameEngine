@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/gtc/quaternion.hpp>
+
 #include "ComponentManager.h"
 #include "Core/Array.h"
 #include "ResourceLoader.h"
@@ -156,10 +158,30 @@ public:
 	const glm::mat4&	GetWorldMatrix() const;
 
 private:
-	std::filesystem::path				m_oModelFile;
-	ModelResPtr							m_xModel;
+	std::filesystem::path	m_oModelFile;
+	ModelResPtr				m_xModel;
 
-	glm::mat4							m_mWorldMatrix;
+	glm::mat4				m_mWorldMatrix;
+};
+
+class GizmoComponent : public VisualComponent
+{
+public:
+	explicit GizmoComponent( Entity* pEntity );
+
+	void				Start() override;
+	void				Update( const float fDeltaTime ) override;
+
+	void				SetColor( const glm::vec3& vColor );
+	const glm::vec3&	GetColor() const;
+
+	void				SetAnchor( Entity* pEntity );
+
+private:
+	WeakPtr< Entity >	m_xAnchor;
+
+	glm::quat			m_qInitialRotation;
+	glm::vec3			m_vColor;
 };
 
 class DirectionalLightComponent : public Component

@@ -133,12 +133,24 @@ void Editor::Render( const RenderContext& oRenderContext )
 
 	if( m_bDisplayEditor )
 	{
+		ArrayView< GizmoComponent > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
+
 		if( m_uSelectedEntityID != UINT64_MAX )
 		{
 			Entity* pEntity = g_pGameEngine->GetScene().FindEntity( m_uSelectedEntityID );
 			const VisualComponent* pVisualComponent = g_pComponentManager->GetComponent< VisualComponent >( pEntity );
 			if( pVisualComponent != nullptr )
 				g_pRenderer->RenderOutline( oRenderContext, *pVisualComponent );
+
+			for( GizmoComponent& oGizmoComponent : aGizmoComponents )
+				oGizmoComponent.SetAnchor( pEntity );
+
+			g_pRenderer->RenderGizmos( oRenderContext );
+		}
+		else
+		{
+			for( GizmoComponent& oGizmoComponent : aGizmoComponents )
+				oGizmoComponent.SetAnchor( nullptr );
 		}
 	}
 }
