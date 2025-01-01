@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include "Core/Types.h"
 
 class InputContext;
@@ -14,7 +16,11 @@ public:
 	void Render( const RenderContext& oRenderContext );
 
 private:
-	uint64	m_uSelectedEntityID;
+	uint64		m_uSelectedEntityID;
+	uint64		m_uGizmoEntityID;
 
-	bool	m_bDisplayEditor;
+	glm::vec3	m_vDraggingStartWorldPosition;
+	glm::vec2	m_vDraggingStartCursorPosition;
+
+	bool		m_bDisplayEditor;
 };

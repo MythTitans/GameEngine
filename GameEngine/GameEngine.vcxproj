@@ -175,6 +175,7 @@
     <ClCompile Include="Code\Game\ResourceLoader.cpp" />
     <ClCompile Include="Code\Game\Scene.cpp" />
     <ClCompile Include="Code\Graphics\Camera.cpp" />
+    <ClCompile Include="Code\Graphics\DebugRenderer.cpp" />
     <ClCompile Include="Code\Graphics\Mesh.cpp" />
     <ClCompile Include="Code\Graphics\Renderer.cpp" />
     <ClCompile Include="Code\Graphics\RenderTarget.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="Code\Game\ResourceLoader.h" />
     <ClInclude Include="Code\Game\Scene.h" />
     <ClInclude Include="Code\Graphics\Camera.h" />
+    <ClInclude Include="Code\Graphics\DebugRenderer.h" />
     <ClInclude Include="Code\Graphics\Mesh.h" />
     <ClInclude Include="Code\Graphics\Renderer.h" />
     <ClInclude Include="Code\Graphics\RenderTarget.h" />

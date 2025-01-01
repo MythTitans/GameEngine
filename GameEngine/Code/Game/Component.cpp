@@ -90,13 +90,51 @@ const glm::mat4& VisualComponent::GetWorldMatrix() const
 
 GizmoComponent::GizmoComponent( Entity* pEntity )
 	: VisualComponent( pEntity )
-	, m_vColor( 0.f )
+	, m_eGizmoType( GizmoType::TRANSLATE )
+	, m_eGizmoAxis( GizmoAxis::X )
+	, m_bEditing( false )
 {
 }
 
-void GizmoComponent::Start()
+void GizmoComponent::Setup( const GizmoType eGizmoType, const GizmoAxis eGizmoAxis )
 {
-	m_qInitialRotation = GetEntity()->GetRotation();
+	m_eGizmoType = eGizmoType;
+	m_eGizmoAxis = eGizmoAxis;
+
+	switch( m_eGizmoType )
+	{
+	case GizmoType::TRANSLATE:
+		VisualComponent::Setup( std::filesystem::path( "Data/Translate_gizmo.obj" ) );
+		break;
+	case GizmoType::ROTATE:
+		break;
+	case GizmoType::SCALE:
+		break;
+	}
+
+	Entity* pEntity = GetEntity();
+
+	switch( m_eGizmoAxis )
+	{
+	case GizmoAxis::X:
+		pEntity->SetRotationY( glm::radians( 90.f ) );
+		break;
+	case GizmoAxis::Y:
+		pEntity->SetRotationX( glm::radians( -90.f ) );
+		break;
+	case GizmoAxis::Z:
+		break;
+	case GizmoAxis::XY:
+		break;
+	case GizmoAxis::XZ:
+		break;
+	case GizmoAxis::YZ:
+		break;
+	case GizmoAxis::XYZ:
+		break;
+	}
+
+	m_qAxisRotation = pEntity->GetRotation();
 }
 
 void GizmoComponent::Update( const float fDeltaTime )
@@ -105,26 +143,50 @@ void GizmoComponent::Update( const float fDeltaTime )
 	{
 		Entity* pEntity = GetEntity();
 		pEntity->SetPosition( m_xAnchor->GetPosition() );
-		pEntity->SetScale( 1.f, 1.f, 1.f );
-		pEntity->SetRotation( m_xAnchor->GetRotation() * m_qInitialRotation );
+		pEntity->SetRotation( m_xAnchor->GetRotation() * m_qAxisRotation );
+
+		const float fDistance = glm::length( g_pRenderer->GetCamera().GetPosition() - pEntity->GetPosition() );
+		const float fScale = 0.06f * fDistance;
+		pEntity->SetScale( fScale, fScale, fScale );
 	}
 
 	VisualComponent::Update( fDeltaTime );
 }
 
-void GizmoComponent::SetColor( const glm::vec3& vColor )
+const glm::vec3 GizmoComponent::GetColor() const
 {
-	m_vColor = vColor;
-}
+	if( m_bEditing )
+		return glm::vec3( 1.f, 1.f, 0.f );
 
-const glm::vec3& GizmoComponent::GetColor() const
-{
-	return m_vColor;
+	switch( m_eGizmoAxis )
+	{
+	case GizmoAxis::X:
+		return glm::vec3( 1.f, 0.f, 0.f );
+	case GizmoAxis::Y:
+		return glm::vec3( 0.f, 1.f, 0.f );
+	case GizmoAxis::Z:
+		return glm::vec3( 0.f, 0.f, 1.f );
+	case GizmoAxis::XY:
+		break;
+	case GizmoAxis::XZ:
+		break;
+	case GizmoAxis::YZ:
+		break;
+	case GizmoAxis::XYZ:
+		break;
+	}
+
+	return glm::vec3( 1.f, 1.f, 1.f );
 }
 
 void GizmoComponent::SetAnchor( Entity* pEntity )
 {
 	m_xAnchor = pEntity;
+}
+
+void GizmoComponent::SetEditing( const bool bEditing )
+{
+	m_bEditing = bEditing;
 }
 
 DirectionalLightComponent::DirectionalLightComponent( Entity* pEntity )

@@ -28,36 +28,6 @@ const GameContext& GameEngine::GetGameContext() const
 	return m_oGameContext;
 }
 
-ComponentManager& GameEngine::GetComponentManager()
-{
-	return m_oComponentManager;
-}
-
-const ComponentManager& GameEngine::GetComponentManager() const
-{
-	return m_oComponentManager;
-}
-
-Scene& GameEngine::GetScene()
-{
-	return m_oScene;
-}
-
-const Scene& GameEngine::GetScene() const
-{
-	return m_oScene;
-}
-
-DebugDisplay& GameEngine::GetDebugDisplay()
-{
-	return m_oDebugDisplay;
-}
-
-const DebugDisplay& GameEngine::GetDebugDisplay() const
-{
-	return m_oDebugDisplay;
-}
-
 void GameEngine::NewFrame()
 {
 	const GameTimePoint oNow = std::chrono::high_resolution_clock::now();

@@ -30,12 +30,6 @@ public:
 	~GameEngine();
 
 	const GameContext&		GetGameContext() const;
-	ComponentManager&		GetComponentManager();
-	const ComponentManager&	GetComponentManager() const;
-	Scene&					GetScene();
-	const Scene&			GetScene() const;
-	DebugDisplay&			GetDebugDisplay();
-	const DebugDisplay&		GetDebugDisplay() const;
 
 	void					NewFrame();
 	void					ProcessFrame();
@@ -54,6 +48,7 @@ private:
 		RUNNING
 	};
 
+public:
 	ResourceLoader			m_oResourceLoader;
 	InputHandler			m_oInputHandler;
 	Renderer				m_oRenderer;
@@ -64,6 +59,7 @@ private:
 	Scene					m_oScene;
 	DebugDisplay			m_oDebugDisplay;
 
+private:
 	FreeCamera				m_oFreeCamera;
 
 	const InputContext&		m_oInputContext;

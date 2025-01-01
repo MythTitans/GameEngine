@@ -5,6 +5,7 @@
 #include "Game/ResourceLoader.h"
 #include "RenderTarget.h"
 #include "TechniqueDefinition.h"
+#include "DebugRenderer.h"
 #include "TextRenderer.h"
 
 class VisualComponent;
@@ -48,9 +49,6 @@ public:
 	Camera&				GetCamera();
 	const Camera&		GetCamera() const;
 
-	TextRenderer&		GetTextRenderer();
-	const TextRenderer& GetTextRenderer() const;
-
 	bool				OnLoading();
 
 	void				DisplayDebug();
@@ -65,7 +63,7 @@ private:
 
 	void				RenderForward( const RenderContext& oRenderContext );
 	void				RenderDeferred( const RenderContext& oRenderContext );
-	uint64				RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY );
+	uint64				RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos );
 	void				RenderOutline( const RenderContext& oRenderContext, const VisualComponent& oObject );
 	void				RenderGizmos( const RenderContext& oRenderContext );
 
@@ -77,7 +75,11 @@ private:
 	void				ClearRenderTarget();
 	void				DrawMesh( const Mesh& oMesh );
 
+public:
 	TextRenderer				m_oTextRenderer;
+	DebugRenderer				m_oDebugRenderer;
+
+private:
 	Camera						m_oCamera;
 
 	RenderTarget				m_oRenderTarget;

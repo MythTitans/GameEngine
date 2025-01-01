@@ -71,14 +71,9 @@ void TextRenderer::RenderText( const Array< Text >& aTexts, const RenderContext&
 	glBindVertexArray( 0 );
 	glBindTexture( GL_TEXTURE_2D, 0 );
 
-	glDisable( GL_BLEND );
-
 	glUseProgram( 0 );
-}
 
-void TextRenderer::RenderText( const Text& oText, const RenderContext& oRenderContext )
-{
-	RenderText( Array< Text >( 1, oText ), oRenderContext );
+	glDisable( GL_BLEND );
 }
 
 bool TextRenderer::OnLoading()

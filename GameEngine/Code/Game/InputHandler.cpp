@@ -117,7 +117,9 @@ InputHandler::InputHandler()
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_EDITOR, GLFW_KEY_F1, ActionType::PRESSED ) );
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_RENDERER_DEBUG, GLFW_KEY_F2, ActionType::PRESSED ) );
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_PROFILER, GLFW_KEY_F4, ActionType::PRESSED ) );
-	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_MOUSE_LEFT_CLICK, GLFW_MOUSE_BUTTON_LEFT, ActionType::RELEASED, DeviceType::MOUSE ) );
+	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_MOUSE_LEFT_PRESS, GLFW_MOUSE_BUTTON_LEFT, ActionType::PRESSED, DeviceType::MOUSE ) );
+	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_MOUSE_LEFT_PRESSING, GLFW_MOUSE_BUTTON_LEFT, ActionType::PRESSING, DeviceType::MOUSE ) );
+	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_MOUSE_LEFT_RELEASE, GLFW_MOUSE_BUTTON_LEFT, ActionType::RELEASED, DeviceType::MOUSE ) );
 
 	m_aInputActionResults.Reserve( m_aInputActions.Count() );
 	for( const InputAction& oInputAction : m_aInputActions )

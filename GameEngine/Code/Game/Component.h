@@ -167,21 +167,43 @@ private:
 class GizmoComponent : public VisualComponent
 {
 public:
+	enum class GizmoType
+	{
+		TRANSLATE,
+		ROTATE,
+		SCALE
+	};
+
+	enum class GizmoAxis
+	{
+		X,
+		Y,
+		Z,
+		XY,
+		XZ,
+		YZ,
+		XYZ
+	};
+
 	explicit GizmoComponent( Entity* pEntity );
 
-	void				Start() override;
+	void				Setup( const GizmoType eGizmoType, const GizmoAxis eGizmoAxis );
 	void				Update( const float fDeltaTime ) override;
 
-	void				SetColor( const glm::vec3& vColor );
-	const glm::vec3&	GetColor() const;
+	const glm::vec3		GetColor() const;
 
 	void				SetAnchor( Entity* pEntity );
+	void				SetEditing( const bool bEditing );
 
 private:
 	WeakPtr< Entity >	m_xAnchor;
 
-	glm::quat			m_qInitialRotation;
-	glm::vec3			m_vColor;
+	glm::quat			m_qAxisRotation;
+
+	GizmoType			m_eGizmoType;
+	GizmoAxis			m_eGizmoAxis;
+
+	bool				m_bEditing;
 };
 
 class DirectionalLightComponent : public Component

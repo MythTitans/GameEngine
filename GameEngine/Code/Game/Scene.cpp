@@ -15,19 +15,14 @@ Scene::Scene()
 	m_mEntities[ 6 ] = new Entity( 6, "Light 3" );
 	m_mEntities[ 7 ] = new Entity( 7, "Light 4" );
 
-	m_mEntities[ 0 ]->SetRotationY( glm::radians( 90.f ) );
 	GizmoComponent& oTranslateGizmoX = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 0 ].GetPtr() );
-	oTranslateGizmoX.Setup( std::filesystem::path( "Data/Translate_gizmo.obj" ) );
-	oTranslateGizmoX.SetColor( glm::vec3( 1.f, 0.f, 0.f ) );
+	oTranslateGizmoX.Setup( GizmoComponent::GizmoType::TRANSLATE, GizmoComponent::GizmoAxis::X );
 
-	m_mEntities[ 1 ]->SetRotationX( glm::radians( -90.f ) );
 	GizmoComponent& oTranslateGizmoY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 1 ].GetPtr() );
-	oTranslateGizmoY.Setup( std::filesystem::path( "Data/Translate_gizmo.obj" ) );
-	oTranslateGizmoY.SetColor( glm::vec3( 0.f, 1.f, 0.f ) );
+	oTranslateGizmoY.Setup( GizmoComponent::GizmoType::TRANSLATE, GizmoComponent::GizmoAxis::Y );
 
 	GizmoComponent& oTranslateGizmoZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 2 ].GetPtr() );
-	oTranslateGizmoZ.Setup( std::filesystem::path( "Data/Translate_gizmo.obj" ) );
-	oTranslateGizmoZ.SetColor( glm::vec3( 0.f, 0.f, 1.f ) );
+	oTranslateGizmoZ.Setup( GizmoComponent::GizmoType::TRANSLATE, GizmoComponent::GizmoAxis::Z );
 
 	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 3 ].GetPtr() ).Setup( std::filesystem::path( "Data/Earth_Golem_OBJ.obj" ) );
 

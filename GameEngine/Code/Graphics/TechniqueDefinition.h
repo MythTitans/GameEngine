@@ -276,3 +276,18 @@ private:
 	GLint m_iGlyphColorUniform;
 	GLint m_iAtlasTextureUniform;
 };
+
+class LineTechniqueDefinition : public TechniqueDefinitionBase
+{
+public:
+	LineTechniqueDefinition();
+
+	void SetViewProjection( const glm::mat4& mViewProjection );
+	void SetColor( const glm::vec3& vColor );
+
+private:
+	void CreateDefinition( const Technique& oTechnique ) override;
+
+	GLint m_iViewProjection;
+	GLint m_iColorUniform;
+};

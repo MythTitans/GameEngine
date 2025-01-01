@@ -1,7 +1,11 @@
 #include "Editor.h"
 
-#include "Game/GameEngine.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/intersect.hpp"
+#include "glm/gtx/projection.hpp"
+
 #include "Core/Profiler.h"
+#include "Game/GameEngine.h"
 #include "Game/Entity.h"
 #include "Game/InputHandler.h"
 #include "Game/Scene.h"
@@ -53,6 +57,9 @@ static glm::vec3 EditableVector3( const char* sName, glm::vec3 vVector )
 
 Editor::Editor()
 	: m_uSelectedEntityID( UINT64_MAX )
+	, m_uGizmoEntityID( UINT64_MAX )
+	, m_vDraggingStartWorldPosition( 0.f )
+	, m_vDraggingStartCursorPosition( 0.f )
 	, m_bDisplayEditor( false )
 {
 }
@@ -64,67 +71,140 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_TOGGLE_EDITOR ) )
 		m_bDisplayEditor = !m_bDisplayEditor;
 
-	if( m_bDisplayEditor )
+	if( m_bDisplayEditor == false )
+		return;
+
+	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_PRESS ) && ImGui::GetIO().WantCaptureMouse == false )
 	{
-		if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_CLICK ) && ImGui::GetIO().WantCaptureMouse == false )
-			m_uSelectedEntityID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY() );
+		const uint64 uGizmoEntityID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY(), true );
 
-		ImGui::Begin( "Editor" );
-
-		if( ImGui::TreeNode( "Root" ) )
+		if( uGizmoEntityID != UINT64_MAX )
 		{
-			for( auto& it : g_pGameEngine->GetScene().m_mEntities )
+			Entity* pSelectedEntity = g_pGameEngine->m_oScene.FindEntity( m_uSelectedEntityID );
+			Entity* pGizmoEntity = g_pGameEngine->m_oScene.FindEntity( uGizmoEntityID );
+			GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pGizmoEntity );
+			if( pGizmoComponent != nullptr )
 			{
-				if( ImGui::TreeNode( it.second->GetName() ) )
-				{
-					Transform& oTransform = it.second->GetTransform();
+				pGizmoComponent->SetEditing( true );
+				m_uGizmoEntityID = uGizmoEntityID;
 
-					oTransform.SetPosition( EditableVector3( "Position", oTransform.GetPosition() ) );
-
-					glm::vec3 vEuler = oTransform.GetRotationEuler();
-					vEuler = glm::vec3( glm::degrees( vEuler.x ), glm::degrees( vEuler.y ), glm::degrees( vEuler.z ) );
-					vEuler = EditableVector3( "Rotation", vEuler );
-					vEuler = glm::vec3( glm::radians( vEuler.x ), glm::radians( vEuler.y ), glm::radians( vEuler.z ) );
-					oTransform.SetRotationEuler( vEuler );
-
-					oTransform.SetScale( EditableVector3( "Scale", oTransform.GetScale() ) );
-
-					DirectionalLightComponent* pDirectionalLightComponent = g_pComponentManager->GetComponent< DirectionalLightComponent >( it.second.GetPtr() );
-					if( pDirectionalLightComponent != nullptr && ImGui::CollapsingHeader( "Directional light" ) )
-					{
-						pDirectionalLightComponent->m_vDirection = EditableVector3( "Direction", pDirectionalLightComponent->m_vDirection );
-						ImGui::DragFloat( "Intensity", &pDirectionalLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-						ImGui::ColorEdit3( "Color", &pDirectionalLightComponent->m_vColor.x );
-					}
-
-					PointLightComponent* pPointLightComponent = g_pComponentManager->GetComponent< PointLightComponent >( it.second.GetPtr() );
-					if( pPointLightComponent != nullptr && ImGui::CollapsingHeader( "Point light" ) )
-					{
-						ImGui::DragFloat( "Intensity", &pPointLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-						ImGui::ColorEdit3( "Color", &pPointLightComponent->m_vColor.x );
-						ImGui::DragFloat( "Falloff factor", &pPointLightComponent->m_fFalloffFactor, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					}
-
-					SpotLightComponent* pSpotLightComponent = g_pComponentManager->GetComponent< SpotLightComponent >( it.second.GetPtr() );
-					if( pSpotLightComponent != nullptr && ImGui::CollapsingHeader( "Spot light" ) )
-					{
-						pSpotLightComponent->m_vDirection = EditableVector3( "Direction", pSpotLightComponent->m_vDirection );
-						ImGui::DragFloat( "Intensity", &pSpotLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-						ImGui::ColorEdit3( "Color", &pSpotLightComponent->m_vColor.x );
-						ImGui::DragFloat( "Inner angle", &pSpotLightComponent->m_fInnerAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-						ImGui::DragFloat( "Outer angle", &pSpotLightComponent->m_fOuterAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-						ImGui::DragFloat( "Falloff factor", &pSpotLightComponent->m_fFalloffFactor, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					}
-
-					ImGui::TreePop();
-				}
+				m_vDraggingStartWorldPosition = pSelectedEntity->GetPosition();
+				m_vDraggingStartCursorPosition = glm::vec2( ( float )oInputContext.GetCursorX(), ( float )oInputContext.GetCursorY() );
 			}
+		}
+	}
 
-			ImGui::TreePop();
+// 	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_PRESSING ) && ImGui::GetIO().WantCaptureMouse == false )
+// 	{
+// 		if( m_uGizmoEntityID != UINT64_MAX )
+// 		{
+// 			Entity* pSelectedEntity = g_pGameEngine->m_oScene.FindEntity( m_uSelectedEntityID );
+// 			Entity* pGizmoEntity = g_pGameEngine->m_oScene.FindEntity( m_uGizmoEntityID );
+// 
+// 			glm::vec2 vCursorMove = glm::vec2( ( float )oInputContext.GetCursorX(), ( float )oInputContext.GetCursorY() ) - m_vDraggingStartCursorPosition;
+// 			vCursorMove.x = vCursorMove.x / oRenderContext.GetRenderRect().m_uWidth;
+// 			vCursorMove.y = vCursorMove.y / oRenderContext.GetRenderRect().m_uHeight;
+// 
+// 			const glm::vec3 rayPosition = g_pRenderer->GetCamera().GetInverseViewProjectionMatrix() * glm::vec4( vCursorMove.x, -vCursorMove.y, 0.f, 0.f );
+// 			const glm::vec3 rayDirection = g_pRenderer->GetCamera().GetInverseViewProjectionMatrix()* glm::vec4( vCursorMove.x, -vCursorMove.y, 1.f, 0.f );
+// 			float fDistance;
+// 			glm::intersectRayPlane( rayPosition, rayDirection, m_vDraggingStartWorldPosition, glm::cross( pGizmoEntity->GetTransform().GetK(), pGizmoEntity->GetTransform().GetJ() ), fDistance );
+// 
+// //			glm::vec3 vMove = g_pRenderer->GetCamera().GetInverseViewProjectionMatrix() * glm::vec4( vCursorMove.x, -vCursorMove.y, 0.f, 0.f );
+// 			glm::vec3 vMove = rayPosition + rayDirection * fDistance - m_vDraggingStartWorldPosition;
+// 			vMove = glm::proj( vMove, pGizmoEntity->GetTransform().GetK() );
+// 
+// 			pSelectedEntity->SetPosition( m_vDraggingStartWorldPosition + vMove );
+// 		}	
+// 	}
+
+	// TODO #eric handle multiple selection
+	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_RELEASE ) && ImGui::GetIO().WantCaptureMouse == false )
+	{
+		if( m_uGizmoEntityID != UINT64_MAX )
+		{
+			Entity* pEntity = g_pGameEngine->m_oScene.FindEntity( m_uGizmoEntityID );
+			GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pEntity );
+
+			pGizmoComponent->SetEditing( false );
+			m_uGizmoEntityID = UINT64_MAX;
+		}
+		else
+		{
+			m_uSelectedEntityID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY(), false );
+
+			ArrayView< GizmoComponent > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
+
+			if( m_uSelectedEntityID != UINT64_MAX )
+			{
+				Entity* pEntity = g_pGameEngine->m_oScene.FindEntity( m_uSelectedEntityID );
+
+				for( GizmoComponent& oGizmoComponent : aGizmoComponents )
+					oGizmoComponent.SetAnchor( pEntity );
+			}
+			else
+			{
+				for( GizmoComponent& oGizmoComponent : aGizmoComponents )
+					oGizmoComponent.SetAnchor( nullptr );
+			}
+		}
+	}
+
+	ImGui::Begin( "Editor" );
+
+	if( ImGui::TreeNode( "Root" ) )
+	{
+		for( auto& it : g_pGameEngine->m_oScene.m_mEntities )
+		{
+			if( ImGui::TreeNode( it.second->GetName() ) )
+			{
+				Transform& oTransform = it.second->GetTransform();
+
+				oTransform.SetPosition( EditableVector3( "Position", oTransform.GetPosition() ) );
+
+				glm::vec3 vEuler = oTransform.GetRotationEuler();
+				vEuler = glm::vec3( glm::degrees( vEuler.x ), glm::degrees( vEuler.y ), glm::degrees( vEuler.z ) );
+				vEuler = EditableVector3( "Rotation", vEuler );
+				vEuler = glm::vec3( glm::radians( vEuler.x ), glm::radians( vEuler.y ), glm::radians( vEuler.z ) );
+				oTransform.SetRotationEuler( vEuler );
+
+				oTransform.SetScale( EditableVector3( "Scale", oTransform.GetScale() ) );
+
+				DirectionalLightComponent* pDirectionalLightComponent = g_pComponentManager->GetComponent< DirectionalLightComponent >( it.second.GetPtr() );
+				if( pDirectionalLightComponent != nullptr && ImGui::CollapsingHeader( "Directional light" ) )
+				{
+					pDirectionalLightComponent->m_vDirection = EditableVector3( "Direction", pDirectionalLightComponent->m_vDirection );
+					ImGui::DragFloat( "Intensity", &pDirectionalLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+					ImGui::ColorEdit3( "Color", &pDirectionalLightComponent->m_vColor.x );
+				}
+
+				PointLightComponent* pPointLightComponent = g_pComponentManager->GetComponent< PointLightComponent >( it.second.GetPtr() );
+				if( pPointLightComponent != nullptr && ImGui::CollapsingHeader( "Point light" ) )
+				{
+					ImGui::DragFloat( "Intensity", &pPointLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+					ImGui::ColorEdit3( "Color", &pPointLightComponent->m_vColor.x );
+					ImGui::DragFloat( "Falloff factor", &pPointLightComponent->m_fFalloffFactor, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+				}
+
+				SpotLightComponent* pSpotLightComponent = g_pComponentManager->GetComponent< SpotLightComponent >( it.second.GetPtr() );
+				if( pSpotLightComponent != nullptr && ImGui::CollapsingHeader( "Spot light" ) )
+				{
+					pSpotLightComponent->m_vDirection = EditableVector3( "Direction", pSpotLightComponent->m_vDirection );
+					ImGui::DragFloat( "Intensity", &pSpotLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+					ImGui::ColorEdit3( "Color", &pSpotLightComponent->m_vColor.x );
+					ImGui::DragFloat( "Inner angle", &pSpotLightComponent->m_fInnerAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+					ImGui::DragFloat( "Outer angle", &pSpotLightComponent->m_fOuterAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+					ImGui::DragFloat( "Falloff factor", &pSpotLightComponent->m_fFalloffFactor, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+				}
+
+				ImGui::TreePop();
+			}
 		}
 
-		ImGui::End();
+		ImGui::TreePop();
 	}
+
+	ImGui::End();
 }
 
 void Editor::Render( const RenderContext& oRenderContext )
@@ -133,24 +213,14 @@ void Editor::Render( const RenderContext& oRenderContext )
 
 	if( m_bDisplayEditor )
 	{
-		ArrayView< GizmoComponent > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
-
 		if( m_uSelectedEntityID != UINT64_MAX )
 		{
-			Entity* pEntity = g_pGameEngine->GetScene().FindEntity( m_uSelectedEntityID );
+			Entity* pEntity = g_pGameEngine->m_oScene.FindEntity( m_uSelectedEntityID );
 			const VisualComponent* pVisualComponent = g_pComponentManager->GetComponent< VisualComponent >( pEntity );
 			if( pVisualComponent != nullptr )
 				g_pRenderer->RenderOutline( oRenderContext, *pVisualComponent );
 
-			for( GizmoComponent& oGizmoComponent : aGizmoComponents )
-				oGizmoComponent.SetAnchor( pEntity );
-
 			g_pRenderer->RenderGizmos( oRenderContext );
-		}
-		else
-		{
-			for( GizmoComponent& oGizmoComponent : aGizmoComponents )
-				oGizmoComponent.SetAnchor( nullptr );
 		}
 	}
 }

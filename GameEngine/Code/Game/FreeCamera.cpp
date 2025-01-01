@@ -39,5 +39,5 @@ void FreeCamera::Update( const float fDeltaTime )
 	oCamera.SetTarget( m_vPosition + vForward );
 	oCamera.SetUp( vUp );
 
-	g_pGameEngine->GetDebugDisplay().DisplayText( std::format( "Camera position ({:.3f}, {:.3f}, {:.3f})", m_vPosition.x, m_vPosition.y, m_vPosition.z ) );
+	g_pGameEngine->m_oDebugDisplay.DisplayText( std::format( "Camera position ({:.3f}, {:.3f}, {:.3f})", m_vPosition.x, m_vPosition.y, m_vPosition.z ) );
 }

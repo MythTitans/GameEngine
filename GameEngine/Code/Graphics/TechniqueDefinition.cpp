@@ -334,3 +334,25 @@ void GizmoDefinition::CreateDefinition( const Technique& oTechnique )
 	m_iModelViewProjectionUniform = oTechnique.GetParameterID( "modelViewProjection" );
 	m_iColorUniform = oTechnique.GetParameterID( "color" );
 }
+
+LineTechniqueDefinition::LineTechniqueDefinition()
+	: m_iViewProjection( -1 )
+	, m_iColorUniform( -1 )
+{
+}
+
+void LineTechniqueDefinition::SetViewProjection( const glm::mat4& mViewProjection )
+{
+	SetParameterID( m_iViewProjection, mViewProjection );
+}
+
+void LineTechniqueDefinition::SetColor( const glm::vec3& vColor )
+{
+	SetParameterID( m_iColorUniform, vColor );
+}
+
+void LineTechniqueDefinition::CreateDefinition( const Technique& oTechnique )
+{
+	m_iViewProjection = oTechnique.GetParameterID( "viewProjection" );
+	m_iColorUniform = oTechnique.GetParameterID( "color" );
+}

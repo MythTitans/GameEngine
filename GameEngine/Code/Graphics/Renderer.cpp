@@ -116,16 +116,6 @@ const Camera& Renderer::GetCamera() const
 	return m_oCamera;
 }
 
-TextRenderer& Renderer::GetTextRenderer()
-{
-	return m_oTextRenderer;
-}
-
-const TextRenderer& Renderer::GetTextRenderer() const
-{
-	return m_oTextRenderer;
-}
-
 bool Renderer::OnLoading()
 {
 	if( m_xForwardOpaque->IsLoaded() && m_oForwardOpaque.IsValid() == false )
@@ -146,7 +136,7 @@ bool Renderer::OnLoading()
 	if( m_xGizmo->IsLoaded() && m_oGizmo.IsValid() == false )
 		m_oGizmo.Create( m_xGizmo->GetTechnique() );
 
-	return m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded() && m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded() && m_oTextRenderer.OnLoading();
+	return m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded() && m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded() && m_oTextRenderer.OnLoading() &&m_oDebugRenderer.OnLoading();
 }
 
 void Renderer::DisplayDebug()
@@ -203,7 +193,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	SetTechnique( m_xForwardOpaque->GetTechnique() );
 
 	{
-		ArrayView< DirectionalLightComponent > aDirectionalLightComponents = g_pGameEngine->GetComponentManager().GetComponents< DirectionalLightComponent >();
+		ArrayView< DirectionalLightComponent > aDirectionalLightComponents = g_pGameEngine->m_oComponentManager.GetComponents< DirectionalLightComponent >();
 		Array< glm::vec3 > aLightDirections( aDirectionalLightComponents.Count() );
 		Array< glm::vec3 > aLightColors( aDirectionalLightComponents.Count() );
 		Array< float > aLightIntensities( aDirectionalLightComponents.Count() );
@@ -217,7 +207,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	}
 
 	{
-		ArrayView< PointLightComponent > aPointLightComponents = g_pGameEngine->GetComponentManager().GetComponents< PointLightComponent >();
+		ArrayView< PointLightComponent > aPointLightComponents = g_pGameEngine->m_oComponentManager.GetComponents< PointLightComponent >();
 		Array< glm::vec3 > aLightPositions( aPointLightComponents.Count() );
 		Array< glm::vec3 > aLightColors( aPointLightComponents.Count() );
 		Array< float > aLightIntensities( aPointLightComponents.Count() );
@@ -233,7 +223,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	}
 
 	{
-		ArrayView< SpotLightComponent > aLightComponents = g_pGameEngine->GetComponentManager().GetComponents< SpotLightComponent >();
+		ArrayView< SpotLightComponent > aLightComponents = g_pGameEngine->m_oComponentManager.GetComponents< SpotLightComponent >();
 		Array< glm::vec3 > aLightPositions( aLightComponents.Count() );
 		Array< glm::vec3 > aLightDirections( aLightComponents.Count() );
 		Array< glm::vec3 > aLightColors( aLightComponents.Count() );
@@ -254,7 +244,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 		m_oForwardOpaque.SetSpotLights( aLightPositions, aLightDirections, aLightColors, aLightIntensities, aLightInnerAngles, aLightOuterAngles, aLightFalloffFactors );
 	}
 
-	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->GetComponentManager().GetComponents< VisualComponent >();
+	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->m_oComponentManager.GetComponents< VisualComponent >();
 	for( const VisualComponent& oVisualComponent : aVisualComponents )
 	{
 		m_oForwardOpaque.SetModelAndViewProjection( oVisualComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
@@ -327,7 +317,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 
 	SetTechnique( m_xDeferredMaps->GetTechnique() );
 
-	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->GetComponentManager().GetComponents< VisualComponent >();
+	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->m_oComponentManager.GetComponents< VisualComponent >();
 	for( const VisualComponent& oVisualComponent : aVisualComponents )
 	{
 		m_oDeferredMaps.SetModelAndViewProjection( oVisualComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
@@ -387,7 +377,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	m_oDeferredCompose.SetInverseViewProjection( m_oCamera.GetInverseViewProjectionMatrix() );
 
 	{
-		ArrayView< DirectionalLightComponent > aLightComponents = g_pGameEngine->GetComponentManager().GetComponents< DirectionalLightComponent >();
+		ArrayView< DirectionalLightComponent > aLightComponents = g_pGameEngine->m_oComponentManager.GetComponents< DirectionalLightComponent >();
 		Array< glm::vec3 > aLightDirections( aLightComponents.Count() );
 		Array< glm::vec3 > aLightColors( aLightComponents.Count() );
 		Array< float > aLightIntensities( aLightComponents.Count() );
@@ -401,7 +391,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	}
 
 	{
-		ArrayView< PointLightComponent > aLightComponents = g_pGameEngine->GetComponentManager().GetComponents< PointLightComponent >();
+		ArrayView< PointLightComponent > aLightComponents = g_pGameEngine->m_oComponentManager.GetComponents< PointLightComponent >();
 		Array< glm::vec3 > aLightPositions( aLightComponents.Count() );
 		Array< glm::vec3 > aLightColors( aLightComponents.Count() );
 		Array< float > aLightIntensities( aLightComponents.Count() );
@@ -417,7 +407,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	}
 
 	{
-		ArrayView< SpotLightComponent > aLightComponents = g_pGameEngine->GetComponentManager().GetComponents< SpotLightComponent >();
+		ArrayView< SpotLightComponent > aLightComponents = g_pGameEngine->m_oComponentManager.GetComponents< SpotLightComponent >();
 		Array< glm::vec3 > aLightPositions( aLightComponents.Count() );
 		Array< glm::vec3 > aLightDirections( aLightComponents.Count() );
 		Array< glm::vec3 > aLightColors( aLightComponents.Count() );
@@ -444,7 +434,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	ClearTechnique();
 }
 
-uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY )
+uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos )
 {
 	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
@@ -468,15 +458,33 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 
 	SetTechnique( m_xPicking->GetTechnique() );
 
-	ArrayView< VisualComponent > aVisualComponents = g_pGameEngine->GetComponentManager().GetComponents< VisualComponent >();
-	for( const VisualComponent& oVisualComponent : aVisualComponents )
 	{
-		m_oPicking.SetModelAndViewProjection( oVisualComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
-		m_oPicking.SetID( oVisualComponent.GetEntity()->GetID() );
+		ArrayView< VisualComponent > aComponents = g_pGameEngine->m_oComponentManager.GetComponents< VisualComponent >();
+		for( const VisualComponent& oComponent : aComponents )
+		{
+			m_oPicking.SetModelAndViewProjection( oComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
+			m_oPicking.SetID( oComponent.GetEntity()->GetID() );
 
-		const Array< Mesh >& aMeshes = oVisualComponent.GetResource()->GetMeshes();
-		for( const Mesh& oMesh : aMeshes )
-			DrawMesh( oMesh );
+			const Array< Mesh >& aMeshes = oComponent.GetResource()->GetMeshes();
+			for( const Mesh& oMesh : aMeshes )
+				DrawMesh( oMesh );
+		}
+	}
+
+	if( bAllowGizmos )
+	{
+		glDisable( GL_DEPTH_TEST );
+
+		ArrayView< GizmoComponent > aComponents = g_pGameEngine->m_oComponentManager.GetComponents< GizmoComponent >();
+		for( const GizmoComponent& oComponent : aComponents )
+		{
+			m_oPicking.SetModelAndViewProjection( oComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix());
+			m_oPicking.SetID( oComponent.GetEntity()->GetID() );
+
+			const Array< Mesh >& aMeshes = oComponent.GetResource()->GetMeshes();
+			for( const Mesh& oMesh : aMeshes )
+				DrawMesh( oMesh );
+		}
 	}
 
 	ClearTechnique();
@@ -546,7 +554,7 @@ void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 
 	SetTechnique( m_xGizmo->GetTechnique() );
 
-	ArrayView< GizmoComponent > aGizmoComponents = g_pGameEngine->GetComponentManager().GetComponents< GizmoComponent >();
+	ArrayView< GizmoComponent > aGizmoComponents = g_pGameEngine->m_oComponentManager.GetComponents< GizmoComponent >();
 	for( const GizmoComponent& oGizmoComponent : aGizmoComponents )
 	{
 		m_oGizmo.SetModelAndViewProjection( oGizmoComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
