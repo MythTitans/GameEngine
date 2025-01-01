@@ -11,6 +11,7 @@ class Editor
 {
 public:
 	Editor();
+	~Editor();
 
 	void Update( const InputContext& oInputContext, const RenderContext& oRenderContext );
 	void Render( const RenderContext& oRenderContext );
@@ -24,3 +25,5 @@ private:
 
 	bool		m_bDisplayEditor;
 };
+
+extern Editor* g_pEditor;

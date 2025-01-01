@@ -145,7 +145,7 @@ void GizmoComponent::Update( const float fDeltaTime )
 		pEntity->SetPosition( m_xAnchor->GetPosition() );
 		pEntity->SetRotation( m_xAnchor->GetRotation() * m_qAxisRotation );
 
-		const float fDistance = glm::length( g_pRenderer->GetCamera().GetPosition() - pEntity->GetPosition() );
+		const float fDistance = glm::length( g_pRenderer->m_oCamera.GetPosition() - pEntity->GetPosition() );
 		const float fScale = 0.06f * fDistance;
 		pEntity->SetScale( fScale, fScale, fScale );
 	}

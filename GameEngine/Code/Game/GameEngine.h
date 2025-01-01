@@ -29,6 +29,9 @@ public:
 	GameEngine( const InputContext& oInputContext, const RenderContext& oRenderContext );
 	~GameEngine();
 
+	Scene&					GetScene();
+	const Scene&			GetScene() const;
+
 	const GameContext&		GetGameContext() const;
 
 	void					NewFrame();
@@ -48,25 +51,23 @@ private:
 		RUNNING
 	};
 
-public:
+private:
 	ResourceLoader			m_oResourceLoader;
 	InputHandler			m_oInputHandler;
 	Renderer				m_oRenderer;
+	ComponentManager		m_oComponentManager;
+
+	DebugDisplay			m_oDebugDisplay;
 	Profiler				m_oProfiler;
 	Editor					m_oEditor;
 
-	ComponentManager		m_oComponentManager;
-	Scene					m_oScene;
-	DebugDisplay			m_oDebugDisplay;
-
-private:
 	FreeCamera				m_oFreeCamera;
 
 	const InputContext&		m_oInputContext;
 	const RenderContext&	m_oRenderContext;
 
+	Scene					m_oScene;
 	GameContext				m_oGameContext;
-
 	GameState				m_eGameState;
 };
 

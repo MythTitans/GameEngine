@@ -41,13 +41,13 @@ class Renderer
 public:
 	friend class Editor;
 
+	template < typename MeshesDefinition >
+	friend void DrawMeshes( MeshesDefinition& oMeshesDefinition );
+
 	Renderer();
 	~Renderer();
 
 	void				Render( const RenderContext& oRenderContext );
-
-	Camera&				GetCamera();
-	const Camera&		GetCamera() const;
 
 	bool				OnLoading();
 
@@ -79,9 +79,9 @@ public:
 	TextRenderer				m_oTextRenderer;
 	DebugRenderer				m_oDebugRenderer;
 
-private:
 	Camera						m_oCamera;
 
+private:
 	RenderTarget				m_oRenderTarget;
 	RenderTarget				m_oPickingTarget;
 

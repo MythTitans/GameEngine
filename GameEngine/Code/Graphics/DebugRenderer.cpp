@@ -28,7 +28,7 @@ void DebugRenderer::RenderLines( const Array< Line >& aLines, const RenderContex
 {
 	glUseProgram( m_xLine->GetTechnique().m_uProgramID );
 
-	m_oLine.SetViewProjection( g_pRenderer->GetCamera().GetViewProjectionMatrix() );
+	m_oLine.SetViewProjection( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
 
 	Array< GLfloat > aVertices;
 	aVertices.Reserve( 3 * 2 * aLines.Count() );

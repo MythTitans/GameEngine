@@ -2,7 +2,7 @@
 
 #include <glm/gtc/constants.hpp>
 
-#include "GameEngine.h"
+#include "DebugDisplay.h"
 #include "Graphics/Renderer.h"
 #include "InputHandler.h"
 
@@ -34,10 +34,10 @@ void FreeCamera::Update( const float fDeltaTime )
 
 	m_vPosition += ( vRight * fMoveRight + vForward * fMoveForward ) *m_fSpeed * fDeltaTime;
 
-	Camera& oCamera = g_pRenderer->GetCamera();
+	Camera& oCamera = g_pRenderer->m_oCamera;
 	oCamera.SetPosition( m_vPosition );
 	oCamera.SetTarget( m_vPosition + vForward );
 	oCamera.SetUp( vUp );
 
-	g_pGameEngine->m_oDebugDisplay.DisplayText( std::format( "Camera position ({:.3f}, {:.3f}, {:.3f})", m_vPosition.x, m_vPosition.y, m_vPosition.z ) );
+	g_pDebugDisplay->DisplayText( std::format( "Camera position ({:.3f}, {:.3f}, {:.3f})", m_vPosition.x, m_vPosition.y, m_vPosition.z ) );
 }

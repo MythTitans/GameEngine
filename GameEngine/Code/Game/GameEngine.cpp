@@ -23,6 +23,16 @@ GameEngine::~GameEngine()
 	g_pGameEngine = nullptr;
 }
 
+Scene& GameEngine::GetScene()
+{
+	return m_oScene;
+}
+
+const Scene& GameEngine::GetScene() const
+{
+	return m_oScene;
+}
+
 const GameContext& GameEngine::GetGameContext() const
 {
 	return m_oGameContext;

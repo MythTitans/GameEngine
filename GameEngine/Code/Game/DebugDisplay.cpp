@@ -4,6 +4,18 @@
 
 #include "Graphics/Renderer.h"
 
+DebugDisplay* g_pDebugDisplay = nullptr;
+
+DebugDisplay::DebugDisplay()
+{
+	g_pDebugDisplay = this;
+}
+
+DebugDisplay::~DebugDisplay()
+{
+	g_pDebugDisplay = nullptr;
+}
+
 void DebugDisplay::NewFrame()
 {
 	m_aTexts.Clear();

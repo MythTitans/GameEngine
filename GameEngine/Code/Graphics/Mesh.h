@@ -14,6 +14,9 @@ public:
 	friend class Renderer;
 	friend class TextRenderer;
 
+	template < typename MeshesDefinition >
+	friend void DrawMeshes( MeshesDefinition& oMeshesDefinition );
+
 	Mesh();
 
 	void Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< GLuint >& aIndices, const Material* pMaterial );

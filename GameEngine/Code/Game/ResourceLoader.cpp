@@ -12,7 +12,7 @@
 #include "Core/Profiler.h"
 #include "Core/stb_image.h"
 #include "Core/stb_truetype.h"
-#include "GameEngine.h"
+#include "DebugDisplay.h"
 
 Resource::Resource()
 	: m_eStatus( Status::LOADING )
@@ -411,13 +411,13 @@ void ResourceLoader::CheckFinishedProcessingLoadCommands()
 		m_oWaitingDependenciesLoadCommands.Clear();
 
 	if( m_oPendingLoadCommands.Empty() == false )
-		g_pGameEngine->m_oDebugDisplay.DisplayText( std::format( "Pending load commands {}", m_oPendingLoadCommands.Count() ), glm::vec4( 1.f, 0.5f, 0.f, 1.f ) );
+		g_pDebugDisplay->DisplayText( std::format( "Pending load commands {}", m_oPendingLoadCommands.Count() ), glm::vec4( 1.f, 0.5f, 0.f, 1.f ) );
 
 	if( m_oProcessingLoadCommands.Empty() == false )
-		g_pGameEngine->m_oDebugDisplay.DisplayText( std::format( "Processing load commands {}", m_oProcessingLoadCommands.Count() ), glm::vec4( 0.f, 0.5f, 1.f, 1.f ) );
+		g_pDebugDisplay->DisplayText( std::format( "Processing load commands {}", m_oProcessingLoadCommands.Count() ), glm::vec4( 0.f, 0.5f, 1.f, 1.f ) );
 
 	if( m_oWaitingDependenciesLoadCommands.Empty() == false )
-		g_pGameEngine->m_oDebugDisplay.DisplayText( std::format( "Waiting dependencies load commands {}", m_oWaitingDependenciesLoadCommands.Count() ), glm::vec4( 0.5f, 1.f, 0.f, 1.f ) );
+		g_pDebugDisplay->DisplayText( std::format( "Waiting dependencies load commands {}", m_oWaitingDependenciesLoadCommands.Count() ), glm::vec4( 0.5f, 1.f, 0.f, 1.f ) );
 }
 
 template < typename Resource >

@@ -15,6 +15,9 @@ class DebugDisplay
 public:
 	friend class TextRenderer;
 
+	DebugDisplay();
+	~DebugDisplay();
+
 	void NewFrame();
 	void Display( const float fDeltaTime, const RenderContext& oRenderContext );
 
@@ -30,3 +33,5 @@ private:
 
 	Array< Line >	m_aLines;
 };
+
+extern DebugDisplay* g_pDebugDisplay;
