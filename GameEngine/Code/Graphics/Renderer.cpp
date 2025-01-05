@@ -167,6 +167,7 @@ Renderer::Renderer()
 	, m_xPicking( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/picking" ) ) )
 	, m_xOutline( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/outline" ) ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
+	, m_bMSAA( false )
 	, m_bDisplayDebug( false )
 {
 	glEnable( GL_CULL_FACE );
@@ -289,6 +290,9 @@ void Renderer::DisplayDebug()
 		ImGui::EndCombo();
 	}
 
+	if( m_eRenderingMode == FORWARD )
+		ImGui::Checkbox( "MSAA", &m_bMSAA );
+
 	ImGui::End();
 }
 
@@ -296,6 +300,11 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 {
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
+
+	if( m_bMSAA )
+		glEnable( GL_MULTISAMPLE );
+	else
+		glDisable( GL_MULTISAMPLE );
 
 	SetTechnique( m_xForwardOpaque->GetTechnique() );
 

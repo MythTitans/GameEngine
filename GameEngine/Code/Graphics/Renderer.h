@@ -103,6 +103,7 @@ private:
 	GizmoDefinition				m_oGizmo;
 
 	RenderingMode				m_eRenderingMode;
+	bool						m_bMSAA;
 
 	bool						m_bDisplayDebug;
 };

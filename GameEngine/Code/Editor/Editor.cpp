@@ -102,29 +102,25 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		}
 	}
 
-// 	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_PRESSING ) && ImGui::GetIO().WantCaptureMouse == false )
-// 	{
-// 		if( m_uGizmoEntityID != UINT64_MAX )
-// 		{
-// 			Entity* pSelectedEntity = g_pGameEngine->m_oScene.FindEntity( m_uSelectedEntityID );
-// 			Entity* pGizmoEntity = g_pGameEngine->m_oScene.FindEntity( m_uGizmoEntityID );
-// 
-// 			glm::vec2 vCursorMove = glm::vec2( ( float )oInputContext.GetCursorX(), ( float )oInputContext.GetCursorY() ) - m_vDraggingStartCursorPosition;
-// 			vCursorMove.x = vCursorMove.x / oRenderContext.GetRenderRect().m_uWidth;
-// 			vCursorMove.y = vCursorMove.y / oRenderContext.GetRenderRect().m_uHeight;
-// 
-// 			const glm::vec3 rayPosition = g_pRenderer->GetCamera().GetInverseViewProjectionMatrix() * glm::vec4( vCursorMove.x, -vCursorMove.y, 0.f, 0.f );
-// 			const glm::vec3 rayDirection = g_pRenderer->GetCamera().GetInverseViewProjectionMatrix()* glm::vec4( vCursorMove.x, -vCursorMove.y, 1.f, 0.f );
-// 			float fDistance;
-// 			glm::intersectRayPlane( rayPosition, rayDirection, m_vDraggingStartWorldPosition, glm::cross( pGizmoEntity->GetTransform().GetK(), pGizmoEntity->GetTransform().GetJ() ), fDistance );
-// 
-// //			glm::vec3 vMove = g_pRenderer->GetCamera().GetInverseViewProjectionMatrix() * glm::vec4( vCursorMove.x, -vCursorMove.y, 0.f, 0.f );
-// 			glm::vec3 vMove = rayPosition + rayDirection * fDistance - m_vDraggingStartWorldPosition;
-// 			vMove = glm::proj( vMove, pGizmoEntity->GetTransform().GetK() );
-// 
-// 			pSelectedEntity->SetPosition( m_vDraggingStartWorldPosition + vMove );
-// 		}	
-// 	}
+	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_PRESSING ) && ImGui::GetIO().WantCaptureMouse == false )
+	{
+		if( m_uGizmoEntityID != UINT64_MAX )
+		{
+			Entity* pSelectedEntity = g_pGameEngine->GetScene().FindEntity( m_uSelectedEntityID );
+			Entity* pGizmoEntity = g_pGameEngine->GetScene().FindEntity( m_uGizmoEntityID );
+
+			glm::vec2 vCursorMove = glm::vec2( ( float )oInputContext.GetCursorX(), ( float )oInputContext.GetCursorY() ) - m_vDraggingStartCursorPosition;
+			vCursorMove.x = vCursorMove.x / oRenderContext.GetRenderRect().m_uWidth;
+			vCursorMove.y = vCursorMove.y / oRenderContext.GetRenderRect().m_uHeight;
+
+			glm::vec3 vMove = g_pRenderer->m_oCamera.GetInverseViewProjectionMatrix() * glm::vec4( vCursorMove.x, -vCursorMove.y, 0.f, 0.f );
+			vMove = glm::proj( vMove, pGizmoEntity->GetTransform().GetK() );
+
+			pSelectedEntity->SetPosition( m_vDraggingStartWorldPosition + vMove );
+
+			g_pDebugDisplay->DisplayLine( m_vDraggingStartWorldPosition, m_vDraggingStartWorldPosition + vMove, glm::vec3( 1.f, 0.f, 0.f ) );
+		}	
+	}
 
 	// TODO #eric handle multiple selection
 	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_RELEASE ) && ImGui::GetIO().WantCaptureMouse == false )
