@@ -82,6 +82,12 @@ int main()
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 
+		ImGuiIO& io = ImGui::GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
 		ImGui::StyleColorsDark();
 
 		LOG_INFO( "Initializing ImGui" );
@@ -105,6 +111,10 @@ int main()
 					oGameEngine.EndFrame();
 
 					ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
+
+					ImGui::UpdatePlatformWindows();
+					ImGui::RenderPlatformWindowsDefault();
+					glfwMakeContextCurrent( pWindow );
 
 					glfwSwapBuffers( pWindow );
 				}
