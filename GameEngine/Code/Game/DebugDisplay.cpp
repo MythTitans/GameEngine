@@ -20,6 +20,7 @@ void DebugDisplay::NewFrame()
 {
 	m_aTexts.Clear();
 	m_aLines.Clear();
+	m_aSpheres.Clear();
 }
 
 void DebugDisplay::Display( const float fDeltaTime, const RenderContext& oRenderContext )
@@ -28,6 +29,7 @@ void DebugDisplay::Display( const float fDeltaTime, const RenderContext& oRender
 
 	glEnable( GL_DEPTH_TEST );
 	g_pRenderer->m_oDebugRenderer.RenderLines( m_aLines, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderSpheres( m_aSpheres, oRenderContext );
 
 	for( int i = m_aTimedTexts.Count() - 1; i >= 0; --i )
 	{
@@ -62,4 +64,9 @@ void DebugDisplay::DisplayText( const std::string& sText, const float fTime, con
 void DebugDisplay::DisplayLine( const glm::vec3& vFrom, const glm::vec3& vTo, const glm::vec3& vColor )
 {
 	m_aLines.PushBack( Line( vFrom, vTo, vColor ) );
+}
+
+void DebugDisplay::DisplaySphere( const glm::vec3& vPosition, const float fRadius, const glm::vec3& vColor )
+{
+	m_aSpheres.PushBack( Sphere( vPosition, fRadius, vColor ) );
 }

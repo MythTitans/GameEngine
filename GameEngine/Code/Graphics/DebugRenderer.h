@@ -19,6 +19,13 @@ struct Line
 	glm::vec3 m_vColor;
 };
 
+struct Sphere
+{
+	glm::vec3	m_vPosition;
+	float		m_fRadius;
+	glm::vec3	m_vColor;
+};
+
 class DebugRenderer
 {
 public:
@@ -26,13 +33,16 @@ public:
 	~DebugRenderer();
 
 	void RenderLines( const Array< Line >& aLines, const RenderContext& oRenderContext );
+	void RenderSpheres( const Array< Sphere >& aSpheres, const RenderContext& oRenderContext );
 
 	bool OnLoading();
 
 private:
-	TechniqueResPtr			m_xLine;
-	LineTechniqueDefinition m_oLine;
+	TechniqueResPtr				m_xLine;
+	LineTechniqueDefinition		m_oLine;
+	TechniqueResPtr				m_xSphere;
+	SphereTechniqueDefinition	m_oSphere;
 
-	GLuint					m_uVertexArrayID;
-	GLuint					m_uVertexBufferID;
+	GLuint						m_uVertexArrayID;
+	GLuint						m_uVertexBufferID;
 };

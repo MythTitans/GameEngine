@@ -336,14 +336,14 @@ void GizmoDefinition::CreateDefinition( const Technique& oTechnique )
 }
 
 LineTechniqueDefinition::LineTechniqueDefinition()
-	: m_iViewProjection( -1 )
+	: m_iViewProjectionUniform( -1 )
 	, m_iColorUniform( -1 )
 {
 }
 
 void LineTechniqueDefinition::SetViewProjection( const glm::mat4& mViewProjection )
 {
-	SetParameterID( m_iViewProjection, mViewProjection );
+	SetParameterID( m_iViewProjectionUniform, mViewProjection );
 }
 
 void LineTechniqueDefinition::SetColor( const glm::vec3& vColor )
@@ -353,6 +353,42 @@ void LineTechniqueDefinition::SetColor( const glm::vec3& vColor )
 
 void LineTechniqueDefinition::CreateDefinition( const Technique& oTechnique )
 {
-	m_iViewProjection = oTechnique.GetParameterID( "viewProjection" );
+	m_iViewProjectionUniform = oTechnique.GetParameterID( "viewProjection" );
+	m_iColorUniform = oTechnique.GetParameterID( "color" );
+}
+
+SphereTechniqueDefinition::SphereTechniqueDefinition()
+	: m_iViewProjectionUniform( -1 )
+	, m_iPositionUniform( -1 )
+	, m_iRadiusUniform( -1 )
+	, m_iColorUniform( -1 )
+{
+}
+
+void SphereTechniqueDefinition::SetViewProjection( const glm::mat4& mViewProjection )
+{
+	SetParameterID( m_iViewProjectionUniform, mViewProjection );
+}
+
+void SphereTechniqueDefinition::SetPosition( const glm::vec3& vPosition )
+{
+	SetParameterID( m_iPositionUniform, vPosition );
+}
+
+void SphereTechniqueDefinition::SetRadius( const float fRadius )
+{
+	SetParameterID( m_iRadiusUniform, fRadius );
+}
+
+void SphereTechniqueDefinition::SetColor( const glm::vec3& vColor )
+{
+	SetParameterID( m_iColorUniform, vColor );
+}
+
+void SphereTechniqueDefinition::CreateDefinition( const Technique& oTechnique )
+{
+	m_iViewProjectionUniform = oTechnique.GetParameterID( "viewProjection" );
+	m_iPositionUniform = oTechnique.GetParameterID( "position" );
+	m_iRadiusUniform = oTechnique.GetParameterID( "radius" );
 	m_iColorUniform = oTechnique.GetParameterID( "color" );
 }

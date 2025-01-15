@@ -82,6 +82,14 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	if( m_bDisplayEditor == false )
 		return;
 
+	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 20.f, 0.f, 0.f ), glm::vec3( 1.f, 0.f, 0.f ) );
+	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 20.f, 0.f ), glm::vec3( 0.f, 1.f, 0.f ) );
+	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 0.f, 20.f ), glm::vec3( 0.f, 0.f, 1.f ) );
+
+	g_pDebugDisplay->DisplaySphere( glm::vec3( 20.f, 0.f, 0.f ), 0.3f, glm::vec3( 1.f, 0.f, 0.f ) );
+	g_pDebugDisplay->DisplaySphere( glm::vec3( 0.f, 20.f, 0.f ), 0.3f, glm::vec3( 0.f, 1.f, 0.f ) );
+	g_pDebugDisplay->DisplaySphere( glm::vec3( 0.f, 0.f, 20.f ), 0.3f, glm::vec3( 0.f, 0.f, 1.f ) );
+
 	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_PRESS ) && ImGui::GetIO().WantCaptureMouse == false )
 	{
 		const uint64 uGizmoEntityID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY(), true );
@@ -117,8 +125,6 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 			vMove = glm::proj( vMove, pGizmoEntity->GetTransform().GetK() );
 
 			pSelectedEntity->SetPosition( m_vDraggingStartWorldPosition + vMove );
-
-			g_pDebugDisplay->DisplayLine( m_vDraggingStartWorldPosition, m_vDraggingStartWorldPosition + vMove, glm::vec3( 1.f, 0.f, 0.f ) );
 		}	
 	}
 

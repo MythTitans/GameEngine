@@ -288,6 +288,25 @@ public:
 private:
 	void CreateDefinition( const Technique& oTechnique ) override;
 
-	GLint m_iViewProjection;
+	GLint m_iViewProjectionUniform;
+	GLint m_iColorUniform;
+};
+
+class SphereTechniqueDefinition : public TechniqueDefinitionBase
+{
+public:
+	SphereTechniqueDefinition();
+
+	void SetViewProjection( const glm::mat4& mViewProjection );
+	void SetPosition( const glm::vec3& vPosition );
+	void SetRadius( const float fRadius );
+	void SetColor( const glm::vec3& vColor );
+
+private:
+	void CreateDefinition( const Technique& oTechnique ) override;
+
+	GLint m_iViewProjectionUniform;
+	GLint m_iPositionUniform;
+	GLint m_iRadiusUniform;
 	GLint m_iColorUniform;
 };

@@ -26,12 +26,15 @@ public:
 
 	void DisplayLine( const glm::vec3& vFrom, const glm::vec3& vTo, const glm::vec3& vColor );
 
+	void DisplaySphere( const glm::vec3& vPosition, const float fRadius, const glm::vec3& vColor );
+
 private:
 	Array< Text >	m_aTexts;
 	Array< Text >	m_aTimedTexts;
 	Array< float >	m_aTimedTextsRemaining;
 
 	Array< Line >	m_aLines;
+	Array< Sphere > m_aSpheres;
 };
 
 extern DebugDisplay* g_pDebugDisplay;
