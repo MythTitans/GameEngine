@@ -192,6 +192,7 @@
     <ClCompile Include="Code\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Code\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Code\Main.cpp" />
+    <ClCompile Include="Code\Math\MathUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Core\Array.h" />
@@ -235,6 +236,7 @@
     <ClInclude Include="Code\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Code\ImGui\imstb_textedit.h" />
     <ClInclude Include="Code\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Code\Math\MathUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Array.natvis" />

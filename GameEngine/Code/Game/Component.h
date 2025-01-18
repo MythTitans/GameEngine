@@ -131,17 +131,6 @@ private:
 	mutable int		m_iIndex;
 };
 
-class MyFirstComponent : public Component
-{
-public:
-	explicit MyFirstComponent( Entity* pEntity );
-
-	void Update( const float fDeltaTime ) override;
-
-private:
-	float m_fRotation;
-};
-
 // TODO #eric would be better that the component create/update a graph node
 class VisualComponent : public Component
 {
@@ -181,8 +170,7 @@ public:
 		Z,
 		XY,
 		XZ,
-		YZ,
-		XYZ
+		YZ
 	};
 
 	explicit GizmoComponent( Entity* pEntity );
@@ -194,6 +182,9 @@ public:
 
 	void				SetAnchor( Entity* pEntity );
 	void				SetEditing( const bool bEditing );
+
+	GizmoType			GetType() const;
+	GizmoAxis			GetAxis() const;
 
 private:
 	WeakPtr< Entity >	m_xAnchor;

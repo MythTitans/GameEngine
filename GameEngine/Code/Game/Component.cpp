@@ -40,18 +40,6 @@ const Entity* Component::GetEntity() const
 	return m_pEntity;
 }
 
-MyFirstComponent::MyFirstComponent( Entity* pEntity )
-	: Component( pEntity )
-	, m_fRotation( 0.f )
-{
-}
-
-void MyFirstComponent::Update( const float fDeltaTime )
-{
-	m_fRotation += 10.f * fDeltaTime;
-	GetEntity()->SetRotationY( glm::radians( m_fRotation ) );
-}
-
 VisualComponent::VisualComponent( Entity* pEntity )
 	: Component( pEntity )
 	, m_mWorldMatrix( 1.f )
@@ -130,8 +118,6 @@ void GizmoComponent::Setup( const GizmoType eGizmoType, const GizmoAxis eGizmoAx
 		break;
 	case GizmoAxis::YZ:
 		break;
-	case GizmoAxis::XYZ:
-		break;
 	}
 
 	m_qAxisRotation = pEntity->GetRotation();
@@ -172,8 +158,6 @@ const glm::vec3 GizmoComponent::GetColor() const
 		break;
 	case GizmoAxis::YZ:
 		break;
-	case GizmoAxis::XYZ:
-		break;
 	}
 
 	return glm::vec3( 1.f, 1.f, 1.f );
@@ -187,6 +171,16 @@ void GizmoComponent::SetAnchor( Entity* pEntity )
 void GizmoComponent::SetEditing( const bool bEditing )
 {
 	m_bEditing = bEditing;
+}
+
+GizmoComponent::GizmoType GizmoComponent::GetType() const
+{
+	return m_eGizmoType;
+}
+
+GizmoComponent::GizmoAxis GizmoComponent::GetAxis() const
+{
+	return m_eGizmoAxis;
 }
 
 DirectionalLightComponent::DirectionalLightComponent( Entity* pEntity )

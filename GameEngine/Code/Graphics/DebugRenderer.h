@@ -21,6 +21,13 @@ struct Line
 
 struct Sphere
 {
+	Sphere( const glm::vec3& vPosition, const float fRadius, const glm::vec3& vColor )
+		: m_vPosition( vPosition )
+		, m_fRadius( fRadius )
+		, m_vColor( vColor )
+	{
+	}
+
 	glm::vec3	m_vPosition;
 	float		m_fRadius;
 	glm::vec3	m_vColor;

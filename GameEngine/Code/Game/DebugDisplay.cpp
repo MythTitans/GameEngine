@@ -30,6 +30,13 @@ void DebugDisplay::Display( const float fDeltaTime, const RenderContext& oRender
 	glEnable( GL_DEPTH_TEST );
 	g_pRenderer->m_oDebugRenderer.RenderLines( m_aLines, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderSpheres( m_aSpheres, oRenderContext );
+}
+
+void DebugDisplay::DisplayOverlay( const float fDeltaTime, const RenderContext& oRenderContext )
+{
+	ProfilerBlock oBlock( "DebugDisplayOverlay" );
+
+	glDisable( GL_DEPTH_TEST );
 
 	for( int i = m_aTimedTexts.Count() - 1; i >= 0; --i )
 	{
@@ -45,7 +52,6 @@ void DebugDisplay::Display( const float fDeltaTime, const RenderContext& oRender
 	for( uint u = 0; u < m_aTimedTexts.Count(); ++u )
 		m_aTimedTexts[ u ].m_vPosition = glm::vec2( 10.f, 10.f + ( m_aTexts.Count() + u ) * 20.f );
 
-	glDisable( GL_DEPTH_TEST );
 	g_pRenderer->m_oTextRenderer.RenderText( m_aTexts, oRenderContext );
 	g_pRenderer->m_oTextRenderer.RenderText( m_aTimedTexts, oRenderContext );
 }

@@ -1,8 +1,7 @@
 #include "Editor.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/intersect.hpp"
-#include "glm/gtx/projection.hpp"
+ #define GLM_ENABLE_EXPERIMENTAL
+ #include "glm/gtx/norm.hpp"
 
 #include "Core/Profiler.h"
 #include "Game/GameEngine.h"
@@ -60,8 +59,8 @@ Editor* g_pEditor = nullptr;
 Editor::Editor()
 	: m_uSelectedEntityID( UINT64_MAX )
 	, m_uGizmoEntityID( UINT64_MAX )
-	, m_vDraggingStartWorldPosition( 0.f )
-	, m_vDraggingStartCursorPosition( 0.f )
+	, m_vInitialEntityWorldPosition( 0.f )
+	, m_vMoveStartWorldPosition( 0.f )
 	, m_bDisplayEditor( false )
 {
 	g_pEditor = this;
@@ -96,6 +95,8 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 		if( uGizmoEntityID != UINT64_MAX )
 		{
+			const Ray oRay = ComputeCursorViewRay( oInputContext, oRenderContext );
+
 			Entity* pSelectedEntity = g_pGameEngine->GetScene().FindEntity( m_uSelectedEntityID );
 			Entity* pGizmoEntity = g_pGameEngine->GetScene().FindEntity( uGizmoEntityID );
 			GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pGizmoEntity );
@@ -104,8 +105,8 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 				pGizmoComponent->SetEditing( true );
 				m_uGizmoEntityID = uGizmoEntityID;
 
-				m_vDraggingStartWorldPosition = pSelectedEntity->GetPosition();
-				m_vDraggingStartCursorPosition = glm::vec2( ( float )oInputContext.GetCursorX(), ( float )oInputContext.GetCursorY() );
+				m_vInitialEntityWorldPosition = pSelectedEntity->GetPosition();
+				m_vMoveStartWorldPosition = ProjectOnGizmo( oRay, *pGizmoComponent );
 			}
 		}
 	}
@@ -114,17 +115,16 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	{
 		if( m_uGizmoEntityID != UINT64_MAX )
 		{
+			const Ray oRay = ComputeCursorViewRay( oInputContext, oRenderContext );
+
 			Entity* pSelectedEntity = g_pGameEngine->GetScene().FindEntity( m_uSelectedEntityID );
 			Entity* pGizmoEntity = g_pGameEngine->GetScene().FindEntity( m_uGizmoEntityID );
+			GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pGizmoEntity );
 
-			glm::vec2 vCursorMove = glm::vec2( ( float )oInputContext.GetCursorX(), ( float )oInputContext.GetCursorY() ) - m_vDraggingStartCursorPosition;
-			vCursorMove.x = vCursorMove.x / oRenderContext.GetRenderRect().m_uWidth;
-			vCursorMove.y = vCursorMove.y / oRenderContext.GetRenderRect().m_uHeight;
+			const glm::vec3 vNewPosition = m_vInitialEntityWorldPosition + ProjectOnGizmo( oRay, *pGizmoComponent ) - m_vMoveStartWorldPosition;
+			pSelectedEntity->SetPosition( vNewPosition );
 
-			glm::vec3 vMove = g_pRenderer->m_oCamera.GetInverseViewProjectionMatrix() * glm::vec4( vCursorMove.x, -vCursorMove.y, 0.f, 0.f );
-			vMove = glm::proj( vMove, pGizmoEntity->GetTransform().GetK() );
-
-			pSelectedEntity->SetPosition( m_vDraggingStartWorldPosition + vMove );
+			g_pDebugDisplay->DisplayLine( m_vInitialEntityWorldPosition, vNewPosition, glm::vec3( 1.f, 1.f, 0.f ) );
 		}	
 	}
 
@@ -133,7 +133,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	{
 		if( m_uGizmoEntityID != UINT64_MAX )
 		{
-			Entity* pEntity = g_pGameEngine->GetScene().FindEntity(m_uGizmoEntityID);
+			Entity* pEntity = g_pGameEngine->GetScene().FindEntity( m_uGizmoEntityID );
 			GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pEntity );
 
 			pGizmoComponent->SetEditing( false );
@@ -233,4 +233,58 @@ void Editor::Render( const RenderContext& oRenderContext )
 			g_pRenderer->RenderGizmos( oRenderContext );
 		}
 	}
+}
+
+Ray Editor::ComputeCursorViewRay( const InputContext& oInputContext, const RenderContext& oRenderContext ) const
+{
+	const float fWidth = ( float )oRenderContext.GetRenderRect().m_uWidth;
+	const float fHeight = ( float )oRenderContext.GetRenderRect().m_uHeight;
+
+	const glm::vec3 vEye = g_pRenderer->m_oCamera.GetPosition();
+	const glm::vec2 vCursor( 2.f * oInputContext.GetCursorX() / fWidth - 1.f, -( 2.f * oInputContext.GetCursorY() / fHeight - 1.f ) );
+
+	const glm::vec4 vCursorWorldH = g_pRenderer->m_oCamera.GetInverseViewProjectionMatrix() * glm::vec4( vCursor, -1.f, 1.f );
+	const glm::vec3 vCursorWorld = vCursorWorldH / vCursorWorldH.w;
+
+	return Ray( vEye, vCursorWorld - vEye );
+}
+
+glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo ) const
+{
+	const Transform& oTransform = oGizmo.GetEntity()->GetTransform();
+
+	if( oGizmo.GetAxis() == GizmoComponent::GizmoAxis::XY || oGizmo.GetAxis() == GizmoComponent::GizmoAxis::YZ || oGizmo.GetAxis() == GizmoComponent::GizmoAxis::XZ )
+	{
+		// TODO #eric
+		return oTransform.GetO();
+	}
+
+	auto ComputeClosestPlaneIntersection = [ &oTransform ]( const Ray& oRay, const Plane& oPlaneA, const Plane& oPlaneB ) {
+		glm::vec3 vIntersectionA;
+		glm::vec3 vIntersectionB;
+		const bool bIntersectA = Intersect( oRay, oPlaneA, vIntersectionA );
+		const bool bIntersectB = Intersect( oRay, oPlaneB, vIntersectionB );
+
+		if( bIntersectA && bIntersectB )
+		{
+			const float fSqrDistanceA = glm::length2( oRay.m_vOrigin - vIntersectionA );
+			const float fSqrDistanceB = glm::length2( oRay.m_vOrigin - vIntersectionB );
+			
+			return fSqrDistanceA <= fSqrDistanceB ? vIntersectionA : vIntersectionB;
+		}
+
+		if( bIntersectA )
+			return vIntersectionA;
+
+		if( bIntersectB )
+			return vIntersectionB;
+
+		return oTransform.GetO();
+	};
+
+	const Plane oXZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetK() ) );
+	const Plane oYZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetJ(), oTransform.GetK() ) );
+	const Segment oSegment( oTransform.GetO(), ComputeClosestPlaneIntersection( oRay, oXZPlane, oYZPlane ) );
+
+	return Project( oSegment, oTransform.GetK() );
 }
