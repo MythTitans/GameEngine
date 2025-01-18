@@ -253,12 +253,6 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 {
 	const Transform& oTransform = oGizmo.GetEntity()->GetTransform();
 
-	if( oGizmo.GetAxis() == GizmoComponent::GizmoAxis::XY || oGizmo.GetAxis() == GizmoComponent::GizmoAxis::YZ || oGizmo.GetAxis() == GizmoComponent::GizmoAxis::XZ )
-	{
-		// TODO #eric
-		return oTransform.GetO();
-	}
-
 	auto ComputeClosestPlaneIntersection = [ &oTransform ]( const Ray& oRay, const Plane& oPlaneA, const Plane& oPlaneB ) {
 		glm::vec3 vIntersectionA;
 		glm::vec3 vIntersectionB;
@@ -269,7 +263,7 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 		{
 			const float fSqrDistanceA = glm::length2( oRay.m_vOrigin - vIntersectionA );
 			const float fSqrDistanceB = glm::length2( oRay.m_vOrigin - vIntersectionB );
-			
+
 			return fSqrDistanceA <= fSqrDistanceB ? vIntersectionA : vIntersectionB;
 		}
 
@@ -282,9 +276,33 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 		return oTransform.GetO();
 	};
 
-	const Plane oXZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetK() ) );
-	const Plane oYZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetJ(), oTransform.GetK() ) );
-	const Segment oSegment( oTransform.GetO(), ComputeClosestPlaneIntersection( oRay, oXZPlane, oYZPlane ) );
+	auto ComputePlaneIntersection = [ &oTransform ]( const Ray& oRay, const Plane& oPlane ) {
+		glm::vec3 vIntersection;
+		if( Intersect( oRay, oPlane, vIntersection ) )
+			return vIntersection;
 
-	return Project( oSegment, oTransform.GetK() );
+		return oTransform.GetO();
+	};
+
+	switch( oGizmo.GetAxis() )
+	{
+	case GizmoComponent::GizmoAxis::X:
+	case GizmoComponent::GizmoAxis::Y:
+	case GizmoComponent::GizmoAxis::Z:
+	{
+		const Plane oXZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetK() ) );
+		const Plane oYZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetJ(), oTransform.GetK() ) );
+		const Segment oSegment( oTransform.GetO(), ComputeClosestPlaneIntersection( oRay, oXZPlane, oYZPlane ) );
+
+		return Project( oSegment, oTransform.GetK() );
+	}
+	case GizmoComponent::GizmoAxis::XY:
+		return ComputePlaneIntersection( oRay, Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetJ() ) ) );
+	case GizmoComponent::GizmoAxis::XZ:
+		return ComputePlaneIntersection( oRay, Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetK() ) ) );
+	case GizmoComponent::GizmoAxis::YZ:
+		return ComputePlaneIntersection( oRay, Plane( oTransform.GetO(), glm::cross( oTransform.GetJ(), oTransform.GetK() ) ) );
+	}
+
+	return oTransform.GetO();
 }

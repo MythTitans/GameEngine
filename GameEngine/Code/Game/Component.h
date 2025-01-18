@@ -190,6 +190,7 @@ private:
 	WeakPtr< Entity >	m_xAnchor;
 
 	glm::quat			m_qAxisRotation;
+	glm::vec3			m_vOffset;
 
 	GizmoType			m_eGizmoType;
 	GizmoAxis			m_eGizmoAxis;

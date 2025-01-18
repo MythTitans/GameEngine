@@ -92,7 +92,10 @@ void GizmoComponent::Setup( const GizmoType eGizmoType, const GizmoAxis eGizmoAx
 	switch( m_eGizmoType )
 	{
 	case GizmoType::TRANSLATE:
-		VisualComponent::Setup( std::filesystem::path( "Data/Translate_gizmo.obj" ) );
+		if( m_eGizmoAxis == GizmoAxis::X || m_eGizmoAxis == GizmoAxis::Y || m_eGizmoAxis == GizmoAxis::Z )
+			VisualComponent::Setup( std::filesystem::path( "Data/Translate_gizmo.obj" ) );
+		else
+			VisualComponent::Setup( std::filesystem::path( "Data/sphere.obj" ) );
 		break;
 	case GizmoType::ROTATE:
 		break;
@@ -113,26 +116,46 @@ void GizmoComponent::Setup( const GizmoType eGizmoType, const GizmoAxis eGizmoAx
 	case GizmoAxis::Z:
 		break;
 	case GizmoAxis::XY:
+		pEntity->SetPosition( glm::vec3( 4.f, 4.f, 0.f ) );
 		break;
 	case GizmoAxis::XZ:
+		pEntity->SetPosition( glm::vec3( 4.f, 0.f, 4.f ) );
 		break;
 	case GizmoAxis::YZ:
+		pEntity->SetPosition( glm::vec3( 0.f, 4.f, 4.f ) );
 		break;
 	}
 
 	m_qAxisRotation = pEntity->GetRotation();
+	m_vOffset = pEntity->GetPosition();
 }
 
 void GizmoComponent::Update( const float fDeltaTime )
 {
 	if( m_xAnchor != nullptr )
 	{
+		const float fDistance = glm::length( g_pRenderer->m_oCamera.GetPosition() - m_xAnchor->GetPosition() );
+
+		float fBaseScale = 1.f;
+		switch( m_eGizmoAxis )
+		{
+		case GizmoAxis::X:
+		case GizmoAxis::Y:
+		case GizmoAxis::Z:
+			fBaseScale = 0.06f;
+			break;
+		case GizmoAxis::XY:
+		case GizmoAxis::XZ:
+		case GizmoAxis::YZ:
+			fBaseScale = 0.008f;
+			break;
+		}
+
 		Entity* pEntity = GetEntity();
-		pEntity->SetPosition( m_xAnchor->GetPosition() );
+		pEntity->SetPosition( m_xAnchor->GetPosition() + m_vOffset * fDistance * fBaseScale );
 		pEntity->SetRotation( m_xAnchor->GetRotation() * m_qAxisRotation );
 
-		const float fDistance = glm::length( g_pRenderer->m_oCamera.GetPosition() - pEntity->GetPosition() );
-		const float fScale = 0.06f * fDistance;
+		const float fScale = fBaseScale * fDistance;
 		pEntity->SetScale( fScale, fScale, fScale );
 	}
 
@@ -153,11 +176,11 @@ const glm::vec3 GizmoComponent::GetColor() const
 	case GizmoAxis::Z:
 		return glm::vec3( 0.f, 0.f, 1.f );
 	case GizmoAxis::XY:
-		break;
+		return glm::vec3( 0.5f, 0.5f, 1.f );
 	case GizmoAxis::XZ:
-		break;
+		return glm::vec3( 0.5f, 1.f, 0.5f );
 	case GizmoAxis::YZ:
-		break;
+		return glm::vec3( 1.f, 0.5f, 0.5f );
 	}
 
 	return glm::vec3( 1.f, 1.f, 1.f );
