@@ -77,7 +77,7 @@ const glm::mat4& VisualComponent::GetWorldMatrix() const
 }
 
 GizmoComponent::GizmoComponent( Entity* pEntity )
-	: VisualComponent( pEntity )
+	: Component( pEntity )
 	, m_eGizmoType( GizmoType::TRANSLATE )
 	, m_eGizmoAxis( GizmoAxis::X )
 	, m_bEditing( false )
@@ -88,46 +88,6 @@ void GizmoComponent::Setup( const GizmoType eGizmoType, const GizmoAxis eGizmoAx
 {
 	m_eGizmoType = eGizmoType;
 	m_eGizmoAxis = eGizmoAxis;
-
-	switch( m_eGizmoType )
-	{
-	case GizmoType::TRANSLATE:
-		if( m_eGizmoAxis == GizmoAxis::X || m_eGizmoAxis == GizmoAxis::Y || m_eGizmoAxis == GizmoAxis::Z )
-			VisualComponent::Setup( std::filesystem::path( "Data/Translate_gizmo.obj" ) );
-		else
-			VisualComponent::Setup( std::filesystem::path( "Data/sphere.obj" ) );
-		break;
-	case GizmoType::ROTATE:
-		break;
-	case GizmoType::SCALE:
-		break;
-	}
-
-	Entity* pEntity = GetEntity();
-
-	switch( m_eGizmoAxis )
-	{
-	case GizmoAxis::X:
-		pEntity->SetRotationY( glm::radians( 90.f ) );
-		break;
-	case GizmoAxis::Y:
-		pEntity->SetRotationX( glm::radians( -90.f ) );
-		break;
-	case GizmoAxis::Z:
-		break;
-	case GizmoAxis::XY:
-		pEntity->SetPosition( glm::vec3( 4.f, 4.f, 0.f ) );
-		break;
-	case GizmoAxis::XZ:
-		pEntity->SetPosition( glm::vec3( 4.f, 0.f, 4.f ) );
-		break;
-	case GizmoAxis::YZ:
-		pEntity->SetPosition( glm::vec3( 0.f, 4.f, 4.f ) );
-		break;
-	}
-
-	m_qAxisRotation = pEntity->GetRotation();
-	m_vOffset = pEntity->GetPosition();
 }
 
 void GizmoComponent::Update( const float fDeltaTime )
@@ -135,31 +95,15 @@ void GizmoComponent::Update( const float fDeltaTime )
 	if( m_xAnchor != nullptr )
 	{
 		const float fDistance = glm::length( g_pRenderer->m_oCamera.GetPosition() - m_xAnchor->GetPosition() );
+		float fBaseScale = 0.025f;
 
-		float fBaseScale = 1.f;
-		switch( m_eGizmoAxis )
-		{
-		case GizmoAxis::X:
-		case GizmoAxis::Y:
-		case GizmoAxis::Z:
-			fBaseScale = 0.06f;
-			break;
-		case GizmoAxis::XY:
-		case GizmoAxis::XZ:
-		case GizmoAxis::YZ:
-			fBaseScale = 0.008f;
-			break;
-		}
-
-		Entity* pEntity = GetEntity();
-		pEntity->SetPosition( m_xAnchor->GetPosition() + m_vOffset * fDistance * fBaseScale );
-		pEntity->SetRotation( m_xAnchor->GetRotation() * m_qAxisRotation );
+ 		Entity* pEntity = GetEntity();
+		pEntity->SetPosition( m_xAnchor->GetPosition() );
+		pEntity->SetRotation( m_xAnchor->GetRotation() );
 
 		const float fScale = fBaseScale * fDistance;
 		pEntity->SetScale( fScale, fScale, fScale );
 	}
-
-	VisualComponent::Update( fDeltaTime );
 }
 
 const glm::vec3 GizmoComponent::GetColor() const
@@ -204,6 +148,11 @@ GizmoComponent::GizmoType GizmoComponent::GetType() const
 GizmoComponent::GizmoAxis GizmoComponent::GetAxis() const
 {
 	return m_eGizmoAxis;
+}
+
+glm::mat4 GizmoComponent::GetWorldMatrix() const
+{
+	return GetEntity()->GetMatrix();
 }
 
 DirectionalLightComponent::DirectionalLightComponent( Entity* pEntity )

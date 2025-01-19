@@ -12,6 +12,7 @@ public:
 	friend class DebugRenderer;
 	friend class Renderer;
 	friend class TextRenderer;
+	friend class GizmoRenderer;
 
 	Technique();
 

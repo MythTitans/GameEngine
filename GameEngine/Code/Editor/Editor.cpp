@@ -91,22 +91,25 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_PRESS ) && ImGui::GetIO().WantCaptureMouse == false )
 	{
-		const uint64 uGizmoEntityID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY(), true );
-
-		if( uGizmoEntityID != UINT64_MAX )
+		if( m_uSelectedEntityID != UINT64_MAX )
 		{
-			const Ray oRay = ComputeCursorViewRay( oInputContext, oRenderContext );
+			const uint64 uGizmoEntityID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY(), true );
 
-			Entity* pSelectedEntity = g_pGameEngine->GetScene().FindEntity( m_uSelectedEntityID );
-			Entity* pGizmoEntity = g_pGameEngine->GetScene().FindEntity( uGizmoEntityID );
-			GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pGizmoEntity );
-			if( pGizmoComponent != nullptr )
+			if( uGizmoEntityID != UINT64_MAX )
 			{
-				pGizmoComponent->SetEditing( true );
-				m_uGizmoEntityID = uGizmoEntityID;
+				const Ray oRay = ComputeCursorViewRay( oInputContext, oRenderContext );
 
-				m_vInitialEntityWorldPosition = pSelectedEntity->GetPosition();
-				m_vMoveStartWorldPosition = ProjectOnGizmo( oRay, *pGizmoComponent );
+				Entity* pSelectedEntity = g_pGameEngine->GetScene().FindEntity( m_uSelectedEntityID );
+				Entity* pGizmoEntity = g_pGameEngine->GetScene().FindEntity( uGizmoEntityID );
+				GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pGizmoEntity );
+				if( pGizmoComponent != nullptr )
+				{
+					pGizmoComponent->SetEditing( true );
+					m_uGizmoEntityID = uGizmoEntityID;
+
+					m_vInitialEntityWorldPosition = pSelectedEntity->GetPosition();
+					m_vMoveStartWorldPosition = ProjectOnGizmo( oRay, *pGizmoComponent );
+				}
 			}
 		}
 	}
@@ -287,7 +290,21 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 	switch( oGizmo.GetAxis() )
 	{
 	case GizmoComponent::GizmoAxis::X:
+	{
+		const Plane oXYPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetJ() ) );
+		const Plane oXZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetK() ) );
+		const Segment oSegment( oTransform.GetO(), ComputeClosestPlaneIntersection( oRay, oXYPlane, oXZPlane ) );
+
+		return Project( oSegment, oTransform.GetI() );
+	}
 	case GizmoComponent::GizmoAxis::Y:
+	{
+		const Plane oXYPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetJ() ) );
+		const Plane oYZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetJ(), oTransform.GetK() ) );
+		const Segment oSegment( oTransform.GetO(), ComputeClosestPlaneIntersection( oRay, oXYPlane, oYZPlane ) );
+
+		return Project( oSegment, oTransform.GetJ() );
+	}
 	case GizmoComponent::GizmoAxis::Z:
 	{
 		const Plane oXZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetK() ) );

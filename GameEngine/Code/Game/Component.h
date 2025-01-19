@@ -153,7 +153,7 @@ private:
 	glm::mat4				m_mWorldMatrix;
 };
 
-class GizmoComponent : public VisualComponent
+class GizmoComponent : public Component
 {
 public:
 	enum class GizmoType
@@ -186,11 +186,10 @@ public:
 	GizmoType			GetType() const;
 	GizmoAxis			GetAxis() const;
 
+	glm::mat4			GetWorldMatrix() const;
+
 private:
 	WeakPtr< Entity >	m_xAnchor;
-
-	glm::quat			m_qAxisRotation;
-	glm::vec3			m_vOffset;
 
 	GizmoType			m_eGizmoType;
 	GizmoAxis			m_eGizmoAxis;

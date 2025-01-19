@@ -2,10 +2,11 @@
 
 #include "Camera.h"
 #include "Core/Common.h"
+#include "DebugRenderer.h"
 #include "Game/ResourceLoader.h"
+#include "GizmoRenderer.h"
 #include "RenderTarget.h"
 #include "TechniqueDefinition.h"
-#include "DebugRenderer.h"
 #include "TextRenderer.h"
 
 class VisualComponent;
@@ -78,6 +79,7 @@ private:
 public:
 	TextRenderer				m_oTextRenderer;
 	DebugRenderer				m_oDebugRenderer;
+	GizmoRenderer				m_oGizmoRenderer;
 
 	Camera						m_oCamera;
 

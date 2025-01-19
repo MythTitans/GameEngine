@@ -387,17 +387,15 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 
 	if( bAllowGizmos )
 	{
-		glDisable( GL_DEPTH_TEST );
+		glClear( GL_DEPTH_BUFFER_BIT );
 
 		ArrayView< GizmoComponent > aComponents = g_pComponentManager->GetComponents< GizmoComponent >();
 		for( const GizmoComponent& oComponent : aComponents )
 		{
-			m_oPicking.SetModelAndViewProjection( oComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix());
+			m_oPicking.SetModelAndViewProjection( oComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
 			m_oPicking.SetID( oComponent.GetEntity()->GetID() );
 
-			const Array< Mesh >& aMeshes = oComponent.GetResource()->GetMeshes();
-			for( const Mesh& oMesh : aMeshes )
-				DrawMesh( oMesh );
+			m_oGizmoRenderer.RenderGizmo( oComponent.GetType(), oComponent.GetAxis(), oRenderContext );
 		}
 	}
 
@@ -474,9 +472,7 @@ void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 		m_oGizmo.SetModelAndViewProjection( oGizmoComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
 		m_oGizmo.SetColor( oGizmoComponent.GetColor() );
 
-		const Array< Mesh >& aMeshes = oGizmoComponent.GetResource()->GetMeshes();
-		for( const Mesh& oMesh : aMeshes )
-			DrawMesh( oMesh );
+		m_oGizmoRenderer.RenderGizmo( oGizmoComponent.GetType(), oGizmoComponent.GetAxis(), oRenderContext );
 	}
 
 	ClearTechnique();
