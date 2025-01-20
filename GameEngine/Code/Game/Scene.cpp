@@ -22,31 +22,31 @@ Scene::Scene()
 	m_mEntities[ 13 ] = new Entity( 13, "Light 4" );
 
 	GizmoComponent& oTranslateGizmoX = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 0 ].GetPtr() );
-	oTranslateGizmoX.Setup( GizmoComponent::GizmoType::TRANSLATE, GizmoComponent::GizmoAxis::X );
+	oTranslateGizmoX.Setup( GizmoType::TRANSLATE, GizmoAxis::X );
 
 	GizmoComponent& oTranslateGizmoY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 1 ].GetPtr() );
-	oTranslateGizmoY.Setup( GizmoComponent::GizmoType::TRANSLATE, GizmoComponent::GizmoAxis::Y );
+	oTranslateGizmoY.Setup( GizmoType::TRANSLATE, GizmoAxis::Y );
 
 	GizmoComponent& oTranslateGizmoZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 2 ].GetPtr() );
-	oTranslateGizmoZ.Setup( GizmoComponent::GizmoType::TRANSLATE, GizmoComponent::GizmoAxis::Z );
+	oTranslateGizmoZ.Setup( GizmoType::TRANSLATE, GizmoAxis::Z );
 
 	GizmoComponent& oTranslateGizmoXY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 3 ].GetPtr() );
-	oTranslateGizmoXY.Setup( GizmoComponent::GizmoType::TRANSLATE, GizmoComponent::GizmoAxis::XY );
+	oTranslateGizmoXY.Setup( GizmoType::TRANSLATE, GizmoAxis::XY );
 
 	GizmoComponent& oTranslateGizmoYZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 4 ].GetPtr() );
-	oTranslateGizmoYZ.Setup( GizmoComponent::GizmoType::TRANSLATE, GizmoComponent::GizmoAxis::YZ );
+	oTranslateGizmoYZ.Setup( GizmoType::TRANSLATE, GizmoAxis::YZ );
 
 	GizmoComponent& oTranslateGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 5 ].GetPtr() );
-	oTranslateGizmoXZ.Setup( GizmoComponent::GizmoType::TRANSLATE, GizmoComponent::GizmoAxis::XZ );
+	oTranslateGizmoXZ.Setup( GizmoType::TRANSLATE, GizmoAxis::XZ );
 
 	GizmoComponent& oGiroGizmoXY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 6 ].GetPtr() );
-	oGiroGizmoXY.Setup( GizmoComponent::GizmoType::ROTATE, GizmoComponent::GizmoAxis::XY );
+	oGiroGizmoXY.Setup( GizmoType::ROTATE, GizmoAxis::XY );
 
 	GizmoComponent& oGiroGizmoYZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 7 ].GetPtr() );
-	oGiroGizmoYZ.Setup( GizmoComponent::GizmoType::ROTATE, GizmoComponent::GizmoAxis::YZ );
+	oGiroGizmoYZ.Setup( GizmoType::ROTATE, GizmoAxis::YZ );
 
 	GizmoComponent& oGiroGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 8 ].GetPtr() );
-	oGiroGizmoXZ.Setup( GizmoComponent::GizmoType::ROTATE, GizmoComponent::GizmoAxis::XZ );
+	oGiroGizmoXZ.Setup( GizmoType::ROTATE, GizmoAxis::XZ );
 
 	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( std::filesystem::path( "Data/Earth_Golem_OBJ.obj" ) );
 

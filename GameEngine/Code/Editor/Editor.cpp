@@ -126,7 +126,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 			switch( pGizmoComponent->GetType() )
 			{
-			case GizmoComponent::GizmoType::TRANSLATE:
+			case GizmoType::TRANSLATE:
 			{
 				const glm::vec3 vNewPosition = m_vInitialEntityWorldPosition + ProjectOnGizmo( oRay, *pGizmoComponent ) - m_vMoveStartWorldPosition;
 				pSelectedEntity->SetPosition( vNewPosition );
@@ -134,9 +134,9 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 				g_pDebugDisplay->DisplayLine( m_vInitialEntityWorldPosition, vNewPosition, glm::vec3( 1.f, 1.f, 0.f ) );
 				break;
 			}
-			case GizmoComponent::GizmoType::ROTATE:
+			case GizmoType::ROTATE:
 				break;
-			case GizmoComponent::GizmoType::SCALE:
+			case GizmoType::SCALE:
 				break;
 			}
 		}	
@@ -300,7 +300,7 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 
 	switch( oGizmo.GetAxis() )
 	{
-	case GizmoComponent::GizmoAxis::X:
+	case GizmoAxis::X:
 	{
 		const Plane oXYPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetJ() ) );
 		const Plane oXZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetK() ) );
@@ -308,7 +308,7 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 
 		return Project( oSegment, oTransform.GetI() );
 	}
-	case GizmoComponent::GizmoAxis::Y:
+	case GizmoAxis::Y:
 	{
 		const Plane oXYPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetJ() ) );
 		const Plane oYZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetJ(), oTransform.GetK() ) );
@@ -316,7 +316,7 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 
 		return Project( oSegment, oTransform.GetJ() );
 	}
-	case GizmoComponent::GizmoAxis::Z:
+	case GizmoAxis::Z:
 	{
 		const Plane oXZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetK() ) );
 		const Plane oYZPlane = Plane( oTransform.GetO(), glm::cross( oTransform.GetJ(), oTransform.GetK() ) );
@@ -324,11 +324,11 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 
 		return Project( oSegment, oTransform.GetK() );
 	}
-	case GizmoComponent::GizmoAxis::XY:
+	case GizmoAxis::XY:
 		return ComputePlaneIntersection( oRay, Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetJ() ) ) );
-	case GizmoComponent::GizmoAxis::XZ:
+	case GizmoAxis::XZ:
 		return ComputePlaneIntersection( oRay, Plane( oTransform.GetO(), glm::cross( oTransform.GetI(), oTransform.GetK() ) ) );
-	case GizmoComponent::GizmoAxis::YZ:
+	case GizmoAxis::YZ:
 		return ComputePlaneIntersection( oRay, Plane( oTransform.GetO(), glm::cross( oTransform.GetJ(), oTransform.GetK() ) ) );
 	}
 

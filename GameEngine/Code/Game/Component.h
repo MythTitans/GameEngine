@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glm/gtc/quaternion.hpp>
-
 #include "ComponentManager.h"
 #include "Core/Array.h"
 #include "ResourceLoader.h"
@@ -151,50 +149,6 @@ private:
 	ModelResPtr				m_xModel;
 
 	glm::mat4				m_mWorldMatrix;
-};
-
-class GizmoComponent : public Component
-{
-public:
-	enum class GizmoType
-	{
-		TRANSLATE,
-		ROTATE,
-		SCALE
-	};
-
-	enum class GizmoAxis
-	{
-		X,
-		Y,
-		Z,
-		XY,
-		XZ,
-		YZ
-	};
-
-	explicit GizmoComponent( Entity* pEntity );
-
-	void				Setup( const GizmoType eGizmoType, const GizmoAxis eGizmoAxis );
-	void				Update( const float fDeltaTime ) override;
-
-	const glm::vec3		GetColor() const;
-
-	void				SetAnchor( Entity* pEntity );
-	void				SetEditing( const bool bEditing );
-
-	GizmoType			GetType() const;
-	GizmoAxis			GetAxis() const;
-
-	glm::mat4			GetWorldMatrix() const;
-
-private:
-	WeakPtr< Entity >	m_xAnchor;
-
-	GizmoType			m_eGizmoType;
-	GizmoAxis			m_eGizmoAxis;
-
-	bool				m_bEditing;
 };
 
 class DirectionalLightComponent : public Component

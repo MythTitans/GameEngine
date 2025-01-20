@@ -2,6 +2,7 @@
 
 #include "Game/Component.h"
 #include "Game/ResourceLoader.h"
+#include "Editor/Gizmo.h"
 #include "TechniqueDefinition.h"
 
 class RenderContext;
@@ -12,15 +13,15 @@ public:
 	GizmoRenderer();
 	~GizmoRenderer();
 
-	void				RenderGizmo( const GizmoComponent::GizmoType eGizmoType, const GizmoComponent::GizmoAxis eGizmoAxis, const RenderContext& oRenderContext );
+	void				RenderGizmo( const GizmoType eGizmoType, const GizmoAxis eGizmoAxis, const RenderContext& oRenderContext );
 
 private:
-	void				RenderTranslationGizmo( const GizmoComponent::GizmoAxis eGizmoAxis, const RenderContext& oRenderContext );
-	void				RenderRotationGizmo( const GizmoComponent::GizmoAxis eGizmoAxis, const RenderContext& oRenderContext );
+	void				RenderTranslationGizmo( const GizmoAxis eGizmoAxis, const RenderContext& oRenderContext );
+	void				RenderRotationGizmo( const GizmoAxis eGizmoAxis, const RenderContext& oRenderContext );
 
-	Array< GLfloat >	GenerateQuad( const GizmoComponent::GizmoAxis eGizmoAxis );
-	Array< GLfloat >	GenerateArrow( const GizmoComponent::GizmoAxis eGizmoAxis );
-	Array< GLfloat >	GenerateGiro( const GizmoComponent::GizmoAxis eGizmoAxis );
+	Array< GLfloat >	GenerateQuad( const GizmoAxis eGizmoAxis );
+	Array< GLfloat >	GenerateArrow( const GizmoAxis eGizmoAxis );
+	Array< GLfloat >	GenerateGiro( const GizmoAxis eGizmoAxis );
 
 	GLuint m_uVertexArrayID;
 	GLuint m_uVertexBufferID;

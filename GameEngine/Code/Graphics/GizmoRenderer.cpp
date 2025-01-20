@@ -42,28 +42,28 @@ GizmoRenderer::~GizmoRenderer()
 	glDeleteVertexArrays( 1, &m_uVertexArrayID );
 }
 
-void GizmoRenderer::RenderGizmo( const GizmoComponent::GizmoType eGizmoType, const GizmoComponent::GizmoAxis eGizmoAxis, const RenderContext& oRenderContext )
+void GizmoRenderer::RenderGizmo( const GizmoType eGizmoType, const GizmoAxis eGizmoAxis, const RenderContext& oRenderContext )
 {
 	switch( eGizmoType )
 	{
-	case GizmoComponent::GizmoType::TRANSLATE:
+	case GizmoType::TRANSLATE:
 		RenderTranslationGizmo( eGizmoAxis, oRenderContext );
 		break;
-	case GizmoComponent::GizmoType::ROTATE:
+	case GizmoType::ROTATE:
 		RenderRotationGizmo( eGizmoAxis, oRenderContext );
 		break;
-	case GizmoComponent::GizmoType::SCALE:
+	case GizmoType::SCALE:
 		break;
 	}
 }
 
-void GizmoRenderer::RenderTranslationGizmo( const GizmoComponent::GizmoAxis eGizmoAxis, const RenderContext& oRenderContext )
+void GizmoRenderer::RenderTranslationGizmo( const GizmoAxis eGizmoAxis, const RenderContext& oRenderContext )
 {
 	switch( eGizmoAxis )
 	{
-	case GizmoComponent::GizmoAxis::X:
-	case GizmoComponent::GizmoAxis::Y:
-	case GizmoComponent::GizmoAxis::Z:
+	case GizmoAxis::X:
+	case GizmoAxis::Y:
+	case GizmoAxis::Z:
 	{
 		Array< GLfloat > aVertices = GenerateArrow( eGizmoAxis );
 
@@ -77,9 +77,9 @@ void GizmoRenderer::RenderTranslationGizmo( const GizmoComponent::GizmoAxis eGiz
 		glBindVertexArray( 0 );
 		break;
 	}
-	case GizmoComponent::GizmoAxis::XY:
-	case GizmoComponent::GizmoAxis::XZ:
-	case GizmoComponent::GizmoAxis::YZ:
+	case GizmoAxis::XY:
+	case GizmoAxis::XZ:
+	case GizmoAxis::YZ:
 	{
 		glDisable( GL_CULL_FACE );
 
@@ -100,7 +100,7 @@ void GizmoRenderer::RenderTranslationGizmo( const GizmoComponent::GizmoAxis eGiz
 	}
 }
 
-void GizmoRenderer::RenderRotationGizmo( const GizmoComponent::GizmoAxis eGizmoAxis, const RenderContext& oRenderContext )
+void GizmoRenderer::RenderRotationGizmo( const GizmoAxis eGizmoAxis, const RenderContext& oRenderContext )
 {
 	glDisable( GL_CULL_FACE );
 
@@ -118,7 +118,7 @@ void GizmoRenderer::RenderRotationGizmo( const GizmoComponent::GizmoAxis eGizmoA
 	glEnable( GL_CULL_FACE );
 }
 
-Array< GLfloat > GizmoRenderer::GenerateQuad( const GizmoComponent::GizmoAxis eGizmoAxis )
+Array< GLfloat > GizmoRenderer::GenerateQuad( const GizmoAxis eGizmoAxis )
 {
 	glm::vec3 vPositions[ 4 ];
 	glm::vec3 vOffset;
@@ -128,21 +128,21 @@ Array< GLfloat > GizmoRenderer::GenerateQuad( const GizmoComponent::GizmoAxis eG
 
 	switch( eGizmoAxis )
 	{
-	case GizmoComponent::GizmoAxis::XY:
+	case GizmoAxis::XY:
 		vPositions[ 0 ] = glm::vec3( 0.f, fSize, 0.f );
 		vPositions[ 1 ] = glm::vec3( 0.f, 0.f, 0.f );
 		vPositions[ 2 ] = glm::vec3( fSize, fSize, 0.f );
 		vPositions[ 3 ] = glm::vec3( fSize, 0.f, 0.f );
 		vOffset = glm::vec3( fOffset, fOffset, 0.f );
 		break;
-	case GizmoComponent::GizmoAxis::XZ:
+	case GizmoAxis::XZ:
 		vPositions[ 0 ] = glm::vec3( 0.f, 0.f, fSize );
 		vPositions[ 1 ] = glm::vec3( 0.f, 0.f, 0.f );
 		vPositions[ 2 ] = glm::vec3( fSize, 0.f, fSize );
 		vPositions[ 3 ] = glm::vec3( fSize, 0.f, 0.f );
 		vOffset = glm::vec3( fOffset, 0.f, fOffset );
 		break;
-	case GizmoComponent::GizmoAxis::YZ:
+	case GizmoAxis::YZ:
 		vPositions[ 0 ] = glm::vec3( 0.f, 0.f, fSize );
 		vPositions[ 1 ] = glm::vec3( 0.f, 0.f, 0.f );
 		vPositions[ 2 ] = glm::vec3( 0.f, fSize, fSize );
@@ -167,7 +167,7 @@ Array< GLfloat > GizmoRenderer::GenerateQuad( const GizmoComponent::GizmoAxis eG
 	return aVertices;
 }
 
-Array< GLfloat > GizmoRenderer::GenerateArrow( const GizmoComponent::GizmoAxis eGizmoAxis )
+Array< GLfloat > GizmoRenderer::GenerateArrow( const GizmoAxis eGizmoAxis )
 {
 	const float fCylinderLength = 3.f;
 	const float fCylinderRadius = 0.2f;
@@ -229,15 +229,15 @@ Array< GLfloat > GizmoRenderer::GenerateArrow( const GizmoComponent::GizmoAxis e
 
 	switch( eGizmoAxis )
 	{
-	case GizmoComponent::GizmoAxis::X:
+	case GizmoAxis::X:
 		for( glm::vec3& vPosition : vPositions )
 			vPosition = glm::vec3( vPosition.y, -vPosition.x, vPosition.z ) + glm::vec3( fOffset, 0.f, 0.f );
 		break;
-	case GizmoComponent::GizmoAxis::Y:
+	case GizmoAxis::Y:
 		for( glm::vec3& vPosition : vPositions )
 			vPosition = vPosition + glm::vec3( 0.f, fOffset, 0.f );
 		break;
-	case GizmoComponent::GizmoAxis::Z:
+	case GizmoAxis::Z:
 		for( glm::vec3& vPosition : vPositions )
 			vPosition = glm::vec3( vPosition.x, -vPosition.z, vPosition.y ) + glm::vec3( 0.f, 0.f, fOffset );
 		break;
@@ -256,7 +256,7 @@ Array< GLfloat > GizmoRenderer::GenerateArrow( const GizmoComponent::GizmoAxis e
 	return aVertices;
 }
 
-Array< GLfloat > GizmoRenderer::GenerateGiro( const GizmoComponent::GizmoAxis eGizmoAxis )
+Array< GLfloat > GizmoRenderer::GenerateGiro( const GizmoAxis eGizmoAxis )
 {
 	const float fInnerRadius = 3.f;
 	const float fOuterRadius = 3.4f;
@@ -274,11 +274,11 @@ Array< GLfloat > GizmoRenderer::GenerateGiro( const GizmoComponent::GizmoAxis eG
 
 	switch( eGizmoAxis )
 	{
-	case GizmoComponent::GizmoAxis::XY:
+	case GizmoAxis::XY:
 		for( glm::vec3& vPosition : vPositions )
 			vPosition = glm::vec3( vPosition.x, -vPosition.z, vPosition.y );
 		break;
-	case GizmoComponent::GizmoAxis::YZ:
+	case GizmoAxis::YZ:
 		for( glm::vec3& vPosition : vPositions )
 			vPosition = glm::vec3( vPosition.y, -vPosition.x, vPosition.z );
 		break;
