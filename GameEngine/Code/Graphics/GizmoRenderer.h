@@ -16,9 +16,11 @@ public:
 
 private:
 	void				RenderTranslationGizmo( const GizmoComponent::GizmoAxis eGizmoAxis, const RenderContext& oRenderContext );
+	void				RenderRotationGizmo( const GizmoComponent::GizmoAxis eGizmoAxis, const RenderContext& oRenderContext );
 
 	Array< GLfloat >	GenerateQuad( const GizmoComponent::GizmoAxis eGizmoAxis );
 	Array< GLfloat >	GenerateArrow( const GizmoComponent::GizmoAxis eGizmoAxis );
+	Array< GLfloat >	GenerateGiro( const GizmoComponent::GizmoAxis eGizmoAxis );
 
 	GLuint m_uVertexArrayID;
 	GLuint m_uVertexBufferID;

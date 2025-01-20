@@ -2,8 +2,24 @@
 
 #include "Renderer.h"
 
-static constexpr uint ARROW_SEGMENT_COUNT = 32;
-static constexpr uint ARROW_VERTEX_COUNT = 4 * ( 2 * ARROW_SEGMENT_COUNT + 2 ) + 3 * 2;
+static constexpr uint CIRCLE_SEGMENT_COUNT = 32;
+static constexpr uint ARROW_VERTEX_COUNT = 4 * ( 2 * CIRCLE_SEGMENT_COUNT + 2 ) + 3 * 2;
+static constexpr uint GIRO_VERTEX_COUNT = 2 * CIRCLE_SEGMENT_COUNT + 2;
+
+static const Array< glm::vec2 > CIRCLE_POINTS = []() {
+	Array< glm::vec2 > aCircle;
+	aCircle.Reserve( CIRCLE_SEGMENT_COUNT );
+
+	const float fAngleStep = 360.f / CIRCLE_SEGMENT_COUNT;
+
+	for( uint u = 0; u < CIRCLE_SEGMENT_COUNT; ++u )
+	{
+		const float fAngle = glm::radians( u * fAngleStep );
+		aCircle.PushBack( glm::vec2( glm::cos( fAngle ), glm::sin( fAngle ) ) );
+	}
+
+	return aCircle;
+}();
 
 GizmoRenderer::GizmoRenderer()
 {
@@ -34,6 +50,7 @@ void GizmoRenderer::RenderGizmo( const GizmoComponent::GizmoType eGizmoType, con
 		RenderTranslationGizmo( eGizmoAxis, oRenderContext );
 		break;
 	case GizmoComponent::GizmoType::ROTATE:
+		RenderRotationGizmo( eGizmoAxis, oRenderContext );
 		break;
 	case GizmoComponent::GizmoType::SCALE:
 		break;
@@ -49,6 +66,7 @@ void GizmoRenderer::RenderTranslationGizmo( const GizmoComponent::GizmoAxis eGiz
 	case GizmoComponent::GizmoAxis::Z:
 	{
 		Array< GLfloat > aVertices = GenerateArrow( eGizmoAxis );
+
 		glBindVertexArray( m_uVertexArrayID );
 		glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
 		glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
@@ -82,12 +100,30 @@ void GizmoRenderer::RenderTranslationGizmo( const GizmoComponent::GizmoAxis eGiz
 	}
 }
 
+void GizmoRenderer::RenderRotationGizmo( const GizmoComponent::GizmoAxis eGizmoAxis, const RenderContext& oRenderContext )
+{
+	glDisable( GL_CULL_FACE );
+
+	Array< GLfloat > aVertices = GenerateGiro( eGizmoAxis );
+
+	glBindVertexArray( m_uVertexArrayID );
+	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
+	glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+
+	glDrawArrays( GL_TRIANGLE_STRIP, 0, GIRO_VERTEX_COUNT );
+
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindVertexArray( 0 );
+
+	glEnable( GL_CULL_FACE );
+}
+
 Array< GLfloat > GizmoRenderer::GenerateQuad( const GizmoComponent::GizmoAxis eGizmoAxis )
 {
 	glm::vec3 vPositions[ 4 ];
 	glm::vec3 vOffset;
 
-	const float fSize = 2.f;
+	const float fSize = 1.5f;
 	const float fOffset = 0.4f;
 
 	switch( eGizmoAxis )
@@ -138,69 +174,58 @@ Array< GLfloat > GizmoRenderer::GenerateArrow( const GizmoComponent::GizmoAxis e
 	const float fConeLength = 0.8f;
 	const float fConeRadius = 0.4f;
 
-	Array< glm::vec2 > aCircle;
-	aCircle.Reserve( ARROW_SEGMENT_COUNT );
-
-	const float fAngleStep = 360.f / ARROW_SEGMENT_COUNT;
-
-	for( uint u = 0; u < ARROW_SEGMENT_COUNT; ++u )
-	{
-		const float fAngle = glm::radians( u * fAngleStep );
-		aCircle.PushBack( glm::vec2( glm::cos( fAngle ), glm::sin( fAngle ) ) );
-	}
-
 	Array< glm::vec3 > vPositions;
 	vPositions.Reserve( ARROW_VERTEX_COUNT );
 
 	// Exterior
-	for( uint u = 0; u < ARROW_SEGMENT_COUNT; ++u )
+	for( uint u = 0; u < CIRCLE_SEGMENT_COUNT; ++u )
 	{
-		vPositions.PushBack( glm::vec3( aCircle[ u ].x * fCylinderRadius, 0.f, aCircle[ u ].y * fCylinderRadius ) );
-		vPositions.PushBack( glm::vec3( aCircle[ u ].x * fCylinderRadius, fCylinderLength, aCircle[ u ].y * fCylinderRadius ) );
+		vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ u ].x * fCylinderRadius, 0.f, CIRCLE_POINTS[ u ].y * fCylinderRadius ) );
+		vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ u ].x * fCylinderRadius, fCylinderLength, CIRCLE_POINTS[ u ].y * fCylinderRadius ) );
 	}
-	vPositions.PushBack( glm::vec3( aCircle[ 0 ].x * fCylinderRadius, 0.f, aCircle[ 0 ].y * fCylinderRadius ) );
-	vPositions.PushBack( glm::vec3( aCircle[ 0 ].x * fCylinderRadius, fCylinderLength, aCircle[ 0 ].y * fCylinderRadius ) );
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x* fCylinderRadius, 0.f, CIRCLE_POINTS[ 0 ].y* fCylinderRadius ) );
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x* fCylinderRadius, fCylinderLength, CIRCLE_POINTS[ 0 ].y* fCylinderRadius ) );
 
 	// Separator
-	vPositions.PushBack( glm::vec3( aCircle[ 0 ].x * fCylinderRadius, fCylinderLength, aCircle[ 0 ].y * fCylinderRadius ) );
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x* fCylinderRadius, fCylinderLength, CIRCLE_POINTS[ 0 ].y * fCylinderRadius ) );
 	vPositions.PushBack( glm::vec3( 0.f, 0.f, 0.f ) );
 
 	// Bottom
-	for( uint u = 0; u < ARROW_SEGMENT_COUNT; ++u )
+	for( uint u = 0; u < CIRCLE_SEGMENT_COUNT; ++u )
 	{
 		vPositions.PushBack( glm::vec3( 0.f, 0.f, 0.f ) );
-		vPositions.PushBack( glm::vec3( aCircle[ u ].x * fCylinderRadius, 0.f, aCircle[ u ].y * fCylinderRadius ) );
+		vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ u ].x * fCylinderRadius, 0.f, CIRCLE_POINTS[ u ].y * fCylinderRadius ) );
 	}
 	vPositions.PushBack( glm::vec3( 0.f, 0.f, 0.f ) );
-	vPositions.PushBack( glm::vec3( aCircle[ 0 ].x * fCylinderRadius, 0.f, aCircle[ 0 ].y * fCylinderRadius ) );
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x* fCylinderRadius, 0.f, CIRCLE_POINTS[ 0 ].y * fCylinderRadius ) );
 
 	// Separator
-	vPositions.PushBack( glm::vec3( aCircle[ 0 ].x * fCylinderRadius, 0.f, aCircle[ 0 ].y * fCylinderRadius ) );
-	vPositions.PushBack( glm::vec3( aCircle[ 0 ].x * fCylinderRadius, fCylinderLength, aCircle[ 0 ].y * fCylinderRadius ) );
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x * fCylinderRadius, 0.f, CIRCLE_POINTS[ 0 ].y * fCylinderRadius ) );
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x * fCylinderRadius, fCylinderLength, CIRCLE_POINTS[ 0 ].y * fCylinderRadius ) );
 
 	// Arrow bottom
-	for( uint u = 0; u < ARROW_SEGMENT_COUNT; ++u )
+	for( uint u = 0; u < CIRCLE_SEGMENT_COUNT; ++u )
 	{
-		vPositions.PushBack( glm::vec3( aCircle[ u ].x * fCylinderRadius, fCylinderLength, aCircle[ u ].y * fCylinderRadius ) );
-		vPositions.PushBack( glm::vec3( aCircle[ u ].x * fConeRadius, fCylinderLength, aCircle[ u ].y * fConeRadius ) );
+		vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ u ].x * fCylinderRadius, fCylinderLength, CIRCLE_POINTS[ u ].y * fCylinderRadius ) );
+		vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ u ].x * fConeRadius, fCylinderLength, CIRCLE_POINTS[ u ].y * fConeRadius ) );
 	}
-	vPositions.PushBack( glm::vec3( aCircle[ 0 ].x * fCylinderRadius, fCylinderLength, aCircle[ 0 ].y * fCylinderRadius ) );
-	vPositions.PushBack( glm::vec3( aCircle[ 0 ].x * fConeRadius, fCylinderLength, aCircle[ 0 ].y * fConeRadius ) );
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x * fCylinderRadius, fCylinderLength, CIRCLE_POINTS[ 0 ].y * fCylinderRadius ) );
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x * fConeRadius, fCylinderLength, CIRCLE_POINTS[ 0 ].y * fConeRadius ) );
 
 	// Separator
-	vPositions.PushBack( glm::vec3( aCircle[ 0 ].x * fConeRadius, fCylinderLength, aCircle[ 0 ].y * fConeRadius ) );
-	vPositions.PushBack( glm::vec3( aCircle[ 0 ].x * fConeRadius, fCylinderLength, aCircle[ 0 ].y * fConeRadius ) );
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x * fConeRadius, fCylinderLength, CIRCLE_POINTS[ 0 ].y * fConeRadius ) );
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x * fConeRadius, fCylinderLength, CIRCLE_POINTS[ 0 ].y * fConeRadius ) );
 
 	// Arrow top
-	for( uint u = 0; u < ARROW_SEGMENT_COUNT; ++u )
+	for( uint u = 0; u < CIRCLE_SEGMENT_COUNT; ++u )
 	{
-		vPositions.PushBack( glm::vec3( aCircle[ u ].x * fConeRadius, fCylinderLength, aCircle[ u ].y * fConeRadius ) );
+		vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ u ].x * fConeRadius, fCylinderLength, CIRCLE_POINTS[ u ].y * fConeRadius ) );
 		vPositions.PushBack( glm::vec3( 0.f, fCylinderLength + fConeLength, 0.f ) );
 	}
-	vPositions.PushBack( glm::vec3( aCircle[ 0 ].x * fConeRadius, fCylinderLength, aCircle[ 00 ].y * fConeRadius ) );
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x* fConeRadius, fCylinderLength, CIRCLE_POINTS[ 00 ].y * fConeRadius ) );
 	vPositions.PushBack( glm::vec3( 0.f, fCylinderLength + fConeLength, 0.f ) );
 
-	const float fOffset = 0.4f;
+	const float fOffset = 0.6f;
 
 	switch( eGizmoAxis )
 	{
@@ -215,6 +240,47 @@ Array< GLfloat > GizmoRenderer::GenerateArrow( const GizmoComponent::GizmoAxis e
 	case GizmoComponent::GizmoAxis::Z:
 		for( glm::vec3& vPosition : vPositions )
 			vPosition = glm::vec3( vPosition.x, -vPosition.z, vPosition.y ) + glm::vec3( 0.f, 0.f, fOffset );
+		break;
+	}
+
+	Array< GLfloat > aVertices;
+	aVertices.Reserve( 3 * vPositions.Count() );
+
+	for( const glm::vec3& vPosition : vPositions )
+	{
+		aVertices.PushBack( vPosition.x );
+		aVertices.PushBack( vPosition.y );
+		aVertices.PushBack( vPosition.z );
+	}
+
+	return aVertices;
+}
+
+Array< GLfloat > GizmoRenderer::GenerateGiro( const GizmoComponent::GizmoAxis eGizmoAxis )
+{
+	const float fInnerRadius = 3.f;
+	const float fOuterRadius = 3.4f;
+
+	Array< glm::vec3 > vPositions;
+	vPositions.Reserve( GIRO_VERTEX_COUNT );
+
+	for( uint u = 0; u < CIRCLE_SEGMENT_COUNT; ++u )
+	{
+		vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ u ].x * fOuterRadius, 0.f, CIRCLE_POINTS[ u ].y * fOuterRadius ) );
+		vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ u ].x * fInnerRadius, 0.f, CIRCLE_POINTS[ u ].y * fInnerRadius ) );
+	}
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x * fOuterRadius, 0.f, CIRCLE_POINTS[ 0 ].y * fOuterRadius ) );
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x * fInnerRadius, 0.f, CIRCLE_POINTS[ 0 ].y * fInnerRadius ) );
+
+	switch( eGizmoAxis )
+	{
+	case GizmoComponent::GizmoAxis::XY:
+		for( glm::vec3& vPosition : vPositions )
+			vPosition = glm::vec3( vPosition.x, -vPosition.z, vPosition.y );
+		break;
+	case GizmoComponent::GizmoAxis::YZ:
+		for( glm::vec3& vPosition : vPositions )
+			vPosition = glm::vec3( vPosition.y, -vPosition.x, vPosition.z );
 		break;
 	}
 

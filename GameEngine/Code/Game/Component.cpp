@@ -111,20 +111,38 @@ const glm::vec3 GizmoComponent::GetColor() const
 	if( m_bEditing )
 		return glm::vec3( 1.f, 1.f, 0.f );
 
-	switch( m_eGizmoAxis )
+	switch( m_eGizmoType )
 	{
-	case GizmoAxis::X:
-		return glm::vec3( 1.f, 0.f, 0.f );
-	case GizmoAxis::Y:
-		return glm::vec3( 0.f, 1.f, 0.f );
-	case GizmoAxis::Z:
-		return glm::vec3( 0.f, 0.f, 1.f );
-	case GizmoAxis::XY:
-		return glm::vec3( 0.5f, 0.5f, 1.f );
-	case GizmoAxis::XZ:
-		return glm::vec3( 0.5f, 1.f, 0.5f );
-	case GizmoAxis::YZ:
-		return glm::vec3( 1.f, 0.5f, 0.5f );
+	case GizmoComponent::GizmoType::TRANSLATE:
+		switch( m_eGizmoAxis )
+		{
+		case GizmoAxis::X:
+			return glm::vec3( 1.f, 0.f, 0.f );
+		case GizmoAxis::Y:
+			return glm::vec3( 0.f, 1.f, 0.f );
+		case GizmoAxis::Z:
+			return glm::vec3( 0.f, 0.f, 1.f );
+		case GizmoAxis::XY:
+			return glm::vec3( 0.5f, 0.5f, 1.f );
+		case GizmoAxis::XZ:
+			return glm::vec3( 0.5f, 1.f, 0.5f );
+		case GizmoAxis::YZ:
+			return glm::vec3( 1.f, 0.5f, 0.5f );
+		}
+		break;
+	case GizmoComponent::GizmoType::ROTATE:
+		switch( m_eGizmoAxis )
+		{
+		case GizmoAxis::XY:
+			return glm::vec3( 0.f, 0.f, 1.f );
+		case GizmoAxis::XZ:
+			return glm::vec3( 0.f, 1.f, 0.f );
+		case GizmoAxis::YZ:
+			return glm::vec3( 1.f, 0.f, 0.f );
+		}
+		break;
+	case GizmoComponent::GizmoType::SCALE:
+		break;
 	}
 
 	return glm::vec3( 1.f, 1.f, 1.f );

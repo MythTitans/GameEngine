@@ -124,10 +124,21 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 			Entity* pGizmoEntity = g_pGameEngine->GetScene().FindEntity( m_uGizmoEntityID );
 			GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pGizmoEntity );
 
-			const glm::vec3 vNewPosition = m_vInitialEntityWorldPosition + ProjectOnGizmo( oRay, *pGizmoComponent ) - m_vMoveStartWorldPosition;
-			pSelectedEntity->SetPosition( vNewPosition );
+			switch( pGizmoComponent->GetType() )
+			{
+			case GizmoComponent::GizmoType::TRANSLATE:
+			{
+				const glm::vec3 vNewPosition = m_vInitialEntityWorldPosition + ProjectOnGizmo( oRay, *pGizmoComponent ) - m_vMoveStartWorldPosition;
+				pSelectedEntity->SetPosition( vNewPosition );
 
-			g_pDebugDisplay->DisplayLine( m_vInitialEntityWorldPosition, vNewPosition, glm::vec3( 1.f, 1.f, 0.f ) );
+				g_pDebugDisplay->DisplayLine( m_vInitialEntityWorldPosition, vNewPosition, glm::vec3( 1.f, 1.f, 0.f ) );
+				break;
+			}
+			case GizmoComponent::GizmoType::ROTATE:
+				break;
+			case GizmoComponent::GizmoType::SCALE:
+				break;
+			}
 		}	
 	}
 
