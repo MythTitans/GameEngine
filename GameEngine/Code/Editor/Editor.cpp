@@ -59,8 +59,8 @@ Editor* g_pEditor = nullptr;
 Editor::Editor()
 	: m_uSelectedEntityID( UINT64_MAX )
 	, m_uGizmoEntityID( UINT64_MAX )
-	, m_vInitialEntityWorldPosition( 0.f )
-	, m_vMoveStartWorldPosition( 0.f )
+	, m_vInitialEntityPosition( 0.f )
+	, m_vMoveStartPosition( 0.f )
 	, m_bDisplayEditor( false )
 {
 	g_pEditor = this;
@@ -107,8 +107,26 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 					pGizmoComponent->SetEditing( true );
 					m_uGizmoEntityID = uGizmoEntityID;
 
-					m_vInitialEntityWorldPosition = pSelectedEntity->GetPosition();
-					m_vMoveStartWorldPosition = ProjectOnGizmo( oRay, *pGizmoComponent );
+					m_vInitialEntityPosition = pSelectedEntity->GetPosition();
+					m_qInitialEntityRotation = pSelectedEntity->GetRotation();
+					m_vMoveStartPosition = ProjectOnGizmo( oRay, *pGizmoComponent );
+					m_vRotationAxis = [ pGizmoEntity ]( const GizmoAxis eAxis ) {
+						glm::vec3 vAxis( 0.f );
+						switch( eAxis )
+						{
+						case GizmoAxis::XY:
+							vAxis = pGizmoEntity->GetTransform().GetK();
+							break;
+						case GizmoAxis::YZ:
+							vAxis = pGizmoEntity->GetTransform().GetI();
+							break;
+						case GizmoAxis::XZ:
+							vAxis = pGizmoEntity->GetTransform().GetJ();
+							break;
+						}
+
+						return vAxis;
+					}( pGizmoComponent->GetAxis() );
 				}
 			}
 		}
@@ -128,14 +146,32 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 			{
 			case GizmoType::TRANSLATE:
 			{
-				const glm::vec3 vNewPosition = m_vInitialEntityWorldPosition + ProjectOnGizmo( oRay, *pGizmoComponent ) - m_vMoveStartWorldPosition;
+				const glm::vec3 vNewPosition = m_vInitialEntityPosition + ProjectOnGizmo( oRay, *pGizmoComponent ) - m_vMoveStartPosition;
 				pSelectedEntity->SetPosition( vNewPosition );
 
-				g_pDebugDisplay->DisplayLine( m_vInitialEntityWorldPosition, vNewPosition, glm::vec3( 1.f, 1.f, 0.f ) );
+				g_pDebugDisplay->DisplayLine( m_vInitialEntityPosition, vNewPosition, glm::vec3( 1.f, 1.f, 0.f ) );
 				break;
 			}
 			case GizmoType::ROTATE:
+			{
+				const glm::vec3 vProjectedPosition = ProjectOnGizmo( oRay, *pGizmoComponent );
+				const glm::vec3 vCenterToStart = glm::normalize( m_vMoveStartPosition - m_vInitialEntityPosition );
+				const glm::vec3 vCenterToPoint = glm::normalize( vProjectedPosition - m_vInitialEntityPosition );
+
+				const float fAngle = glm::acos( glm::dot( vCenterToStart, vCenterToPoint ) );
+
+				if( fAngle > 0.f )
+				{
+					const glm::vec3 vAxis = glm::cross( vCenterToStart, vCenterToPoint );
+					const float fSign = glm::sign( glm::dot( vAxis, m_vRotationAxis ) );
+
+					const glm::quat qRotation = glm::rotate( glm::quat( 1.f, 0.f, 0.f, 0.f ), fSign * fAngle, m_vRotationAxis );
+					pSelectedEntity->SetRotation( qRotation * m_qInitialEntityRotation );
+				}
+
+				g_pDebugDisplay->DisplayLine( m_vInitialEntityPosition, vProjectedPosition, glm::vec3( 1.f, 1.f, 0.f ) );
 				break;
+			}
 			case GizmoType::SCALE:
 				break;
 			}

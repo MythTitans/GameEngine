@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "Core/Types.h"
 #include "Math/MathUtils.h"
@@ -25,8 +26,11 @@ private:
 	uint64		m_uSelectedEntityID;
 	uint64		m_uGizmoEntityID;
 
-	glm::vec3	m_vInitialEntityWorldPosition;
-	glm::vec3	m_vMoveStartWorldPosition;
+	glm::vec3	m_vInitialEntityPosition;
+	glm::quat	m_qInitialEntityRotation;
+
+	glm::vec3	m_vMoveStartPosition;
+	glm::vec3	m_vRotationAxis;
 
 	bool		m_bDisplayEditor;
 };
