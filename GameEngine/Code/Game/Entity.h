@@ -38,7 +38,8 @@ struct Transform
 	void				SetRotationEuler( const float fX, const float fY, const float fZ );
 	glm::vec3			GetRotationEuler() const;
 
-	glm::mat4			GetMatrix() const;
+	glm::mat4			GetMatrixTR() const;
+	glm::mat4			GetMatrixTRS() const;
 
 	glm::mat3 m_mMatrix;
 	glm::vec3 m_vPosition;
@@ -57,16 +58,29 @@ struct TransformComponent : public Component
 class Entity : public Intrusive
 {
 public:
+	friend class Scene;
+
 	Entity();
 	Entity( const uint64 uID, const char* sName );
 
 	uint64				GetID() const;
 	const char*			GetName() const;
 
-	void				SetMatrix( const glm::mat4& mMatrix );
-	glm::mat4			GetMatrix() const;
+	void				SetWorldTransform( const Transform& oTransform );
+	Transform			GetWorldTransform() const;
+	
+	void				SetWorldPosition( const glm::vec3& vPosition );
+	void				SetWorldPosition( const float fX, const float fY, const float fZ );
+	glm::vec3			GetWorldPosition() const;
 
-	void				SetTransform( const Transform& mMatrix );
+	void				SetRotation( const glm::quat& qRotation );
+	void				SetRotation( const glm::vec3& vAxis, const float fAngle );
+	void				SetRotationX( const float fAngle );
+	void				SetRotationY( const float fAngle );
+	void				SetRotationZ( const float fAngle );
+	glm::quat			GetRotation() const;
+
+	void				SetTransform( const Transform& oTransform );
 	Transform&			GetTransform();
 	const Transform&	GetTransform() const;
 
@@ -78,17 +92,13 @@ public:
 	void				SetScale( const glm::vec3& vScale );
 	void				SetScale( const float fX, const float fY, const float fZ );
 
-	glm::quat			GetRotation() const;
-	void				SetRotation( const glm::quat& qRotation );
-	void				SetRotation( const glm::vec3& vAxis, const float fAngle );
-	void				SetRotationX( const float fAngle );
-	void				SetRotationY( const float fAngle );
-	void				SetRotationZ( const float fAngle );
-
 private:
-	uint64			m_uID;
-	const char*		m_sName;
+	uint64				m_uID;
+	const char*			m_sName;
+
+	Entity*				m_pParent;
+	Array< Entity* >	m_aChildren;
 
 	using TransformHandle = ComponentHandle< TransformComponent >;
-	TransformHandle	m_hTransformComponent;
+	TransformHandle		m_hTransformComponent;
 };

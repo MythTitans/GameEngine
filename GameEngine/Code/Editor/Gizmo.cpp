@@ -21,12 +21,14 @@ void GizmoComponent::Update( const float fDeltaTime )
 {
 	if( m_xAnchor != nullptr )
 	{
-		const float fDistance = glm::length( g_pRenderer->m_oCamera.GetPosition() - m_xAnchor->GetPosition() );
+		const Transform oTransform = m_xAnchor->GetWorldTransform();
+
+		const float fDistance = glm::length( g_pRenderer->m_oCamera.GetPosition() - oTransform.GetPosition() );
 		float fBaseScale = 0.025f;
 
 		Entity* pEntity = GetEntity();
-		pEntity->SetPosition( m_xAnchor->GetPosition() );
-		pEntity->SetRotation( m_xAnchor->GetRotation() );
+		pEntity->SetPosition( oTransform.GetPosition() );
+		pEntity->SetRotation( oTransform.GetRotation() );
 
 		const float fScale = fBaseScale * fDistance;
 		pEntity->SetScale( fScale, fScale, fScale );
@@ -97,5 +99,5 @@ GizmoAxis GizmoComponent::GetAxis() const
 
 glm::mat4 GizmoComponent::GetWorldMatrix() const
 {
-	return GetEntity()->GetMatrix();
+	return GetEntity()->GetWorldTransform().GetMatrixTRS();
 }

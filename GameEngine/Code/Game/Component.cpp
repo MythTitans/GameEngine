@@ -63,7 +63,7 @@ bool VisualComponent::IsInitialized()
 
 void VisualComponent::Update( const float fDeltaTime )
 {
-	m_mWorldMatrix = GetEntity()->GetMatrix();
+	m_mWorldMatrix = GetEntity()->GetWorldTransform().GetMatrixTRS();
 }
 
 const ModelResPtr& VisualComponent::GetResource() const
@@ -95,7 +95,7 @@ PointLightComponent::PointLightComponent( Entity* pEntity )
 
 void PointLightComponent::Update( const float fDeltaTime )
 {
-	m_vPosition = GetEntity()->GetPosition();
+	m_vPosition = GetEntity()->GetWorldPosition();
 }
 
 const glm::vec3& PointLightComponent::GetPosition() const
@@ -117,7 +117,7 @@ SpotLightComponent::SpotLightComponent( Entity* pEntity )
 
 void SpotLightComponent::Update( const float fDeltaTime )
 {
-	m_vPosition = GetEntity()->GetPosition();
+	m_vPosition = GetEntity()->GetWorldPosition();
 }
 
 const glm::vec3& SpotLightComponent::GetPosition() const

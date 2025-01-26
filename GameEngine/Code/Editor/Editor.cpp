@@ -81,13 +81,13 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	if( m_bDisplayEditor == false )
 		return;
 
-	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 20.f, 0.f, 0.f ), glm::vec3( 1.f, 0.f, 0.f ) );
-	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 20.f, 0.f ), glm::vec3( 0.f, 1.f, 0.f ) );
-	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 0.f, 20.f ), glm::vec3( 0.f, 0.f, 1.f ) );
-
-	g_pDebugDisplay->DisplaySphere( glm::vec3( 20.f, 0.f, 0.f ), 0.3f, glm::vec3( 1.f, 0.f, 0.f ) );
-	g_pDebugDisplay->DisplaySphere( glm::vec3( 0.f, 20.f, 0.f ), 0.3f, glm::vec3( 0.f, 1.f, 0.f ) );
-	g_pDebugDisplay->DisplaySphere( glm::vec3( 0.f, 0.f, 20.f ), 0.3f, glm::vec3( 0.f, 0.f, 1.f ) );
+// 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 20.f, 0.f, 0.f ), glm::vec3( 1.f, 0.f, 0.f ) );
+// 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 20.f, 0.f ), glm::vec3( 0.f, 1.f, 0.f ) );
+// 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 0.f, 20.f ), glm::vec3( 0.f, 0.f, 1.f ) );
+// 
+// 	g_pDebugDisplay->DisplaySphere( glm::vec3( 20.f, 0.f, 0.f ), 0.3f, glm::vec3( 1.f, 0.f, 0.f ) );
+// 	g_pDebugDisplay->DisplaySphere( glm::vec3( 0.f, 20.f, 0.f ), 0.3f, glm::vec3( 0.f, 1.f, 0.f ) );
+// 	g_pDebugDisplay->DisplaySphere( glm::vec3( 0.f, 0.f, 20.f ), 0.3f, glm::vec3( 0.f, 0.f, 1.f ) );
 
 	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_PRESS ) && ImGui::GetIO().WantCaptureMouse == false )
 	{
@@ -107,7 +107,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 					pGizmoComponent->SetEditing( true );
 					m_uGizmoEntityID = uGizmoEntityID;
 
-					m_vInitialEntityPosition = pSelectedEntity->GetPosition();
+					m_vInitialEntityPosition = pSelectedEntity->GetWorldPosition();
 					m_qInitialEntityRotation = pSelectedEntity->GetRotation();
 					m_vMoveStartPosition = ProjectOnGizmo( oRay, *pGizmoComponent );
 					m_vRotationAxis = [ pGizmoEntity ]( const GizmoAxis eAxis ) {
@@ -115,13 +115,13 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 						switch( eAxis )
 						{
 						case GizmoAxis::XY:
-							vAxis = pGizmoEntity->GetTransform().GetK();
+							vAxis = pGizmoEntity->GetWorldTransform().GetK();
 							break;
 						case GizmoAxis::YZ:
-							vAxis = pGizmoEntity->GetTransform().GetI();
+							vAxis = pGizmoEntity->GetWorldTransform().GetI();
 							break;
 						case GizmoAxis::XZ:
-							vAxis = pGizmoEntity->GetTransform().GetJ();
+							vAxis = pGizmoEntity->GetWorldTransform().GetJ();
 							break;
 						}
 
@@ -147,7 +147,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 			case GizmoType::TRANSLATE:
 			{
 				const glm::vec3 vNewPosition = m_vInitialEntityPosition + ProjectOnGizmo( oRay, *pGizmoComponent ) - m_vMoveStartPosition;
-				pSelectedEntity->SetPosition( vNewPosition );
+				pSelectedEntity->SetWorldPosition( vNewPosition );
 
 				g_pDebugDisplay->DisplayLine( m_vInitialEntityPosition, vNewPosition, glm::vec3( 1.f, 1.f, 0.f ) );
 				break;
@@ -218,7 +218,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		{
 			if( ImGui::TreeNode( it.second->GetName() ) )
 			{
-				Transform& oTransform = it.second->GetTransform();
+				Transform oTransform = it.second->GetTransform();
 
 				oTransform.SetPosition( EditableVector3( "Position", oTransform.GetPosition() ) );
 
@@ -229,6 +229,8 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 				oTransform.SetRotationEuler( vEuler );
 
 				oTransform.SetScale( EditableVector3( "Scale", oTransform.GetScale() ) );
+
+				it.second->SetTransform( oTransform );
 
 				DirectionalLightComponent* pDirectionalLightComponent = g_pComponentManager->GetComponent< DirectionalLightComponent >( it.second.GetPtr() );
 				if( pDirectionalLightComponent != nullptr && ImGui::CollapsingHeader( "Directional light" ) )
@@ -301,7 +303,7 @@ Ray Editor::ComputeCursorViewRay( const InputContext& oInputContext, const Rende
 
 glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo ) const
 {
-	const Transform& oTransform = oGizmo.GetEntity()->GetTransform();
+	const Transform& oTransform = oGizmo.GetEntity()->GetWorldTransform();
 
 	auto ComputeClosestPlaneIntersection = [ &oTransform ]( const Ray& oRay, const Plane& oPlaneA, const Plane& oPlaneB ) {
 		glm::vec3 vIntersectionA;

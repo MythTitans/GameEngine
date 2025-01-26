@@ -17,6 +17,9 @@ public:
 	Entity*			FindEntity( const uint64 uEntityID );
 	const Entity*	FindEntity( const uint64 uEntityID ) const;
 
+	void			AttachToParent( Entity* pChild, Entity* pParent );
+	void			DetachFromParent( Entity* pChild );
+
 private:
 	//std::unordered_map< uint64, Entity > m_mEntities;
 	std::unordered_map< uint64, StrongPtr< Entity > > m_mEntities;

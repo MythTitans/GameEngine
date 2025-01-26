@@ -198,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Core\Array.h" />
+    <ClInclude Include="Code\Core\ArrayUtils.h" />
     <ClInclude Include="Code\Core\Common.h" />
     <ClInclude Include="Code\Core\Intrusive.h" />
     <ClInclude Include="Code\Core\LockLessMultiReadPipe.h" />

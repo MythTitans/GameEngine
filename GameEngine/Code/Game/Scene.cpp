@@ -1,5 +1,6 @@
 #include "Scene.h"
 
+#include "Core/ArrayUtils.h"
 #include "Component.h"
 #include "Entity.h"
 #include "GameEngine.h"
@@ -64,6 +65,8 @@ Scene::Scene()
 
 	g_pComponentManager->CreateComponent< DirectionalLightComponent >( m_mEntities[ 12 ].GetPtr() );
 	g_pComponentManager->CreateComponent< SpotLightComponent >( m_mEntities[ 13 ].GetPtr() );
+
+	AttachToParent( m_mEntities[ 10 ].GetPtr(), m_mEntities[ 9 ].GetPtr() );
 }
 
 Entity* Scene::FindEntity( const uint64 uEntityID )
@@ -82,4 +85,41 @@ const Entity* Scene::FindEntity( const uint64 uEntityID ) const
 		return nullptr;
 
 	return it->second.GetPtr();
+}
+
+void Scene::AttachToParent( Entity* pChild, Entity* pParent )
+{
+	ASSERT( pChild != nullptr );
+	if( pChild == nullptr )
+		return;
+
+	ASSERT( pChild != pParent );
+	if( pChild == pParent )
+		return;
+
+	DetachFromParent( pChild );
+	pChild->m_pParent = pParent;
+
+	const bool bAlreadyChild = Contains( pParent->m_aChildren, pChild );
+	if( pParent != nullptr && bAlreadyChild == false )
+		pParent->m_aChildren.PushBack( pChild );
+}
+
+void Scene::DetachFromParent( Entity* pChild )
+{
+	ASSERT( pChild != nullptr );
+	if( pChild == nullptr )
+		return;
+
+	Entity* pParent = pChild->m_pParent;
+	if( pParent != nullptr )
+	{
+		for( uint u = 0; u < pParent->m_aChildren.Count(); ++u )
+		{
+			if( pChild == pParent->m_aChildren[ u ] )
+				pParent->m_aChildren.Remove( u );
+		}
+	}
+
+	pChild->m_pParent = nullptr;
 }
