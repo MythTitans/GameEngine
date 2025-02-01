@@ -6,23 +6,31 @@
 
 #include "Game/ComponentManager.h"
 
+static bool IsUniformScale( const glm::vec3& vScale )
+{
+	const float fEpsilon = 0.001f;
+	return glm::epsilonEqual( vScale.x, vScale.y, fEpsilon ) && glm::epsilonEqual( vScale.x, vScale.z, fEpsilon );
+}
+
 Transform::Transform()
 	: m_mMatrix( 1.f )
 	, m_vPosition( 0.f )
 	, m_vScale( 1.f )
-	, m_vRotationEuler( 0.f )
+	, m_bDirtyRotation( true )
+	, m_bUniformScale( true )
 {
 }
 
-Transform::Transform( const glm::mat4& mMatrix )
+Transform::Transform( const glm::mat4& mMatrix )	
+	: m_bDirtyRotation( true )
 {
-	glm::extractEulerAngleYXZ( mMatrix, m_vRotationEuler.y, m_vRotationEuler.x, m_vRotationEuler.z );
-
 	m_mMatrix[ 0 ] = glm::normalize( glm::vec3( mMatrix[ 0 ] ) );
 	m_mMatrix[ 1 ] = glm::normalize( glm::vec3( mMatrix[ 1 ] ) );
 	m_mMatrix[ 2 ] = glm::normalize( glm::vec3( mMatrix[ 2 ] ) );
 	m_vPosition = glm::vec3( mMatrix[ 3 ] );
 	m_vScale = glm::vec3( glm::length( mMatrix[ 0 ] ), glm::length( mMatrix[ 1 ] ), glm::length( mMatrix[ 2 ] ) );
+
+	m_bUniformScale = IsUniformScale( m_vScale );
 }
 
 glm::vec3& Transform::GetI()
@@ -88,6 +96,7 @@ glm::vec3 Transform::GetScale() const
 void Transform::SetScale( const glm::vec3& vScale )
 {
 	m_vScale = vScale;
+	m_bUniformScale = IsUniformScale( m_vScale );
 }
 
 void Transform::SetScale( const float fX, const float fY, const float fZ )
@@ -103,36 +112,17 @@ glm::quat Transform::GetRotation() const
 void Transform::SetRotation( const glm::quat& qRotation )
 {
 	const glm::mat4 mMatrix = glm::mat4_cast( qRotation );
-	glm::extractEulerAngleYXZ( mMatrix, m_vRotationEuler.y, m_vRotationEuler.x, m_vRotationEuler.z );
 
 	m_mMatrix[ 0 ] = glm::vec3( mMatrix[ 0 ] );
 	m_mMatrix[ 1 ] = glm::vec3( mMatrix[ 1 ] );
 	m_mMatrix[ 2 ] = glm::vec3( mMatrix[ 2 ] );
+
+	m_bDirtyRotation = true;
 }
 
 void Transform::SetRotation( const glm::vec3& vAxis, const float fAngle )
 {
 	SetRotation( glm::rotate( glm::quat( 1.f, 0.f, 0.f, 0.f ), fAngle, vAxis ) );
-}
-
-void Transform::SetRotationEuler( const glm::vec3& vEuler )
-{
-	m_vRotationEuler = vEuler;
-
-	glm::mat4 mMat = glm::eulerAngleYXZ( vEuler.y, vEuler.x, vEuler.z );
-	m_mMatrix[ 0 ] = glm::vec3( mMat[ 0 ] );
-	m_mMatrix[ 1 ] = glm::vec3( mMat[ 1 ] );
-	m_mMatrix[ 2 ] = glm::vec3( mMat[ 2 ] );
-}
-
-void Transform::SetRotationEuler( const float fX, const float fY, const float fZ )
-{
-	SetRotationEuler( glm::vec3( fX, fY, fZ ) );
-}
-
-glm::vec3 Transform::GetRotationEuler() const
-{
-	return m_vRotationEuler;
 }
 
 glm::mat4 Transform::GetMatrixTR() const
@@ -162,6 +152,61 @@ TransformComponent::TransformComponent( Entity* pEntity )
 {
 }
 
+EulerComponent::EulerComponent( Entity* pEntity )
+	: Component( pEntity )
+{
+}
+
+void EulerComponent::Start()
+{
+	m_hTransformComponent = GetComponent< TransformComponent >();
+	ASSERT( m_hTransformComponent.IsValid() );
+}
+
+void EulerComponent::Update( const float fDeltaTime )
+{
+	Transform& oTransform = m_hTransformComponent->m_oTransform;
+
+	if( oTransform.m_bDirtyRotation )
+	{
+		const glm::mat4 mMatrix( oTransform.m_mMatrix );
+		glm::extractEulerAngleYXZ( mMatrix, m_vRotationEuler.y, m_vRotationEuler.x, m_vRotationEuler.z );
+		oTransform.m_bDirtyRotation = false;
+	}
+}
+
+void EulerComponent::SetRotationEuler( const glm::vec3& vEuler )
+{
+	Transform& oTransform = m_hTransformComponent->m_oTransform;
+
+	m_vRotationEuler = vEuler;
+
+	const glm::mat4 mMat = glm::eulerAngleYXZ( vEuler.y, vEuler.x, vEuler.z );
+	oTransform.m_mMatrix[ 0 ] = glm::vec3( mMat[ 0 ] );
+	oTransform.m_mMatrix[ 1 ] = glm::vec3( mMat[ 1 ] );
+	oTransform.m_mMatrix[ 2 ] = glm::vec3( mMat[ 2 ] );
+}
+
+void EulerComponent::SetRotationEuler( const float fX, const float fY, const float fZ )
+{
+	SetRotationEuler( glm::vec3( fX, fY, fZ ) );
+}
+
+glm::vec3 EulerComponent::GetRotationEuler() const
+{
+	const Transform& oTransform = m_hTransformComponent->m_oTransform;
+
+	if( oTransform.m_bDirtyRotation )
+	{
+		glm::vec3 vRotationEuler;
+		const glm::mat4 mMatrix( oTransform.m_mMatrix );
+		glm::extractEulerAngleYXZ( mMatrix, vRotationEuler.y, vRotationEuler.x, vRotationEuler.z );
+		return vRotationEuler;
+	}
+
+	return m_vRotationEuler;
+}
+
 Entity::Entity()
 	: m_uID( UINT64_MAX )
 	, m_sName( "" )
@@ -175,6 +220,7 @@ Entity::Entity( const uint64 uID, const char* sName )
 	, m_pParent( nullptr )
 {
 	m_hTransformComponent = &g_pComponentManager->CreateComponent< TransformComponent >( this );
+	g_pComponentManager->CreateComponent< EulerComponent >( this );
 }
 
 uint64 Entity::GetID() const

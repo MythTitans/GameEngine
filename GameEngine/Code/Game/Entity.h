@@ -34,17 +34,16 @@ struct Transform
 	glm::quat			GetRotation() const;
 	void				SetRotation( const glm::quat& qRotation );
 	void				SetRotation( const glm::vec3& vAxis, const float fAngle );
-	void				SetRotationEuler( const glm::vec3& vEuler );
-	void				SetRotationEuler( const float fX, const float fY, const float fZ );
-	glm::vec3			GetRotationEuler() const;
 
 	glm::mat4			GetMatrixTR() const;
 	glm::mat4			GetMatrixTRS() const;
 
-	glm::mat3 m_mMatrix;
-	glm::vec3 m_vPosition;
-	glm::vec3 m_vScale;
-	glm::vec3 m_vRotationEuler; // Mainly used for editor
+	glm::mat3	m_mMatrix;
+	glm::vec3	m_vPosition;
+	glm::vec3	m_vScale;
+
+	bool		m_bDirtyRotation;
+	bool		m_bUniformScale;
 };
 
 // TODO #eric we should have a way to specify which callbacks should be called (i.e. Update(), ...)
@@ -53,6 +52,23 @@ struct TransformComponent : public Component
 	explicit TransformComponent( Entity* pEntity );
 
 	Transform m_oTransform;
+};
+
+struct EulerComponent : public Component
+{
+	explicit EulerComponent( Entity* pEntity );
+
+	void		Start() override;
+	void		Update( const float fDeltaTime ) override;
+
+	void		SetRotationEuler( const glm::vec3& vEuler );
+ 	void		SetRotationEuler( const float fX, const float fY, const float fZ );
+ 	glm::vec3	GetRotationEuler() const;
+
+	using TransformHandle = ComponentHandle< TransformComponent >;
+	TransformHandle	m_hTransformComponent;
+	
+	glm::vec3		m_vRotationEuler;
 };
 
 class Entity : public Intrusive

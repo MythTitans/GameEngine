@@ -218,19 +218,18 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		{
 			if( ImGui::TreeNode( it.second->GetName() ) )
 			{
-				Transform oTransform = it.second->GetTransform();
+				Entity* pEntity = it.second.GetPtr();
+				EulerComponent* pEuler = g_pComponentManager->GetComponent< EulerComponent >( pEntity );
 
-				oTransform.SetPosition( EditableVector3( "Position", oTransform.GetPosition() ) );
+				pEntity->SetPosition( EditableVector3( "Position", pEntity->GetPosition() ) );
 
-				glm::vec3 vEuler = oTransform.GetRotationEuler();
+				glm::vec3 vEuler = pEuler->GetRotationEuler();
 				vEuler = glm::vec3( glm::degrees( vEuler.x ), glm::degrees( vEuler.y ), glm::degrees( vEuler.z ) );
 				vEuler = EditableVector3( "Rotation", vEuler );
 				vEuler = glm::vec3( glm::radians( vEuler.x ), glm::radians( vEuler.y ), glm::radians( vEuler.z ) );
-				oTransform.SetRotationEuler( vEuler );
+				pEuler->SetRotationEuler( vEuler );
 
-				oTransform.SetScale( EditableVector3( "Scale", oTransform.GetScale() ) );
-
-				it.second->SetTransform( oTransform );
+				pEntity->SetScale( EditableVector3( "Scale", pEntity->GetScale() ) );
 
 				DirectionalLightComponent* pDirectionalLightComponent = g_pComponentManager->GetComponent< DirectionalLightComponent >( it.second.GetPtr() );
 				if( pDirectionalLightComponent != nullptr && ImGui::CollapsingHeader( "Directional light" ) )
