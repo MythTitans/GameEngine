@@ -41,10 +41,14 @@ public:
 
 	void RenderLines( const Array< Line >& aLines, const RenderContext& oRenderContext );
 	void RenderSpheres( const Array< Sphere >& aSpheres, const RenderContext& oRenderContext );
+	void RenderWireSpheres( const Array< Sphere >& aSpheres, const RenderContext& oRenderContext );
 
 	bool OnLoading();
 
 private:
+	Array< GLfloat > GenerateSphereEquator();
+	Array< GLfloat > GenerateSphereMeridians();
+
 	TechniqueResPtr				m_xLine;
 	LineTechniqueDefinition		m_oLine;
 	TechniqueResPtr				m_xSphere;

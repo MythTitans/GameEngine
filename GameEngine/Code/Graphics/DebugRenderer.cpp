@@ -7,6 +7,27 @@ static constexpr uint SPHERE_SEGMENT_COUNT = 32;
 static constexpr uint SPHERE_RING_COUNT = 16;
 static constexpr uint SPHERE_VERTEX_COUNT = ( SPHERE_RING_COUNT - 1 ) * ( 4 + 2 * ( SPHERE_SEGMENT_COUNT - 1 ) ) + 2 * ( SPHERE_RING_COUNT - 2 );
 
+static constexpr uint WIRE_SPHERE_SEGMENT_COUNT = 32;
+static constexpr uint WIRE_SPHERE_EQUATOR_VERTEX_COUNT = WIRE_SPHERE_SEGMENT_COUNT + 1;
+static constexpr uint WIRE_SPHERE_MERIDIANS_VERTEX_COUNT = 2 * ( WIRE_SPHERE_SEGMENT_COUNT + 1 );
+
+static constexpr uint CIRCLE_SEGMENT_COUNT = 32;
+
+static const Array< glm::vec2 > CIRCLE_POINTS = []() {
+	Array< glm::vec2 > aCircle;
+	aCircle.Reserve( CIRCLE_SEGMENT_COUNT );
+
+	const float fAngleStep = 360.f / CIRCLE_SEGMENT_COUNT;
+
+	for( uint u = 0; u < CIRCLE_SEGMENT_COUNT; ++u )
+	{
+		const float fAngle = glm::radians( u * fAngleStep );
+		aCircle.PushBack( glm::vec2( glm::cos( fAngle ), glm::sin( fAngle ) ) );
+	}
+
+	return aCircle;
+}();
+
 static const Array< GLfloat > SPHERE_VERTICES = []() {
 
 	Array< GLfloat > aResult( 3 * SPHERE_VERTEX_COUNT );
@@ -160,6 +181,43 @@ void DebugRenderer::RenderSpheres( const Array< Sphere >& aSpheres, const Render
 	glUseProgram( 0 );
 }
 
+void DebugRenderer::RenderWireSpheres( const Array< Sphere >& aSpheres, const RenderContext& oRenderContext )
+{
+	const Array< GLfloat > aEquatorVertices = GenerateSphereEquator();
+	const Array< GLfloat > aMeridiansVertices = GenerateSphereMeridians();
+
+	glUseProgram( m_xSphere->GetTechnique().m_uProgramID );
+
+	m_oSphere.SetViewProjection( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+
+	glBindVertexArray( m_uVertexArrayID );
+	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
+	glBufferData( GL_ARRAY_BUFFER, sizeof( aEquatorVertices[ 0 ] ) * aEquatorVertices.Count(), aEquatorVertices.Data(), GL_STATIC_DRAW );
+
+	for( const Sphere& oSphere : aSpheres )
+	{
+		m_oSphere.SetPosition( oSphere.m_vPosition );
+		m_oSphere.SetRadius( oSphere.m_fRadius );
+		m_oSphere.SetColor( oSphere.m_vColor );
+		glDrawArrays( GL_LINE_STRIP, 0, WIRE_SPHERE_EQUATOR_VERTEX_COUNT );
+	}
+
+	glBufferData( GL_ARRAY_BUFFER, sizeof( aMeridiansVertices[ 0 ] ) * aMeridiansVertices.Count(), aMeridiansVertices.Data(), GL_STATIC_DRAW );
+
+	for( const Sphere& oSphere : aSpheres )
+	{
+		m_oSphere.SetPosition( oSphere.m_vPosition );
+		m_oSphere.SetRadius( oSphere.m_fRadius );
+		m_oSphere.SetColor( oSphere.m_vColor );
+		glDrawArrays( GL_LINE_STRIP, 0, WIRE_SPHERE_MERIDIANS_VERTEX_COUNT );
+	}
+
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindVertexArray( 0 );
+
+	glUseProgram( 0 );
+}
+
 bool DebugRenderer::OnLoading()
 {
 	if( m_xLine->IsLoaded() && m_oLine.IsValid() == false )
@@ -169,4 +227,55 @@ bool DebugRenderer::OnLoading()
 		m_oSphere.Create( m_xSphere->GetTechnique() );
 
 	return m_xLine->IsLoaded() && m_xSphere->IsLoaded();
+}
+
+Array< GLfloat > DebugRenderer::GenerateSphereEquator()
+{
+	Array< glm::vec3 > vPositions;
+	vPositions.Reserve( WIRE_SPHERE_SEGMENT_COUNT );
+
+	for( uint u = 0; u < CIRCLE_SEGMENT_COUNT; ++u )
+		vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ u ].x, 0.f, CIRCLE_POINTS[ u ].y ) );
+
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x, 0.f, CIRCLE_POINTS[ 0 ].y ) );
+
+	Array< GLfloat > aVertices;
+	aVertices.Reserve( 3 * vPositions.Count() );
+
+	for( const glm::vec3& vPosition : vPositions )
+	{
+		aVertices.PushBack( vPosition.x );
+		aVertices.PushBack( vPosition.y );
+		aVertices.PushBack( vPosition.z );
+	}
+
+	return aVertices;
+}
+
+Array< GLfloat > DebugRenderer::GenerateSphereMeridians()
+{
+	Array< glm::vec3 > vPositions;
+	vPositions.Reserve( WIRE_SPHERE_SEGMENT_COUNT );
+
+	for( uint u = 0; u < CIRCLE_SEGMENT_COUNT; ++u )
+		vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ u ].y, CIRCLE_POINTS[ u ].x, 0.f ) );
+
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].y, CIRCLE_POINTS[ 0 ].x, 0.f ) );
+
+	for( uint u = 0; u < CIRCLE_SEGMENT_COUNT; ++u )
+		vPositions.PushBack( glm::vec3( 0.f, CIRCLE_POINTS[ u ].x, CIRCLE_POINTS[ u ].y ) );
+
+	vPositions.PushBack( glm::vec3( 0.f, CIRCLE_POINTS[ 0 ].x, CIRCLE_POINTS[ 0 ].y ) );
+
+	Array< GLfloat > aVertices;
+	aVertices.Reserve( 3 * vPositions.Count() );
+
+	for( const glm::vec3& vPosition : vPositions )
+	{
+		aVertices.PushBack( vPosition.x );
+		aVertices.PushBack( vPosition.y );
+		aVertices.PushBack( vPosition.z );
+	}
+
+	return aVertices;
 }

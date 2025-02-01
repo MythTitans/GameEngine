@@ -84,6 +84,13 @@ DirectionalLightComponent::DirectionalLightComponent( Entity* pEntity )
 {
 }
 
+void DirectionalLightComponent::Update( const float fDeltaTime )
+{
+	const glm::vec3 vPosition = GetEntity()->GetWorldPosition();
+	g_pDebugDisplay->DisplayWireSphere( vPosition, 0.25f, glm::vec3( 1.f, 1.f, 0.f ) );
+	g_pDebugDisplay->DisplayLine( vPosition, vPosition + m_vDirection, glm::vec3( 1.f, 1.f, 0.f ) );
+}
+
 PointLightComponent::PointLightComponent( Entity* pEntity )
 	: Component( pEntity )
 	, m_vPosition( 0.f )
@@ -96,6 +103,8 @@ PointLightComponent::PointLightComponent( Entity* pEntity )
 void PointLightComponent::Update( const float fDeltaTime )
 {
 	m_vPosition = GetEntity()->GetWorldPosition();
+
+	g_pDebugDisplay->DisplayWireSphere( m_vPosition, 1.25f, glm::vec3( 1.f, 1.f, 0.f ) );
 }
 
 const glm::vec3& PointLightComponent::GetPosition() const

@@ -156,6 +156,8 @@ class DirectionalLightComponent : public Component
 public:
 	explicit DirectionalLightComponent( Entity* pEntity );
 
+	void Update( const float fDeltaTime ) override;
+
 	glm::vec3	m_vDirection;
 	glm::vec3	m_vColor;
 	float		m_fIntensity;
