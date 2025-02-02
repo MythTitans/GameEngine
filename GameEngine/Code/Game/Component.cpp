@@ -54,7 +54,7 @@ void VisualComponent::Setup( const char* sModelFile )
 
 void VisualComponent::Initialize()
 {
-	m_xModel = g_pResourceLoader->LoadModel( m_sModelFile );
+	m_xModel = g_pResourceLoader->LoadModel( m_sModelFile.c_str() );
 }
 
 bool VisualComponent::IsInitialized()
