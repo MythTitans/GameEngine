@@ -10,6 +10,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd Data/EarthGolem_albedo.jpeg
-map_Kn Data/EarthGolem_normal.png
-map_Ke data/textures/golem/earth_emissive.jpeg
+map_Kd EarthGolem_albedo.jpeg
+map_Kn EarthGolem_normal.png
+map_Ke textures/golem/earth_emissive.jpeg

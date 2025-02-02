@@ -135,7 +135,7 @@ class VisualComponent : public Component
 public:
 	explicit VisualComponent( Entity* pEntity );
 
-	void				Setup( const std::filesystem::path& oModelFile );
+	void				Setup( const char* sModelFile );
 	void				Initialize() override;
 	bool				IsInitialized() override;
 	void				Update( const float fDeltaTime ) override;
@@ -145,10 +145,10 @@ public:
 	const glm::mat4&	GetWorldMatrix() const;
 
 private:
-	std::filesystem::path	m_oModelFile;
-	ModelResPtr				m_xModel;
+	std::string	m_sModelFile;
+	ModelResPtr	m_xModel;
 
-	glm::mat4				m_mWorldMatrix;
+	glm::mat4	m_mWorldMatrix;
 };
 
 class DirectionalLightComponent : public Component

@@ -164,11 +164,11 @@ public:
 	ResourceLoader();
 	~ResourceLoader();
 
-	FontResPtr		LoadFont( const std::filesystem::path& oFilePath );
-	TextureResPtr	LoadTexture( const std::filesystem::path& oFilePath );
-	ModelResPtr		LoadModel( const std::filesystem::path& oFilePath );
-	ShaderResPtr	LoadShader( const std::filesystem::path& oFilePath );
-	TechniqueResPtr LoadTechnique( const std::filesystem::path& oFilePath );
+	FontResPtr		LoadFont( const char* sFilePath );
+	TextureResPtr	LoadTexture( const char* sFilePath );
+	ModelResPtr		LoadModel( const char* sFilePath );
+	ShaderResPtr	LoadShader( const char* sFilePath );
+	TechniqueResPtr LoadTechnique( const char* sFilePath );
 
 	void			HandleLoadedResources();
 	void			ProcessLoadCommands();
@@ -194,11 +194,16 @@ private:
 	template < typename Res >
 	struct LoadCommand
 	{
-		LoadCommand( const std::filesystem::path& oFilePath, const StrongPtr< Res >& xResource )
-			: m_oFilePath( oFilePath )
+		LoadCommand( const char* sFilePath, const StrongPtr< Res >& xResource )
+			: m_sFilePath( sFilePath )
 			, m_xResource( xResource )
 			, m_eStatus( LoadCommandStatus::PENDING )
 		{
+		}
+
+		std::filesystem::path GetFilePath() const
+		{
+			return std::filesystem::path( std::format( "Data/{}", m_sFilePath ) );
 		}
 
 		bool HasDependencies() const
@@ -232,7 +237,7 @@ private:
 		virtual void OnFinished() = 0;
 		virtual void OnDependenciesReady() = 0;
 
-		std::filesystem::path			m_oFilePath;
+		std::string						m_sFilePath;
 		StrongPtr< Res >				m_xResource;
 		LoadCommandStatus				m_eStatus;
 		Array< StrongPtr< Resource > >	m_aDependencies;
@@ -240,7 +245,7 @@ private:
 
 	struct FontLoadCommand : LoadCommand< FontResource >
 	{
-		FontLoadCommand( const std::filesystem::path& oFilePath, const FontResPtr& xResource );
+		FontLoadCommand( const char* sFilePath, const FontResPtr& xResource );
 
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
@@ -252,7 +257,7 @@ private:
 
 	struct TextureLoadCommand : LoadCommand< TextureResource >
 	{
-		TextureLoadCommand( const std::filesystem::path& oFilePath, const TextureResPtr& xResource );
+		TextureLoadCommand( const char* sFilePath, const TextureResPtr& xResource );
 
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
@@ -266,7 +271,7 @@ private:
 
 	struct ModelLoadCommand : LoadCommand< ModelResource >
 	{
-		ModelLoadCommand( const std::filesystem::path& oFilePath, const ModelResPtr& xResource );
+		ModelLoadCommand( const char* sFilePath, const ModelResPtr& xResource );
 
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
@@ -282,7 +287,7 @@ private:
 
 	struct ShaderLoadCommand : LoadCommand< ShaderResource >
 	{
-		ShaderLoadCommand( const std::filesystem::path& oFilePath, const ShaderResPtr& xResource );
+		ShaderLoadCommand( const char* sFilePath, const ShaderResPtr& xResource );
 
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
@@ -294,7 +299,7 @@ private:
 
 	struct TechniqueLoadCommand : LoadCommand< TechniqueResource >
 	{
-		TechniqueLoadCommand( const std::filesystem::path& oFilePath, const TechniqueResPtr& xResource );
+		TechniqueLoadCommand( const char* sFilePath, const TechniqueResPtr& xResource );
 
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
@@ -316,11 +321,11 @@ private:
 		void Clear();
 	};
 
-	using FontResourceMap = std::unordered_map< std::filesystem::path, FontResPtr >;
-	using TextureResourceMap = std::unordered_map< std::filesystem::path, TextureResPtr >;
-	using ModelResourceMap = std::unordered_map< std::filesystem::path, ModelResPtr >;
-	using ShaderResourceMap = std::unordered_map< std::filesystem::path, ShaderResPtr >;
-	using TechniqueResourceMap = std::unordered_map< std::filesystem::path, TechniqueResPtr >;
+	using FontResourceMap = std::unordered_map< std::string, FontResPtr >;
+	using TextureResourceMap = std::unordered_map< std::string, TextureResPtr >;
+	using ModelResourceMap = std::unordered_map< std::string, ModelResPtr >;
+	using ShaderResourceMap = std::unordered_map< std::string, ShaderResPtr >;
+	using TechniqueResourceMap = std::unordered_map< std::string, TechniqueResPtr >;
 
 	FontResourceMap			m_mFontResources;
 	TextureResourceMap		m_mTextureResources;

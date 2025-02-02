@@ -101,8 +101,8 @@ static const Array< GLfloat > SPHERE_VERTICES = []() {
 }();
 
 DebugRenderer::DebugRenderer()
-	: m_xLine( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/line" ) ) )
-	, m_xSphere( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/sphere" ) ) )
+	: m_xLine( g_pResourceLoader->LoadTechnique( "Shader/line" ) )
+	, m_xSphere( g_pResourceLoader->LoadTechnique( "Shader/sphere" ) )
 {
 	glGenVertexArrays( 1, &m_uVertexArrayID );
 	glGenBuffers( 1, &m_uVertexBufferID );

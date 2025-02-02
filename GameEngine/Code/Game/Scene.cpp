@@ -49,16 +49,16 @@ Scene::Scene()
 	GizmoComponent& oGiroGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 8 ].GetPtr() );
 	oGiroGizmoXZ.Setup( GizmoType::ROTATE, GizmoAxis::XZ );
 
-	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( std::filesystem::path( "Data/Earth_Golem_OBJ.obj" ) );
+	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( "Earth_Golem_OBJ.obj" );
 
 	m_mEntities[ 10 ]->SetPosition( -1.f, 10.f, 2.f );
-	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 10 ].GetPtr() ).Setup( std::filesystem::path( "Data/sphere.obj" ) );
+	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 10 ].GetPtr() ).Setup( "sphere.obj" );
 	PointLightComponent& oPointLight1 = g_pComponentManager->CreateComponent< PointLightComponent >( m_mEntities[ 10 ].GetPtr() );
 	oPointLight1.m_fIntensity = 10.f;
 	oPointLight1.m_fFalloffFactor = 0.2f;
 
 	m_mEntities[ 11 ]->SetPosition( 7.f, 5.f, 5.f );
-	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 11 ].GetPtr() ).Setup( std::filesystem::path( "Data/sphere.obj" ) );
+	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 11 ].GetPtr() ).Setup( "sphere.obj" );
 	PointLightComponent& oPointLight2 = g_pComponentManager->CreateComponent< PointLightComponent >( m_mEntities[ 11 ].GetPtr() );
 	oPointLight2.m_fIntensity = 10.f;
 	oPointLight2.m_fFalloffFactor = 0.2f;

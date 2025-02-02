@@ -20,8 +20,8 @@ glm::vec2 SizeOnScreen( const glm::vec2& vSize, const RenderContext& oRenderCont
 }
 
 TextRenderer::TextRenderer()
-	: m_xFont( g_pResourceLoader->LoadFont( std::filesystem::path( "C:/Windows/Fonts/arialbd.ttf" ) ) )
-	, m_xTextTechnique( g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/Shader/text" ) ) )
+	: m_xFont( g_pResourceLoader->LoadFont( "Roboto-Bold.ttf" ) )
+	, m_xTextTechnique( g_pResourceLoader->LoadTechnique( "Shader/text" ) )
 {
 	Array< glm::vec3 > aVertices( 4 );
 	aVertices[ 0 ] = glm::vec3( 0.f, 0.f, 0.f );

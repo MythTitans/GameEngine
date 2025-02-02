@@ -151,72 +151,72 @@ ResourceLoader::~ResourceLoader()
 	g_pResourceLoader = nullptr;
 }
 
-FontResPtr ResourceLoader::LoadFont( const std::filesystem::path& oFilePath )
+FontResPtr ResourceLoader::LoadFont( const char* sFilePath )
 {
-	FontResPtr& xFontPtr = m_mFontResources[ oFilePath ];
+	FontResPtr& xFontPtr = m_mFontResources[ sFilePath ];
 	if( xFontPtr != nullptr )
 		return xFontPtr;
 
 	xFontPtr = new FontResource();
 
-	LOG_INFO( "Loading {}", oFilePath.string() );
-	m_oPendingLoadCommands.m_aFontLoadCommands.PushBack( FontLoadCommand( oFilePath, xFontPtr ) );
+	LOG_INFO( "Loading {}", sFilePath );
+	m_oPendingLoadCommands.m_aFontLoadCommands.PushBack( FontLoadCommand( sFilePath, xFontPtr ) );
 
 	return xFontPtr;
 }
 
-TextureResPtr ResourceLoader::LoadTexture( const std::filesystem::path& oFilePath )
+TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath )
 {
-	TextureResPtr& xTexturePtr = m_mTextureResources[ oFilePath ];
+	TextureResPtr& xTexturePtr = m_mTextureResources[ sFilePath ];
 	if( xTexturePtr != nullptr )
 		return xTexturePtr;
 
 	xTexturePtr = new TextureResource();
 
-	LOG_INFO( "Loading {}", oFilePath.string() );
-	m_oPendingLoadCommands.m_aTextureLoadCommands.PushBack( TextureLoadCommand( oFilePath, xTexturePtr ) );
+	LOG_INFO( "Loading {}", sFilePath );
+	m_oPendingLoadCommands.m_aTextureLoadCommands.PushBack( TextureLoadCommand( sFilePath, xTexturePtr ) );
 
 	return xTexturePtr;
 }
 
-ModelResPtr ResourceLoader::LoadModel( const std::filesystem::path& oFilePath )
+ModelResPtr ResourceLoader::LoadModel( const char* sFilePath )
 {
-	ModelResPtr& xModelPtr = m_mModelResources[ oFilePath ];
+	ModelResPtr& xModelPtr = m_mModelResources[ sFilePath ];
 	if( xModelPtr != nullptr )
 		return xModelPtr;
 
 	xModelPtr = new ModelResource();
 
-	LOG_INFO( "Loading {}", oFilePath.string() );
-	m_oPendingLoadCommands.m_aModelLoadCommands.PushBack( ModelLoadCommand( oFilePath, xModelPtr ) );
+	LOG_INFO( "Loading {}", sFilePath );
+	m_oPendingLoadCommands.m_aModelLoadCommands.PushBack( ModelLoadCommand( sFilePath, xModelPtr ) );
 
 	return xModelPtr;
 }
 
-ShaderResPtr ResourceLoader::LoadShader( const std::filesystem::path& oFilePath )
+ShaderResPtr ResourceLoader::LoadShader( const char* sFilePath )
 {
-	ShaderResPtr& xShaderPtr = m_mShaderResources[ oFilePath ];
+	ShaderResPtr& xShaderPtr = m_mShaderResources[ sFilePath ];
 	if( xShaderPtr != nullptr )
 		return xShaderPtr;
 
 	xShaderPtr = new ShaderResource();
 
-	LOG_INFO( "Loading {}", oFilePath.string() );
-	m_oPendingLoadCommands.m_aShaderLoadCommands.PushBack( ShaderLoadCommand( oFilePath, xShaderPtr ) );
+	LOG_INFO( "Loading {}", sFilePath );
+	m_oPendingLoadCommands.m_aShaderLoadCommands.PushBack( ShaderLoadCommand( sFilePath, xShaderPtr ) );
 
 	return xShaderPtr;
 }
 
-TechniqueResPtr ResourceLoader::LoadTechnique( const std::filesystem::path& oFilePath )
+TechniqueResPtr ResourceLoader::LoadTechnique( const char* sFilePath )
 {
-	TechniqueResPtr& xTechniquePtr = m_mTechniqueResources[ oFilePath ];
+	TechniqueResPtr& xTechniquePtr = m_mTechniqueResources[ sFilePath ];
 	if( xTechniquePtr != nullptr )
 		return xTechniquePtr;
 
 	xTechniquePtr = new TechniqueResource();
 
-	LOG_INFO( "Loading {}", oFilePath.string() );
-	m_oPendingLoadCommands.m_aTechniqueLoadCommands.PushBack( TechniqueLoadCommand( oFilePath, xTechniquePtr ) );
+	LOG_INFO( "Loading {}", sFilePath );
+	m_oPendingLoadCommands.m_aTechniqueLoadCommands.PushBack( TechniqueLoadCommand( sFilePath, xTechniquePtr ) );
 
 	return xTechniquePtr;
 }
@@ -249,7 +249,7 @@ void Load( Array< LoadCommand >& aLoadCommands, std::unique_lock< std::mutex >& 
 		{
 			ProfilerBlock oResourceBlock( "CheckResource", true );
 
-			if( bIgnoreFileCheck == false && std::filesystem::exists( oLoadCommand.m_oFilePath ) == false )
+			if( bIgnoreFileCheck == false && std::filesystem::exists( oLoadCommand.GetFilePath() ) == false )
 			{
 				oLock.lock();
 				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::NOT_FOUND;
@@ -307,26 +307,26 @@ uint CheckFinishedProcessingLoadCommands( Array< LoadCommand >& aLoadCommands )
 		switch( oLoadCommand.m_eStatus )
 		{
 		case ResourceLoader::LoadCommandStatus::NOT_FOUND:
-			LOG_ERROR( "File not found {}", oLoadCommand.m_oFilePath.string() );
+			LOG_ERROR( "File not found {}", oLoadCommand.m_sFilePath );
 			oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::NOT_FOUND;
 			oLoadCommand.OnFinished();
 			oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
 			++uFinishedCount;
 			break;
 		case ResourceLoader::LoadCommandStatus::ERROR_READING:
-			LOG_ERROR( "Error reading file {}", oLoadCommand.m_oFilePath.string() );
+			LOG_ERROR( "Error reading file {}", oLoadCommand.m_sFilePath );
 			oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::ERROR_READING;
 			oLoadCommand.OnFinished();
 			oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
 			++uFinishedCount;
 			break;
 		case ResourceLoader::LoadCommandStatus::LOADED:
-			LOG_INFO( "Loaded {}", oLoadCommand.m_oFilePath.string() );
+			LOG_INFO( "Loaded {}", oLoadCommand.m_sFilePath );
 			oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
 			oLoadCommand.OnFinished();
 			if( oLoadCommand.HasDependencies() )
 			{
-				LOG_INFO( "Waiting dependencies for {}", oLoadCommand.m_oFilePath.string() );
+				LOG_INFO( "Waiting dependencies for {}", oLoadCommand.m_sFilePath );
 				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::WAITING_DEPENDENCIES;
 			}
 			++uFinishedCount;
@@ -354,14 +354,14 @@ uint CheckWaitingDependenciesLoadCommands( Array< LoadCommand >& aLoadCommands )
 		case ResourceLoader::LoadCommandStatus::WAITING_DEPENDENCIES:
 			if( oLoadCommand.AllDependenciesLoaded() )
 			{
-				LOG_INFO( "Dependencies ready for {}", oLoadCommand.m_oFilePath.string() );
+				LOG_INFO( "Dependencies ready for {}", oLoadCommand.m_sFilePath );
 				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::FINISHED;
 				oLoadCommand.OnDependenciesReady();
 				++uFinishedCount;
 			}
 			else if( oLoadCommand.AnyDependencyFailed() )
 			{
-				LOG_ERROR( "Failed to load a dependency for {}", oLoadCommand.m_oFilePath.string() );
+				LOG_ERROR( "Failed to load a dependency for {}", oLoadCommand.m_sFilePath );
 				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::ERROR_READING;
 				oLoadCommand.OnDependenciesReady();
 				++uFinishedCount;
@@ -421,19 +421,19 @@ void ResourceLoader::CheckFinishedProcessingLoadCommands()
 }
 
 template < typename Resource >
-void DestroyUnusedResources( std::unordered_map< std::filesystem::path, StrongPtr< Resource > >& mResources )
+void DestroyUnusedResources( std::unordered_map< std::string, StrongPtr< Resource > >& mResources )
 {
 	for( auto& oPair : mResources )
 	{
 		if( oPair.second->GetReferenceCount() == 1 )
 		{
-			LOG_INFO( "Unloading {}", oPair.first.string() );
+			LOG_INFO( "Unloading {}", oPair.first );
 			oPair.second->Destroy();
 			oPair.second = nullptr;
 		}
 	}
 
-	std::erase_if( mResources, []( const std::pair< std::filesystem::path, StrongPtr< Resource > >& oPair ) { return oPair.second == nullptr; } );
+	std::erase_if( mResources, []( const std::pair< std::string, StrongPtr< Resource > >& oPair ) { return oPair.second == nullptr; } );
 }
 
 void ResourceLoader::DestroyUnusedResources()
@@ -447,8 +447,8 @@ void ResourceLoader::DestroyUnusedResources()
 	::DestroyUnusedResources( m_mModelResources );
 }
 
-ResourceLoader::FontLoadCommand::FontLoadCommand( const std::filesystem::path& oFilePath, const FontResPtr& xResource )
-	: LoadCommand( oFilePath, xResource )
+ResourceLoader::FontLoadCommand::FontLoadCommand( const char* sFilePath, const FontResPtr& xResource )
+	: LoadCommand( sFilePath, xResource )
 {
 }
 
@@ -457,7 +457,7 @@ void ResourceLoader::FontLoadCommand::Load( std::unique_lock< std::mutex >& oLoc
 	Array< uint8 > aAtlasData( FontResource::ATLAS_WIDTH * FontResource::ATLAS_HEIGHT );
 	Array< stbtt_packedchar > aPackedCharacters( FontResource::GLYPH_COUNT );
 
-	Array< uint8 > aFontData = ReadBinaryFile( m_oFilePath );
+	Array< uint8 > aFontData = ReadBinaryFile( GetFilePath() );
 
 	stbtt_pack_context oAtlasContext;
 	stbtt_PackBegin( &oAtlasContext, aAtlasData.Data(), FontResource::ATLAS_WIDTH, FontResource::ATLAS_HEIGHT, 0, 1, nullptr );
@@ -493,8 +493,8 @@ void ResourceLoader::FontLoadCommand::OnDependenciesReady()
 {
 }
 
-ResourceLoader::TextureLoadCommand::TextureLoadCommand( const std::filesystem::path& oFilePath, const TextureResPtr& xResource )
-	: LoadCommand( oFilePath, xResource )
+ResourceLoader::TextureLoadCommand::TextureLoadCommand( const char* sFilePath, const TextureResPtr& xResource )
+	: LoadCommand( sFilePath, xResource )
 	, m_iWidth( 0 )
 	, m_iHeight( 0 )
 	, m_iDepth( 0 )
@@ -507,7 +507,7 @@ void ResourceLoader::TextureLoadCommand::Load( std::unique_lock< std::mutex >& o
 	int iWidth;
 	int iHeight;
 	int iDepth;
-	uint8* pData = stbi_load( m_oFilePath.string().c_str(), &iWidth, &iHeight, &iDepth, 0 );
+	uint8* pData = stbi_load( GetFilePath().string().c_str(), &iWidth, &iHeight, &iDepth, 0 );
 
 	oLock.lock();
 	m_eStatus = pData != nullptr ? LoadCommandStatus::LOADED : LoadCommandStatus::ERROR_READING;
@@ -540,8 +540,8 @@ void ResourceLoader::TextureLoadCommand::OnDependenciesReady()
 {
 }
 
-ResourceLoader::ModelLoadCommand::ModelLoadCommand( const std::filesystem::path& oFilePath, const ModelResPtr& xResource )
-	: LoadCommand( oFilePath, xResource )
+ResourceLoader::ModelLoadCommand::ModelLoadCommand( const char* sFilePath, const ModelResPtr& xResource )
+	: LoadCommand( sFilePath, xResource )
 	, m_pScene( nullptr )
 {
 }
@@ -550,7 +550,7 @@ void ResourceLoader::ModelLoadCommand::Load( std::unique_lock< std::mutex >& oLo
 {
 	aiScene* pSceneData = nullptr;
 
-	const aiScene* pScene = g_pResourceLoader->m_oModelImporter.ReadFile( m_oFilePath.string(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace );
+	const aiScene* pScene = g_pResourceLoader->m_oModelImporter.ReadFile( GetFilePath().string(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace );
 	if( pScene != nullptr )
 		pSceneData = g_pResourceLoader->m_oModelImporter.GetOrphanedScene();
 
@@ -632,7 +632,7 @@ void ResourceLoader::ModelLoadCommand::LoadMaterials( aiScene* pScene )
 			aiString sFile;
 			if( pMaterial->GetTexture( aiTextureType_DIFFUSE, 0, &sFile ) == AI_SUCCESS )
 			{
-				TextureResPtr xTextureResource = g_pResourceLoader->LoadTexture( std::filesystem::path( sFile.C_Str() ) );
+				TextureResPtr xTextureResource = g_pResourceLoader->LoadTexture( sFile.C_Str() );
 				m_xResource->m_aMaterials[ u ].m_xDiffuseTextureResource = xTextureResource;
 				m_aDependencies.PushBack( xTextureResource.GetPtr() );
 			}
@@ -643,7 +643,7 @@ void ResourceLoader::ModelLoadCommand::LoadMaterials( aiScene* pScene )
 			aiString sFile;
 			if( pMaterial->GetTexture( aiTextureType_NORMALS, 0, &sFile ) == AI_SUCCESS )
 			{
-				TextureResPtr xTextureResource = g_pResourceLoader->LoadTexture( std::filesystem::path( sFile.C_Str() ) );
+				TextureResPtr xTextureResource = g_pResourceLoader->LoadTexture( sFile.C_Str() );
 				m_xResource->m_aMaterials[ u ].m_xNormalTextureResource = xTextureResource;
 				m_aDependencies.PushBack( xTextureResource.GetPtr() );
 			}
@@ -704,19 +704,20 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
 	m_xResource->m_aMeshes.PushBack( oMeshBuilder.Build() );
 }
 
-ResourceLoader::ShaderLoadCommand::ShaderLoadCommand( const std::filesystem::path& oFilePath, const ShaderResPtr& xResource )
-	: LoadCommand( oFilePath, xResource )
+ResourceLoader::ShaderLoadCommand::ShaderLoadCommand( const char* sFilePath, const ShaderResPtr& xResource )
+	: LoadCommand( sFilePath, xResource )
 	, m_eShaderType( ShaderType::UNDEFINED )
 {
+	const std::filesystem::path oFilePath = GetFilePath();
 	if( oFilePath.extension() == ".vs" )
 		m_eShaderType = ShaderType::VERTEX_SHADER;
-	else if( m_oFilePath.extension() == ".ps" )
+	else if( oFilePath.extension() == ".ps" )
 		m_eShaderType = ShaderType::PIXEL_SHADER;
 }
 
 void ResourceLoader::ShaderLoadCommand::Load( std::unique_lock< std::mutex >& oLock )
 {
-	std::string sContent = ReadTextFile( m_oFilePath );
+	std::string sContent = ReadTextFile( GetFilePath() );
 
 	oLock.lock();
 	m_eStatus = LoadCommandStatus::LOADED;
@@ -745,16 +746,16 @@ void ResourceLoader::ShaderLoadCommand::OnDependenciesReady()
 {
 }
 
-ResourceLoader::TechniqueLoadCommand::TechniqueLoadCommand( const std::filesystem::path& oFilePath, const TechniqueResPtr& xResource )
-	: LoadCommand( oFilePath, xResource )
+ResourceLoader::TechniqueLoadCommand::TechniqueLoadCommand( const char* sFilePath, const TechniqueResPtr& xResource )
+	: LoadCommand( sFilePath, xResource )
 {
-	std::filesystem::path oShaderPath = oFilePath;
+	std::filesystem::path oShaderPath = std::filesystem::path( m_sFilePath );
 
 	oShaderPath.replace_extension( ".vs" );
-	m_aDependencies.PushBack( g_pResourceLoader->LoadShader( oShaderPath ).GetPtr() );
+	m_aDependencies.PushBack( g_pResourceLoader->LoadShader( oShaderPath.string().c_str() ).GetPtr() );
 
 	oShaderPath.replace_extension( ".ps" );
-	m_aDependencies.PushBack( g_pResourceLoader->LoadShader( oShaderPath ).GetPtr() );
+	m_aDependencies.PushBack( g_pResourceLoader->LoadShader( oShaderPath.string().c_str() ).GetPtr() );
 }
 
 void ResourceLoader::TechniqueLoadCommand::Load( std::unique_lock< std::mutex >& oLock )

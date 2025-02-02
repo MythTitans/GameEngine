@@ -42,18 +42,19 @@ const Entity* Component::GetEntity() const
 
 VisualComponent::VisualComponent( Entity* pEntity )
 	: Component( pEntity )
+	, m_sModelFile( "" )
 	, m_mWorldMatrix( 1.f )
 {
 }
 
-void VisualComponent::Setup( const std::filesystem::path& oModelFile )
+void VisualComponent::Setup( const char* sModelFile )
 {
-	m_oModelFile = oModelFile;
+	m_sModelFile = sModelFile;
 }
 
 void VisualComponent::Initialize()
 {
-	m_xModel = g_pResourceLoader->LoadModel( m_oModelFile );
+	m_xModel = g_pResourceLoader->LoadModel( m_sModelFile );
 }
 
 bool VisualComponent::IsInitialized()
