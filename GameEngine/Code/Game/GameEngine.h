@@ -2,6 +2,7 @@
 
 #include "ComponentManager.h"
 #include "Core/Common.h"
+#include "Core/MemoryTracker.h"
 #include "Core/Profiler.h"
 #include "DebugDisplay.h"
 #include "Editor/Editor.h"
@@ -59,6 +60,7 @@ private:
 
 	DebugDisplay			m_oDebugDisplay;
 	Profiler				m_oProfiler;
+	MemoryTracker			m_oMemoryTracker;
 	Editor					m_oEditor;
 
 	FreeCamera				m_oFreeCamera;

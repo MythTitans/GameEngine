@@ -119,6 +119,7 @@ void GameEngine::Render()
 		m_oRenderer.DisplayDebug();
 		m_oRenderer.Render( m_oRenderContext );
 		m_oDebugDisplay.Display( m_oGameContext.m_fLastDeltaTime, m_oRenderContext );
+		m_oMemoryTracker.Display();
 		m_oEditor.Render( m_oRenderContext );
 		m_oDebugDisplay.DisplayOverlay( m_oGameContext.m_fLastDeltaTime, m_oRenderContext );
 	}

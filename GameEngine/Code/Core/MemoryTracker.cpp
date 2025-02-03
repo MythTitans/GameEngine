@@ -1,18 +1,70 @@
 #include "MemoryTracker.h"
 
 #include "Game/InputHandler.h"
+#include "ImGui/imgui.h"
 #include "Profiler.h"
+
+static std::string GetDisplayableTypeName( const std::type_index oTypeIndex )
+{
+	std::string sDisplayableType = oTypeIndex.name();
+
+	if( sDisplayableType.starts_with( "struct " ) )
+		sDisplayableType = sDisplayableType.substr( 7 );
+	else if( sDisplayableType.starts_with( "class " ) )
+		sDisplayableType = sDisplayableType.substr( 6 );
+
+	if( sDisplayableType.ends_with( " * __ptr64" ) )
+	{
+		sDisplayableType = sDisplayableType.substr( 0, sDisplayableType.length() - 10 ) + "*";
+	}
+
+	return sDisplayableType;
+}
+
+static std::string GetDisplayableMemory( const uint64 uMemory )
+{
+	if( uMemory < 1024 )
+	{
+		return std::format( "{} B", uMemory );
+	}
+	
+	if( uMemory < 1024 * 1024 )
+	{
+		return std::format( "{:.3f} KB", uMemory / 1024.f );
+	}
+	
+	if( uMemory < 1024 * 1024 * 1024 )
+	{
+		return std::format( "{:.3f} MB", uMemory / ( 1024.f * 1024.f ) );
+	}
+
+	return std::format( "{:.3f} GB", uMemory / ( 1024.f * 1024.f * 1024.f ) );
+}
+
+ArrayMemory::ArrayMemory()
+	: m_uUsedBytes( 0 )
+	, m_uReservedBytes( 0 )
+	, m_uArrayCount( 0 )
+	, m_uElementCount( 0 )
+{
+}
 
 MemoryTracker* g_pMemoryTracker = nullptr;
 
 MemoryTracker::MemoryTracker()
 	: m_bDisplayMemoryTracker( false )
 {
+	g_pMemoryTracker = this;
+}
+
+MemoryTracker::~MemoryTracker()
+{
+	g_pMemoryTracker = nullptr;
 }
 
 void MemoryTracker::Display()
 {
-	ProfilerBlock oBlock( "Memory tracker" );
+	ProfilerBlock oBlock( "MemoryTracker" );
 
 	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_TOGGLE_MEMORY_TRACKER ) )
 		m_bDisplayMemoryTracker = !m_bDisplayMemoryTracker;
@@ -20,6 +72,80 @@ void MemoryTracker::Display()
 	if( m_bDisplayMemoryTracker )
 	{
 		ImGui::Begin( "Memory tracker" );
+		uint64 uTotalUsedBytes = 0;
+		uint64 uTotalReservedBytes = 0;
+
+		ImGui::Text( "Arrays" );
+
+		if( ImGui::BeginTable( "ArrayTable", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp ) )
+		{
+			ImGui::TableSetupColumn( "Type" );
+			ImGui::TableSetupColumn( "Used" );
+			ImGui::TableSetupColumn( "Reserved" );
+			ImGui::TableSetupColumn( "Usage ratio" );
+			ImGui::TableSetupColumn( "Elements" );
+			ImGui::TableSetupColumn( "Instances" );
+			ImGui::TableHeadersRow();
+
+			for( const auto & oPair : m_mArrays )
+			{
+				const ArrayMemory& oArrayMemory = oPair.second;
+				if( oArrayMemory.m_uReservedBytes == 0 )
+					continue;
+
+				float fRatio = ( float )( ( double )oArrayMemory.m_uUsedBytes / ( double )oArrayMemory.m_uReservedBytes );
+
+				uTotalUsedBytes += oArrayMemory.m_uUsedBytes;
+				uTotalReservedBytes += oArrayMemory.m_uReservedBytes;
+
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex( 0 );
+				ImGui::Text( GetDisplayableTypeName( oPair.first ).c_str() );
+				ImGui::TableSetColumnIndex( 1 );
+				ImGui::Text( GetDisplayableMemory( oArrayMemory.m_uUsedBytes ).c_str() );
+				ImGui::TableSetColumnIndex( 2 );
+				ImGui::Text( GetDisplayableMemory( oArrayMemory.m_uReservedBytes ).c_str() );
+				ImGui::TableSetColumnIndex( 3 );
+				ImGui::ProgressBar( fRatio, ImVec2( ImGui::GetContentRegionAvail().x, 0.0f ) );
+				ImGui::TableSetColumnIndex( 4 );
+				ImGui::Text( "%d", oArrayMemory.m_uElementCount );
+				ImGui::TableSetColumnIndex( 5 );
+				ImGui::Text( "%d", oArrayMemory.m_uArrayCount );
+			}
+			ImGui::EndTable();
+		}
+
+		float fRatio = ( float )( ( double )uTotalUsedBytes / ( double )uTotalReservedBytes );
+		ImGui::Text( "Total : Used %s, Reserved %s, Usage Ratio %.0f%%", GetDisplayableMemory( uTotalUsedBytes ).c_str(), GetDisplayableMemory( uTotalReservedBytes ).c_str(), fRatio * 100.f );
+
 		ImGui::End();
 	}
+}
+
+void MemoryTracker::RegisterArray( const std::type_index oTypeIndex, const uint64 uUsedMemory, const uint64 uReservedMemory, const int uElementCount )
+{
+	std::unique_lock oLock( m_oMutex );
+
+	ArrayMemory& oArrayMemory = m_mArrays[ oTypeIndex ];
+	oArrayMemory.m_uUsedBytes += uUsedMemory;
+	oArrayMemory.m_uReservedBytes += uReservedMemory;
+	oArrayMemory.m_uArrayCount += 1;
+	oArrayMemory.m_uElementCount += uElementCount;
+
+	ASSERT( oArrayMemory.m_uArrayCount >= 0 );
+	ASSERT( oArrayMemory.m_uElementCount >= 0 );
+}
+
+void MemoryTracker::UnRegisterArray( const std::type_index oTypeIndex, const uint64 uUsedMemory, const uint64 uReservedMemory, const int uElementCount )
+{
+	std::unique_lock oLock( m_oMutex );
+
+	ArrayMemory& oArrayMemory = m_mArrays[ oTypeIndex ];
+	oArrayMemory.m_uUsedBytes -= uUsedMemory;
+	oArrayMemory.m_uReservedBytes -= uReservedMemory;
+	oArrayMemory.m_uArrayCount -= 1;
+	oArrayMemory.m_uElementCount -= uElementCount;
+
+	ASSERT( oArrayMemory.m_uArrayCount >= 0 );
+	ASSERT( oArrayMemory.m_uElementCount >= 0 );
 }

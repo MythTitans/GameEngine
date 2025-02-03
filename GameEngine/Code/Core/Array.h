@@ -4,6 +4,9 @@
 #include <new>
 
 #include "Common.h"
+#ifdef TRACK_MEMORY
+#include "MemoryTracker.h"
+#endif
 
 enum ArrayFlags
 {
@@ -22,31 +25,52 @@ public:
 		: m_pData( nullptr )
 		, m_uCount( 0 )
 		, m_uCapacity( 0 )
+#ifdef TRACK_MEMORY
+		, m_bMemoryTracked( false )
+		, m_bTrackMemory( true )
+#endif
 	{
+		TrackMemory();
 	}
 
 	explicit Array( const uint uCount )
 		: m_pData( ( T* )malloc( uCount * sizeof( T ) ) )
 		, m_uCount( uCount )
 		, m_uCapacity( uCount )
+#ifdef TRACK_MEMORY
+		, m_bMemoryTracked( false )
+		, m_bTrackMemory( true )
+#endif
 	{
 		for( uint u = 0; u < m_uCount; ++u )
 			::new( &m_pData[ u ] ) T;
+
+		TrackMemory();
 	}
 
 	Array( const uint uCount, const T& oValue )
 		: m_pData( ( T* )malloc( uCount * sizeof( T ) ) )
 		, m_uCount( uCount )
 		, m_uCapacity( uCount )
+#ifdef TRACK_MEMORY
+		, m_bMemoryTracked( false )
+		, m_bTrackMemory( true )
+#endif
 	{
 		for( uint u = 0; u < m_uCount; ++u )
 			::new( &m_pData[ u ] ) T( oValue );
+
+		TrackMemory();
 	}
 
 	Array( const Array& aArray )
 		: m_pData( ( T* )malloc( aArray.m_uCount * sizeof( T ) ) )
 		, m_uCount( aArray.m_uCount )
 		, m_uCapacity( aArray.m_uCapacity )
+#ifdef TRACK_MEMORY
+		, m_bMemoryTracked( false )
+		, m_bTrackMemory( true )
+#endif
 	{
 		if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
 		{
@@ -58,12 +82,16 @@ public:
 			for( uint u = 0; u < m_uCount; ++u )
 				::new( &m_pData[ u ] ) T( aArray[ u ] );
 		}
+
+		TrackMemory();
 	}
 
 	Array& operator=( const Array& aArray )
 	{
 		if( &aArray == this )
 			return *this;
+
+		UnTrackMemory();
 
 		Destroy();
 
@@ -84,6 +112,8 @@ public:
 				::new( &m_pData[ u ] ) T( aArray[ u ] );
 		}
 
+		TrackMemory();
+
 		return *this;
 	}
 
@@ -92,15 +122,23 @@ public:
 		, m_uCount( aArray.m_uCount )
 		, m_uCapacity( aArray.m_uCapacity )
 	{
+		aArray.UnTrackMemory();
+
 		aArray.m_pData = nullptr;
 		aArray.m_uCount = 0;
 		aArray.m_uCapacity = 0;
+
+		TrackMemory();
+		aArray.UnTrackMemory();
 	}
 
 	Array& operator=( Array&& aArray ) noexcept
 	{
 		if( &aArray == this )
 			return *this;
+
+		aArray.UnTrackMemory();
+		UnTrackMemory();
 
 		Destroy();
 
@@ -114,11 +152,16 @@ public:
 		aArray.m_uCount = 0;
 		aArray.m_uCapacity = 0;
 
+		TrackMemory();
+		aArray.TrackMemory();
+
 		return *this;
 	}
 
 	~Array()
 	{
+		UnTrackMemory();
+
 		Destroy();
 
 		m_pData = nullptr;
@@ -128,26 +171,41 @@ public:
 
 	void PushBack()
 	{
+		UnTrackMemory();
+		EnableMemoryTracking( false );
+
 		Expand();
 
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount < m_uCapacity );
 
 		::new( &m_pData[ m_uCount++ ] ) T;
+
+		EnableMemoryTracking( true );
+		TrackMemory();
 	}
 
 	void PushBack( const T& oElement )
 	{
+		UnTrackMemory();
+		EnableMemoryTracking( false );
+
 		Expand();
 
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount < m_uCapacity );
 
 		::new( &m_pData[ m_uCount++ ] ) T( oElement );
+
+		EnableMemoryTracking( true );
+		TrackMemory();
 	}
 
 	void PushFront( const T& oElement )
 	{
+		UnTrackMemory();
+		EnableMemoryTracking( false );
+
 		Array< T, Flags > aPush;
 		if( m_uCapacity < m_uCount + 1 )
 			aPush.Reserve( m_uCount + 1 );
@@ -168,6 +226,7 @@ public:
 				aPush.PushBack( m_pData[ u ] );
 		}
 
+		EnableMemoryTracking( true );
 		*this = aPush;
 	}
 
@@ -176,7 +235,11 @@ public:
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount > 0 );
 
+		UnTrackMemory();
+
 		m_pData[ --m_uCount ].~T();
+
+		TrackMemory();
 	}
 
 	void PopFront()
@@ -189,6 +252,8 @@ public:
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount > 0 );
 		ASSERT( uIndex >= 0 && uIndex < m_uCount );
+
+		UnTrackMemory();
 
 		m_pData[ uIndex ].~T();
 
@@ -207,18 +272,27 @@ public:
 		}
 
 		--m_uCount;
+
+		TrackMemory();
 	}
 
 	void Clear()
 	{
+		UnTrackMemory();
+
 		for( uint u = 0; u < m_uCount; ++u )
 			m_pData[ u ].~T();
 
 		m_uCount = 0;
+
+		TrackMemory();
 	}
 
 	void Swap( Array& aArray )
 	{
+		aArray.UnTrackMemory();
+		UnTrackMemory();
+
 		T* pData = m_pData;
 		uint uCount = m_uCount;
 		uint uCapacity = m_uCapacity;
@@ -230,6 +304,9 @@ public:
 		aArray.m_pData = pData;
 		aArray.m_uCount = uCount;
 		aArray.m_uCapacity = uCapacity;
+
+		TrackMemory();
+		aArray.TrackMemory();
 	}
 
 	void Grab( Array& aArray )
@@ -240,6 +317,9 @@ public:
 
 	void Resize( const uint uCount )
 	{
+		UnTrackMemory();
+		EnableMemoryTracking( false );
+
 		if( m_uCount < uCount )
 		{
 			const uint uExpansion = uCount - m_uCount;
@@ -255,10 +335,16 @@ public:
 			for( uint u = 0; u < uShrink; ++u )
 				PopBack();
 		}
+
+		EnableMemoryTracking( true );
+		TrackMemory();
 	}
 
 	void Resize( const uint uCount, const T& oValue )
 	{
+		UnTrackMemory();
+		EnableMemoryTracking( false );
+
 		if( m_uCount < uCount )
 		{
 			const uint uExpansion = uCount - m_uCount;
@@ -274,10 +360,15 @@ public:
 			for( uint u = 0; u < uShrink; ++u )
 				PopBack();
 		}
+
+		EnableMemoryTracking( true );
+		TrackMemory();
 	}
 
 	void Reserve( const uint uCount )
 	{
+		UnTrackMemory();
+
 		if( m_uCapacity < uCount )
 		{
 			T* pData = ( T* )malloc( uCount * sizeof( T ) );
@@ -300,6 +391,8 @@ public:
 
 			ASSERT( m_uCount <= m_uCapacity );
 		}
+
+		TrackMemory();
 	}
 
 	void Expand( uint uBy = 1 )
@@ -315,9 +408,13 @@ public:
 		if( m_uCapacity == m_uCount )
 			return;
 
+		UnTrackMemory();
+
 		m_pData = ( T* )realloc( m_pData, m_uCount * sizeof( T ) );
 
 		m_uCapacity = m_uCount;
+
+		TrackMemory();
 	}
 
 	T& Back()
@@ -422,9 +519,43 @@ private:
 		free( m_pData );
 	}
 
+	void TrackMemory()
+	{
+#ifdef TRACK_MEMORY
+		if( g_pMemoryTracker != nullptr && m_bMemoryTracked == false && m_bTrackMemory )
+		{
+			g_pMemoryTracker->RegisterArray( typeid( T ), sizeof( T ) * Count(), sizeof( T ) * Capacity(), Count() );
+			m_bMemoryTracked = true;
+		}
+#endif
+	}
+
+	void UnTrackMemory()
+	{
+#ifdef TRACK_MEMORY
+		if( g_pMemoryTracker != nullptr && m_bMemoryTracked && m_bTrackMemory )
+		{
+			g_pMemoryTracker->UnRegisterArray( typeid( T ), sizeof( T ) * Count(), sizeof( T ) * Capacity(), Count() );
+			m_bMemoryTracked = false;
+		}
+#endif
+	}
+
+	void EnableMemoryTracking( const bool bEnable)
+	{
+#ifdef TRACK_MEMORY
+		m_bTrackMemory = bEnable;
+#endif
+	}
+
 	T*		m_pData;
 	uint	m_uCount;
 	uint	m_uCapacity;
+
+#ifdef TRACK_MEMORY
+	bool	m_bMemoryTracked;
+	bool	m_bTrackMemory;
+#endif
 };
 
 // TODO #eric should rename, this is not really an array view
