@@ -154,6 +154,7 @@ TransformComponent::TransformComponent( Entity* pEntity )
 
 EulerComponent::EulerComponent( Entity* pEntity )
 	: Component( pEntity )
+	, m_vRotationEuler( 0.f, 0.f, 0.f )
 {
 }
 

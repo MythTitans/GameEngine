@@ -1,13 +1,20 @@
 #include "Intrusive.h"
 
+#ifdef TRACK_MEMORY
+#include "MemoryTracker.h"
+#endif
+
 Intrusive::Intrusive()
 	: m_pWeakLink( nullptr )
 	, m_uReferenceCount( 0 )
 {
+	TrackMemory();
 }
 
 Intrusive::~Intrusive()
 {
+	UnTrackMemory();
+
 	ASSERT( m_uReferenceCount == 0 );
 	m_uReferenceCount = 0;
 
@@ -37,6 +44,22 @@ uint Intrusive::CountWeakReferences() const
 	}
 
 	return uCount;
+}
+
+void Intrusive::TrackMemory()
+{
+#ifdef TRACK_MEMORY
+	if( g_pMemoryTracker != nullptr )
+		g_pMemoryTracker->RegisterIntrusive( this );
+#endif
+}
+
+void Intrusive::UnTrackMemory()
+{
+#if TRACK_MEMORY
+	if( g_pMemoryTracker != nullptr )
+		g_pMemoryTracker->UnRegisterIntrusive( this );
+#endif
 }
 
 StrongPtrBase::StrongPtrBase()

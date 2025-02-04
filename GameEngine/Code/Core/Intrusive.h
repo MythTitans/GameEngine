@@ -21,6 +21,9 @@ public:
 	uint CountWeakReferences() const;
 
 private:
+	void TrackMemory();
+	void UnTrackMemory();
+
 	WeakPtrBase*	m_pWeakLink;
 	uint			m_uReferenceCount;
 };

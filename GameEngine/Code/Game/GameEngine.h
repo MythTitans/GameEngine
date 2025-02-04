@@ -53,14 +53,15 @@ private:
 	};
 
 private:
+	Profiler				m_oProfiler;
+	MemoryTracker			m_oMemoryTracker;
+
 	ResourceLoader			m_oResourceLoader;
 	InputHandler			m_oInputHandler;
 	Renderer				m_oRenderer;
 	ComponentManager		m_oComponentManager;
 
 	DebugDisplay			m_oDebugDisplay;
-	Profiler				m_oProfiler;
-	MemoryTracker			m_oMemoryTracker;
 	Editor					m_oEditor;
 
 	FreeCamera				m_oFreeCamera;
