@@ -1,5 +1,6 @@
 #include "MemoryTracker.h"
 
+#include "Game/ComponentManager.h"
 #include "Game/InputHandler.h"
 #include "ImGui/imgui.h"
 #include "Intrusive.h"
@@ -45,6 +46,13 @@ static std::string GetDisplayableMemory( const uint64 uMemory )
 ObjectMemory::ObjectMemory()
 	: m_uBytes( 0 )
 	, m_uCount( 0 )
+{
+}
+
+ComponentMemory::ComponentMemory( const std::type_index oComponentType, const uint64 uComponentSize, const ComponentsHolderBase* pComponentHolder )
+	: m_oComponentType( oComponentType )
+	, m_uComponentSize( uComponentSize )
+	, m_pComponentHolder( pComponentHolder )
 {
 }
 
@@ -120,13 +128,37 @@ void MemoryTracker::Display()
 			}
 
 			ImGui::Text( "Total : Memory %s, Count %d", GetDisplayableMemory( uTotalBytes ).c_str(), uTotalCount );
+		}
 
-// 			for( const auto& oPair : mObjects )
-// 			{
-// 				const ObjectMemory& oObjectMemory = oPair.second;
-// 
-// 				ImGui::Text( "%s : Size : %s, Count : %d", GetDisplayableTypeName( oPair.first ).c_str(), GetDisplayableMemory( oObjectMemory.m_uBytes ).c_str(), oObjectMemory.m_uCount );
-// 			}
+		if( ImGui::CollapsingHeader( "Components" ) )
+		{
+			uint64 uTotalBytes = 0;
+
+			if( ImGui::BeginTable( "ComponentsTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp ) )
+			{
+				ImGui::TableSetupColumn( "Type" );
+				ImGui::TableSetupColumn( "Memory" );
+				ImGui::TableSetupColumn( "Count" );
+				ImGui::TableHeadersRow();
+
+
+				for( const ComponentMemory& oComponentMemory : m_aComponents )
+				{
+					const uint64 uBytes = oComponentMemory.m_uComponentSize * oComponentMemory.m_pComponentHolder->GetCount();
+					uTotalBytes += uBytes;
+
+					ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex( 0 );
+					ImGui::Text( GetDisplayableTypeName( oComponentMemory.m_oComponentType ).c_str() );
+					ImGui::TableSetColumnIndex( 1 );
+					ImGui::Text( GetDisplayableMemory( uBytes ).c_str() );
+					ImGui::TableSetColumnIndex( 2 );
+					ImGui::Text( "%d", oComponentMemory.m_pComponentHolder->GetCount() );
+				}
+				ImGui::EndTable();
+			}
+
+			ImGui::Text( "Total : Memory %s", GetDisplayableMemory( uTotalBytes ).c_str() );
 		}
 
 		if( ImGui::CollapsingHeader( "Arrays" ) )

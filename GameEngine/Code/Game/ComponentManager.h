@@ -3,6 +3,7 @@
 #include <typeindex>
 #include <unordered_map>
 
+#include "Core/MemoryTracker.h"
 #include "Core/Profiler.h"
 #include "Scene.h"
 
@@ -17,12 +18,21 @@ struct ComponentsHolderBase
 	virtual void StopComponents() = 0;
 	virtual void UpdateComponents( const float fDeltaTime ) = 0;
 
+	virtual uint GetCount() const = 0;
+
 	uint m_uVersion;
 };
 
 template < typename ComponentType >
 struct ComponentsHolder : ComponentsHolderBase
 {
+	ComponentsHolder()
+	{
+#ifdef TRACK_MEMORY
+		g_pMemoryTracker->RegisterComponent< ComponentType >( this );
+#endif
+	}
+
 	void InitializeComponents() override
 	{
 		ProfilerBlock oBlock( PROFILER_BLOCK_NAME.c_str() );
@@ -77,6 +87,11 @@ struct ComponentsHolder : ComponentsHolderBase
 		}
 
 		return nullptr;
+	}
+
+	uint GetCount() const
+	{
+		return m_aComponents.Count();
 	}
 
 	std::string PROFILER_BLOCK_NAME = []() {
