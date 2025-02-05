@@ -163,6 +163,7 @@
     <ClCompile Include="Code\Core\Logger.cpp" />
     <ClCompile Include="Code\Core\MemoryTracker.cpp" />
     <ClCompile Include="Code\Core\Profiler.cpp" />
+    <ClCompile Include="Code\Core\StringUtils.cpp" />
     <ClCompile Include="Code\Core\TaskScheduler.cpp" />
     <ClCompile Include="Code\Core\FileUtils.cpp" />
     <ClCompile Include="Code\Editor\Editor.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="Code\Core\stb_image.h" />
     <ClInclude Include="Code\Core\stb_image_write.h" />
     <ClInclude Include="Code\Core\stb_truetype.h" />
+    <ClInclude Include="Code\Core\StringUtils.h" />
     <ClInclude Include="Code\Core\TaskScheduler.h" />
     <ClInclude Include="Code\Core\Types.h" />
     <ClInclude Include="Code\Core\FileUtils.h" />

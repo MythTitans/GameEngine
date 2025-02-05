@@ -9,9 +9,9 @@
 class Intrusive;
 struct ComponentsHolderBase;
 
-struct ObjectMemory
+struct IntrusiveMemory
 {
-	ObjectMemory();
+	IntrusiveMemory();
 
 	uint64	m_uBytes;
 	uint	m_uCount;

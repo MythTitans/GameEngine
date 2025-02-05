@@ -5,20 +5,15 @@
 #include "ImGui/imgui.h"
 #include "Intrusive.h"
 #include "Profiler.h"
+#include "StringUtils.h"
 
 static std::string GetDisplayableTypeName( const std::type_index oTypeIndex )
 {
 	std::string sDisplayableType = oTypeIndex.name();
 
-	if( sDisplayableType.starts_with( "struct " ) )
-		sDisplayableType = sDisplayableType.substr( 7 );
-	else if( sDisplayableType.starts_with( "class " ) )
-		sDisplayableType = sDisplayableType.substr( 6 );
-
-	if( sDisplayableType.ends_with( " * __ptr64" ) )
-	{
-		sDisplayableType = sDisplayableType.substr( 0, sDisplayableType.length() - 10 ) + "*";
-	}
+	Replace( sDisplayableType, "struct ", "" );
+	Replace( sDisplayableType, "class ", "" );
+	Replace( sDisplayableType, " * __ptr64", "*" );
 
 	return sDisplayableType;
 }
@@ -43,7 +38,7 @@ static std::string GetDisplayableMemory( const uint64 uMemory )
 	return std::format( "{:.3f} GB", uMemory / ( 1024.f * 1024.f * 1024.f ) );
 }
 
-ObjectMemory::ObjectMemory()
+IntrusiveMemory::IntrusiveMemory()
 	: m_uBytes( 0 )
 	, m_uCount( 0 )
 {
@@ -93,11 +88,11 @@ void MemoryTracker::Display()
 			uint64 uTotalBytes = 0;
 			uint uTotalCount = 0;
 
-			std::unordered_map< std::type_index, ObjectMemory > mObjects;
+			std::unordered_map< std::type_index, IntrusiveMemory > mObjects;
 
 			for( const Intrusive* pIntrusive : m_lIntrusives )
 			{
-				ObjectMemory& oObjectMemory = mObjects[ typeid( *pIntrusive ) ];
+				IntrusiveMemory& oObjectMemory = mObjects[ typeid( *pIntrusive ) ];
 				oObjectMemory.m_uBytes += sizeof( *pIntrusive );
 				oObjectMemory.m_uCount += 1;
 			}
@@ -111,7 +106,7 @@ void MemoryTracker::Display()
 
 				for( const auto& oPair : mObjects )
 				{
-					const ObjectMemory& oObjectMemory = oPair.second;
+					const IntrusiveMemory& oObjectMemory = oPair.second;
 
 					uTotalBytes += oObjectMemory.m_uBytes;
 					uTotalCount += oObjectMemory.m_uCount;
