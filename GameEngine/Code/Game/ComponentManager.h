@@ -18,6 +18,8 @@ struct ComponentsHolderBase
 	virtual void StopComponents() = 0;
 	virtual void UpdateComponents( const float fDeltaTime ) = 0;
 
+	virtual void DisplayGizmos() = 0;
+
 	virtual uint GetCount() const = 0;
 
 	uint m_uVersion;
@@ -76,6 +78,14 @@ struct ComponentsHolder : ComponentsHolderBase
 
 		for( ComponentType& oComponent : m_aComponents )
 			oComponent.Update( fDeltaTime );
+	}
+
+	void DisplayGizmos() override
+	{
+		ProfilerBlock oBlock( PROFILER_BLOCK_NAME.c_str() );
+
+		for( ComponentType& oComponent : m_aComponents )
+			oComponent.DisplayGizmos();
 	}
 
 	ComponentType* GetComponent( const Entity* pEntity )
@@ -153,6 +163,8 @@ public:
 	void StartComponents();
 	void StopComponents();
 	void UpdateComponents( const float fDeltaTime );
+
+	void DisplayGizmos();
 
 private:
 	template < typename ComponentType >

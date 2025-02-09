@@ -24,6 +24,8 @@ public:
 	virtual void						Stop();
 	virtual void						Update( const float fDeltaTime );
 
+	virtual void						DisplayGizmos();
+
 	Entity*								GetEntity();
 	const Entity*						GetEntity() const;
 	
@@ -156,7 +158,7 @@ class DirectionalLightComponent : public Component
 public:
 	explicit DirectionalLightComponent( Entity* pEntity );
 
-	void Update( const float fDeltaTime ) override;
+	void DisplayGizmos() override;
 
 	glm::vec3	m_vDirection;
 	glm::vec3	m_vColor;
@@ -169,6 +171,8 @@ public:
 	explicit PointLightComponent( Entity* pEntity );
 
 	void				Update( const float fDeltaTime ) override;
+
+	void				DisplayGizmos() override;
 
 	const glm::vec3&	GetPosition() const;
 
@@ -187,6 +191,8 @@ public:
 	explicit SpotLightComponent( Entity* pEntity );
 
 	void				Update( const float fDeltaTime ) override;
+
+	void				DisplayGizmos() override;
 
 	const glm::vec3&	GetPosition() const;
 

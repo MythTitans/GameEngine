@@ -53,8 +53,8 @@ private:
 	};
 
 private:
-	Profiler				m_oProfiler;
 	MemoryTracker			m_oMemoryTracker;
+	Profiler				m_oProfiler;
 
 	ResourceLoader			m_oResourceLoader;
 	InputHandler			m_oInputHandler;

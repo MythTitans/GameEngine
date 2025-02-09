@@ -30,6 +30,8 @@ public:
 	void DisplaySphere( const glm::vec3& vPosition, const float fRadius, const glm::vec3& vColor );
 
 	void DisplayWireSphere( const glm::vec3& vPosition, const float fRadius, const glm::vec3& vColor );
+	void DisplayWireCylinder( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor );
+	void DisplayWireCone( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor );
 
 private:
 	Array< Text >	m_aTexts;
@@ -39,6 +41,8 @@ private:
 	Array< Line >	m_aLines;
 	Array< Sphere > m_aSpheres;
 	Array< Sphere > m_aWireSpheres;
+	Array< Cylinder > m_aWireCylinders;
+	Array< Cylinder > m_aWireCones;
 };
 
 extern DebugDisplay* g_pDebugDisplay;

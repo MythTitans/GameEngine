@@ -22,6 +22,8 @@ void DebugDisplay::NewFrame()
 	m_aLines.Clear();
 	m_aSpheres.Clear();
 	m_aWireSpheres.Clear();
+	m_aWireCylinders.Clear();
+	m_aWireCones.Clear();
 }
 
 void DebugDisplay::Display( const float fDeltaTime, const RenderContext& oRenderContext )
@@ -32,6 +34,8 @@ void DebugDisplay::Display( const float fDeltaTime, const RenderContext& oRender
 	g_pRenderer->m_oDebugRenderer.RenderLines( m_aLines, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderSpheres( m_aSpheres, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireSpheres( m_aWireSpheres, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireCylinders( m_aWireCylinders, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireCones( m_aWireCones, oRenderContext );
 }
 
 void DebugDisplay::DisplayOverlay( const float fDeltaTime, const RenderContext& oRenderContext )
@@ -82,4 +86,14 @@ void DebugDisplay::DisplaySphere( const glm::vec3& vPosition, const float fRadiu
 void DebugDisplay::DisplayWireSphere( const glm::vec3& vPosition, const float fRadius, const glm::vec3& vColor )
 {
 	m_aWireSpheres.PushBack( Sphere( vPosition, fRadius, vColor ) );
+}
+
+void DebugDisplay::DisplayWireCylinder( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor )
+{
+	m_aWireCylinders.PushBack( Cylinder( vFrom, vTo, fRadius, vColor ) );
+}
+
+void DebugDisplay::DisplayWireCone( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor )
+{
+	m_aWireCones.PushBack( Cylinder( vFrom, vTo, fRadius, vColor ) );
 }

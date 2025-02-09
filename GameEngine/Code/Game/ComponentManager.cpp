@@ -55,3 +55,9 @@ void ComponentManager::UpdateComponents( const float fDeltaTime )
 	for( auto& oPair : m_mComponentsHolders )
 		oPair.second->UpdateComponents( fDeltaTime );
 }
+
+void ComponentManager::DisplayGizmos()
+{
+	for( auto& oPair : m_mComponentsHolders )
+		oPair.second->DisplayGizmos();
+}

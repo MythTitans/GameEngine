@@ -1,5 +1,9 @@
 #include "DebugRenderer.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtc/epsilon.hpp>
+#include <glm/gtx/vector_query.hpp>
+
 #include "Core/Array.h"
 #include "Renderer.h"
 
@@ -12,6 +16,7 @@ static constexpr uint WIRE_SPHERE_EQUATOR_VERTEX_COUNT = WIRE_SPHERE_SEGMENT_COU
 static constexpr uint WIRE_SPHERE_MERIDIANS_VERTEX_COUNT = 2 * ( WIRE_SPHERE_SEGMENT_COUNT + 1 );
 
 static constexpr uint CIRCLE_SEGMENT_COUNT = 32;
+static constexpr uint CIRCLE_SEGMENT_VERTEX_COUNT = CIRCLE_SEGMENT_COUNT + 1;
 
 static const Array< glm::vec2 > CIRCLE_POINTS = []() {
 	Array< glm::vec2 > aCircle;
@@ -218,6 +223,115 @@ void DebugRenderer::RenderWireSpheres( const Array< Sphere >& aSpheres, const Re
 	glUseProgram( 0 );
 }
 
+void DebugRenderer::RenderWireCylinders( const Array< Cylinder >& aCylinders, const RenderContext& oRenderContext )
+{
+	glUseProgram( m_xSphere->GetTechnique().m_uProgramID );
+
+	m_oSphere.SetViewProjection( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+
+	glBindVertexArray( m_uVertexArrayID );
+	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
+
+	for( const Cylinder& oCylinder : aCylinders )
+	{
+		const Array< GLfloat > aCircleVertices = GenerateCylinderEquator( glm::normalize( oCylinder.m_vTo - oCylinder.m_vFrom ), oCylinder.m_fRadius );
+		glBufferData( GL_ARRAY_BUFFER, sizeof( aCircleVertices[ 0 ] ) * aCircleVertices.Count(), aCircleVertices.Data(), GL_STATIC_DRAW );
+
+		m_oSphere.SetPosition( oCylinder.m_vFrom );
+		m_oSphere.SetRadius( 1.f );
+		m_oSphere.SetColor( oCylinder.m_vColor );
+		glDrawArrays( GL_LINE_STRIP, 0, CIRCLE_SEGMENT_VERTEX_COUNT );
+
+		m_oSphere.SetPosition( 0.5f * ( oCylinder.m_vFrom + oCylinder.m_vTo ) );
+		glDrawArrays( GL_LINE_STRIP, 0, CIRCLE_SEGMENT_VERTEX_COUNT );
+
+		m_oSphere.SetPosition( oCylinder.m_vTo );
+		glDrawArrays( GL_LINE_STRIP, 0, CIRCLE_SEGMENT_VERTEX_COUNT );
+
+		glUseProgram( m_xLine->GetTechnique().m_uProgramID );
+
+		m_oLine.SetColor( oCylinder.m_vColor );
+
+		Array< GLfloat > aVertices;
+		aVertices.Reserve( 24 );
+		for( uint u = 0; u < 4; ++u )
+		{
+			const uint uIndex = u * ( CIRCLE_SEGMENT_COUNT / 4 ) * 3;
+
+			aVertices.PushBack( aCircleVertices[ uIndex ] + oCylinder.m_vFrom.x );
+			aVertices.PushBack( aCircleVertices[ uIndex + 1 ] + oCylinder.m_vFrom.y );
+			aVertices.PushBack( aCircleVertices[ uIndex + 2 ] + oCylinder.m_vFrom.z );
+			aVertices.PushBack( aCircleVertices[ uIndex  ] + oCylinder.m_vTo.x );
+			aVertices.PushBack( aCircleVertices[ uIndex + 1 ] + oCylinder.m_vTo.y );
+			aVertices.PushBack( aCircleVertices[ uIndex + 2 ] + oCylinder.m_vTo.z );
+		}
+
+		glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+
+		glDrawArrays( GL_LINES, 0, 8 );
+	}
+
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindVertexArray( 0 );
+
+	glUseProgram( 0 );
+}
+
+void DebugRenderer::RenderWireCones( const Array< Cylinder >& aCylinders, const RenderContext& oRenderContext )
+{
+	glUseProgram( m_xSphere->GetTechnique().m_uProgramID );
+
+	m_oSphere.SetViewProjection( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+
+	glBindVertexArray( m_uVertexArrayID );
+	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
+
+	for( const Cylinder& oCylinder : aCylinders )
+	{
+		m_oSphere.SetRadius( 1.f );
+		m_oSphere.SetColor( oCylinder.m_vColor );
+
+		Array< GLfloat > aCircleVertices = GenerateCylinderEquator( glm::normalize( oCylinder.m_vTo - oCylinder.m_vFrom ), 0.5f * oCylinder.m_fRadius );
+		glBufferData( GL_ARRAY_BUFFER, sizeof( aCircleVertices[ 0 ] ) * aCircleVertices.Count(), aCircleVertices.Data(), GL_STATIC_DRAW );
+
+		m_oSphere.SetPosition( 0.5f * ( oCylinder.m_vFrom + oCylinder.m_vTo ) );
+		glDrawArrays( GL_LINE_STRIP, 0, CIRCLE_SEGMENT_VERTEX_COUNT );
+
+		aCircleVertices = GenerateCylinderEquator( glm::normalize( oCylinder.m_vTo - oCylinder.m_vFrom ), oCylinder.m_fRadius );
+		glBufferData( GL_ARRAY_BUFFER, sizeof( aCircleVertices[ 0 ] ) * aCircleVertices.Count(), aCircleVertices.Data(), GL_STATIC_DRAW );
+
+		m_oSphere.SetPosition( oCylinder.m_vTo );
+		glDrawArrays( GL_LINE_STRIP, 0, CIRCLE_SEGMENT_VERTEX_COUNT );
+
+		glUseProgram( m_xLine->GetTechnique().m_uProgramID );
+
+		m_oLine.SetColor( oCylinder.m_vColor );
+
+		Array< GLfloat > aVertices;
+		aVertices.Reserve( 24 );
+		for( uint u = 0; u < 4; ++u )
+		{
+			const uint uIndex = u * ( CIRCLE_SEGMENT_COUNT / 4 ) * 3;
+
+			aVertices.PushBack( oCylinder.m_vFrom.x );
+			aVertices.PushBack( oCylinder.m_vFrom.y );
+			aVertices.PushBack( oCylinder.m_vFrom.z );
+			aVertices.PushBack( aCircleVertices[ uIndex ] + oCylinder.m_vTo.x );
+			aVertices.PushBack( aCircleVertices[ uIndex + 1 ] + oCylinder.m_vTo.y );
+			aVertices.PushBack( aCircleVertices[ uIndex + 2 ] + oCylinder.m_vTo.z );
+		}
+
+		glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+
+		glDrawArrays( GL_LINES, 0, 8 );
+	}
+
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindVertexArray( 0 );
+
+	glUseProgram( 0 );
+}
+
 bool DebugRenderer::OnLoading()
 {
 	if( m_xLine->IsLoaded() && m_oLine.IsValid() == false )
@@ -272,6 +386,49 @@ Array< GLfloat > DebugRenderer::GenerateSphereMeridians()
 
 	for( const glm::vec3& vPosition : vPositions )
 	{
+		aVertices.PushBack( vPosition.x );
+		aVertices.PushBack( vPosition.y );
+		aVertices.PushBack( vPosition.z );
+	}
+
+	return aVertices;
+}
+
+#include "Game/DebugDisplay.h"
+
+Array< GLfloat > DebugRenderer::GenerateCylinderEquator( const glm::vec3& vNormal, const float fRadius )
+{
+	ASSERT( glm::isNormalized( vNormal, 0.001f ) );
+
+	glm::vec3 vX;
+	if( glm::epsilonEqual( glm::abs( glm::dot( vNormal, glm::vec3( 0.f, 1.f, 0.f ) ) ), 1.f, 0.001f ) )
+		vX = glm::normalize( glm::cross( vNormal, glm::vec3( 0.f, 0.f, 1.f ) ) );
+	else
+		vX = glm::normalize( glm::cross( vNormal, glm::vec3( 0.f, 1.f, 0.f ) ) );
+
+	glm::vec3 vZ = glm::normalize( glm::cross( vNormal, vX ) );
+	glm::vec3 vY = glm::normalize( glm::cross( vX, vZ ) );
+
+	glm::mat3 mMatrix;
+	mMatrix[ 0 ] = vX;
+	mMatrix[ 1 ] = vY;
+	mMatrix[ 2 ] = vZ;
+
+	Array< glm::vec3 > vPositions;
+	vPositions.Reserve( WIRE_SPHERE_SEGMENT_COUNT );
+
+	for( uint u = 0; u < CIRCLE_SEGMENT_COUNT; ++u )
+		vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ u ].x, 0.f, CIRCLE_POINTS[ u ].y ) * fRadius);
+
+	vPositions.PushBack( glm::vec3( CIRCLE_POINTS[ 0 ].x, 0.f, CIRCLE_POINTS[ 0 ].y ) * fRadius );
+
+	Array< GLfloat > aVertices;
+	aVertices.Reserve( 3 * vPositions.Count() );
+
+	for( glm::vec3& vPosition : vPositions )
+	{
+		vPosition = mMatrix * vPosition;
+
 		aVertices.PushBack( vPosition.x );
 		aVertices.PushBack( vPosition.y );
 		aVertices.PushBack( vPosition.z );

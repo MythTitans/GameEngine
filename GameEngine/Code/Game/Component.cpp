@@ -30,6 +30,10 @@ void Component::Update( const float /*fDeltaTime*/ )
 {
 }
 
+void Component::DisplayGizmos()
+{
+}
+
 Entity* Component::GetEntity()
 {
 	return m_pEntity;
@@ -85,11 +89,11 @@ DirectionalLightComponent::DirectionalLightComponent( Entity* pEntity )
 {
 }
 
-void DirectionalLightComponent::Update( const float fDeltaTime )
+void DirectionalLightComponent::DisplayGizmos()
 {
 	const glm::vec3 vPosition = GetEntity()->GetWorldPosition();
 	g_pDebugDisplay->DisplayWireSphere( vPosition, 0.25f, glm::vec3( 1.f, 1.f, 0.f ) );
-	g_pDebugDisplay->DisplayLine( vPosition, vPosition + m_vDirection, glm::vec3( 1.f, 1.f, 0.f ) );
+	g_pDebugDisplay->DisplayWireCylinder( vPosition, vPosition + 2.f * m_vDirection, 0.25f, glm::vec3( 1.f, 1.f, 0.f ) );
 }
 
 PointLightComponent::PointLightComponent( Entity* pEntity )
@@ -104,7 +108,10 @@ PointLightComponent::PointLightComponent( Entity* pEntity )
 void PointLightComponent::Update( const float fDeltaTime )
 {
 	m_vPosition = GetEntity()->GetWorldPosition();
+}
 
+void PointLightComponent::DisplayGizmos()
+{
 	g_pDebugDisplay->DisplayWireSphere( m_vPosition, 1.25f, glm::vec3( 1.f, 1.f, 0.f ) );
 }
 
@@ -128,6 +135,12 @@ SpotLightComponent::SpotLightComponent( Entity* pEntity )
 void SpotLightComponent::Update( const float fDeltaTime )
 {
 	m_vPosition = GetEntity()->GetWorldPosition();
+}
+
+void SpotLightComponent::DisplayGizmos()
+{
+	g_pDebugDisplay->DisplayWireSphere( m_vPosition, 0.25f, glm::vec3( 1.f, 1.f, 0.f ) );
+	g_pDebugDisplay->DisplayWireCone( m_vPosition, m_vPosition + 2.f * m_vDirection, 1.f, glm::vec3( 1.f, 1.f, 0.f ) );
 }
 
 const glm::vec3& SpotLightComponent::GetPosition() const
