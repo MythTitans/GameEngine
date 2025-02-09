@@ -14,8 +14,24 @@ enum ArrayFlags
 	FAST_RESIZE = 1
 };
 
+class ArrayBase
+{
+public:
+	ArrayBase();
+	ArrayBase( const uint uCount, const uint uCapacity );
+	~ArrayBase();
+
+	uint Count() const;
+	uint Capacity() const;
+	bool Empty() const;
+
+protected:
+	uint m_uCount;
+	uint m_uCapacity;
+};
+
 template < typename T, int Flags = ArrayFlags::STANDARD >
-class Array
+class Array : public ArrayBase
 {
 public:
 	template < typename U, int F >
@@ -23,24 +39,13 @@ public:
 
 	Array()
 		: m_pData( nullptr )
-		, m_uCount( 0 )
-		, m_uCapacity( 0 )
-#ifdef TRACK_MEMORY
-		, m_bMemoryTracked( false )
-		, m_bTrackMemory( true )
-#endif
 	{
 		TrackMemory();
 	}
 
 	explicit Array( const uint uCount )
-		: m_pData( ( T* )malloc( uCount * sizeof( T ) ) )
-		, m_uCount( uCount )
-		, m_uCapacity( uCount )
-#ifdef TRACK_MEMORY
-		, m_bMemoryTracked( false )
-		, m_bTrackMemory( true )
-#endif
+		: ArrayBase( uCount, uCount )
+		, m_pData( ( T* )malloc( uCount * sizeof( T ) ) )
 	{
 		for( uint u = 0; u < m_uCount; ++u )
 			::new( &m_pData[ u ] ) T;
@@ -49,13 +54,8 @@ public:
 	}
 
 	Array( const uint uCount, const T& oValue )
-		: m_pData( ( T* )malloc( uCount * sizeof( T ) ) )
-		, m_uCount( uCount )
-		, m_uCapacity( uCount )
-#ifdef TRACK_MEMORY
-		, m_bMemoryTracked( false )
-		, m_bTrackMemory( true )
-#endif
+		: ArrayBase( uCount, uCount )
+		, m_pData( ( T* )malloc( uCount * sizeof( T ) ) )
 	{
 		for( uint u = 0; u < m_uCount; ++u )
 			::new( &m_pData[ u ] ) T( oValue );
@@ -64,13 +64,8 @@ public:
 	}
 
 	Array( const Array& aArray )
-		: m_pData( ( T* )malloc( aArray.m_uCount * sizeof( T ) ) )
-		, m_uCount( aArray.m_uCount )
-		, m_uCapacity( aArray.m_uCapacity )
-#ifdef TRACK_MEMORY
-		, m_bMemoryTracked( false )
-		, m_bTrackMemory( true )
-#endif
+		: ArrayBase( aArray.m_uCount, aArray.m_uCapacity )
+		, m_pData( ( T* )malloc( aArray.m_uCount * sizeof( T ) ) )
 	{
 		if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
 		{
@@ -91,8 +86,6 @@ public:
 		if( &aArray == this )
 			return *this;
 
-		UnTrackMemory();
-
 		Destroy();
 
 		m_pData = ( T* )malloc( aArray.m_uCount * sizeof( T ) );
@@ -112,33 +105,24 @@ public:
 				::new( &m_pData[ u ] ) T( aArray[ u ] );
 		}
 
-		TrackMemory();
-
 		return *this;
 	}
 
 	Array( Array&& aArray ) noexcept
-		: m_pData( aArray.m_pData )
-		, m_uCount( aArray.m_uCount )
-		, m_uCapacity( aArray.m_uCapacity )
+		: ArrayBase( aArray.m_uCount, aArray.m_uCapacity )
+		, m_pData( aArray.m_pData )
 	{
-		aArray.UnTrackMemory();
-
 		aArray.m_pData = nullptr;
 		aArray.m_uCount = 0;
 		aArray.m_uCapacity = 0;
 
 		TrackMemory();
-		aArray.UnTrackMemory();
 	}
 
 	Array& operator=( Array&& aArray ) noexcept
 	{
 		if( &aArray == this )
 			return *this;
-
-		aArray.UnTrackMemory();
-		UnTrackMemory();
 
 		Destroy();
 
@@ -152,15 +136,12 @@ public:
 		aArray.m_uCount = 0;
 		aArray.m_uCapacity = 0;
 
-		TrackMemory();
-		aArray.TrackMemory();
-
 		return *this;
 	}
 
 	~Array()
 	{
-		UnTrackMemory();
+		UnTracMemory();
 
 		Destroy();
 
@@ -171,41 +152,26 @@ public:
 
 	void PushBack()
 	{
-		UnTrackMemory();
-		EnableMemoryTracking( false );
-
 		Expand();
 
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount < m_uCapacity );
 
 		::new( &m_pData[ m_uCount++ ] ) T;
-
-		EnableMemoryTracking( true );
-		TrackMemory();
 	}
 
 	void PushBack( const T& oElement )
 	{
-		UnTrackMemory();
-		EnableMemoryTracking( false );
-
 		Expand();
 
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount < m_uCapacity );
 
 		::new( &m_pData[ m_uCount++ ] ) T( oElement );
-
-		EnableMemoryTracking( true );
-		TrackMemory();
 	}
 
 	void PushFront( const T& oElement )
 	{
-		UnTrackMemory();
-		EnableMemoryTracking( false );
-
 		Array< T, Flags > aPush;
 		if( m_uCapacity < m_uCount + 1 )
 			aPush.Reserve( m_uCount + 1 );
@@ -226,7 +192,6 @@ public:
 				aPush.PushBack( m_pData[ u ] );
 		}
 
-		EnableMemoryTracking( true );
 		*this = aPush;
 	}
 
@@ -235,11 +200,7 @@ public:
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount > 0 );
 
-		UnTrackMemory();
-
 		m_pData[ --m_uCount ].~T();
-
-		TrackMemory();
 	}
 
 	void PopFront()
@@ -252,8 +213,6 @@ public:
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount > 0 );
 		ASSERT( uIndex >= 0 && uIndex < m_uCount );
-
-		UnTrackMemory();
 
 		m_pData[ uIndex ].~T();
 
@@ -272,27 +231,18 @@ public:
 		}
 
 		--m_uCount;
-
-		TrackMemory();
 	}
 
 	void Clear()
 	{
-		UnTrackMemory();
-
 		for( uint u = 0; u < m_uCount; ++u )
 			m_pData[ u ].~T();
 
 		m_uCount = 0;
-
-		TrackMemory();
 	}
 
 	void Swap( Array& aArray )
 	{
-		aArray.UnTrackMemory();
-		UnTrackMemory();
-
 		T* pData = m_pData;
 		uint uCount = m_uCount;
 		uint uCapacity = m_uCapacity;
@@ -304,9 +254,6 @@ public:
 		aArray.m_pData = pData;
 		aArray.m_uCount = uCount;
 		aArray.m_uCapacity = uCapacity;
-
-		TrackMemory();
-		aArray.TrackMemory();
 	}
 
 	void Grab( Array& aArray )
@@ -317,9 +264,6 @@ public:
 
 	void Resize( const uint uCount )
 	{
-		UnTrackMemory();
-		EnableMemoryTracking( false );
-
 		if( m_uCount < uCount )
 		{
 			const uint uExpansion = uCount - m_uCount;
@@ -335,16 +279,10 @@ public:
 			for( uint u = 0; u < uShrink; ++u )
 				PopBack();
 		}
-
-		EnableMemoryTracking( true );
-		TrackMemory();
 	}
 
 	void Resize( const uint uCount, const T& oValue )
 	{
-		UnTrackMemory();
-		EnableMemoryTracking( false );
-
 		if( m_uCount < uCount )
 		{
 			const uint uExpansion = uCount - m_uCount;
@@ -360,15 +298,10 @@ public:
 			for( uint u = 0; u < uShrink; ++u )
 				PopBack();
 		}
-
-		EnableMemoryTracking( true );
-		TrackMemory();
 	}
 
 	void Reserve( const uint uCount )
 	{
-		UnTrackMemory();
-
 		if( m_uCapacity < uCount )
 		{
 			T* pData = ( T* )malloc( uCount * sizeof( T ) );
@@ -391,8 +324,6 @@ public:
 
 			ASSERT( m_uCount <= m_uCapacity );
 		}
-
-		TrackMemory();
 	}
 
 	void Expand( uint uBy = 1 )
@@ -408,13 +339,9 @@ public:
 		if( m_uCapacity == m_uCount )
 			return;
 
-		UnTrackMemory();
-
 		m_pData = ( T* )realloc( m_pData, m_uCount * sizeof( T ) );
 
 		m_uCapacity = m_uCount;
-
-		TrackMemory();
 	}
 
 	T& Back()
@@ -465,21 +392,6 @@ public:
 		return m_pData[ uIndex ];
 	}
 
-	uint Count() const
-	{
-		return m_uCount;
-	}
-
-	uint Capacity() const
-	{
-		return m_uCapacity;
-	}
-
-	bool Empty() const
-	{
-		return m_uCount == 0;
-	}
-
 	T* Data()
 	{
 		return m_pData;
@@ -522,40 +434,20 @@ private:
 	void TrackMemory()
 	{
 #ifdef TRACK_MEMORY
-		if( g_pMemoryTracker != nullptr && m_bMemoryTracked == false && m_bTrackMemory )
-		{
-			g_pMemoryTracker->RegisterArray( typeid( T ), sizeof( T ) * Count(), sizeof( T ) * Capacity(), Count() );
-			m_bMemoryTracked = true;
-		}
+		if( g_pMemoryTracker != nullptr )
+			g_pMemoryTracker->RegisterArray< T >( this );
 #endif
 	}
 
-	void UnTrackMemory()
+	void UnTracMemory()
 	{
 #ifdef TRACK_MEMORY
-		if( g_pMemoryTracker != nullptr && m_bMemoryTracked && m_bTrackMemory )
-		{
-			g_pMemoryTracker->UnRegisterArray( typeid( T ), sizeof( T ) * Count(), sizeof( T ) * Capacity(), Count() );
-			m_bMemoryTracked = false;
-		}
-#endif
-	}
-
-	void EnableMemoryTracking( const bool bEnable)
-	{
-#ifdef TRACK_MEMORY
-		m_bTrackMemory = bEnable;
+		if( g_pMemoryTracker != nullptr )
+			g_pMemoryTracker->UnRegisterArray( this );
 #endif
 	}
 
 	T*		m_pData;
-	uint	m_uCount;
-	uint	m_uCapacity;
-
-#ifdef TRACK_MEMORY
-	bool	m_bMemoryTracked;
-	bool	m_bTrackMemory;
-#endif
 };
 
 // TODO #eric should rename, this is not really an array view

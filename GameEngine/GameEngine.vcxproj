@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Code\Core\Array.cpp" />
     <ClCompile Include="Code\Core\Common.cpp" />
     <ClCompile Include="Code\Core\Intrusive.cpp" />
     <ClCompile Include="Code\Core\Logger.cpp" />

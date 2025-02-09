@@ -1,5 +1,6 @@
 #include "MemoryTracker.h"
 
+#include "Array.h"
 #include "Game/ComponentManager.h"
 #include "Game/InputHandler.h"
 #include "ImGui/imgui.h"
@@ -56,6 +57,13 @@ ArrayMemory::ArrayMemory()
 	, m_uReservedBytes( 0 )
 	, m_uArrayCount( 0 )
 	, m_uElementCount( 0 )
+{
+}
+
+ArrayReference::ArrayReference( const ArrayBase* pArray, const std::type_index oArrayType, const uint64 uArrayTypeSize )
+	: m_pArray( pArray )
+	, m_oArrayType( oArrayType )
+	, m_uArrayTypeSize( uArrayTypeSize )
 {
 }
 
@@ -136,7 +144,6 @@ void MemoryTracker::Display()
 				ImGui::TableSetupColumn( "Count" );
 				ImGui::TableHeadersRow();
 
-
 				for( const ComponentMemory& oComponentMemory : m_aComponents )
 				{
 					const uint64 uBytes = oComponentMemory.m_uComponentSize * oComponentMemory.m_pComponentHolder->GetCount();
@@ -161,6 +168,20 @@ void MemoryTracker::Display()
 			uint64 uTotalUsedBytes = 0;
 			uint64 uTotalReservedBytes = 0;
 
+			std::unordered_map< std::type_index, ArrayMemory > mArrays;
+
+			for( const ArrayReference& oMemory : m_lArrays )
+			{
+				if( oMemory.m_pArray->Capacity() == 0 )
+					continue;
+
+				ArrayMemory& oArrayMemory = mArrays[ oMemory.m_oArrayType ];
+				oArrayMemory.m_uUsedBytes += oMemory.m_uArrayTypeSize * oMemory.m_pArray->Count();
+				oArrayMemory.m_uReservedBytes += oMemory.m_uArrayTypeSize * oMemory.m_pArray->Capacity();
+				oArrayMemory.m_uArrayCount += 1;
+				oArrayMemory.m_uElementCount += oMemory.m_pArray->Count();
+			}
+
 			if( ImGui::BeginTable( "ArrayTable", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp ) )
 			{
 				ImGui::TableSetupColumn( "Type" );
@@ -171,7 +192,7 @@ void MemoryTracker::Display()
 				ImGui::TableSetupColumn( "Instances" );
 				ImGui::TableHeadersRow();
 
-				for( const auto& oPair : m_mArrays )
+				for( const auto& oPair : mArrays )
 				{
 					const ArrayMemory& oArrayMemory = oPair.second;
 					if( oArrayMemory.m_uReservedBytes == 0 )
@@ -221,24 +242,9 @@ void MemoryTracker::UnRegisterIntrusive( const Intrusive* pIntrusive )
 	m_lIntrusives.remove( pIntrusive );
 }
 
-void MemoryTracker::RegisterArray( const std::type_index oTypeIndex, const uint64 uUsedMemory, const uint64 uReservedMemory, const int uElementCount )
+void MemoryTracker::UnRegisterArray( ArrayBase* pArray )
 {
 	std::unique_lock oLock( m_oMutex );
 
-	ArrayMemory& oArrayMemory = m_mArrays[ oTypeIndex ];
-	oArrayMemory.m_uUsedBytes += uUsedMemory;
-	oArrayMemory.m_uReservedBytes += uReservedMemory;
-	oArrayMemory.m_uArrayCount += 1;
-	oArrayMemory.m_uElementCount += uElementCount;
-}
-
-void MemoryTracker::UnRegisterArray( const std::type_index oTypeIndex, const uint64 uUsedMemory, const uint64 uReservedMemory, const int uElementCount )
-{
-	std::unique_lock oLock( m_oMutex );
-
-	ArrayMemory& oArrayMemory = m_mArrays[ oTypeIndex ];
-	oArrayMemory.m_uUsedBytes -= uUsedMemory;
-	oArrayMemory.m_uReservedBytes -= uReservedMemory;
-	oArrayMemory.m_uArrayCount -= 1;
-	oArrayMemory.m_uElementCount -= uElementCount;
+	m_lArrays.remove_if( [ pArray ]( ArrayReference oArrayMemory ) { return oArrayMemory.m_pArray == pArray; } );
 }

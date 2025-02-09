@@ -6,6 +6,7 @@
 
 #include "Types.h"
 
+class ArrayBase;
 class Intrusive;
 struct ComponentsHolderBase;
 
@@ -36,6 +37,15 @@ struct ArrayMemory
 	uint	m_uElementCount;
 };
 
+struct ArrayReference
+{
+	ArrayReference( const ArrayBase* pArray, const std::type_index oArrayType, const uint64 uArrayTypeSize );
+
+	const ArrayBase*	m_pArray;
+	std::type_index		m_oArrayType;
+	uint64				m_uArrayTypeSize;
+};
+
 class MemoryTracker
 {
 public:
@@ -53,17 +63,23 @@ public:
 		m_aComponents.push_back( ComponentMemory( typeid( ComponentType ), sizeof( ComponentType ), pComponentHolder ) );
 	}
 
-	void		RegisterArray( const std::type_index oTypeIndex, const uint64 uUsedMemory, const uint64 uReservedMemory, const int uElementCount );
-	void		UnRegisterArray( const std::type_index oTypeIndex, const uint64 uUsedMemory, const uint64 uReservedMemory, const int uElementCount );
+	template < typename ComponentType >
+	void		RegisterArray( ArrayBase* pArray )
+	{
+		std::unique_lock oLock( m_oMutex );
+
+		m_lArrays.push_back( ArrayReference( pArray, typeid( ComponentType ), sizeof( ComponentType ) ) );
+	}
+	void		UnRegisterArray( ArrayBase* pArray );
 
 private:
-	std::unordered_map< std::type_index, ArrayMemory >	m_mArrays;
-	std::vector< ComponentMemory >						m_aComponents;
-	std::list< const Intrusive* >						m_lIntrusives;
+	std::list< const Intrusive* >	m_lIntrusives;
+	std::vector< ComponentMemory >	m_aComponents;
+	std::list< ArrayReference >		m_lArrays;
 
-	std::mutex											m_oMutex;
+	std::mutex						m_oMutex;
 
-	bool												m_bDisplayMemoryTracker;
+	bool							m_bDisplayMemoryTracker;
 };
 
 extern MemoryTracker* g_pMemoryTracker;
