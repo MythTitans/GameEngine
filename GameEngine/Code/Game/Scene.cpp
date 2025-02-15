@@ -21,6 +21,7 @@ Scene::Scene()
 	m_mEntities[ 11 ] = new Entity( 11, "Light 2" );
 	m_mEntities[ 12 ] = new Entity( 12, "Light 3" );
 	m_mEntities[ 13 ] = new Entity( 13, "Light 4" );
+	m_mEntities[ 14 ] = new Entity( 14, "Env" );
 
 	GizmoComponent& oTranslateGizmoX = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 0 ].GetPtr() );
 	oTranslateGizmoX.Setup( GizmoType::TRANSLATE, GizmoAxis::X );
@@ -67,6 +68,9 @@ Scene::Scene()
 	g_pComponentManager->CreateComponent< SpotLightComponent >( m_mEntities[ 13 ].GetPtr() );
 
 	AttachToParent( m_mEntities[ 10 ].GetPtr(), m_mEntities[ 9 ].GetPtr() );
+
+//  	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 14 ].GetPtr() ).Setup( "sponza.obj" );
+//  	m_mEntities[ 14 ]->SetScale( 0.05f, 0.05f, 0.05f );
 }
 
 Entity* Scene::FindEntity( const uint64 uEntityID )

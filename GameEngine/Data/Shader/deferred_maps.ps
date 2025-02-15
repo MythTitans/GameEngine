@@ -14,11 +14,15 @@ uniform sampler2D normalMap;
 
 void main()
 {
+    vec4 diffuseTextureColor = texture( diffuseMap, texCoords );
+    if( diffuseTextureColor.a < 0.001 )
+        discard;
+
     mat3 TBN = mat3( normalize( tangent ), normalize( bitangent ), normalize( normal ) );
 
     vec3 tangentSpaceNormal = 2.0 * texture( normalMap, texCoords).rgb - vec3( 1.0 );
     vec3 worldSpaceNormal = TBN * tangentSpaceNormal;
 
-    finalColor = vec4( diffuseColor * texture( diffuseMap, texCoords ).rgb, 1.0 );
+    finalColor = vec4( diffuseColor * diffuseTextureColor.rgb, 1.0 );
     finalNormal = normalize( worldSpaceNormal ) * 0.5 + vec3( 0.5, 0.5, 0.5 );
 }

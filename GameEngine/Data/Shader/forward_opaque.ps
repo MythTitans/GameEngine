@@ -38,6 +38,10 @@ uniform int spotLightCount;
 
 void main()
 {
+    vec4 diffuseTextureColor = texture( diffuseMap, texCoords );
+    if( diffuseTextureColor.a < 0.001 )
+        discard;
+
     mat3 TBN = mat3( normalize( tangent ), normalize( bitangent ), normalize( normal ) );
 
     vec3 tangentSpaceNormal = 2.0 * texture( normalMap, texCoords).rgb - vec3( 1.0 );
@@ -74,6 +78,6 @@ void main()
         intensity += lightIntensity * surfaceExposure * spotLightColors[ i ];
     }
     
-    vec3 color = clamp( intensity * diffuseColor * texture( diffuseMap, texCoords ).rgb, 0.0, 1.0 );
+    vec3 color = clamp( intensity * diffuseColor * diffuseTextureColor.rgb, 0.0, 1.0 );
     finalColor = vec4( color, 1.0 );
 }

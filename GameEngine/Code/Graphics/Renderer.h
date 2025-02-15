@@ -74,6 +74,7 @@ private:
 	void				ClearTextureSlot( const uint uTextureUnit );
 	void				SetRenderTarget( const RenderTarget& oRenderTarget );
 	void				ClearRenderTarget();
+	void				CopyDepthToBackBuffer( const RenderTarget& oRenderTarget, const RenderRect& oRect );
 	void				DrawMesh( const Mesh& oMesh );
 
 public:

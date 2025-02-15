@@ -346,6 +346,9 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 
 	ClearTextureSlot( 0 );
 	ClearTechnique();
+
+	CopyDepthToBackBuffer( m_oRenderTarget, oRenderContext.GetRenderRect() );
+
 }
 
 uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos )
@@ -507,6 +510,20 @@ void Renderer::SetRenderTarget( const RenderTarget& oRenderTarget )
 
 void Renderer::ClearRenderTarget()
 {
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+void Renderer::CopyDepthToBackBuffer( const RenderTarget& oRenderTarget, const RenderRect& oRect )
+{
+	glBindFramebuffer( GL_READ_FRAMEBUFFER, oRenderTarget.m_uFrameBufferID );
+	glBindFramebuffer( GL_DRAW_FRAMEBUFFER, 0 );
+
+	const int iX = ( int )oRect.m_uX;
+	const int iY = ( int )oRect.m_uY;
+	const int iWidth = ( int )oRect.m_uWidth;
+	const int iHeight = ( int )oRect.m_uHeight;
+	glBlitFramebuffer( iX, iY, iWidth, iHeight, iX, iY, iWidth, iHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
 
