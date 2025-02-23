@@ -89,10 +89,15 @@ DirectionalLightComponent::DirectionalLightComponent( Entity* pEntity )
 {
 }
 
+void DirectionalLightComponent::Update( const float fDeltaTime )
+{
+	m_vDirection = GetEntity()->GetWorldTransform().GetK();
+}
+
 void DirectionalLightComponent::DisplayGizmos()
 {
 	const glm::vec3 vPosition = GetEntity()->GetWorldPosition();
-	g_pDebugDisplay->DisplayWireSphere( vPosition, 0.25f, glm::vec3( 1.f, 1.f, 0.f ) );
+	g_pDebugDisplay->DisplaySphere( vPosition, 0.25f, glm::vec3( 1.f, 1.f, 0.f ) );
 	g_pDebugDisplay->DisplayWireCylinder( vPosition, vPosition + 2.f * m_vDirection, 0.25f, glm::vec3( 1.f, 1.f, 0.f ) );
 }
 
@@ -101,7 +106,8 @@ PointLightComponent::PointLightComponent( Entity* pEntity )
 	, m_vPosition( 0.f )
 	, m_vColor( 1.f )
 	, m_fIntensity( 1.f )
-	, m_fFalloffFactor( 1.f )
+	, m_fFalloffMinDistance( 1.f )
+	, m_fFalloffMaxDistance( 10.f )
 {
 }
 
@@ -112,7 +118,9 @@ void PointLightComponent::Update( const float fDeltaTime )
 
 void PointLightComponent::DisplayGizmos()
 {
-	g_pDebugDisplay->DisplayWireSphere( m_vPosition, 1.25f, glm::vec3( 1.f, 1.f, 0.f ) );
+	g_pDebugDisplay->DisplaySphere( m_vPosition, 0.25f, glm::vec3( 1.f, 1.f, 0.f ) );
+	g_pDebugDisplay->DisplayWireSphere( m_vPosition, m_fFalloffMinDistance, glm::vec3( 0.f, 0.5f, 1.f ) );
+	g_pDebugDisplay->DisplayWireSphere( m_vPosition, m_fFalloffMaxDistance, glm::vec3( 1.f, 0.5f, 0.f ) );
 }
 
 const glm::vec3& PointLightComponent::GetPosition() const
@@ -128,19 +136,28 @@ SpotLightComponent::SpotLightComponent( Entity* pEntity )
 	, m_fIntensity( 1.f )
 	, m_fInnerAngle( 30.f )
 	, m_fOuterAngle( 60.f )
-	, m_fFalloffFactor( 1.f )
+	, m_fFalloffMinDistance( 1.f )
+	, m_fFalloffMaxDistance( 10.f )
 {
 }
 
 void SpotLightComponent::Update( const float fDeltaTime )
 {
-	m_vPosition = GetEntity()->GetWorldPosition();
+	const Transform& oTransform = GetEntity()->GetWorldTransform();
+	m_vPosition = oTransform.GetO();
+	m_vDirection = oTransform.GetK();
 }
 
 void SpotLightComponent::DisplayGizmos()
 {
-	g_pDebugDisplay->DisplayWireSphere( m_vPosition, 0.25f, glm::vec3( 1.f, 1.f, 0.f ) );
-	g_pDebugDisplay->DisplayWireCone( m_vPosition, m_vPosition + 2.f * m_vDirection, 1.f, glm::vec3( 1.f, 1.f, 0.f ) );
+	const float fInnerRadius1 = glm::tan( glm::radians( m_fInnerAngle ) ) * m_fFalloffMinDistance;
+	const float fInnerRadius2 = glm::tan( glm::radians( m_fInnerAngle ) ) * m_fFalloffMaxDistance;
+	const float fOuterRadius = glm::tan( glm::radians( m_fOuterAngle ) ) * m_fFalloffMaxDistance;
+
+	g_pDebugDisplay->DisplaySphere( m_vPosition, 0.25f, glm::vec3( 1.f, 1.f, 0.f ) );
+	g_pDebugDisplay->DisplayWireCone( m_vPosition, m_vPosition + m_fFalloffMinDistance * m_vDirection, fInnerRadius1, glm::vec3( 0.f, 0.5f, 1.f ) );
+	g_pDebugDisplay->DisplayWireCone( m_vPosition, m_vPosition + m_fFalloffMaxDistance * m_vDirection, fInnerRadius2, glm::vec3( 1.f, 0.5f, 1.f ) );
+	g_pDebugDisplay->DisplayWireCone( m_vPosition, m_vPosition + m_fFalloffMaxDistance * m_vDirection, fOuterRadius, glm::vec3( 1.f, 0.5f, 0.f ) );
 }
 
 const glm::vec3& SpotLightComponent::GetPosition() const

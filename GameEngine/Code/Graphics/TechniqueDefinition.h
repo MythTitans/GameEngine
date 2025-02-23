@@ -60,31 +60,34 @@ public:
 		SetParameterID( m_iDirectionalLightCountUniform, ( int )aLightDirections.Count() );
 	}
 
-	void SetPointLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightFalloffFactors )
+	void SetPointLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightFalloffMinDistances, const Array< float >& aLightFalloffMaxDistances )
 	{
 		ASSERT( aLightPositions.Count() == aLightColors.Count() );
 		ASSERT( aLightPositions.Count() == aLightIntensities.Count() );
-		ASSERT( aLightPositions.Count() == aLightFalloffFactors.Count() );
+		ASSERT( aLightPositions.Count() == aLightFalloffMinDistances.Count() );
+		ASSERT( aLightPositions.Count() == aLightFalloffMaxDistances.Count() );
 
 		for( uint u = 0; u < aLightPositions.Count(); ++u )
 		{
 			SetParameterID( m_aPointLightPositionUniforms[ u ], aLightPositions[ u ] );
 			SetParameterID( m_aPointLightColorUniforms[ u ], aLightColors[ u ] );
 			SetParameterID( m_aPointLightIntensityUniforms[ u ], aLightIntensities[ u ] );
-			SetParameterID( m_aPointLightFalloffFactorUniforms[ u ], aLightFalloffFactors[ u ] );
+			SetParameterID( m_aPointLightFalloffMinDistanceUniforms[ u ], aLightFalloffMinDistances[ u ] );
+			SetParameterID( m_aPointLightFalloffMaxDistanceUniforms[ u ], aLightFalloffMaxDistances[ u ] );
 		}
 
 		SetParameterID( m_iPointLightCountUniform, ( int )aLightPositions.Count() );
 	}
 
-	void SetSpotLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightDirections, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightInnerAngles, const Array< float >& aLightOuterAngles, const Array< float >& aLightFalloffFactors )
+	void SetSpotLights( const Array< glm::vec3 >& aLightPositions, const Array< glm::vec3 >& aLightDirections, const Array< glm::vec3 >& aLightColors, const Array< float >& aLightIntensities, const Array< float >& aLightInnerAngles, const Array< float >& aLightOuterAngles, const Array< float >& aLightFalloffMinDistances, const Array< float >& aLightFalloffMaxDistances )
 	{
 		ASSERT( aLightPositions.Count() == aLightColors.Count() );
 		ASSERT( aLightPositions.Count() == aLightDirections.Count() );
 		ASSERT( aLightPositions.Count() == aLightIntensities.Count() );
 		ASSERT( aLightPositions.Count() == aLightInnerAngles.Count() );
 		ASSERT( aLightPositions.Count() == aLightOuterAngles.Count() );
-		ASSERT( aLightPositions.Count() == aLightFalloffFactors.Count() );
+		ASSERT( aLightPositions.Count() == aLightFalloffMinDistances.Count() );
+		ASSERT( aLightPositions.Count() == aLightFalloffMaxDistances.Count() );
 
 		for( uint u = 0; u < aLightPositions.Count(); ++u )
 		{
@@ -94,7 +97,8 @@ public:
 			SetParameterID( m_aSpotLightIntensityUniforms[ u ], aLightIntensities[ u ] );
 			SetParameterID( m_aSpotLightOuterRangeUniforms[ u ], glm::cos( glm::radians( aLightOuterAngles[ u ] / 2.f ) ) );
 			SetParameterID( m_aSpotLightRangeUniforms[ u ], glm::cos( glm::radians( aLightInnerAngles[ u ] / 2.f ) ) - glm::cos( glm::radians( aLightOuterAngles[ u ] / 2.f ) ) );
-			SetParameterID( m_aSpotLightFalloffFactorUniforms[ u ], aLightFalloffFactors[ u ] );
+			SetParameterID( m_aSpotLightFalloffMinDistanceUniforms[ u ], aLightFalloffMinDistances[ u ] );
+			SetParameterID( m_aSpotLightFalloffMaxDistanceUniforms[ u ], aLightFalloffMaxDistances[ u ] );
 		}
 
 		SetParameterID( m_iSpotLightCountUniform, ( int )aLightPositions.Count() );
@@ -110,7 +114,8 @@ protected:
 		m_aPointLightPositionUniforms = oTechnique.GetParameterIDArray( "pointLightPositions", iMaxPointLightCount );
 		m_aPointLightColorUniforms = oTechnique.GetParameterIDArray( "pointLightColors", iMaxPointLightCount );
 		m_aPointLightIntensityUniforms = oTechnique.GetParameterIDArray( "pointLightIntensities", iMaxPointLightCount );
-		m_aPointLightFalloffFactorUniforms = oTechnique.GetParameterIDArray( "pointLightFalloffFactor", iMaxPointLightCount );
+		m_aPointLightFalloffMinDistanceUniforms = oTechnique.GetParameterIDArray( "pointLightFalloffMinDistances", iMaxPointLightCount );
+		m_aPointLightFalloffMaxDistanceUniforms = oTechnique.GetParameterIDArray( "pointLightFalloffMaxDistances", iMaxPointLightCount );
 
 		m_aSpotLightPositionUniforms = oTechnique.GetParameterIDArray( "spotLightPositions", iMaxSpotLightCount );
 		m_aSpotLightDirectionUniforms = oTechnique.GetParameterIDArray( "spotLightDirections", iMaxSpotLightCount );
@@ -118,7 +123,8 @@ protected:
 		m_aSpotLightIntensityUniforms = oTechnique.GetParameterIDArray( "spotLightIntensities", iMaxSpotLightCount );
 		m_aSpotLightOuterRangeUniforms = oTechnique.GetParameterIDArray( "spotLightOuterRanges", iMaxSpotLightCount );
 		m_aSpotLightRangeUniforms = oTechnique.GetParameterIDArray( "spotLightRanges", iMaxSpotLightCount );
-		m_aSpotLightFalloffFactorUniforms = oTechnique.GetParameterIDArray( "spotLightFalloffFactors", iMaxSpotLightCount );
+		m_aSpotLightFalloffMinDistanceUniforms = oTechnique.GetParameterIDArray( "spotLightFalloffMinDistances", iMaxSpotLightCount );
+		m_aSpotLightFalloffMaxDistanceUniforms = oTechnique.GetParameterIDArray( "spotLightFalloffMaxDistances", iMaxSpotLightCount );
 
 		m_iDirectionalLightCountUniform = oTechnique.GetParameterID( "directionalLightCount" );
 		m_iPointLightCountUniform = oTechnique.GetParameterID( "pointLightCount" );
@@ -132,7 +138,8 @@ protected:
 	Array< GLint >	m_aPointLightPositionUniforms;
 	Array< GLint >	m_aPointLightColorUniforms;
 	Array< GLint >	m_aPointLightIntensityUniforms;
-	Array< GLint >	m_aPointLightFalloffFactorUniforms;
+	Array< GLint >	m_aPointLightFalloffMinDistanceUniforms;
+	Array< GLint >	m_aPointLightFalloffMaxDistanceUniforms;
 
 	Array< GLint >	m_aSpotLightPositionUniforms;
 	Array< GLint >	m_aSpotLightDirectionUniforms;
@@ -140,7 +147,8 @@ protected:
 	Array< GLint >	m_aSpotLightIntensityUniforms;
 	Array< GLint >	m_aSpotLightOuterRangeUniforms;
 	Array< GLint >	m_aSpotLightRangeUniforms;
-	Array< GLint >	m_aSpotLightFalloffFactorUniforms;
+	Array< GLint >	m_aSpotLightFalloffMinDistanceUniforms;
+	Array< GLint >	m_aSpotLightFalloffMaxDistanceUniforms;
 
 	GLint			m_iDirectionalLightCountUniform;
 	GLint			m_iPointLightCountUniform;

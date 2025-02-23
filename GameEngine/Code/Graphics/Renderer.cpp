@@ -37,16 +37,18 @@ void SetupLighting( LightingDefinition& oLightingDefinition )
 		Array< glm::vec3 > aLightPositions( aPointLightComponents.Count() );
 		Array< glm::vec3 > aLightColors( aPointLightComponents.Count() );
 		Array< float > aLightIntensities( aPointLightComponents.Count() );
-		Array< float > aLightFalloffFactors( aPointLightComponents.Count() );
+		Array< float > aLightFalloffMinDistances( aPointLightComponents.Count() );
+		Array< float > aLightFalloffMaxDistances( aPointLightComponents.Count() );
 		for( uint u = 0; u < aPointLightComponents.Count(); ++u )
 		{
 			aLightPositions[ u ] = aPointLightComponents[ u ].GetPosition();
 			aLightColors[ u ] = aPointLightComponents[ u ].m_vColor;
 			aLightIntensities[ u ] = aPointLightComponents[ u ].m_fIntensity;
-			aLightFalloffFactors[ u ] = aPointLightComponents[ u ].m_fFalloffFactor;
+			aLightFalloffMinDistances[ u ] = aPointLightComponents[ u ].m_fFalloffMinDistance;
+			aLightFalloffMaxDistances[ u ] = aPointLightComponents[ u ].m_fFalloffMaxDistance;
 		}
 
-		oLightingDefinition.SetPointLights( aLightPositions, aLightColors, aLightIntensities, aLightFalloffFactors );
+		oLightingDefinition.SetPointLights( aLightPositions, aLightColors, aLightIntensities, aLightFalloffMinDistances, aLightFalloffMaxDistances );
 	}
 
 	{
@@ -57,7 +59,8 @@ void SetupLighting( LightingDefinition& oLightingDefinition )
 		Array< float > aLightIntensities( aLightComponents.Count() );
 		Array< float > aLightInnerAngles( aLightComponents.Count() );
 		Array< float > aLightOuterAngles( aLightComponents.Count() );
-		Array< float > aLightFalloffFactors( aLightComponents.Count() );
+		Array< float > aLightFalloffMinDistances( aLightComponents.Count() );
+		Array< float > aLightFalloffMaxDistances( aLightComponents.Count() );
 		for( uint u = 0; u < aLightComponents.Count(); ++u )
 		{
 			aLightPositions[ u ] = aLightComponents[ u ].GetPosition();
@@ -66,10 +69,11 @@ void SetupLighting( LightingDefinition& oLightingDefinition )
 			aLightIntensities[ u ] = aLightComponents[ u ].m_fIntensity;
 			aLightInnerAngles[ u ] = aLightComponents[ u ].m_fInnerAngle;
 			aLightOuterAngles[ u ] = aLightComponents[ u ].m_fOuterAngle;
-			aLightFalloffFactors[ u ] = aLightComponents[ u ].m_fFalloffFactor;
+			aLightFalloffMinDistances[ u ] = aLightComponents[ u ].m_fFalloffMinDistance;
+			aLightFalloffMaxDistances[ u ] = aLightComponents[ u ].m_fFalloffMaxDistance;
 		}
 
-		oLightingDefinition.SetSpotLights( aLightPositions, aLightDirections, aLightColors, aLightIntensities, aLightInnerAngles, aLightOuterAngles, aLightFalloffFactors );
+		oLightingDefinition.SetSpotLights( aLightPositions, aLightDirections, aLightColors, aLightIntensities, aLightInnerAngles, aLightOuterAngles, aLightFalloffMinDistances, aLightFalloffMaxDistances );
 	}
 }
 

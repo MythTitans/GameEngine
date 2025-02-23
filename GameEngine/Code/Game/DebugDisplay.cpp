@@ -26,7 +26,7 @@ void DebugDisplay::NewFrame()
 	m_aWireCones.Clear();
 }
 
-void DebugDisplay::Display( const float fDeltaTime, const RenderContext& oRenderContext )
+void DebugDisplay::Display( const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "DebugDisplay" );
 

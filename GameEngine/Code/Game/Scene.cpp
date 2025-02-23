@@ -53,22 +53,20 @@ Scene::Scene()
 	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( "Earth_Golem_OBJ.obj" );
 
 	m_mEntities[ 10 ]->SetPosition( -1.f, 10.f, 2.f );
-	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 10 ].GetPtr() ).Setup( "sphere.obj" );
-	PointLightComponent& oPointLight1 = g_pComponentManager->CreateComponent< PointLightComponent >( m_mEntities[ 10 ].GetPtr() );
-	oPointLight1.m_fIntensity = 10.f;
-	oPointLight1.m_fFalloffFactor = 0.2f;
+	g_pComponentManager->CreateComponent< PointLightComponent >( m_mEntities[ 10 ].GetPtr() );
 
 	m_mEntities[ 11 ]->SetPosition( 7.f, 5.f, 5.f );
-	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 11 ].GetPtr() ).Setup( "sphere.obj" );
-	PointLightComponent& oPointLight2 = g_pComponentManager->CreateComponent< PointLightComponent >( m_mEntities[ 11 ].GetPtr() );
-	oPointLight2.m_fIntensity = 10.f;
-	oPointLight2.m_fFalloffFactor = 0.2f;
+	g_pComponentManager->CreateComponent< PointLightComponent >( m_mEntities[ 11 ].GetPtr() );
 
+	m_mEntities[ 12 ]->SetRotationX( glm::radians( 90.f ) );
 	g_pComponentManager->CreateComponent< DirectionalLightComponent >( m_mEntities[ 12 ].GetPtr() );
+
+	m_mEntities[ 13 ]->SetRotationX( glm::radians( 90.f ) );
 	g_pComponentManager->CreateComponent< SpotLightComponent >( m_mEntities[ 13 ].GetPtr() );
 
 	AttachToParent( m_mEntities[ 10 ].GetPtr(), m_mEntities[ 9 ].GetPtr() );
 
+	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 14 ].GetPtr() ).Setup( "plane.obj" );
 //  	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 14 ].GetPtr() ).Setup( "sponza.obj" );
 //  	m_mEntities[ 14 ]->SetScale( 0.05f, 0.05f, 0.05f );
 }

@@ -236,7 +236,6 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 				DirectionalLightComponent* pDirectionalLightComponent = g_pComponentManager->GetComponent< DirectionalLightComponent >( it.second.GetPtr() );
 				if( pDirectionalLightComponent != nullptr && ImGui::CollapsingHeader( "Directional light" ) )
 				{
-					pDirectionalLightComponent->m_vDirection = EditableVector3( "Direction", pDirectionalLightComponent->m_vDirection );
 					ImGui::DragFloat( "Intensity", &pDirectionalLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 					ImGui::ColorEdit3( "Color", &pDirectionalLightComponent->m_vColor.x );
 				}
@@ -246,18 +245,19 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 				{
 					ImGui::DragFloat( "Intensity", &pPointLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 					ImGui::ColorEdit3( "Color", &pPointLightComponent->m_vColor.x );
-					ImGui::DragFloat( "Falloff factor", &pPointLightComponent->m_fFalloffFactor, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+					ImGui::DragFloat( "Falloff min distance", &pPointLightComponent->m_fFalloffMinDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+					ImGui::DragFloat( "Falloff max distance", &pPointLightComponent->m_fFalloffMaxDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 				}
 
 				SpotLightComponent* pSpotLightComponent = g_pComponentManager->GetComponent< SpotLightComponent >( it.second.GetPtr() );
 				if( pSpotLightComponent != nullptr && ImGui::CollapsingHeader( "Spot light" ) )
 				{
-					pSpotLightComponent->m_vDirection = EditableVector3( "Direction", pSpotLightComponent->m_vDirection );
 					ImGui::DragFloat( "Intensity", &pSpotLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 					ImGui::ColorEdit3( "Color", &pSpotLightComponent->m_vColor.x );
 					ImGui::DragFloat( "Inner angle", &pSpotLightComponent->m_fInnerAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 					ImGui::DragFloat( "Outer angle", &pSpotLightComponent->m_fOuterAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					ImGui::DragFloat( "Falloff factor", &pSpotLightComponent->m_fFalloffFactor, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+					ImGui::DragFloat( "Falloff min distance", &pSpotLightComponent->m_fFalloffMinDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+					ImGui::DragFloat( "Falloff max distance", &pSpotLightComponent->m_fFalloffMaxDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 				}
 
 				ImGui::TreePop();

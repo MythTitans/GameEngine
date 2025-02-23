@@ -158,6 +158,8 @@ class DirectionalLightComponent : public Component
 public:
 	explicit DirectionalLightComponent( Entity* pEntity );
 
+	void Update( const float fDeltaTime ) override;
+
 	void DisplayGizmos() override;
 
 	glm::vec3	m_vDirection;
@@ -182,7 +184,8 @@ private:
 public:
 	glm::vec3	m_vColor;
 	float		m_fIntensity;
-	float		m_fFalloffFactor;
+	float		m_fFalloffMinDistance;
+	float		m_fFalloffMaxDistance;
 };
 
 class SpotLightComponent : public Component
@@ -205,5 +208,6 @@ public:
 	float		m_fIntensity;
 	float		m_fInnerAngle;
 	float		m_fOuterAngle;
-	float		m_fFalloffFactor;
+	float		m_fFalloffMinDistance;
+	float		m_fFalloffMaxDistance;
 };

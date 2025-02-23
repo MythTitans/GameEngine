@@ -288,6 +288,8 @@ void DebugRenderer::RenderWireCones( const Array< Cylinder >& aCylinders, const 
 
 	for( const Cylinder& oCylinder : aCylinders )
 	{
+		glUseProgram( m_xSphere->GetTechnique().m_uProgramID );
+
 		m_oSphere.SetRadius( 1.f );
 		m_oSphere.SetColor( oCylinder.m_vColor );
 
