@@ -1,9 +1,10 @@
 #include "Scene.h"
 
 #include "Core/ArrayUtils.h"
-#include "Component.h"
 #include "Entity.h"
 #include "GameEngine.h"
+#include "Light.h"
+#include "Visual.h"
 
 Scene::Scene()
 {

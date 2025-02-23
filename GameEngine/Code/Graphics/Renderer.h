@@ -8,6 +8,7 @@
 #include "RenderTarget.h"
 #include "TechniqueDefinition.h"
 #include "TextRenderer.h"
+#include "VisualStructure.h"
 
 class VisualComponent;
 struct GLFWwindow;
@@ -49,6 +50,7 @@ public:
 	~Renderer();
 
 	void				Render( const RenderContext& oRenderContext );
+	void				Clear();
 
 	bool				OnLoading();
 
@@ -65,7 +67,7 @@ private:
 	void				RenderForward( const RenderContext& oRenderContext );
 	void				RenderDeferred( const RenderContext& oRenderContext );
 	uint64				RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos );
-	void				RenderOutline( const RenderContext& oRenderContext, const VisualComponent& oObject );
+	void				RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode );
 	void				RenderGizmos( const RenderContext& oRenderContext );
 
 	void				SetTechnique( const Technique& oTechnique );
@@ -83,6 +85,8 @@ public:
 	GizmoRenderer				m_oGizmoRenderer;
 
 	Camera						m_oCamera;
+
+	VisualStructure				m_oVisualStructure;
 
 private:
 	RenderTarget				m_oRenderTarget;

@@ -73,6 +73,8 @@ void GameEngine::ProcessFrame()
 
 void GameEngine::EndFrame()
 {
+	m_oRenderer.Clear();
+
 	ImGui::Render();
 
 	Logger::Flush();
@@ -91,8 +93,8 @@ void GameEngine::Update()
 		if( m_eGameState == GameState::RUNNING )
 		{
 			m_oFreeCamera.Update( m_oGameContext.m_fLastDeltaTime );
-			m_oEditor.Update( m_oInputContext, m_oRenderContext );
 			m_oComponentManager.UpdateComponents( m_oGameContext.m_fLastDeltaTime );
+			m_oEditor.Update( m_oInputContext, m_oRenderContext );
 		}
 		else if( m_oComponentManager.AreComponentsInitialized() )
 		{

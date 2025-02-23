@@ -6,8 +6,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 
-#include "Game/Component.h"
-#include "Game/ComponentManager.h"
 #include "Game/Entity.h"
 #include "Game/InputHandler.h"
 #include "Core/Logger.h"
@@ -15,62 +13,59 @@
 #include "ImGui/imgui.h"
 
 template < typename LightingDefinition >
-void SetupLighting( LightingDefinition& oLightingDefinition )
+void SetupLighting( LightingDefinition& oLightingDefinition, const Array< DirectionalLight >& aDirectionalLights, const Array< PointLight >& aPointLights, const Array< SpotLight >& aSpotLights )
 {
 	{
-		ArrayView< DirectionalLightComponent > aDirectionalLightComponents = g_pComponentManager->GetComponents< DirectionalLightComponent >();
-		Array< glm::vec3 > aLightDirections( aDirectionalLightComponents.Count() );
-		Array< glm::vec3 > aLightColors( aDirectionalLightComponents.Count() );
-		Array< float > aLightIntensities( aDirectionalLightComponents.Count() );
-		for( uint u = 0; u < aDirectionalLightComponents.Count(); ++u )
+		Array< glm::vec3 > aLightDirections( aDirectionalLights.Count() );
+		Array< glm::vec3 > aLightColors( aDirectionalLights.Count() );
+		Array< float > aLightIntensities( aDirectionalLights.Count() );
+		for( uint u = 0; u < aDirectionalLights.Count(); ++u )
 		{
-			aLightDirections[ u ] = aDirectionalLightComponents[ u ].m_vDirection;
-			aLightColors[ u ] = aDirectionalLightComponents[ u ].m_vColor;
-			aLightIntensities[ u ] = aDirectionalLightComponents[ u ].m_fIntensity;
+			aLightDirections[ u ] = aDirectionalLights[ u ].m_vDirection;
+			aLightColors[ u ] = aDirectionalLights[ u ].m_vColor;
+			aLightIntensities[ u ] = aDirectionalLights[ u ].m_fIntensity;
 		}
 
 		oLightingDefinition.SetDirectionalLights( aLightDirections, aLightColors, aLightIntensities );
 	}
 
 	{
-		ArrayView< PointLightComponent > aPointLightComponents = g_pComponentManager->GetComponents< PointLightComponent >();
-		Array< glm::vec3 > aLightPositions( aPointLightComponents.Count() );
-		Array< glm::vec3 > aLightColors( aPointLightComponents.Count() );
-		Array< float > aLightIntensities( aPointLightComponents.Count() );
-		Array< float > aLightFalloffMinDistances( aPointLightComponents.Count() );
-		Array< float > aLightFalloffMaxDistances( aPointLightComponents.Count() );
-		for( uint u = 0; u < aPointLightComponents.Count(); ++u )
+		Array< glm::vec3 > aLightPositions( aPointLights.Count() );
+		Array< glm::vec3 > aLightColors( aPointLights.Count() );
+		Array< float > aLightIntensities( aPointLights.Count() );
+		Array< float > aLightFalloffMinDistances( aPointLights.Count() );
+		Array< float > aLightFalloffMaxDistances( aPointLights.Count() );
+		for( uint u = 0; u < aPointLights.Count(); ++u )
 		{
-			aLightPositions[ u ] = aPointLightComponents[ u ].GetPosition();
-			aLightColors[ u ] = aPointLightComponents[ u ].m_vColor;
-			aLightIntensities[ u ] = aPointLightComponents[ u ].m_fIntensity;
-			aLightFalloffMinDistances[ u ] = aPointLightComponents[ u ].m_fFalloffMinDistance;
-			aLightFalloffMaxDistances[ u ] = aPointLightComponents[ u ].m_fFalloffMaxDistance;
+			aLightPositions[ u ] = aPointLights[ u ].m_vPosition;
+			aLightColors[ u ] = aPointLights[ u ].m_vColor;
+			aLightIntensities[ u ] = aPointLights[ u ].m_fIntensity;
+			aLightFalloffMinDistances[ u ] = aPointLights[ u ].m_fFalloffMinDistance;
+			aLightFalloffMaxDistances[ u ] = aPointLights[ u ].m_fFalloffMaxDistance;
 		}
 
 		oLightingDefinition.SetPointLights( aLightPositions, aLightColors, aLightIntensities, aLightFalloffMinDistances, aLightFalloffMaxDistances );
 	}
 
 	{
-		ArrayView< SpotLightComponent > aLightComponents = g_pComponentManager->GetComponents< SpotLightComponent >();
-		Array< glm::vec3 > aLightPositions( aLightComponents.Count() );
-		Array< glm::vec3 > aLightDirections( aLightComponents.Count() );
-		Array< glm::vec3 > aLightColors( aLightComponents.Count() );
-		Array< float > aLightIntensities( aLightComponents.Count() );
-		Array< float > aLightInnerAngles( aLightComponents.Count() );
-		Array< float > aLightOuterAngles( aLightComponents.Count() );
-		Array< float > aLightFalloffMinDistances( aLightComponents.Count() );
-		Array< float > aLightFalloffMaxDistances( aLightComponents.Count() );
-		for( uint u = 0; u < aLightComponents.Count(); ++u )
+		Array< glm::vec3 > aLightPositions( aSpotLights.Count() );
+		Array< glm::vec3 > aLightDirections( aSpotLights.Count() );
+		Array< glm::vec3 > aLightColors( aSpotLights.Count() );
+		Array< float > aLightIntensities( aSpotLights.Count() );
+		Array< float > aLightInnerAngles( aSpotLights.Count() );
+		Array< float > aLightOuterAngles( aSpotLights.Count() );
+		Array< float > aLightFalloffMinDistances( aSpotLights.Count() );
+		Array< float > aLightFalloffMaxDistances( aSpotLights.Count() );
+		for( uint u = 0; u < aSpotLights.Count(); ++u )
 		{
-			aLightPositions[ u ] = aLightComponents[ u ].GetPosition();
-			aLightDirections[ u ] = aLightComponents[ u ].m_vDirection;
-			aLightColors[ u ] = aLightComponents[ u ].m_vColor;
-			aLightIntensities[ u ] = aLightComponents[ u ].m_fIntensity;
-			aLightInnerAngles[ u ] = aLightComponents[ u ].m_fInnerAngle;
-			aLightOuterAngles[ u ] = aLightComponents[ u ].m_fOuterAngle;
-			aLightFalloffMinDistances[ u ] = aLightComponents[ u ].m_fFalloffMinDistance;
-			aLightFalloffMaxDistances[ u ] = aLightComponents[ u ].m_fFalloffMaxDistance;
+			aLightPositions[ u ] = aSpotLights[ u ].m_vPosition;
+			aLightDirections[ u ] = aSpotLights[ u ].m_vDirection;
+			aLightColors[ u ] = aSpotLights[ u ].m_vColor;
+			aLightIntensities[ u ] = aSpotLights[ u ].m_fIntensity;
+			aLightInnerAngles[ u ] = aSpotLights[ u ].m_fInnerAngle;
+			aLightOuterAngles[ u ] = aSpotLights[ u ].m_fOuterAngle;
+			aLightFalloffMinDistances[ u ] = aSpotLights[ u ].m_fFalloffMinDistance;
+			aLightFalloffMaxDistances[ u ] = aSpotLights[ u ].m_fFalloffMaxDistance;
 		}
 
 		oLightingDefinition.SetSpotLights( aLightPositions, aLightDirections, aLightColors, aLightIntensities, aLightInnerAngles, aLightOuterAngles, aLightFalloffMinDistances, aLightFalloffMaxDistances );
@@ -80,12 +75,11 @@ void SetupLighting( LightingDefinition& oLightingDefinition )
 template < typename MeshesDefinition >
 void DrawMeshes( MeshesDefinition& oMeshesDefinition )
 {
-	ArrayView< VisualComponent > aVisualComponents = g_pComponentManager->GetComponents< VisualComponent >();
-	for( const VisualComponent& oVisualComponent : aVisualComponents )
+	for( const VisualNode& oVisualNode : g_pRenderer->m_oVisualStructure )
 	{
-		oMeshesDefinition.SetModelAndViewProjection( oVisualComponent.GetWorldMatrix(), g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+		oMeshesDefinition.SetModelAndViewProjection( oVisualNode.m_mMatrix, g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
 
-		const Array< Mesh >& aMeshes = oVisualComponent.GetResource()->GetMeshes();
+		const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
 		for( const Mesh& oMesh : aMeshes )
 		{
 			if( oMesh.m_pMaterial != nullptr )
@@ -236,6 +230,11 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	}
 }
 
+void Renderer::Clear()
+{
+	m_oVisualStructure.Clear();
+}
+
 bool Renderer::OnLoading()
 {
 	if( m_xForwardOpaque->IsLoaded() && m_oForwardOpaque.IsValid() == false )
@@ -312,7 +311,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 
 	SetTechnique( m_xForwardOpaque->GetTechnique() );
 
-	SetupLighting( m_oForwardOpaque );
+	SetupLighting( m_oForwardOpaque, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 	DrawMeshes( m_oForwardOpaque );
 
 	ClearTechnique();
@@ -344,7 +343,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	m_oDeferredCompose.SetDepth( 2 );
 	m_oDeferredCompose.SetInverseViewProjection( m_oCamera.GetInverseViewProjectionMatrix() );
 
-	SetupLighting( m_oDeferredCompose );
+	SetupLighting( m_oDeferredCompose, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 
 	DrawMesh( m_oRenderMesh );
 
@@ -379,17 +378,14 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 
 	SetTechnique( m_xPicking->GetTechnique() );
 
+	for( const VisualNode& oVisualNode : g_pRenderer->m_oVisualStructure )
 	{
-		ArrayView< VisualComponent > aComponents = g_pComponentManager->GetComponents< VisualComponent >();
-		for( const VisualComponent& oComponent : aComponents )
-		{
-			m_oPicking.SetModelAndViewProjection( oComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
-			m_oPicking.SetID( oComponent.GetEntity()->GetID() );
+		m_oPicking.SetModelAndViewProjection( oVisualNode.m_mMatrix, m_oCamera.GetViewProjectionMatrix() );
+		m_oPicking.SetID( oVisualNode.m_uEntityID );
 
-			const Array< Mesh >& aMeshes = oComponent.GetResource()->GetMeshes();
-			for( const Mesh& oMesh : aMeshes )
-				DrawMesh( oMesh );
-		}
+		const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
+		for( const Mesh& oMesh : aMeshes )
+			DrawMesh( oMesh );
 	}
 
 	if( bAllowGizmos )
@@ -423,7 +419,7 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 	return uID;
 }
 
-void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualComponent& oObject )
+void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode )
 {
 	glDisable( GL_CULL_FACE );
 	glEnable( GL_DEPTH_TEST );
@@ -438,10 +434,10 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualC
 
 	SetTechnique( m_xOutline->GetTechnique() );
 
-	m_oOutline.SetModelAndViewProjection( oObject.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
+	m_oOutline.SetModelAndViewProjection( oVisualNode.m_mMatrix, m_oCamera.GetViewProjectionMatrix() );
 	m_oOutline.SetDisplacement( 0.f );
 
-	const Array< Mesh >& aMeshes = oObject.GetResource()->GetMeshes();
+	const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
 	for( const Mesh& oMesh : aMeshes )
 		DrawMesh( oMesh );
 
@@ -452,7 +448,7 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualC
 	glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
 	glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
 
-	m_oOutline.SetModelAndViewProjection( oObject.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
+	m_oOutline.SetModelAndViewProjection( oVisualNode.m_mMatrix, m_oCamera.GetViewProjectionMatrix() );
 	m_oOutline.SetCameraPosition( glm::vec3( m_oCamera.GetPosition() ) );
 	m_oOutline.SetDisplacement( 0.004f );
 

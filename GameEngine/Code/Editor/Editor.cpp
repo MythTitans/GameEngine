@@ -7,6 +7,7 @@
 #include "Game/GameEngine.h"
 #include "Game/Entity.h"
 #include "Game/InputHandler.h"
+#include "Game/Light.h"
 #include "Game/Scene.h"
 #include "Graphics/Renderer.h"
 
@@ -278,10 +279,9 @@ void Editor::Render( const RenderContext& oRenderContext )
 	{
 		if( m_uSelectedEntityID != UINT64_MAX )
 		{
-			Entity* pEntity = g_pGameEngine->GetScene().FindEntity( m_uSelectedEntityID );
-			const VisualComponent* pVisualComponent = g_pComponentManager->GetComponent< VisualComponent >( pEntity );
-			if( pVisualComponent != nullptr )
-				g_pRenderer->RenderOutline( oRenderContext, *pVisualComponent );
+			const VisualNode* pVisualNode = g_pRenderer->m_oVisualStructure.FindNode( m_uSelectedEntityID );
+			if( pVisualNode != nullptr )
+				g_pRenderer->RenderOutline( oRenderContext, *pVisualNode );
 
 			g_pRenderer->RenderGizmos( oRenderContext );
 		}
