@@ -56,8 +56,8 @@ void ComponentManager::UpdateComponents( const float fDeltaTime )
 		oPair.second->UpdateComponents( fDeltaTime );
 }
 
-void ComponentManager::DisplayGizmos()
+void ComponentManager::DisplayGizmos( const uint64 uSelectedEntityID )
 {
 	for( auto& oPair : m_mComponentsHolders )
-		oPair.second->DisplayGizmos();
+		oPair.second->DisplayGizmos( uSelectedEntityID );
 }

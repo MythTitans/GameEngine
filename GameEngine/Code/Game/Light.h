@@ -9,7 +9,7 @@ public:
 
 	void Update( const float fDeltaTime ) override;
 
-	void DisplayGizmos() override;
+	void DisplayGizmos( const bool bSelected ) override;
 
 	glm::vec3	m_vColor;
 	float		m_fIntensity;
@@ -22,7 +22,7 @@ public:
 
 	void Update( const float fDeltaTime ) override;
 
-	void DisplayGizmos() override;
+	void DisplayGizmos( const bool bSelected ) override;
 
 public:
 	glm::vec3	m_vColor;
@@ -38,7 +38,7 @@ public:
 
 	void Update( const float fDeltaTime ) override;
 
-	void DisplayGizmos() override;
+	void DisplayGizmos( const bool bSelected ) override;
 
 public:
 	glm::vec3	m_vColor;

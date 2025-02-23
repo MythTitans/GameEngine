@@ -24,7 +24,7 @@ public:
 	virtual void						Stop();
 	virtual void						Update( const float fDeltaTime );
 
-	virtual void						DisplayGizmos();
+	virtual void						DisplayGizmos( const bool bSelected );
 
 	Entity*								GetEntity();
 	const Entity*						GetEntity() const;

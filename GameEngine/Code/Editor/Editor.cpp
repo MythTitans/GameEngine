@@ -90,7 +90,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 // 	g_pDebugDisplay->DisplaySphere( glm::vec3( 0.f, 20.f, 0.f ), 0.3f, glm::vec3( 0.f, 1.f, 0.f ) );
 // 	g_pDebugDisplay->DisplaySphere( glm::vec3( 0.f, 0.f, 20.f ), 0.3f, glm::vec3( 0.f, 0.f, 1.f ) );
 
-	g_pComponentManager->DisplayGizmos();
+	g_pComponentManager->DisplayGizmos( m_uSelectedEntityID );
 
 	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_PRESS ) && ImGui::GetIO().WantCaptureMouse == false )
 	{

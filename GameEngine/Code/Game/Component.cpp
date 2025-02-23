@@ -30,7 +30,7 @@ void Component::Update( const float /*fDeltaTime*/ )
 {
 }
 
-void Component::DisplayGizmos()
+void Component::DisplayGizmos( const bool /*bSelected*/ )
 {
 }
 
