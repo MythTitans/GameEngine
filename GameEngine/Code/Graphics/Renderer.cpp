@@ -13,39 +13,78 @@
 #include "Core/Profiler.h"
 #include "ImGui/imgui.h"
 
+static const std::string PARAM_MODEL_VIEW_PROJECTION( "modelViewProjection" );
+static const std::string PARAM_MODEL_INVERSE_TRANSPOSE( "modelInverseTranspose" );
+static const std::string PARAM_MODEL( "model" );
+static const std::string PARAM_INVERSE_VIEW_PROJECTION( "inverseViewProjection" );
+
+static const std::string PARAM_DIFFUSE_COLOR( "diffuseColor" );
+static const std::string PARAM_DIFFUSE_MAP( "diffuseMap" );
+static const std::string PARAM_NORMAL_MAP( "normalMap" );
+static const std::string PARAM_COLOR_MAP( "colorMap" );
+static const std::string PARAM_DEPTH_MAP( "depthMap" );
+
+static const std::string PARAM_COLOR( "color" );
+static const std::string PARAM_COLOR_ID( "colorID" );
+static const std::string PARAM_DISPLACEMENT( "displacement" );
+static const std::string PARAM_CAMERA_POSITION( "cameraPosition" );
+
+static const std::string PARAM_DIRECTIONAL_LIGHT_COUNT( "directionalLightCount" );
+static const std::string PARAM_POINT_LIGHT_COUNT( "pointLightCount" );
+static const std::string PARAM_SPOT_LIGHT_COUNT( "spotLightCount" );
+
+static const std::string PARAM_DIRECTIONAL_LIGHT_DIRECTIONS( "directionalLightDirections" );
+static const std::string PARAM_DIRECTIONAL_LIGHT_COLORS( "directionalLightColors" );
+static const std::string PARAM_DIRECTIONAL_LIGHT_INTENSITIES( "directionalLightIntensities" );
+
+static const std::string PARAM_POINT_LIGHT_POSITIONS( "pointLightPositions" );
+static const std::string PARAM_POINT_LIGHT_COLORS( "pointLightColors" );
+static const std::string PARAM_POINT_LIGHT_INTENSITIES( "pointLightIntensities" );
+static const std::string PARAM_POINT_LIGHT_FALLOFF_MIN_DISTANCES( "pointLightFalloffMinDistances" );
+static const std::string PARAM_POINT_LIGHT_FALLOFF_MAX_DISTANCES( "pointLightFalloffMaxDistances" );
+
+static const std::string PARAM_SPOT_LIGHT_POSITIONS( "spotLightPositions" );
+static const std::string PARAM_SPOT_LIGHT_DIRECTIONS( "spotLightDirections" );
+static const std::string PARAM_SPOT_LIGHT_COLORS( "spotLightColors" );
+static const std::string PARAM_SPOT_LIGHT_INTENSITIES( "spotLightIntensities" );
+static const std::string PARAM_SPOT_LIGHT_OUTERRANGES( "spotLightOuterRanges" );
+static const std::string PARAM_SPOT_LIGHT_RANGES( "spotLightRanges" );
+static const std::string PARAM_SPOT_LIGHT_FALLOFF_MIN_DISTANCES( "spotLightFalloffMinDistances" );
+static const std::string PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES( "spotLightFalloffMaxDistances" );
+
 template < typename Technique >
 void SetupLighting( Technique& oTechnique, const Array< DirectionalLight >& aDirectionalLights, const Array< PointLight >& aPointLights, const Array< SpotLight >& aSpotLights )
 {
-	oTechnique.SetParameter( "directionalLightCount", ( int )aDirectionalLights.Count() );
-	oTechnique.SetParameter( "pointLightCount", ( int )aPointLights.Count() );
-	oTechnique.SetParameter( "spotLightCount", ( int )aSpotLights.Count() );
+	oTechnique.SetParameter( PARAM_DIRECTIONAL_LIGHT_COUNT, ( int )aDirectionalLights.Count() );
+	oTechnique.SetParameter( PARAM_POINT_LIGHT_COUNT, ( int )aPointLights.Count() );
+	oTechnique.SetParameter( PARAM_SPOT_LIGHT_COUNT, ( int )aSpotLights.Count() );
 
 	for( uint u = 0; u < aDirectionalLights.Count(); ++u )
 	{
-		oTechnique.SetArrayParameter( "directionalLightDirections", aDirectionalLights[ u ].m_vDirection, u );
-		oTechnique.SetArrayParameter( "directionalLightColors", aDirectionalLights[ u ].m_vColor, u );
-		oTechnique.SetArrayParameter( "directionalLightIntensities", aDirectionalLights[ u ].m_fIntensity, u );
+		oTechnique.SetArrayParameter( PARAM_DIRECTIONAL_LIGHT_DIRECTIONS, aDirectionalLights[ u ].m_vDirection, u );
+		oTechnique.SetArrayParameter( PARAM_DIRECTIONAL_LIGHT_COLORS, aDirectionalLights[ u ].m_vColor, u );
+		oTechnique.SetArrayParameter( PARAM_DIRECTIONAL_LIGHT_INTENSITIES, aDirectionalLights[ u ].m_fIntensity, u );
 	}
 
 	for( uint u = 0; u < aPointLights.Count(); ++u )
 	{
-		oTechnique.SetArrayParameter( "pointLightPositions", aPointLights[ u ].m_vPosition, u );
-		oTechnique.SetArrayParameter( "pointLightColors", aPointLights[ u ].m_vColor, u );
-		oTechnique.SetArrayParameter( "pointLightIntensities", aPointLights[ u ].m_fIntensity, u );
-		oTechnique.SetArrayParameter( "pointLightFalloffMinDistances", aPointLights[ u ].m_fFalloffMinDistance, u );
-		oTechnique.SetArrayParameter( "pointLightFalloffMaxDistances", aPointLights[ u ].m_fFalloffMaxDistance, u );
+		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_POSITIONS, aPointLights[ u ].m_vPosition, u );
+		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_COLORS, aPointLights[ u ].m_vColor, u );
+		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_INTENSITIES, aPointLights[ u ].m_fIntensity, u );
+		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_FALLOFF_MIN_DISTANCES, aPointLights[ u ].m_fFalloffMinDistance, u );
+		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_FALLOFF_MAX_DISTANCES, aPointLights[ u ].m_fFalloffMaxDistance, u );
 	}
 
 	for( uint u = 0; u < aSpotLights.Count(); ++u )
 	{
-		oTechnique.SetArrayParameter( "spotLightPositions", aSpotLights[ u ].m_vPosition, u );
-		oTechnique.SetArrayParameter( "spotLightDirections", aSpotLights[ u ].m_vDirection, u );
-		oTechnique.SetArrayParameter( "spotLightColors", aSpotLights[ u ].m_vColor, u );
-		oTechnique.SetArrayParameter( "spotLightIntensities", aSpotLights[ u ].m_fIntensity, u );
-		oTechnique.SetArrayParameter( "spotLightOuterRanges", glm::cos( glm::radians( aSpotLights[ u ].m_fOuterAngle / 2.f ) ), u );
-		oTechnique.SetArrayParameter( "spotLightRanges", glm::cos( glm::radians( aSpotLights[ u ].m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ u ].m_fOuterAngle / 2.f ) ), u );
-		oTechnique.SetArrayParameter( "spotLightFalloffMinDistances", aSpotLights[ u ].m_fFalloffMinDistance, u );
-		oTechnique.SetArrayParameter( "spotLightFalloffMaxDistances", aSpotLights[ u ].m_fFalloffMaxDistance, u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_POSITIONS, aSpotLights[ u ].m_vPosition, u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_DIRECTIONS, aSpotLights[ u ].m_vDirection, u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_COLORS, aSpotLights[ u ].m_vColor, u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_INTENSITIES, aSpotLights[ u ].m_fIntensity, u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_OUTERRANGES, glm::cos( glm::radians( aSpotLights[ u ].m_fOuterAngle / 2.f ) ), u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_RANGES, glm::cos( glm::radians( aSpotLights[ u ].m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ u ].m_fOuterAngle / 2.f ) ), u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_FALLOFF_MIN_DISTANCES, aSpotLights[ u ].m_fFalloffMinDistance, u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES, aSpotLights[ u ].m_fFalloffMaxDistance, u );
 	}
 }
 
@@ -54,39 +93,39 @@ void DrawMeshes( Technique& oTechnique )
 {
 	for( const VisualNode& oVisualNode : g_pRenderer->m_oVisualStructure )
 	{
-		oTechnique.SetParameter( "modelViewProjection", g_pRenderer->m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
-		oTechnique.SetParameter( "modelInverseTranspose", glm::inverseTranspose( oVisualNode.m_mMatrix ) );
+		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, g_pRenderer->m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+		oTechnique.SetParameter( PARAM_MODEL_INVERSE_TRANSPOSE, glm::inverseTranspose( oVisualNode.m_mMatrix ) );
 
-		if( oTechnique.HasParameter( "model" ) )
-			oTechnique.SetParameter( "model", oVisualNode.m_mMatrix );
+		if( oTechnique.HasParameter( PARAM_MODEL ) )
+			oTechnique.SetParameter( PARAM_MODEL, oVisualNode.m_mMatrix );
 
 		const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
 		for( const Mesh& oMesh : aMeshes )
 		{
 			if( oMesh.m_pMaterial != nullptr )
 			{
-				oTechnique.SetParameter( "diffuseColor", oMesh.m_pMaterial->m_vDiffuseColor );
+				oTechnique.SetParameter( PARAM_DIFFUSE_COLOR, oMesh.m_pMaterial->m_vDiffuseColor );
 
 				if( oMesh.m_pMaterial->m_xDiffuseTextureResource != nullptr )
 				{
 					g_pRenderer->SetTextureSlot( oMesh.m_pMaterial->m_xDiffuseTextureResource->GetTexture(), 0 );
-					oTechnique.SetParameter( "diffuseMap", 0 );
+					oTechnique.SetParameter( PARAM_DIFFUSE_MAP, 0 );
 				}
 				else
 				{
 					g_pRenderer->SetTextureSlot( g_pRenderer->m_xDefaultDiffuseMap->GetTexture(), 0 );
-					oTechnique.SetParameter( "diffuseMap", 0 );
+					oTechnique.SetParameter( PARAM_DIFFUSE_MAP, 0 );
 				}
 
 				if( oMesh.m_pMaterial->m_xNormalTextureResource != nullptr )
 				{
 					g_pRenderer->SetTextureSlot( oMesh.m_pMaterial->m_xNormalTextureResource->GetTexture(), 1 );
-					oTechnique.SetParameter( "normalMap", 1 );
+					oTechnique.SetParameter( PARAM_NORMAL_MAP, 1 );
 				}
 				else
 				{
 					g_pRenderer->SetTextureSlot( g_pRenderer->m_xDefaultNormalMap->GetTexture(), 1 );
-					oTechnique.SetParameter( "normalMap", 1 );
+					oTechnique.SetParameter( PARAM_NORMAL_MAP, 1 );
 				}
 			}
 			else
@@ -306,12 +345,12 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	SetTechnique( oComposeTechnique );
 
 	SetTextureSlot( m_oRenderTarget.GetColorMap( 0 ), 0 );
-	oComposeTechnique.SetParameter( "colorMap", 0 );
+	oComposeTechnique.SetParameter( PARAM_COLOR_MAP, 0 );
 	SetTextureSlot( m_oRenderTarget.GetColorMap( 1 ), 1 );
-	oComposeTechnique.SetParameter( "normalMap", 1 );
+	oComposeTechnique.SetParameter( PARAM_NORMAL_MAP, 1 );
 	SetTextureSlot( m_oRenderTarget.GetDepthMap(), 2 );
-	oComposeTechnique.SetParameter( "depthMap", 2 );
-	oComposeTechnique.SetParameter( "inverseViewProjection", m_oCamera.GetInverseViewProjectionMatrix() );
+	oComposeTechnique.SetParameter( PARAM_DEPTH_MAP, 2 );
+	oComposeTechnique.SetParameter( PARAM_INVERSE_VIEW_PROJECTION, m_oCamera.GetInverseViewProjectionMatrix() );
 
 	SetupLighting( oComposeTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 
@@ -359,8 +398,8 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 
 	for( const VisualNode& oVisualNode : g_pRenderer->m_oVisualStructure )
 	{
-		oTechnique.SetParameter( "modelViewProjection", m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
-		oTechnique.SetParameter( "colorID", BuildColorID( oVisualNode.m_uEntityID ) );
+		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+		oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( oVisualNode.m_uEntityID ) );
 
 		const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
 		for( const Mesh& oMesh : aMeshes )
@@ -374,8 +413,8 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 		ArrayView< GizmoComponent > aComponents = g_pComponentManager->GetComponents< GizmoComponent >();
 		for( const GizmoComponent& oComponent : aComponents )
 		{
-			oTechnique.SetParameter( "modelViewProjection", m_oCamera.GetViewProjectionMatrix() * oComponent.GetWorldMatrix() );
-			oTechnique.SetParameter( "colorID", BuildColorID( oComponent.GetEntity()->GetID() ) );
+			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oComponent.GetWorldMatrix() );
+			oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( oComponent.GetEntity()->GetID() ) );
 
 			m_oGizmoRenderer.RenderGizmo( oComponent.GetType(), oComponent.GetAxis(), oRenderContext );
 		}
@@ -414,8 +453,8 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	Technique& oTechnique = m_xOutline->GetTechnique();
 	SetTechnique( oTechnique );
 
-	oTechnique.SetParameter( "modelViewProjection", m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
-	oTechnique.SetParameter( "displacement", 0.f );
+	oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+	oTechnique.SetParameter( PARAM_DISPLACEMENT, 0.f );
 
 	const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
 	for( const Mesh& oMesh : aMeshes )
@@ -428,9 +467,9 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
 	glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
 
-	oTechnique.SetParameter( "modelViewProjection", m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
-	oTechnique.SetParameter( "cameraPosition", glm::vec3( m_oCamera.GetPosition() ) );
-	oTechnique.SetParameter( "displacement", 0.004f );
+	oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+	oTechnique.SetParameter( PARAM_CAMERA_POSITION, glm::vec3( m_oCamera.GetPosition() ) );
+	oTechnique.SetParameter( PARAM_DISPLACEMENT, 0.004f );
 
 	for( const Mesh& oMesh : aMeshes )
 		DrawMesh( oMesh );
@@ -453,8 +492,8 @@ void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 	ArrayView< GizmoComponent > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
 	for( const GizmoComponent& oGizmoComponent : aGizmoComponents )
 	{
-		oTechnique.SetParameter( "modelViewProjection", m_oCamera.GetViewProjectionMatrix() * oGizmoComponent.GetWorldMatrix() );
-		oTechnique.SetParameter( "color", oGizmoComponent.GetColor() );
+		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oGizmoComponent.GetWorldMatrix() );
+		oTechnique.SetParameter( PARAM_COLOR, oGizmoComponent.GetColor() );
 
 		m_oGizmoRenderer.RenderGizmo( oGizmoComponent.GetType(), oGizmoComponent.GetAxis(), oRenderContext );
 	}

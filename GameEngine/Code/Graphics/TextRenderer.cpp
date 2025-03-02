@@ -3,6 +3,13 @@
 #include "Core/Profiler.h"
 #include "Renderer.h"
 
+static const std::string PARAM_POSITION( "position" );
+static const std::string PARAM_SIZE( "size" );
+static const std::string PARAM_GLYPH_OFFSET( "glyphOffset" );
+static const std::string PARAM_GLYPH_SIZE( "glyphSize" );
+static const std::string PARAM_GLYPH_COLOR( "glyphColor" );
+static const std::string PARAM_ATLAS_TEXTURE( "atlasTexture" );
+
 glm::vec2 PositionOnScreen( const glm::vec2& vPosition, const RenderContext& oRenderContext )
 {
 	const float fX = ( 2.f * vPosition.x / ( float )oRenderContext.GetRenderRect().m_uWidth ) - 1.f;
@@ -91,8 +98,8 @@ void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderCont
 
 	Technique& oTechnique = m_xTextTechnique->GetTechnique();
 
-	oTechnique.SetParameter( "glyphColor", oText.m_vColor );
-	oTechnique.SetParameter( "atlasTexture", 0 );
+	oTechnique.SetParameter( PARAM_GLYPH_COLOR, oText.m_vColor );
+	oTechnique.SetParameter( PARAM_ATLAS_TEXTURE, 0 );
 
 	for( const char cCharacter : oText.m_sText )
 	{
@@ -105,10 +112,10 @@ void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderCont
 		const glm::vec2 vOffsetInAtlas( oQuad.s0, oQuad.t0 );
 		const glm::vec2 vSizeInAtlas( oQuad.s1 - oQuad.s0, oQuad.t1 - oQuad.t0 );
 
-		oTechnique.SetParameter( "position", PositionOnScreen( glm::vec2( oQuad.x0, oQuad.y1 ), oRenderContext ) );
-		oTechnique.SetParameter( "size", SizeOnScreen( vGlyphSize, oRenderContext ) );
-		oTechnique.SetParameter( "glyphOffset", vOffsetInAtlas );
-		oTechnique.SetParameter( "glyphSize", vSizeInAtlas );
+		oTechnique.SetParameter( PARAM_POSITION, PositionOnScreen( glm::vec2( oQuad.x0, oQuad.y1 ), oRenderContext ) );
+		oTechnique.SetParameter( PARAM_SIZE, SizeOnScreen( vGlyphSize, oRenderContext ) );
+		oTechnique.SetParameter( PARAM_GLYPH_OFFSET, vOffsetInAtlas );
+		oTechnique.SetParameter( PARAM_GLYPH_SIZE, vSizeInAtlas );
 
 		glBindVertexArray( m_oTextQuad.m_uVertexArrayID );
 		glDrawElements( GL_TRIANGLES, m_oTextQuad.m_iIndexCount, GL_UNSIGNED_INT, nullptr );
