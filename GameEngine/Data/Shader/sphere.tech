@@ -1,0 +1,10 @@
+{
+    "vertexShader": "Shader/sphere.vs",
+    "pixelShader": "Shader/sphere.ps",
+    "parameters": [
+        "viewProjection",
+        "position",
+        "radius",
+        "color"
+    ]
+}

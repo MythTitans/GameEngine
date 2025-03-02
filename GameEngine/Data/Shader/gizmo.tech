@@ -1,0 +1,8 @@
+{
+    "vertexShader": "Shader/gizmo.vs",
+    "pixelShader": "Shader/gizmo.ps",
+    "parameters": [
+        "modelViewProjection",
+        "color"
+    ]
+}

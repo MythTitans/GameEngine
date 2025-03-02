@@ -14,8 +14,8 @@ public:
 	friend class Renderer;
 	friend class TextRenderer;
 
-	template < typename MeshesDefinition >
-	friend void DrawMeshes( MeshesDefinition& oMeshesDefinition );
+	template < typename Technique >
+	friend void DrawMeshes( Technique& oMeshesDefinition );
 
 	Mesh();
 

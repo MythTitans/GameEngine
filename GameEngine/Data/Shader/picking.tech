@@ -1,0 +1,8 @@
+{
+    "vertexShader": "Shader/picking.vs",
+    "pixelShader": "Shader/picking.ps",
+    "parameters": [
+        "modelViewProjection",
+        "colorID"
+    ]
+}

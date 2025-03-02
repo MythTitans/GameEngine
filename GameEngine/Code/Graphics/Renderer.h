@@ -6,7 +6,6 @@
 #include "Game/ResourceLoader.h"
 #include "GizmoRenderer.h"
 #include "RenderTarget.h"
-#include "TechniqueDefinition.h"
 #include "TextRenderer.h"
 #include "VisualStructure.h"
 
@@ -43,18 +42,18 @@ class Renderer
 public:
 	friend class Editor;
 
-	template < typename MeshesDefinition >
-	friend void DrawMeshes( MeshesDefinition& oMeshesDefinition );
+	template < typename Technique >
+	friend void DrawMeshes( Technique& oMeshesDefinition );
 
 	Renderer();
 	~Renderer();
 
-	void				Render( const RenderContext& oRenderContext );
-	void				Clear();
+	void	Render( const RenderContext& oRenderContext );
+	void	Clear();
 
-	bool				OnLoading();
+	bool	OnLoading();
 
-	void				DisplayDebug();
+	void	DisplayDebug();
 
 private:
 	enum RenderingMode : uint8
@@ -64,55 +63,49 @@ private:
 		_COUNT
 	};
 
-	void				RenderForward( const RenderContext& oRenderContext );
-	void				RenderDeferred( const RenderContext& oRenderContext );
-	uint64				RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos );
-	void				RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode );
-	void				RenderGizmos( const RenderContext& oRenderContext );
+	void	RenderForward( const RenderContext& oRenderContext );
+	void	RenderDeferred( const RenderContext& oRenderContext );
+	uint64	RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos );
+	void	RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode );
+	void	RenderGizmos( const RenderContext& oRenderContext );
 
-	void				SetTechnique( const Technique& oTechnique );
-	void				ClearTechnique();
-	void				SetTextureSlot( const Texture& oTexture, const uint uTextureUnit );
-	void				ClearTextureSlot( const uint uTextureUnit );
-	void				SetRenderTarget( const RenderTarget& oRenderTarget );
-	void				ClearRenderTarget();
-	void				CopyDepthToBackBuffer( const RenderTarget& oRenderTarget, const RenderRect& oRect );
-	void				DrawMesh( const Mesh& oMesh );
+	void	SetTechnique( const Technique& oTechnique );
+	void	ClearTechnique();
+	void	SetTextureSlot( const Texture& oTexture, const uint uTextureUnit );
+	void	ClearTextureSlot( const uint uTextureUnit );
+	void	SetRenderTarget( const RenderTarget& oRenderTarget );
+	void	ClearRenderTarget();
+	void	CopyDepthToBackBuffer( const RenderTarget& oRenderTarget, const RenderRect& oRect );
+	void	DrawMesh( const Mesh& oMesh );
 
 public:
-	TextRenderer				m_oTextRenderer;
-	DebugRenderer				m_oDebugRenderer;
-	GizmoRenderer				m_oGizmoRenderer;
+	TextRenderer	m_oTextRenderer;
+	DebugRenderer	m_oDebugRenderer;
+	GizmoRenderer	m_oGizmoRenderer;
 
-	Camera						m_oCamera;
+	Camera			m_oCamera;
 
-	VisualStructure				m_oVisualStructure;
+	VisualStructure	m_oVisualStructure;
 
 private:
-	RenderTarget				m_oRenderTarget;
-	RenderTarget				m_oPickingTarget;
+	RenderTarget	m_oRenderTarget;
+	RenderTarget	m_oPickingTarget;
 
-	Mesh						m_oRenderMesh;
+	Mesh			m_oRenderMesh;
 
-	TextureResPtr				m_xDefaultDiffuseMap;
-	TextureResPtr				m_xDefaultNormalMap;
-	TechniqueResPtr				m_xForwardOpaque;
-	TechniqueResPtr				m_xDeferredMaps;
-	TechniqueResPtr				m_xDeferredCompose;
-	TechniqueResPtr				m_xPicking;
-	TechniqueResPtr				m_xOutline;
-	TechniqueResPtr				m_xGizmo;
-	ForwardOpaqueDefinition		m_oForwardOpaque;
-	DeferredMapsDefinition		m_oDeferredMaps;
-	DeferredComposeDefinition	m_oDeferredCompose;
-	PickingDefinition			m_oPicking;
-	OutlineDefinition			m_oOutline;
-	GizmoDefinition				m_oGizmo;
+	TextureResPtr	m_xDefaultDiffuseMap;
+	TextureResPtr	m_xDefaultNormalMap;
+	TechniqueResPtr	m_xForwardOpaque;
+	TechniqueResPtr	m_xDeferredMaps;
+	TechniqueResPtr	m_xDeferredCompose;
+	TechniqueResPtr	m_xPicking;
+	TechniqueResPtr	m_xOutline;
+	TechniqueResPtr	m_xGizmo;
 
-	RenderingMode				m_eRenderingMode;
-	bool						m_bMSAA;
+	RenderingMode	m_eRenderingMode;
+	bool			m_bMSAA;
 
-	bool						m_bDisplayDebug;
+	bool			m_bDisplayDebug;
 };
 
 extern Renderer* g_pRenderer;

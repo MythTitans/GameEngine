@@ -1,0 +1,11 @@
+{
+    "vertexShader": "Shader/deferred_maps.vs",
+    "pixelShader": "Shader/deferred_maps.ps",
+    "parameters": [
+        "modelViewProjection",
+        "modelInverseTranspose",
+        "diffuseColor",
+        "diffuseMap",
+        "normalMap"
+    ]
+}

@@ -153,7 +153,7 @@ class ResourceLoader
 {
 public:
 	template < typename LoadCommand >
-	friend void Load( Array< LoadCommand >& aLoadCommands, std::unique_lock< std::mutex >& oLock, const char* sCommandName, const bool bIgnoreFileCheck );
+	friend void Load( Array< LoadCommand >& aLoadCommands, std::unique_lock< std::mutex >& oLock, const char* sCommandName );
 
 	template < typename LoadCommand >
 	friend uint CheckFinishedProcessingLoadCommands( Array< LoadCommand >& aLoadCommands );
@@ -304,6 +304,9 @@ private:
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
 		void OnDependenciesReady() override;
+
+		Array< std::string > m_aParameters;
+		Array< std::pair< std::string, uint > > m_aArrayParameters;
 	};
 
 	struct LoadCommands

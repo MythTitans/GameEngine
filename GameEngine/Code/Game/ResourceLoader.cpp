@@ -2,6 +2,7 @@
 
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <nlohmann/json.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_TRUETYPE_IMPLEMENTATION
@@ -237,7 +238,7 @@ void ResourceLoader::ProcessLoadCommands()
 }
 
 template < typename LoadCommand >
-void Load( Array< LoadCommand >& aLoadCommands, std::unique_lock< std::mutex >& oLock, const char* sCommandName, const bool bIgnoreFileCheck = false )
+void Load( Array< LoadCommand >& aLoadCommands, std::unique_lock< std::mutex >& oLock, const char* sCommandName )
 {
 	for( LoadCommand& oLoadCommand : aLoadCommands )
 	{
@@ -249,7 +250,7 @@ void Load( Array< LoadCommand >& aLoadCommands, std::unique_lock< std::mutex >& 
 		{
 			ProfilerBlock oResourceBlock( "CheckResource", true );
 
-			if( bIgnoreFileCheck == false && std::filesystem::exists( oLoadCommand.GetFilePath() ) == false )
+			if( std::filesystem::exists( oLoadCommand.GetFilePath() ) == false )
 			{
 				oLock.lock();
 				oLoadCommand.m_eStatus = ResourceLoader::LoadCommandStatus::NOT_FOUND;
@@ -276,7 +277,7 @@ void ResourceLoader::Load()
 
 		::Load( m_oProcessingLoadCommands.m_aFontLoadCommands, oLock, "LoadFont" );
 		::Load( m_oProcessingLoadCommands.m_aShaderLoadCommands, oLock, "LoadShader" );
-		::Load( m_oProcessingLoadCommands.m_aTechniqueLoadCommands, oLock, "LoadTechnique", true );
+		::Load( m_oProcessingLoadCommands.m_aTechniqueLoadCommands, oLock, "LoadTechnique" );
 		::Load( m_oProcessingLoadCommands.m_aTextureLoadCommands, oLock, "LoadTexture" );
 		::Load( m_oProcessingLoadCommands.m_aModelLoadCommands, oLock, "LoadModel" );
 	}
@@ -749,19 +750,72 @@ void ResourceLoader::ShaderLoadCommand::OnDependenciesReady()
 ResourceLoader::TechniqueLoadCommand::TechniqueLoadCommand( const char* sFilePath, const TechniqueResPtr& xResource )
 	: LoadCommand( sFilePath, xResource )
 {
-	std::filesystem::path oShaderPath = std::filesystem::path( m_sFilePath );
-
-	oShaderPath.replace_extension( ".vs" );
-	m_aDependencies.PushBack( g_pResourceLoader->LoadShader( oShaderPath.string().c_str() ).GetPtr() );
-
-	oShaderPath.replace_extension( ".ps" );
-	m_aDependencies.PushBack( g_pResourceLoader->LoadShader( oShaderPath.string().c_str() ).GetPtr() );
 }
 
 void ResourceLoader::TechniqueLoadCommand::Load( std::unique_lock< std::mutex >& oLock )
 {
+	std::string sContent = ReadTextFile( GetFilePath() );
+
+	std::string sVertexShader;
+	std::string sPixelShader;
+	Array< std::string > aParameters;
+	Array< std::pair< std::string, uint > > aArrayParameters;
+
+	bool bSuccess = true;
+
+	try
+	{
+		const nlohmann::json oJsonContent = nlohmann::json::parse( sContent );
+
+		sVertexShader = oJsonContent.at( "vertexShader" );
+		sPixelShader = oJsonContent.at( "pixelShader" );
+
+		if( oJsonContent.contains( "parameters" ) )
+		{
+			const nlohmann::json& oParameters = oJsonContent[ "parameters" ];
+			aParameters.Reserve( ( uint )oParameters.size() );
+			for( const std::string& sParameter : oParameters )
+				aParameters.PushBack( sParameter );
+		}
+
+		if( oJsonContent.contains( "arrays" ) )
+		{
+			const nlohmann::json& oArrays = oJsonContent[ "arrays" ];
+			aArrayParameters.Reserve( ( uint )oArrays.size() );
+			for( const nlohmann::json& oArray : oArrays )
+			{
+				const uint uCount = oArray.at( "count" );
+				if( oArray.contains( "parameter" ) )
+					aArrayParameters.PushBack( std::pair( oArray[ "parameter" ], uCount ) );
+
+				if( oArray.contains( "parameters" ) )
+				{
+					aArrayParameters.Reserve( aArrayParameters.Count() + ( uint )oArray[ "parameters" ].size() );
+					for( const std::string& sParameter : oArray[ "parameters" ] )
+						aArrayParameters.PushBack( std::pair( sParameter, uCount ) );
+				}
+			}
+		}
+	}
+	catch( const std::exception& oException )
+	{
+		LOG_ERROR( "{} : {}", GetFilePath().string(), oException.what() );
+		bSuccess = false;
+	}
+
 	oLock.lock();
-	m_eStatus = LoadCommandStatus::LOADED;
+	if( bSuccess )
+	{
+		m_eStatus = LoadCommandStatus::LOADED;
+		m_aParameters = std::move( aParameters );
+		m_aArrayParameters = std::move( aArrayParameters );
+		m_aDependencies.PushBack( g_pResourceLoader->LoadShader( sVertexShader.c_str() ).GetPtr() );
+		m_aDependencies.PushBack( g_pResourceLoader->LoadShader( sPixelShader.c_str() ).GetPtr() );
+	}
+	else
+	{
+		m_eStatus = LoadCommandStatus::ERROR_READING;
+	}
 	oLock.unlock();
 }
 
@@ -792,7 +846,7 @@ void ResourceLoader::TechniqueLoadCommand::OnDependenciesReady()
 			ASSERT( pShaderResource->IsLoaded() );
 			aShaders.PushBack( &pShaderResource->m_oShader );
 		}
-		m_xResource->m_oTechnique.Create( aShaders );
+		m_xResource->m_oTechnique.Create( aShaders, m_aParameters, m_aArrayParameters );
 
 		m_xResource->m_eStatus = Resource::Status::LOADED;
 

@@ -3,7 +3,6 @@
 #include "Game/Component.h"
 #include "Game/ResourceLoader.h"
 #include "Editor/Gizmo.h"
-#include "TechniqueDefinition.h"
 
 class RenderContext;
 

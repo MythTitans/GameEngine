@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/transform.hpp>
 
 #include "Game/Entity.h"
@@ -12,100 +13,80 @@
 #include "Core/Profiler.h"
 #include "ImGui/imgui.h"
 
-template < typename LightingDefinition >
-void SetupLighting( LightingDefinition& oLightingDefinition, const Array< DirectionalLight >& aDirectionalLights, const Array< PointLight >& aPointLights, const Array< SpotLight >& aSpotLights )
+template < typename Technique >
+void SetupLighting( Technique& oTechnique, const Array< DirectionalLight >& aDirectionalLights, const Array< PointLight >& aPointLights, const Array< SpotLight >& aSpotLights )
 {
-	{
-		Array< glm::vec3 > aLightDirections( aDirectionalLights.Count() );
-		Array< glm::vec3 > aLightColors( aDirectionalLights.Count() );
-		Array< float > aLightIntensities( aDirectionalLights.Count() );
-		for( uint u = 0; u < aDirectionalLights.Count(); ++u )
-		{
-			aLightDirections[ u ] = aDirectionalLights[ u ].m_vDirection;
-			aLightColors[ u ] = aDirectionalLights[ u ].m_vColor;
-			aLightIntensities[ u ] = aDirectionalLights[ u ].m_fIntensity;
-		}
+	oTechnique.SetParameter( "directionalLightCount", ( int )aDirectionalLights.Count() );
+	oTechnique.SetParameter( "pointLightCount", ( int )aPointLights.Count() );
+	oTechnique.SetParameter( "spotLightCount", ( int )aSpotLights.Count() );
 
-		oLightingDefinition.SetDirectionalLights( aLightDirections, aLightColors, aLightIntensities );
+	for( uint u = 0; u < aDirectionalLights.Count(); ++u )
+	{
+		oTechnique.SetArrayParameter( "directionalLightDirections", aDirectionalLights[ u ].m_vDirection, u );
+		oTechnique.SetArrayParameter( "directionalLightColors", aDirectionalLights[ u ].m_vColor, u );
+		oTechnique.SetArrayParameter( "directionalLightIntensities", aDirectionalLights[ u ].m_fIntensity, u );
 	}
 
+	for( uint u = 0; u < aPointLights.Count(); ++u )
 	{
-		Array< glm::vec3 > aLightPositions( aPointLights.Count() );
-		Array< glm::vec3 > aLightColors( aPointLights.Count() );
-		Array< float > aLightIntensities( aPointLights.Count() );
-		Array< float > aLightFalloffMinDistances( aPointLights.Count() );
-		Array< float > aLightFalloffMaxDistances( aPointLights.Count() );
-		for( uint u = 0; u < aPointLights.Count(); ++u )
-		{
-			aLightPositions[ u ] = aPointLights[ u ].m_vPosition;
-			aLightColors[ u ] = aPointLights[ u ].m_vColor;
-			aLightIntensities[ u ] = aPointLights[ u ].m_fIntensity;
-			aLightFalloffMinDistances[ u ] = aPointLights[ u ].m_fFalloffMinDistance;
-			aLightFalloffMaxDistances[ u ] = aPointLights[ u ].m_fFalloffMaxDistance;
-		}
-
-		oLightingDefinition.SetPointLights( aLightPositions, aLightColors, aLightIntensities, aLightFalloffMinDistances, aLightFalloffMaxDistances );
+		oTechnique.SetArrayParameter( "pointLightPositions", aPointLights[ u ].m_vPosition, u );
+		oTechnique.SetArrayParameter( "pointLightColors", aPointLights[ u ].m_vColor, u );
+		oTechnique.SetArrayParameter( "pointLightIntensities", aPointLights[ u ].m_fIntensity, u );
+		oTechnique.SetArrayParameter( "pointLightFalloffMinDistances", aPointLights[ u ].m_fFalloffMinDistance, u );
+		oTechnique.SetArrayParameter( "pointLightFalloffMaxDistances", aPointLights[ u ].m_fFalloffMaxDistance, u );
 	}
 
+	for( uint u = 0; u < aSpotLights.Count(); ++u )
 	{
-		Array< glm::vec3 > aLightPositions( aSpotLights.Count() );
-		Array< glm::vec3 > aLightDirections( aSpotLights.Count() );
-		Array< glm::vec3 > aLightColors( aSpotLights.Count() );
-		Array< float > aLightIntensities( aSpotLights.Count() );
-		Array< float > aLightInnerAngles( aSpotLights.Count() );
-		Array< float > aLightOuterAngles( aSpotLights.Count() );
-		Array< float > aLightFalloffMinDistances( aSpotLights.Count() );
-		Array< float > aLightFalloffMaxDistances( aSpotLights.Count() );
-		for( uint u = 0; u < aSpotLights.Count(); ++u )
-		{
-			aLightPositions[ u ] = aSpotLights[ u ].m_vPosition;
-			aLightDirections[ u ] = aSpotLights[ u ].m_vDirection;
-			aLightColors[ u ] = aSpotLights[ u ].m_vColor;
-			aLightIntensities[ u ] = aSpotLights[ u ].m_fIntensity;
-			aLightInnerAngles[ u ] = aSpotLights[ u ].m_fInnerAngle;
-			aLightOuterAngles[ u ] = aSpotLights[ u ].m_fOuterAngle;
-			aLightFalloffMinDistances[ u ] = aSpotLights[ u ].m_fFalloffMinDistance;
-			aLightFalloffMaxDistances[ u ] = aSpotLights[ u ].m_fFalloffMaxDistance;
-		}
-
-		oLightingDefinition.SetSpotLights( aLightPositions, aLightDirections, aLightColors, aLightIntensities, aLightInnerAngles, aLightOuterAngles, aLightFalloffMinDistances, aLightFalloffMaxDistances );
+		oTechnique.SetArrayParameter( "spotLightPositions", aSpotLights[ u ].m_vPosition, u );
+		oTechnique.SetArrayParameter( "spotLightDirections", aSpotLights[ u ].m_vDirection, u );
+		oTechnique.SetArrayParameter( "spotLightColors", aSpotLights[ u ].m_vColor, u );
+		oTechnique.SetArrayParameter( "spotLightIntensities", aSpotLights[ u ].m_fIntensity, u );
+		oTechnique.SetArrayParameter( "spotLightOuterRanges", glm::cos( glm::radians( aSpotLights[ u ].m_fOuterAngle / 2.f ) ), u );
+		oTechnique.SetArrayParameter( "spotLightRanges", glm::cos( glm::radians( aSpotLights[ u ].m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ u ].m_fOuterAngle / 2.f ) ), u );
+		oTechnique.SetArrayParameter( "spotLightFalloffMinDistances", aSpotLights[ u ].m_fFalloffMinDistance, u );
+		oTechnique.SetArrayParameter( "spotLightFalloffMaxDistances", aSpotLights[ u ].m_fFalloffMaxDistance, u );
 	}
 }
 
-template < typename MeshesDefinition >
-void DrawMeshes( MeshesDefinition& oMeshesDefinition )
+template < typename Technique >
+void DrawMeshes( Technique& oTechnique )
 {
 	for( const VisualNode& oVisualNode : g_pRenderer->m_oVisualStructure )
 	{
-		oMeshesDefinition.SetModelAndViewProjection( oVisualNode.m_mMatrix, g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+		oTechnique.SetParameter( "modelViewProjection", g_pRenderer->m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+		oTechnique.SetParameter( "modelInverseTranspose", glm::inverseTranspose( oVisualNode.m_mMatrix ) );
+
+		if( oTechnique.HasParameter( "model" ) )
+			oTechnique.SetParameter( "model", oVisualNode.m_mMatrix );
 
 		const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
 		for( const Mesh& oMesh : aMeshes )
 		{
 			if( oMesh.m_pMaterial != nullptr )
 			{
-				oMeshesDefinition.SetDiffuseColor( oMesh.m_pMaterial->m_vDiffuseColor );
+				oTechnique.SetParameter( "diffuseColor", oMesh.m_pMaterial->m_vDiffuseColor );
 
 				if( oMesh.m_pMaterial->m_xDiffuseTextureResource != nullptr )
 				{
 					g_pRenderer->SetTextureSlot( oMesh.m_pMaterial->m_xDiffuseTextureResource->GetTexture(), 0 );
-					oMeshesDefinition.SetDiffuseMap( 0 );
+					oTechnique.SetParameter( "diffuseMap", 0 );
 				}
 				else
 				{
 					g_pRenderer->SetTextureSlot( g_pRenderer->m_xDefaultDiffuseMap->GetTexture(), 0 );
-					oMeshesDefinition.SetDiffuseMap( 0 );
+					oTechnique.SetParameter( "diffuseMap", 0 );
 				}
 
 				if( oMesh.m_pMaterial->m_xNormalTextureResource != nullptr )
 				{
 					g_pRenderer->SetTextureSlot( oMesh.m_pMaterial->m_xNormalTextureResource->GetTexture(), 1 );
-					oMeshesDefinition.SetNormalMap( 1 );
+					oTechnique.SetParameter( "normalMap", 1 );
 				}
 				else
 				{
 					g_pRenderer->SetTextureSlot( g_pRenderer->m_xDefaultNormalMap->GetTexture(), 1 );
-					oMeshesDefinition.SetNormalMap( 1 );
+					oTechnique.SetParameter( "normalMap", 1 );
 				}
 			}
 			else
@@ -158,12 +139,12 @@ Renderer* g_pRenderer = nullptr;
 Renderer::Renderer()
 	: m_xDefaultDiffuseMap( g_pResourceLoader->LoadTexture( "Default_diffuse.png" ) )
 	, m_xDefaultNormalMap( g_pResourceLoader->LoadTexture( "Default_normal.png" ) )
-	, m_xForwardOpaque( g_pResourceLoader->LoadTechnique( "Shader/forward_opaque" ) )
-	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( "Shader/deferred_maps" ) )
-	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( "Shader/deferred_compose" ) )
-	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo" ) )
-	, m_xPicking( g_pResourceLoader->LoadTechnique( "Shader/picking" ) )
-	, m_xOutline( g_pResourceLoader->LoadTechnique( "Shader/outline" ) )
+	, m_xForwardOpaque( g_pResourceLoader->LoadTechnique( "Shader/forward_opaque.tech" ) )
+	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( "Shader/deferred_maps.tech" ) )
+	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( "Shader/deferred_compose.tech" ) )
+	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo.tech" ) )
+	, m_xPicking( g_pResourceLoader->LoadTechnique( "Shader/picking.tech" ) )
+	, m_xOutline( g_pResourceLoader->LoadTechnique( "Shader/outline.tech" ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
 	, m_bMSAA( false )
 	, m_bDisplayDebug( false )
@@ -237,25 +218,11 @@ void Renderer::Clear()
 
 bool Renderer::OnLoading()
 {
-	if( m_xForwardOpaque->IsLoaded() && m_oForwardOpaque.IsValid() == false )
-		m_oForwardOpaque.Create( m_xForwardOpaque->GetTechnique() );
+	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
+	bLoaded &= m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
+	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading();
 
-	if( m_xDeferredMaps->IsLoaded() && m_oDeferredMaps.IsValid() == false )
-		m_oDeferredMaps.Create( m_xDeferredMaps->GetTechnique() );
-
-	if( m_xDeferredCompose->IsLoaded() && m_oDeferredCompose.IsValid() == false )
-		m_oDeferredCompose.Create( m_xDeferredCompose->GetTechnique() );
-
-	if( m_xPicking->IsLoaded() && m_oPicking.IsValid() == false )
-		m_oPicking.Create( m_xPicking->GetTechnique() );
-
-	if( m_xOutline->IsLoaded() && m_oOutline.IsValid() == false )
-		m_oOutline.Create( m_xOutline->GetTechnique() );
-
-	if( m_xGizmo->IsLoaded() && m_oGizmo.IsValid() == false )
-		m_oGizmo.Create( m_xGizmo->GetTechnique() );
-
-	return m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded() && m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded() && m_oTextRenderer.OnLoading() &&m_oDebugRenderer.OnLoading();
+	return bLoaded;
 }
 
 void Renderer::DisplayDebug()
@@ -309,10 +276,11 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	else
 		glDisable( GL_MULTISAMPLE );
 
-	SetTechnique( m_xForwardOpaque->GetTechnique() );
+	Technique& oTechnique = m_xForwardOpaque->GetTechnique();
+	SetTechnique( oTechnique );
 
-	SetupLighting( m_oForwardOpaque, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
-	DrawMeshes( m_oForwardOpaque );
+	SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+	DrawMeshes( oTechnique );
 
 	ClearTechnique();
 }
@@ -324,26 +292,28 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
 
-	SetTechnique( m_xDeferredMaps->GetTechnique() );
+	Technique& oMapsTechnique = m_xDeferredMaps->GetTechnique();
+	SetTechnique( oMapsTechnique );
 
-	DrawMeshes( m_oDeferredMaps );
+	DrawMeshes( oMapsTechnique );
 
 	ClearRenderTarget();
 
 	glClear( GL_COLOR_BUFFER_BIT );
 	glDisable( GL_DEPTH_TEST );
 
-	SetTechnique( m_xDeferredCompose->GetTechnique() );
+	Technique& oComposeTechnique = m_xDeferredCompose->GetTechnique();
+	SetTechnique( oComposeTechnique );
 
 	SetTextureSlot( m_oRenderTarget.GetColorMap( 0 ), 0 );
-	m_oDeferredCompose.SetColor( 0 );
+	oComposeTechnique.SetParameter( "colorMap", 0 );
 	SetTextureSlot( m_oRenderTarget.GetColorMap( 1 ), 1 );
-	m_oDeferredCompose.SetNormal( 1 );
+	oComposeTechnique.SetParameter( "normalMap", 1 );
 	SetTextureSlot( m_oRenderTarget.GetDepthMap(), 2 );
-	m_oDeferredCompose.SetDepth( 2 );
-	m_oDeferredCompose.SetInverseViewProjection( m_oCamera.GetInverseViewProjectionMatrix() );
+	oComposeTechnique.SetParameter( "depthMap", 2 );
+	oComposeTechnique.SetParameter( "inverseViewProjection", m_oCamera.GetInverseViewProjectionMatrix() );
 
-	SetupLighting( m_oDeferredCompose, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+	SetupLighting( oComposeTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 
 	DrawMesh( m_oRenderMesh );
 
@@ -351,7 +321,6 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	ClearTechnique();
 
 	CopyDepthToBackBuffer( m_oRenderTarget, oRenderContext.GetRenderRect() );
-
 }
 
 uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos )
@@ -376,12 +345,22 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
 
-	SetTechnique( m_xPicking->GetTechnique() );
+	Technique& oTechnique = m_xPicking->GetTechnique();
+	SetTechnique( oTechnique );
+
+	auto BuildColorID = []( const uint64 uID ) {
+		const uint16 uRed = ( uID >> 48 ) & 0xFFFF;
+		const uint16 uGreen = ( uID >> 32 ) & 0xFFFF;
+		const uint16 uBlue = ( uID >> 16 ) & 0xFFFF;
+		const uint16 uAlpha = ( uID ) & 0xFFFF;
+
+		return glm::uvec4( uRed, uGreen, uBlue, uAlpha );
+	};
 
 	for( const VisualNode& oVisualNode : g_pRenderer->m_oVisualStructure )
 	{
-		m_oPicking.SetModelAndViewProjection( oVisualNode.m_mMatrix, m_oCamera.GetViewProjectionMatrix() );
-		m_oPicking.SetID( oVisualNode.m_uEntityID );
+		oTechnique.SetParameter( "modelViewProjection", m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+		oTechnique.SetParameter( "colorID", BuildColorID( oVisualNode.m_uEntityID ) );
 
 		const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
 		for( const Mesh& oMesh : aMeshes )
@@ -395,8 +374,8 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 		ArrayView< GizmoComponent > aComponents = g_pComponentManager->GetComponents< GizmoComponent >();
 		for( const GizmoComponent& oComponent : aComponents )
 		{
-			m_oPicking.SetModelAndViewProjection( oComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
-			m_oPicking.SetID( oComponent.GetEntity()->GetID() );
+			oTechnique.SetParameter( "modelViewProjection", m_oCamera.GetViewProjectionMatrix() * oComponent.GetWorldMatrix() );
+			oTechnique.SetParameter( "colorID", BuildColorID( oComponent.GetEntity()->GetID() ) );
 
 			m_oGizmoRenderer.RenderGizmo( oComponent.GetType(), oComponent.GetAxis(), oRenderContext );
 		}
@@ -432,10 +411,11 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	glStencilFunc( GL_ALWAYS, 1, 0xFF );
 	glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
 
-	SetTechnique( m_xOutline->GetTechnique() );
+	Technique& oTechnique = m_xOutline->GetTechnique();
+	SetTechnique( oTechnique );
 
-	m_oOutline.SetModelAndViewProjection( oVisualNode.m_mMatrix, m_oCamera.GetViewProjectionMatrix() );
-	m_oOutline.SetDisplacement( 0.f );
+	oTechnique.SetParameter( "modelViewProjection", m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+	oTechnique.SetParameter( "displacement", 0.f );
 
 	const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
 	for( const Mesh& oMesh : aMeshes )
@@ -448,9 +428,9 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
 	glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
 
-	m_oOutline.SetModelAndViewProjection( oVisualNode.m_mMatrix, m_oCamera.GetViewProjectionMatrix() );
-	m_oOutline.SetCameraPosition( glm::vec3( m_oCamera.GetPosition() ) );
-	m_oOutline.SetDisplacement( 0.004f );
+	oTechnique.SetParameter( "modelViewProjection", m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+	oTechnique.SetParameter( "cameraPosition", glm::vec3( m_oCamera.GetPosition() ) );
+	oTechnique.SetParameter( "displacement", 0.004f );
 
 	for( const Mesh& oMesh : aMeshes )
 		DrawMesh( oMesh );
@@ -467,13 +447,14 @@ void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 
 	glClear( GL_DEPTH_BUFFER_BIT );
 
-	SetTechnique( m_xGizmo->GetTechnique() );
+	Technique& oTechnique = m_xGizmo->GetTechnique();
+	SetTechnique( oTechnique );
 
 	ArrayView< GizmoComponent > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
 	for( const GizmoComponent& oGizmoComponent : aGizmoComponents )
 	{
-		m_oGizmo.SetModelAndViewProjection( oGizmoComponent.GetWorldMatrix(), m_oCamera.GetViewProjectionMatrix() );
-		m_oGizmo.SetColor( oGizmoComponent.GetColor() );
+		oTechnique.SetParameter( "modelViewProjection", m_oCamera.GetViewProjectionMatrix() * oGizmoComponent.GetWorldMatrix() );
+		oTechnique.SetParameter( "color", oGizmoComponent.GetColor() );
 
 		m_oGizmoRenderer.RenderGizmo( oGizmoComponent.GetType(), oGizmoComponent.GetAxis(), oRenderContext );
 	}

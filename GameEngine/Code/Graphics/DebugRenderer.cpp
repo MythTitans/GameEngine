@@ -106,8 +106,8 @@ static const Array< GLfloat > SPHERE_VERTICES = []() {
 }();
 
 DebugRenderer::DebugRenderer()
-	: m_xLine( g_pResourceLoader->LoadTechnique( "Shader/line" ) )
-	, m_xSphere( g_pResourceLoader->LoadTechnique( "Shader/sphere" ) )
+	: m_xLine( g_pResourceLoader->LoadTechnique( "Shader/line.tech" ) )
+	, m_xSphere( g_pResourceLoader->LoadTechnique( "Shader/sphere.tech" ) )
 {
 	glGenVertexArrays( 1, &m_uVertexArrayID );
 	glGenBuffers( 1, &m_uVertexBufferID );
@@ -130,9 +130,10 @@ DebugRenderer::~DebugRenderer()
 
 void DebugRenderer::RenderLines( const Array< Line >& aLines, const RenderContext& oRenderContext )
 {
-	glUseProgram( m_xLine->GetTechnique().m_uProgramID );
+	Technique& oTechnique = m_xLine->GetTechnique();
+	glUseProgram( oTechnique.m_uProgramID );
 
-	m_oLine.SetViewProjection( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+	oTechnique.SetParameter( "viewProjection", g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
 
 	Array< GLfloat > aVertices;
 	aVertices.Reserve( 3 * 2 * aLines.Count() );
@@ -152,7 +153,7 @@ void DebugRenderer::RenderLines( const Array< Line >& aLines, const RenderContex
 
 	for( uint u = 0; u < aLines.Count(); ++u )
 	{
-		m_oLine.SetColor( aLines[ u ].m_vColor );
+		oTechnique.SetParameter( "color", aLines[ u ].m_vColor );
 		glDrawArrays( GL_LINES, 2 * u, 2 );
 	}
 
@@ -164,9 +165,10 @@ void DebugRenderer::RenderLines( const Array< Line >& aLines, const RenderContex
 
 void DebugRenderer::RenderSpheres( const Array< Sphere >& aSpheres, const RenderContext& oRenderContext )
 {
-	glUseProgram( m_xSphere->GetTechnique().m_uProgramID );
+	Technique& oTechnique = m_xSphere->GetTechnique();
+	glUseProgram( oTechnique.m_uProgramID );
 
-	m_oSphere.SetViewProjection( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+	oTechnique.SetParameter( "viewProjection", g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
 
 	glBindVertexArray( m_uVertexArrayID );
 	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
@@ -174,9 +176,9 @@ void DebugRenderer::RenderSpheres( const Array< Sphere >& aSpheres, const Render
 
 	for( const Sphere& oSphere : aSpheres )
 	{
-		m_oSphere.SetPosition( oSphere.m_vPosition );
-		m_oSphere.SetRadius( oSphere.m_fRadius );
-		m_oSphere.SetColor( oSphere.m_vColor );
+		oTechnique.SetParameter( "position", oSphere.m_vPosition );
+		oTechnique.SetParameter( "radius", oSphere.m_fRadius );
+		oTechnique.SetParameter( "color", oSphere.m_vColor );
 		glDrawArrays( GL_TRIANGLE_STRIP, 0, SPHERE_VERTEX_COUNT );
 	}
 
@@ -191,9 +193,10 @@ void DebugRenderer::RenderWireSpheres( const Array< Sphere >& aSpheres, const Re
 	const Array< GLfloat > aEquatorVertices = GenerateSphereEquator();
 	const Array< GLfloat > aMeridiansVertices = GenerateSphereMeridians();
 
-	glUseProgram( m_xSphere->GetTechnique().m_uProgramID );
+	Technique& oTechnique = m_xSphere->GetTechnique();
+	glUseProgram( oTechnique.m_uProgramID );
 
-	m_oSphere.SetViewProjection( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+	oTechnique.SetParameter( "viewProjection", g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
 
 	glBindVertexArray( m_uVertexArrayID );
 	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
@@ -201,9 +204,9 @@ void DebugRenderer::RenderWireSpheres( const Array< Sphere >& aSpheres, const Re
 
 	for( const Sphere& oSphere : aSpheres )
 	{
-		m_oSphere.SetPosition( oSphere.m_vPosition );
-		m_oSphere.SetRadius( oSphere.m_fRadius );
-		m_oSphere.SetColor( oSphere.m_vColor );
+		oTechnique.SetParameter( "position", oSphere.m_vPosition );
+		oTechnique.SetParameter( "radius", oSphere.m_fRadius );
+		oTechnique.SetParameter( "color", oSphere.m_vColor );
 		glDrawArrays( GL_LINE_STRIP, 0, WIRE_SPHERE_EQUATOR_VERTEX_COUNT );
 	}
 
@@ -211,9 +214,9 @@ void DebugRenderer::RenderWireSpheres( const Array< Sphere >& aSpheres, const Re
 
 	for( const Sphere& oSphere : aSpheres )
 	{
-		m_oSphere.SetPosition( oSphere.m_vPosition );
-		m_oSphere.SetRadius( oSphere.m_fRadius );
-		m_oSphere.SetColor( oSphere.m_vColor );
+		oTechnique.SetParameter( "position", oSphere.m_vPosition );
+		oTechnique.SetParameter( "radius", oSphere.m_fRadius );
+		oTechnique.SetParameter( "color", oSphere.m_vColor );
 		glDrawArrays( GL_LINE_STRIP, 0, WIRE_SPHERE_MERIDIANS_VERTEX_COUNT );
 	}
 
@@ -225,9 +228,10 @@ void DebugRenderer::RenderWireSpheres( const Array< Sphere >& aSpheres, const Re
 
 void DebugRenderer::RenderWireCylinders( const Array< Cylinder >& aCylinders, const RenderContext& oRenderContext )
 {
-	glUseProgram( m_xSphere->GetTechnique().m_uProgramID );
+	Technique& oSphereTechnique = m_xSphere->GetTechnique();
+	glUseProgram( oSphereTechnique.m_uProgramID );
 
-	m_oSphere.SetViewProjection( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+	oSphereTechnique.SetParameter( "viewProjection", g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
 
 	glBindVertexArray( m_uVertexArrayID );
 	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
@@ -237,20 +241,21 @@ void DebugRenderer::RenderWireCylinders( const Array< Cylinder >& aCylinders, co
 		const Array< GLfloat > aCircleVertices = GenerateCylinderEquator( glm::normalize( oCylinder.m_vTo - oCylinder.m_vFrom ), oCylinder.m_fRadius );
 		glBufferData( GL_ARRAY_BUFFER, sizeof( aCircleVertices[ 0 ] ) * aCircleVertices.Count(), aCircleVertices.Data(), GL_STATIC_DRAW );
 
-		m_oSphere.SetPosition( oCylinder.m_vFrom );
-		m_oSphere.SetRadius( 1.f );
-		m_oSphere.SetColor( oCylinder.m_vColor );
+		oSphereTechnique.SetParameter( "position", oCylinder.m_vFrom );
+		oSphereTechnique.SetParameter( "radius", 1.f );
+		oSphereTechnique.SetParameter( "color", oCylinder.m_vColor );
 		glDrawArrays( GL_LINE_STRIP, 0, CIRCLE_SEGMENT_VERTEX_COUNT );
 
-		m_oSphere.SetPosition( 0.5f * ( oCylinder.m_vFrom + oCylinder.m_vTo ) );
+		oSphereTechnique.SetParameter( "position", 0.5f * ( oCylinder.m_vFrom + oCylinder.m_vTo ) );
 		glDrawArrays( GL_LINE_STRIP, 0, CIRCLE_SEGMENT_VERTEX_COUNT );
 
-		m_oSphere.SetPosition( oCylinder.m_vTo );
+		oSphereTechnique.SetParameter( "position", oCylinder.m_vTo );
 		glDrawArrays( GL_LINE_STRIP, 0, CIRCLE_SEGMENT_VERTEX_COUNT );
 
-		glUseProgram( m_xLine->GetTechnique().m_uProgramID );
+		Technique& oLineTechnique = m_xLine->GetTechnique();
+		glUseProgram( oLineTechnique.m_uProgramID );
 
-		m_oLine.SetColor( oCylinder.m_vColor );
+		oLineTechnique.SetParameter( "color", oCylinder.m_vColor );
 
 		Array< GLfloat > aVertices;
 		aVertices.Reserve( 24 );
@@ -279,35 +284,37 @@ void DebugRenderer::RenderWireCylinders( const Array< Cylinder >& aCylinders, co
 
 void DebugRenderer::RenderWireCones( const Array< Cylinder >& aCylinders, const RenderContext& oRenderContext )
 {
-	glUseProgram( m_xSphere->GetTechnique().m_uProgramID );
+	Technique& oSphereTechnique = m_xSphere->GetTechnique();
+	glUseProgram( oSphereTechnique.m_uProgramID );
 
-	m_oSphere.SetViewProjection( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+	oSphereTechnique.SetParameter( "viewProjection", g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
 
 	glBindVertexArray( m_uVertexArrayID );
 	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
 
 	for( const Cylinder& oCylinder : aCylinders )
 	{
-		glUseProgram( m_xSphere->GetTechnique().m_uProgramID );
+		glUseProgram( oSphereTechnique.m_uProgramID );
 
-		m_oSphere.SetRadius( 1.f );
-		m_oSphere.SetColor( oCylinder.m_vColor );
+		oSphereTechnique.SetParameter( "radius", 1.f );
+		oSphereTechnique.SetParameter( "color", oCylinder.m_vColor );
 
 		Array< GLfloat > aCircleVertices = GenerateCylinderEquator( glm::normalize( oCylinder.m_vTo - oCylinder.m_vFrom ), 0.5f * oCylinder.m_fRadius );
 		glBufferData( GL_ARRAY_BUFFER, sizeof( aCircleVertices[ 0 ] ) * aCircleVertices.Count(), aCircleVertices.Data(), GL_STATIC_DRAW );
 
-		m_oSphere.SetPosition( 0.5f * ( oCylinder.m_vFrom + oCylinder.m_vTo ) );
+		oSphereTechnique.SetParameter( "position", 0.5f * ( oCylinder.m_vFrom + oCylinder.m_vTo ) );
 		glDrawArrays( GL_LINE_STRIP, 0, CIRCLE_SEGMENT_VERTEX_COUNT );
 
 		aCircleVertices = GenerateCylinderEquator( glm::normalize( oCylinder.m_vTo - oCylinder.m_vFrom ), oCylinder.m_fRadius );
 		glBufferData( GL_ARRAY_BUFFER, sizeof( aCircleVertices[ 0 ] ) * aCircleVertices.Count(), aCircleVertices.Data(), GL_STATIC_DRAW );
 
-		m_oSphere.SetPosition( oCylinder.m_vTo );
+		oSphereTechnique.SetParameter( "position", oCylinder.m_vTo );
 		glDrawArrays( GL_LINE_STRIP, 0, CIRCLE_SEGMENT_VERTEX_COUNT );
 
-		glUseProgram( m_xLine->GetTechnique().m_uProgramID );
+		Technique& oLineTechnique = m_xLine->GetTechnique();
+		glUseProgram( oLineTechnique.m_uProgramID );
 
-		m_oLine.SetColor( oCylinder.m_vColor );
+		oLineTechnique.SetParameter( "color", oCylinder.m_vColor );
 
 		Array< GLfloat > aVertices;
 		aVertices.Reserve( 24 );
@@ -336,12 +343,6 @@ void DebugRenderer::RenderWireCones( const Array< Cylinder >& aCylinders, const 
 
 bool DebugRenderer::OnLoading()
 {
-	if( m_xLine->IsLoaded() && m_oLine.IsValid() == false )
-		m_oLine.Create( m_xLine->GetTechnique() );
-
-	if( m_xSphere->IsLoaded() && m_oSphere.IsValid() == false )
-		m_oSphere.Create( m_xSphere->GetTechnique() );
-
 	return m_xLine->IsLoaded() && m_xSphere->IsLoaded();
 }
 

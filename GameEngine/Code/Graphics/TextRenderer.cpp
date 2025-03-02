@@ -21,7 +21,7 @@ glm::vec2 SizeOnScreen( const glm::vec2& vSize, const RenderContext& oRenderCont
 
 TextRenderer::TextRenderer()
 	: m_xFont( g_pResourceLoader->LoadFont( "Roboto-Bold.ttf" ) )
-	, m_xTextTechnique( g_pResourceLoader->LoadTechnique( "Shader/text" ) )
+	, m_xTextTechnique( g_pResourceLoader->LoadTechnique( "Shader/text.tech" ) )
 {
 	Array< glm::vec3 > aVertices( 4 );
 	aVertices[ 0 ] = glm::vec3( 0.f, 0.f, 0.f );
@@ -78,10 +78,7 @@ void TextRenderer::RenderText( const Array< Text >& aTexts, const RenderContext&
 
 bool TextRenderer::OnLoading()
 {
-	if( m_xTextTechnique->IsLoaded() && m_oTextTechniqueDefinition.IsValid() == false )
-		m_oTextTechniqueDefinition.Create( m_xTextTechnique->GetTechnique() );
-
-	return m_xFont->IsLoaded() && m_xTextTechnique->IsLoaded() && m_oTextTechniqueDefinition.IsValid();
+	return m_xFont->IsLoaded() && m_xTextTechnique->IsLoaded();
 }
 
 void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderContext )
@@ -91,6 +88,11 @@ void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderCont
 
 	float fX = oText.m_vPosition.x;
 	float fY = oText.m_vPosition.y + FontResource::FONT_HEIGHT;
+
+	Technique& oTechnique = m_xTextTechnique->GetTechnique();
+
+	oTechnique.SetParameter( "glyphColor", oText.m_vColor );
+	oTechnique.SetParameter( "atlasTexture", 0 );
 
 	for( const char cCharacter : oText.m_sText )
 	{
@@ -103,11 +105,10 @@ void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderCont
 		const glm::vec2 vOffsetInAtlas( oQuad.s0, oQuad.t0 );
 		const glm::vec2 vSizeInAtlas( oQuad.s1 - oQuad.s0, oQuad.t1 - oQuad.t0 );
 
-		m_oTextTechniqueDefinition.SetScreenPosition( PositionOnScreen( glm::vec2( oQuad.x0, oQuad.y1 ), oRenderContext ) );
-		m_oTextTechniqueDefinition.SetScreenSize( SizeOnScreen( vGlyphSize, oRenderContext ) );
-		m_oTextTechniqueDefinition.SetGlyph( vOffsetInAtlas, vSizeInAtlas );
-		m_oTextTechniqueDefinition.SetColor( oText.m_vColor );
-		m_oTextTechniqueDefinition.SetTexture( 0 );
+		oTechnique.SetParameter( "position", PositionOnScreen( glm::vec2( oQuad.x0, oQuad.y1 ), oRenderContext ) );
+		oTechnique.SetParameter( "size", SizeOnScreen( vGlyphSize, oRenderContext ) );
+		oTechnique.SetParameter( "glyphOffset", vOffsetInAtlas );
+		oTechnique.SetParameter( "glyphSize", vSizeInAtlas );
 
 		glBindVertexArray( m_oTextQuad.m_uVertexArrayID );
 		glDrawElements( GL_TRIANGLES, m_oTextQuad.m_iIndexCount, GL_UNSIGNED_INT, nullptr );

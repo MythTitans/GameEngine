@@ -1,0 +1,12 @@
+{
+    "vertexShader": "Shader/text.vs",
+    "pixelShader": "Shader/text.ps",
+    "parameters": [
+        "position",
+        "size",
+        "glyphOffset",
+        "glyphSize",
+        "glyphColor",
+        "atlasTexture"
+    ]
+}

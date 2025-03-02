@@ -84,9 +84,6 @@
     <ClCompile Include="Code\Game\Scene.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Graphics\TechniqueDefinition.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="Code\Graphics\Camera.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
@@ -231,9 +228,6 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Code\Game\Scene.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Graphics\TechniqueDefinition.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Code\Graphics\Camera.h">

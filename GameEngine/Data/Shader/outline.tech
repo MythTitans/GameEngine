@@ -1,0 +1,9 @@
+{
+    "vertexShader": "Shader/outline.vs",
+    "pixelShader": "Shader/outline.ps",
+    "parameters": [
+        "modelViewProjection",
+        "cameraPosition",
+        "displacement"
+    ]
+}

@@ -1,0 +1,8 @@
+{
+    "vertexShader": "Shader/line.vs",
+    "pixelShader": "Shader/line.ps",
+    "parameters": [
+        "viewProjection",
+        "color"
+    ]
+}

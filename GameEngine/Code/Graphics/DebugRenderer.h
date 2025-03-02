@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Game/ResourceLoader.h"
-#include "TechniqueDefinition.h"
 
 class RenderContext;
 
@@ -60,11 +59,9 @@ private:
 	Array< GLfloat > GenerateSphereMeridians();
 	Array< GLfloat > GenerateCylinderEquator( const glm::vec3& vNormal, const float fRadius );
 
-	TechniqueResPtr				m_xLine;
-	LineTechniqueDefinition		m_oLine;
-	TechniqueResPtr				m_xSphere;
-	SphereTechniqueDefinition	m_oSphere;
+	TechniqueResPtr	m_xLine;
+	TechniqueResPtr	m_xSphere;
 
-	GLuint						m_uVertexArrayID;
-	GLuint						m_uVertexBufferID;
+	GLuint			m_uVertexArrayID;
+	GLuint			m_uVertexBufferID;
 };

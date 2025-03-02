@@ -6,7 +6,6 @@ layout (location = 2) in vec3 vertNormal;
 layout (location = 3) in vec3 vertTangent;
 
 out vec2 texCoords;
-out vec3 position;
 out vec3 normal;
 out vec3 tangent;
 out vec3 bitangent;

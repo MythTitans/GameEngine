@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Game/ResourceLoader.h"
-#include "TechniqueDefinition.h"
 
 class RenderContext;
 
@@ -32,8 +31,7 @@ public:
 private:
 	void DrawText( const Text& oText, const RenderContext& oRenderContext );
 
-	FontResPtr				m_xFont;
-	TechniqueResPtr			m_xTextTechnique;
-	TextTechniqueDefinition	m_oTextTechniqueDefinition;
-	Mesh					m_oTextQuad;
+	FontResPtr		m_xFont;
+	TechniqueResPtr	m_xTextTechnique;
+	Mesh			m_oTextQuad;
 };
