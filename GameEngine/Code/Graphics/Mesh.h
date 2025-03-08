@@ -5,8 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "Core/Array.h"
-
-struct Material;
+#include "Game/MaterialManager.h"
 
 class Mesh
 {
@@ -19,16 +18,18 @@ public:
 
 	Mesh();
 
-	void Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< GLuint >& aIndices, const Material* pMaterial );
-	void Destroy();
+	void						Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< GLuint >& aIndices, const MaterialReference& oMaterial );
+	void						Destroy();
+
+	const MaterialReference&	GetMaterial() const;
 
 private:
-	GLuint			m_uVertexArrayID;
-	GLuint			m_uVertexBufferID;
-	GLuint			m_uIndexBufferID;
-	GLsizei			m_iIndexCount;
+	GLuint				m_uVertexArrayID;
+	GLuint				m_uVertexBufferID;
+	GLuint				m_uIndexBufferID;
+	GLsizei				m_iIndexCount;
 
-	const Material*	m_pMaterial;
+	MaterialReference	m_oMaterial;
 };
 
 class MeshBuilder
@@ -36,13 +37,13 @@ class MeshBuilder
 public:
 	MeshBuilder( Array< glm::vec3 >&& aVertices, Array< GLuint >&& aIndices );
 
-	MeshBuilder& WithUVs();
-	MeshBuilder& WithUVs( Array< glm::vec2 >&& aUVs );
-	MeshBuilder& WithNormals();
-	MeshBuilder& WithNormals( Array< glm::vec3 >&& aNormals );
-	MeshBuilder& WithTangents();
-	MeshBuilder& WithTangents( Array< glm::vec3 >&& aTangents );
-	MeshBuilder& WithMaterial( const Material* pMaterial );
+	MeshBuilder&	WithUVs();
+	MeshBuilder&	WithUVs( Array< glm::vec2 >&& aUVs );
+	MeshBuilder&	WithNormals();
+	MeshBuilder&	WithNormals( Array< glm::vec3 >&& aNormals );
+	MeshBuilder&	WithTangents();
+	MeshBuilder&	WithTangents( Array< glm::vec3 >&& aTangents );
+	MeshBuilder&	WithMaterial( const MaterialReference& oMaterial );
 
 	Mesh			Build();
 
@@ -53,5 +54,5 @@ private:
 	Array< glm::vec3 >	m_aNormals;
 	Array< glm::vec3 >	m_aTangents;
 
-	const Material* m_pMaterial;
+	MaterialReference	m_oMaterial;
 };

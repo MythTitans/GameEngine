@@ -48,12 +48,15 @@ public:
 	Renderer();
 	~Renderer();
 
-	void	Render( const RenderContext& oRenderContext );
-	void	Clear();
+	void			Render( const RenderContext& oRenderContext );
+	void			Clear();
 
-	bool	OnLoading();
+	bool			OnLoading();
 
-	void	DisplayDebug();
+	void			DisplayDebug();
+
+	const Texture*	GetDefaultDiffuseMap() const;
+	const Texture*	GetDefaultNormalMap() const;
 
 private:
 	enum RenderingMode : uint8
@@ -63,20 +66,20 @@ private:
 		_COUNT
 	};
 
-	void	RenderForward( const RenderContext& oRenderContext );
-	void	RenderDeferred( const RenderContext& oRenderContext );
-	uint64	RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos );
-	void	RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode );
-	void	RenderGizmos( const RenderContext& oRenderContext );
+	void			RenderForward( const RenderContext& oRenderContext );
+	void			RenderDeferred( const RenderContext& oRenderContext );
+	uint64			RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos );
+	void			RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode );
+	void			RenderGizmos( const RenderContext& oRenderContext );
 
-	void	SetTechnique( const Technique& oTechnique );
-	void	ClearTechnique();
-	void	SetTextureSlot( const Texture& oTexture, const uint uTextureUnit );
-	void	ClearTextureSlot( const uint uTextureUnit );
-	void	SetRenderTarget( const RenderTarget& oRenderTarget );
-	void	ClearRenderTarget();
-	void	CopyDepthToBackBuffer( const RenderTarget& oRenderTarget, const RenderRect& oRect );
-	void	DrawMesh( const Mesh& oMesh );
+	void			SetTechnique( const Technique& oTechnique );
+	void			ClearTechnique();
+	void			SetTextureSlot( const Texture& oTexture, const uint uTextureUnit );
+	void			ClearTextureSlot( const uint uTextureUnit );
+	void			SetRenderTarget( const RenderTarget& oRenderTarget );
+	void			ClearRenderTarget();
+	void			CopyDepthToBackBuffer( const RenderTarget& oRenderTarget, const RenderRect& oRect );
+	void			DrawMesh( const Mesh& oMesh );
 
 public:
 	TextRenderer	m_oTextRenderer;

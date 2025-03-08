@@ -178,6 +178,8 @@
     <ClCompile Include="Code\Game\GameEngine.cpp" />
     <ClCompile Include="Code\Game\InputHandler.cpp" />
     <ClCompile Include="Code\Game\Light.cpp" />
+    <ClCompile Include="Code\Game\Material.cpp" />
+    <ClCompile Include="Code\Game\MaterialManager.cpp" />
     <ClCompile Include="Code\Game\ResourceLoader.cpp" />
     <ClCompile Include="Code\Game\Scene.cpp" />
     <ClCompile Include="Code\Game\Visual.cpp" />
@@ -228,6 +230,8 @@
     <ClInclude Include="Code\Game\GameEngine.h" />
     <ClInclude Include="Code\Game\InputHandler.h" />
     <ClInclude Include="Code\Game\Light.h" />
+    <ClInclude Include="Code\Game\Material.h" />
+    <ClInclude Include="Code\Game\MaterialManager.h" />
     <ClInclude Include="Code\Game\ResourceLoader.h" />
     <ClInclude Include="Code\Game\Scene.h" />
     <ClInclude Include="Code\Game\Visual.h" />

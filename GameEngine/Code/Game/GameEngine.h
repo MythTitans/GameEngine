@@ -59,6 +59,7 @@ private:
 	ResourceLoader			m_oResourceLoader;
 	InputHandler			m_oInputHandler;
 	Renderer				m_oRenderer;
+	MaterialManager			m_oMaterialManager;
 	ComponentManager		m_oComponentManager;
 
 	DebugDisplay			m_oDebugDisplay;

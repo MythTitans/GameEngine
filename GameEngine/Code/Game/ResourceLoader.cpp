@@ -80,16 +80,6 @@ void ModelResource::Destroy()
 		oMesh.Destroy();
 }
 
-Array< Material >& ModelResource::GetMaterials()
-{
-	return m_aMaterials;
-}
-
-const Array< Material >& ModelResource::GetMaterials() const
-{
-	return m_aMaterials;
-}
-
 Array< Mesh >& ModelResource::GetMeshes()
 {
 	return m_aMeshes;
@@ -700,7 +690,10 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
 		.WithTangents( std::move( aTangents ) );
 
 	if( pMesh->mMaterialIndex >= 0 && pMesh->mMaterialIndex < m_xResource->m_aMaterials.Count() )
-		oMeshBuilder.WithMaterial( &m_xResource->m_aMaterials[ pMesh->mMaterialIndex ] );
+	{
+		const MaterialReference oMaterial = g_pMaterialManager->CreateMaterial( m_xResource->m_aMaterials[ pMesh->mMaterialIndex ] );
+		oMeshBuilder.WithMaterial( oMaterial );
+	}
 
 	m_xResource->m_aMeshes.PushBack( oMeshBuilder.Build() );
 }

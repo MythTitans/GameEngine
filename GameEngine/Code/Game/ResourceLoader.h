@@ -12,6 +12,7 @@
 #include "Core/Array.h"
 #include "Core/Intrusive.h"
 #include "Core/stb_truetype.h"
+#include "Game/Material.h"
 #include "Graphics/Mesh.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Technique.h"
@@ -120,31 +121,19 @@ private:
 
 using TextureResPtr = StrongPtr< TextureResource >;
 
-struct Material
-{
-	glm::vec3		m_vDiffuseColor;
-
-	//TechniqueResPtr m_xTechniqueResource;
-	TextureResPtr	m_xDiffuseTextureResource;
-	TextureResPtr	m_xNormalTextureResource;
-};
-
 class ModelResource : public Resource
 {
 public:
 	friend class ResourceLoader;
 
-	void						Destroy() override;
+	void					Destroy() override;
 
-	Array< Material >&			GetMaterials();
-	const Array< Material >&	GetMaterials() const;
-
-	Array< Mesh >&				GetMeshes();
-	const Array< Mesh >&		GetMeshes() const;
+	Array< Mesh >&			GetMeshes();
+	const Array< Mesh >&	GetMeshes() const;
 
 private:
-	Array< Material >	m_aMaterials;
-	Array< Mesh >		m_aMeshes;
+	Array< LitMaterialData >	m_aMaterials;
+	Array< Mesh >				m_aMeshes;
 };
 
 using ModelResPtr = StrongPtr< ModelResource >;

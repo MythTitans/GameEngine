@@ -109,6 +109,12 @@ void Technique::SetParameter( const std::string& sParameter, const glm::uvec4& v
 	glUniform4uiv( FindParameter( sParameter ), 1, glm::value_ptr( vValue ) );
 }
 
+void Technique::SetParameter( const std::string& sParameter, const Texture* pTexture )
+{
+	glUniform1i( FindParameter( sParameter ), m_aTextures.Count() );
+	m_aTextures.PushBack( pTexture );
+}
+
 void Technique::SetArrayParameter( const std::string& sParameter, const int iValue, const uint uIndex )
 {
 	glUniform1i( FindArrayParameter( sParameter, uIndex ), iValue );
@@ -162,6 +168,12 @@ void Technique::SetArrayParameter( const std::string& sParameter, const glm::uve
 void Technique::SetArrayParameter( const std::string& sParameter, const glm::uvec4& vValue, const uint uIndex )
 {
 	glUniform4uiv( FindArrayParameter( sParameter, uIndex ), 1, glm::value_ptr( vValue ) );
+}
+
+void Technique::SetArrayParameter( const std::string& sParameter, const Texture* pTexture, const uint uIndex )
+{
+	glUniform1i( FindArrayParameter( sParameter, uIndex ), m_aTextures.Count() );
+	m_aTextures.PushBack( pTexture );
 }
 
 bool Technique::HasParameter( const std::string& sParameter ) const

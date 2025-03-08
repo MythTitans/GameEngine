@@ -53,7 +53,7 @@ static const std::string PARAM_SPOT_LIGHT_FALLOFF_MIN_DISTANCES( "spotLightFallo
 static const std::string PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES( "spotLightFalloffMaxDistances" );
 
 template < typename Technique >
-void SetupLighting( Technique& oTechnique, const Array< DirectionalLight >& aDirectionalLights, const Array< PointLight >& aPointLights, const Array< SpotLight >& aSpotLights )
+static void SetupLighting( Technique& oTechnique, const Array< DirectionalLight >& aDirectionalLights, const Array< PointLight >& aPointLights, const Array< SpotLight >& aSpotLights )
 {
 	oTechnique.SetParameter( PARAM_DIRECTIONAL_LIGHT_COUNT, ( int )aDirectionalLights.Count() );
 	oTechnique.SetParameter( PARAM_POINT_LIGHT_COUNT, ( int )aPointLights.Count() );
@@ -89,7 +89,7 @@ void SetupLighting( Technique& oTechnique, const Array< DirectionalLight >& aDir
 }
 
 template < typename Technique >
-void DrawMeshes( Technique& oTechnique )
+static void DrawMeshes( Technique& oTechnique )
 {
 	for( const VisualNode& oVisualNode : g_pRenderer->m_oVisualStructure )
 	{
@@ -102,39 +102,15 @@ void DrawMeshes( Technique& oTechnique )
 		const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
 		for( const Mesh& oMesh : aMeshes )
 		{
-			if( oMesh.m_pMaterial != nullptr )
-			{
-				oTechnique.SetParameter( PARAM_DIFFUSE_COLOR, oMesh.m_pMaterial->m_vDiffuseColor );
+			g_pMaterialManager->ApplyMaterial( oMesh.m_oMaterial, oTechnique );
 
-				if( oMesh.m_pMaterial->m_xDiffuseTextureResource != nullptr )
-				{
-					g_pRenderer->SetTextureSlot( oMesh.m_pMaterial->m_xDiffuseTextureResource->GetTexture(), 0 );
-					oTechnique.SetParameter( PARAM_DIFFUSE_MAP, 0 );
-				}
-				else
-				{
-					g_pRenderer->SetTextureSlot( g_pRenderer->m_xDefaultDiffuseMap->GetTexture(), 0 );
-					oTechnique.SetParameter( PARAM_DIFFUSE_MAP, 0 );
-				}
-
-				if( oMesh.m_pMaterial->m_xNormalTextureResource != nullptr )
-				{
-					g_pRenderer->SetTextureSlot( oMesh.m_pMaterial->m_xNormalTextureResource->GetTexture(), 1 );
-					oTechnique.SetParameter( PARAM_NORMAL_MAP, 1 );
-				}
-				else
-				{
-					g_pRenderer->SetTextureSlot( g_pRenderer->m_xDefaultNormalMap->GetTexture(), 1 );
-					oTechnique.SetParameter( PARAM_NORMAL_MAP, 1 );
-				}
-			}
-			else
-			{
-				g_pRenderer->ClearTextureSlot( 0 );
-				g_pRenderer->ClearTextureSlot( 1 );
-			}
+			const Array< const Texture* >& aTextures = oTechnique.m_aTextures;
+			for( uint u = 0; u < aTextures.Count(); ++u )
+				g_pRenderer->SetTextureSlot( *aTextures[ u ], ( int )u );
 
 			g_pRenderer->DrawMesh( oMesh );
+
+			oTechnique.m_aTextures.Clear();
 		}
 	}
 }
@@ -303,6 +279,16 @@ void Renderer::DisplayDebug()
 		ImGui::Checkbox( "MSAA", &m_bMSAA );
 
 	ImGui::End();
+}
+
+const Texture* Renderer::GetDefaultDiffuseMap() const
+{
+	return &m_xDefaultDiffuseMap->GetTexture();
+}
+
+const Texture* Renderer::GetDefaultNormalMap() const
+{
+	return &m_xDefaultNormalMap->GetTexture();
 }
 
 void Renderer::RenderForward( const RenderContext& oRenderContext )
