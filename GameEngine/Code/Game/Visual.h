@@ -13,6 +13,7 @@ public:
 	void Update( const float fDeltaTime ) override;
 
 private:
-	std::string	m_sModelFile;
-	ModelResPtr	m_xModel;
+	std::string		m_sModelFile;
+	ModelResPtr		m_xModel;
+	TechniqueResPtr m_xTechnique;
 };

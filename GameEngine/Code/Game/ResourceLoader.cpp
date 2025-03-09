@@ -559,8 +559,8 @@ void ResourceLoader::ModelLoadCommand::OnFinished()
 	{
 		aiNode* pRoot = m_pScene->mRootNode;
 		m_xResource->m_aMeshes.Reserve( CountMeshes( pRoot ) );
-		LoadMaterials( m_pScene );
-		LoadMeshes( pRoot );
+		Array< LitMaterialData > aMaterials = LoadMaterials( m_pScene );
+		LoadMeshes( pRoot, aMaterials );
 		delete m_pScene;
 		if( HasDependencies() == false )
 			m_xResource->m_eStatus = Resource::Status::LOADED;
@@ -589,6 +589,7 @@ void ResourceLoader::ModelLoadCommand::OnDependenciesReady()
 		break;
 	}
 
+	//m_xResource->m_aTechniqueResources = std::move( m_aDependencies );
 	m_aDependencies.Clear();
 }
 
@@ -602,21 +603,20 @@ uint ResourceLoader::ModelLoadCommand::CountMeshes( aiNode* pNode )
 	return uCount;
 }
 
-void ResourceLoader::ModelLoadCommand::LoadMaterials( aiScene* pScene )
+Array< LitMaterialData > ResourceLoader::ModelLoadCommand::LoadMaterials( aiScene* pScene )
 {
-	m_xResource->m_aMaterials.Resize( pScene->mNumMaterials );
+	Array< LitMaterialData > aMaterials( pScene->mNumMaterials );
 
 	for( uint u = 0; u < pScene->mNumMaterials; ++u )
 	{
-		//TechniqueResPtr xTechniqueResource = g_pResourceLoader->LoadTechnique( std::filesystem::path( "Data/basic" ) );
-		//m_xResource->m_aMaterials[ u ].m_xTechniqueResource = xTechniqueResource;
-		//m_aDependencies.PushBack( xTechniqueResource.GetPtr() );
+// 		TechniqueResPtr xTechniqueResource = g_pResourceLoader->LoadTechnique( "Shader/forward_opaque.tech" );
+// 		m_aDependencies.PushBack( xTechniqueResource.GetPtr() );
 
 		const aiMaterial* pMaterial = pScene->mMaterials[ u ];
 
 		aiColor3D oDiffuseColor;
 		pMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, oDiffuseColor );
-		m_xResource->m_aMaterials[ u ].m_vDiffuseColor = glm::vec3( oDiffuseColor.r, oDiffuseColor.g, oDiffuseColor.b );
+		aMaterials[ u ].m_vDiffuseColor = glm::vec3( oDiffuseColor.r, oDiffuseColor.g, oDiffuseColor.b );
 
 		if( pMaterial->GetTextureCount( aiTextureType_DIFFUSE ) != 0 )
 		{
@@ -624,7 +624,7 @@ void ResourceLoader::ModelLoadCommand::LoadMaterials( aiScene* pScene )
 			if( pMaterial->GetTexture( aiTextureType_DIFFUSE, 0, &sFile ) == AI_SUCCESS )
 			{
 				TextureResPtr xTextureResource = g_pResourceLoader->LoadTexture( sFile.C_Str() );
-				m_xResource->m_aMaterials[ u ].m_xDiffuseTextureResource = xTextureResource;
+				aMaterials[ u ].m_xDiffuseTextureResource = xTextureResource;
 				m_aDependencies.PushBack( xTextureResource.GetPtr() );
 			}
 		}
@@ -635,23 +635,25 @@ void ResourceLoader::ModelLoadCommand::LoadMaterials( aiScene* pScene )
 			if( pMaterial->GetTexture( aiTextureType_NORMALS, 0, &sFile ) == AI_SUCCESS )
 			{
 				TextureResPtr xTextureResource = g_pResourceLoader->LoadTexture( sFile.C_Str() );
-				m_xResource->m_aMaterials[ u ].m_xNormalTextureResource = xTextureResource;
+				aMaterials[ u ].m_xNormalTextureResource = xTextureResource;
 				m_aDependencies.PushBack( xTextureResource.GetPtr() );
 			}
 		}
 	}
+
+	return aMaterials;
 }
 
-void ResourceLoader::ModelLoadCommand::LoadMeshes( aiNode* pNode )
+void ResourceLoader::ModelLoadCommand::LoadMeshes( aiNode* pNode, const Array< LitMaterialData >& aMaterials )
 {
 	for( uint u = 0; u < pNode->mNumMeshes; ++u )
-		LoadMesh( m_pScene->mMeshes[ pNode->mMeshes[ u ] ] );
+		LoadMesh( m_pScene->mMeshes[ pNode->mMeshes[ u ] ], aMaterials );
 
 	for( uint u = 0; u < pNode->mNumChildren; ++u )
-		LoadMeshes( pNode->mChildren[ u ] );
+		LoadMeshes( pNode->mChildren[ u ], aMaterials );
 }
 
-void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
+void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh, const Array< LitMaterialData >& aMaterials )
 {
 	const uint uVertexCount = pMesh->mNumVertices;
 
@@ -689,9 +691,9 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
 		.WithNormals( std::move( aNormals ) )
 		.WithTangents( std::move( aTangents ) );
 
-	if( pMesh->mMaterialIndex >= 0 && pMesh->mMaterialIndex < m_xResource->m_aMaterials.Count() )
+	if( pMesh->mMaterialIndex >= 0 && pMesh->mMaterialIndex < aMaterials.Count() )
 	{
-		const MaterialReference oMaterial = g_pMaterialManager->CreateMaterial( m_xResource->m_aMaterials[ pMesh->mMaterialIndex ] );
+		const MaterialReference oMaterial = g_pMaterialManager->CreateMaterial( aMaterials[ pMesh->mMaterialIndex ] );
 		oMeshBuilder.WithMaterial( oMaterial );
 	}
 

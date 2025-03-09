@@ -11,13 +11,17 @@ static void DisplayLightVisual( const Entity* pEntity )
 {
 	static Array< Mesh > s_aLightVisuals;
 	static ModelResPtr s_xLightModel;
+	static TechniqueResPtr s_xUnlitTechnique;
 
 	if( s_aLightVisuals.Empty() )
 	{
 		if( s_xLightModel == nullptr )
 			s_xLightModel = g_pResourceLoader->LoadModel( "sphere.obj" );
 
-		if( s_xLightModel->IsLoaded() )
+		if( s_xUnlitTechnique == nullptr )
+			s_xUnlitTechnique = g_pResourceLoader->LoadTechnique( "Shader/unlit.tech" );
+
+		if( s_xLightModel->IsLoaded() && s_xUnlitTechnique->IsLoaded() )
 		{
 			UnlitMaterialData oMaterialData;
 			oMaterialData.m_vDiffuseColor = glm::vec3( 1.f, 1.f, 0.f );
@@ -32,7 +36,7 @@ static void DisplayLightVisual( const Entity* pEntity )
 	{
 		Transform oTransform = pEntity->GetWorldTransform();
 		oTransform.SetScale( 0.25f, 0.25f, 0.25f );
-		g_pRenderer->m_oVisualStructure.AddNode( pEntity, oTransform.GetMatrixTRS(), &s_aLightVisuals, g_pRenderer->GetUnlit() );
+		g_pRenderer->m_oVisualStructure.AddNode( pEntity, oTransform.GetMatrixTRS(), &s_aLightVisuals, s_xUnlitTechnique->GetTechnique() );
 	}
 }
 

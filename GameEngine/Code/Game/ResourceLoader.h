@@ -132,8 +132,7 @@ public:
 	const Array< Mesh >&	GetMeshes() const;
 
 private:
-	Array< LitMaterialData >	m_aMaterials;
-	Array< Mesh >				m_aMeshes;
+	Array< Mesh > m_aMeshes;
 };
 
 using ModelResPtr = StrongPtr< ModelResource >;
@@ -262,14 +261,14 @@ private:
 	{
 		ModelLoadCommand( const char* sFilePath, const ModelResPtr& xResource );
 
-		void Load( std::unique_lock< std::mutex >& oLock ) override;
-		void OnFinished() override;
-		void OnDependenciesReady() override;
+		void						Load( std::unique_lock< std::mutex >& oLock ) override;
+		void						OnFinished() override;
+		void						OnDependenciesReady() override;
 
-		uint CountMeshes( aiNode* pNode );
-		void LoadMaterials( aiScene* pScene );
-		void LoadMeshes( aiNode* pNode );
-		void LoadMesh( aiMesh* pMesh );
+		uint						CountMeshes( aiNode* pNode );
+		Array< LitMaterialData >	LoadMaterials( aiScene* pScene );
+		void						LoadMeshes( aiNode* pNode, const Array< LitMaterialData >& aMaterials );
+		void						LoadMesh( aiMesh* pMesh, const Array< LitMaterialData >& aMaterials );
 
 		aiScene* m_pScene;
 	};

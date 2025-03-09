@@ -156,13 +156,11 @@ Renderer* g_pRenderer = nullptr;
 Renderer::Renderer()
 	: m_xDefaultDiffuseMap( g_pResourceLoader->LoadTexture( "Default_diffuse.png" ) )
 	, m_xDefaultNormalMap( g_pResourceLoader->LoadTexture( "Default_normal.png" ) )
-	, m_xForwardOpaque( g_pResourceLoader->LoadTechnique( "Shader/forward_opaque.tech" ) )
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( "Shader/deferred_maps.tech" ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( "Shader/deferred_compose.tech" ) )
 	, m_xPicking( g_pResourceLoader->LoadTechnique( "Shader/picking.tech" ) )
 	, m_xOutline( g_pResourceLoader->LoadTechnique( "Shader/outline.tech" ) )
 	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo.tech" ) )
-	, m_xUnlit( g_pResourceLoader->LoadTechnique( "Shader/unlit.tech" ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
 	, m_bMSAA( false )
 	, m_bDisplayDebug( false )
@@ -237,7 +235,7 @@ void Renderer::Clear()
 bool Renderer::OnLoading()
 {
 	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
-	bLoaded &= m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded() && m_xUnlit->IsLoaded();
+	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
 	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading();
 
 	return bLoaded;
@@ -294,16 +292,6 @@ const Texture* Renderer::GetDefaultNormalMap() const
 	return &m_xDefaultNormalMap->GetTexture();
 }
 
-Technique& Renderer::GetForwardOpaque()
-{
-	return m_xForwardOpaque->GetTechnique();
-}
-
-Technique& Renderer::GetUnlit()
-{
-	return m_xUnlit->GetTechnique();
-}
-
 void Renderer::RenderForward( const RenderContext& oRenderContext )
 {
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -319,20 +307,13 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 		Technique& oTechnique = *m_oVisualStructure.m_aTechniques[ u ];
 		SetTechnique( oTechnique );
 
-		if( u == 0 )
+		if( oTechnique.HasParameter( PARAM_DIRECTIONAL_LIGHT_COUNT ) )
 			SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+
 		DrawMeshes( m_oVisualStructure.m_aImprovedNodes[ u ], oTechnique );
 
 		ClearTechnique();
 	}
-
-// 	Technique& oTechnique = m_xForwardOpaque->GetTechnique();
-// 	SetTechnique( oTechnique );
-// 
-// 	SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
-// 	DrawMeshes( oTechnique );
-// 
-// 	ClearTechnique();
 }
 
 void Renderer::RenderDeferred( const RenderContext& oRenderContext )

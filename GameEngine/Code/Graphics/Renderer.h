@@ -58,9 +58,6 @@ public:
 	const Texture*	GetDefaultDiffuseMap() const;
 	const Texture*	GetDefaultNormalMap() const;
 
-	Technique&		GetForwardOpaque();
-	Technique&		GetUnlit();
-
 private:
 	enum RenderingMode : uint8
 	{
@@ -101,13 +98,11 @@ private:
 
 	TextureResPtr	m_xDefaultDiffuseMap;
 	TextureResPtr	m_xDefaultNormalMap;
-	TechniqueResPtr	m_xForwardOpaque;
 	TechniqueResPtr	m_xDeferredMaps;
 	TechniqueResPtr	m_xDeferredCompose;
 	TechniqueResPtr	m_xPicking;
 	TechniqueResPtr	m_xOutline;
 	TechniqueResPtr	m_xGizmo;
-	TechniqueResPtr	m_xUnlit;
 
 	RenderingMode	m_eRenderingMode;
 	bool			m_bMSAA;
