@@ -25,5 +25,5 @@ bool VisualComponent::IsInitialized()
 
 void VisualComponent::Update( const float fDeltaTime )
 {
-	g_pRenderer->m_oVisualStructure.AddNode( GetEntity(), &m_xModel->GetMeshes() );
+	g_pRenderer->m_oVisualStructure.AddNode( GetEntity(), &m_xModel->GetMeshes(), g_pRenderer->GetForwardOpaque() );
 }

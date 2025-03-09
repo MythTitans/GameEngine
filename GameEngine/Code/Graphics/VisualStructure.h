@@ -55,24 +55,22 @@ class VisualStructure
 public:
 	friend class Renderer;
 
-	void				AddNode( const Entity* pEntity, const Array< Mesh >* pMeshes );
-	void				AddNode( const Entity* pEntity, glm::mat4 mMatrix, const Array< Mesh >* pMeshes );
-	const VisualNode*	FindNode( const Entity* pEntity );
-	const VisualNode*	FindNode( const uint64 uEntityID );
+	void						AddNode( const Entity* pEntity, const Array< Mesh >* pMeshes, Technique& oTechnique );
+	void						AddNode( const Entity* pEntity, glm::mat4 mMatrix, const Array< Mesh >* pMeshes, Technique& oTechnique );
+	Array< const VisualNode* >	FindNodes( const Entity* pEntity ) const;
+	Array< const VisualNode* >	FindNodes( const uint64 uEntityID ) const;
 
-	void				AddDirectionalLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity );
-	void				AddPointLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity, const float fFalloffMinDistance, const float fFalloffMaxDistance );
-	void				AddSpotLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity, const float fInnerAngle, const float fOuterAngle, const float fFalloffMinDistance, const float fFalloffMaxDistance );
-
-	const VisualNode*	begin() const;
-	const VisualNode*	end() const;
+	void						AddDirectionalLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity );
+	void						AddPointLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity, const float fFalloffMinDistance, const float fFalloffMaxDistance );
+	void						AddSpotLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity, const float fInnerAngle, const float fOuterAngle, const float fFalloffMinDistance, const float fFalloffMaxDistance );
 
 private:
-	void				Clear();
+	void						Clear();
 
-	Array< VisualNode >			m_aNodes;
+	Array< Array< VisualNode > >	m_aImprovedNodes;
+	Array< Technique* >				m_aTechniques;
 
-	Array< DirectionalLight >	m_aDirectionalLights;
-	Array< PointLight >			m_aPointLights;
-	Array< SpotLight >			m_aSpotLights;
+	Array< DirectionalLight >		m_aDirectionalLights;
+	Array< PointLight >				m_aPointLights;
+	Array< SpotLight >				m_aSpotLights;
 };

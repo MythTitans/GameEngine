@@ -1,0 +1,18 @@
+#version 330
+
+in vec2 texCoords;
+
+out vec4 finalColor;
+
+uniform vec3 diffuseColor;
+uniform sampler2D diffuseMap;
+
+void main()
+{    
+    vec4 diffuseTextureColor = texture( diffuseMap, texCoords );
+    if( diffuseTextureColor.a < 0.001 )
+        discard;
+
+    vec3 color = clamp( diffuseColor * diffuseTextureColor.rgb, 0.0, 1.0 );
+    finalColor = vec4( color, 1.0 );
+}

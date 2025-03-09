@@ -43,7 +43,7 @@ public:
 	friend class Editor;
 
 	template < typename Technique >
-	friend void DrawMeshes( Technique& oMeshesDefinition );
+	friend void DrawMeshes( const Array< VisualNode >& aVisualNodes, Technique& oTechnique );
 
 	Renderer();
 	~Renderer();
@@ -57,6 +57,9 @@ public:
 
 	const Texture*	GetDefaultDiffuseMap() const;
 	const Texture*	GetDefaultNormalMap() const;
+
+	Technique&		GetForwardOpaque();
+	Technique&		GetUnlit();
 
 private:
 	enum RenderingMode : uint8
@@ -104,6 +107,7 @@ private:
 	TechniqueResPtr	m_xPicking;
 	TechniqueResPtr	m_xOutline;
 	TechniqueResPtr	m_xGizmo;
+	TechniqueResPtr	m_xUnlit;
 
 	RenderingMode	m_eRenderingMode;
 	bool			m_bMSAA;

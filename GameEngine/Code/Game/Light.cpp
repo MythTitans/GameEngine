@@ -18,13 +18,21 @@ static void DisplayLightVisual( const Entity* pEntity )
 			s_xLightModel = g_pResourceLoader->LoadModel( "sphere.obj" );
 
 		if( s_xLightModel->IsLoaded() )
+		{
+			UnlitMaterialData oMaterialData;
+			oMaterialData.m_vDiffuseColor = glm::vec3( 1.f, 1.f, 0.f );
+			MaterialReference oMaterial = g_pMaterialManager->CreateMaterial( oMaterialData );
+
 			s_aLightVisuals = s_xLightModel->GetMeshes();
+			for( Mesh& oMesh : s_aLightVisuals )
+				oMesh.SetMaterial( oMaterial );
+		}
 	}
 	else
 	{
 		Transform oTransform = pEntity->GetWorldTransform();
 		oTransform.SetScale( 0.25f, 0.25f, 0.25f );
-		g_pRenderer->m_oVisualStructure.AddNode( pEntity, oTransform.GetMatrixTRS(), &s_aLightVisuals );
+		g_pRenderer->m_oVisualStructure.AddNode( pEntity, oTransform.GetMatrixTRS(), &s_aLightVisuals, g_pRenderer->GetUnlit() );
 	}
 }
 

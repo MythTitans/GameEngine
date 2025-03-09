@@ -89,12 +89,14 @@ static void SetupLighting( Technique& oTechnique, const Array< DirectionalLight 
 }
 
 template < typename Technique >
-static void DrawMeshes( Technique& oTechnique )
+static void DrawMeshes( const Array< VisualNode >& aVisualNodes, Technique& oTechnique )
 {
-	for( const VisualNode& oVisualNode : g_pRenderer->m_oVisualStructure )
+	for( const VisualNode& oVisualNode : aVisualNodes )
 	{
 		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, g_pRenderer->m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
-		oTechnique.SetParameter( PARAM_MODEL_INVERSE_TRANSPOSE, glm::inverseTranspose( oVisualNode.m_mMatrix ) );
+
+		if( oTechnique.HasParameter( PARAM_MODEL_INVERSE_TRANSPOSE ) )
+			oTechnique.SetParameter( PARAM_MODEL_INVERSE_TRANSPOSE, glm::inverseTranspose( oVisualNode.m_mMatrix ) );
 
 		if( oTechnique.HasParameter( PARAM_MODEL ) )
 			oTechnique.SetParameter( PARAM_MODEL, oVisualNode.m_mMatrix );
@@ -157,9 +159,10 @@ Renderer::Renderer()
 	, m_xForwardOpaque( g_pResourceLoader->LoadTechnique( "Shader/forward_opaque.tech" ) )
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( "Shader/deferred_maps.tech" ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( "Shader/deferred_compose.tech" ) )
-	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo.tech" ) )
 	, m_xPicking( g_pResourceLoader->LoadTechnique( "Shader/picking.tech" ) )
 	, m_xOutline( g_pResourceLoader->LoadTechnique( "Shader/outline.tech" ) )
+	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo.tech" ) )
+	, m_xUnlit( g_pResourceLoader->LoadTechnique( "Shader/unlit.tech" ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
 	, m_bMSAA( false )
 	, m_bDisplayDebug( false )
@@ -234,7 +237,7 @@ void Renderer::Clear()
 bool Renderer::OnLoading()
 {
 	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
-	bLoaded &= m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
+	bLoaded &= m_xForwardOpaque->IsLoaded() && m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded() && m_xUnlit->IsLoaded();
 	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading();
 
 	return bLoaded;
@@ -291,6 +294,16 @@ const Texture* Renderer::GetDefaultNormalMap() const
 	return &m_xDefaultNormalMap->GetTexture();
 }
 
+Technique& Renderer::GetForwardOpaque()
+{
+	return m_xForwardOpaque->GetTechnique();
+}
+
+Technique& Renderer::GetUnlit()
+{
+	return m_xUnlit->GetTechnique();
+}
+
 void Renderer::RenderForward( const RenderContext& oRenderContext )
 {
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -301,13 +314,25 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	else
 		glDisable( GL_MULTISAMPLE );
 
-	Technique& oTechnique = m_xForwardOpaque->GetTechnique();
-	SetTechnique( oTechnique );
+	for( uint u = 0; u < m_oVisualStructure.m_aTechniques.Count(); ++u )
+	{
+		Technique& oTechnique = *m_oVisualStructure.m_aTechniques[ u ];
+		SetTechnique( oTechnique );
 
-	SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
-	DrawMeshes( oTechnique );
+		if( u == 0 )
+			SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+		DrawMeshes( m_oVisualStructure.m_aImprovedNodes[ u ], oTechnique );
 
-	ClearTechnique();
+		ClearTechnique();
+	}
+
+// 	Technique& oTechnique = m_xForwardOpaque->GetTechnique();
+// 	SetTechnique( oTechnique );
+// 
+// 	SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+// 	DrawMeshes( oTechnique );
+// 
+// 	ClearTechnique();
 }
 
 void Renderer::RenderDeferred( const RenderContext& oRenderContext )
@@ -320,7 +345,8 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	Technique& oMapsTechnique = m_xDeferredMaps->GetTechnique();
 	SetTechnique( oMapsTechnique );
 
-	DrawMeshes( oMapsTechnique );
+	for( const Array< VisualNode >& aVisualNodes : m_oVisualStructure.m_aImprovedNodes )
+		DrawMeshes( aVisualNodes, oMapsTechnique );
 
 	ClearRenderTarget();
 
@@ -382,14 +408,17 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 		return glm::uvec4( uRed, uGreen, uBlue, uAlpha );
 	};
 
-	for( const VisualNode& oVisualNode : g_pRenderer->m_oVisualStructure )
+	for( const Array< VisualNode >& aVisualNodes : g_pRenderer->m_oVisualStructure.m_aImprovedNodes )
 	{
-		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
-		oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( oVisualNode.m_uEntityID ) );
+		for( const VisualNode& oVisualNode : aVisualNodes )
+		{
+			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+			oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( oVisualNode.m_uEntityID ) );
 
-		const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
-		for( const Mesh& oMesh : aMeshes )
-			DrawMesh( oMesh );
+			const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
+			for( const Mesh& oMesh : aMeshes )
+				DrawMesh( oMesh );
+		}
 	}
 
 	if( bAllowGizmos )

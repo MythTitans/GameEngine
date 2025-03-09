@@ -1,5 +1,6 @@
 #include "VisualStructure.h"
 
+#include "Core/ArrayUtils.h"
 #include "Game/Entity.h"
 
 DirectionalLight::DirectionalLight( const glm::vec3& vDirection, const glm::vec3& vColor, const float fIntensity )
@@ -37,36 +38,50 @@ VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4& mMatrix, const 
 {
 }
 
-void VisualStructure::AddNode( const Entity* pEntity, const Array< Mesh >* pMeshes )
+void VisualStructure::AddNode( const Entity* pEntity, const Array< Mesh >* pMeshes, Technique& oTechnique )
+{
+	AddNode( pEntity, pEntity->GetWorldTransform().GetMatrixTRS(), pMeshes, oTechnique );
+}
+
+void VisualStructure::AddNode( const Entity* pEntity, glm::mat4 mMatrix, const Array< Mesh >* pMeshes, Technique& oTechnique )
 {
 	ASSERT( pMeshes != nullptr );
 	ASSERT( pMeshes->Empty() == false );
 
-	m_aNodes.PushBack( VisualNode( pEntity->GetID(), pEntity->GetWorldTransform().GetMatrixTRS(), pMeshes ) );
-}
-
-void VisualStructure::AddNode( const Entity* pEntity, glm::mat4 mMatrix, const Array< Mesh >* pMeshes )
-{
-	ASSERT( pMeshes != nullptr );
-	ASSERT( pMeshes->Empty() == false );
-
-	m_aNodes.PushBack( VisualNode( pEntity->GetID(), mMatrix, pMeshes ) );
-}
-
-const VisualNode* VisualStructure::FindNode( const Entity* pEntity )
-{
-	return FindNode( pEntity->GetID() );
-}
-
-const VisualNode* VisualStructure::FindNode( const uint64 uEntityID )
-{
-	for( const VisualNode& oVisualNode : m_aNodes )
+	int iIndex = Find( m_aTechniques, &oTechnique );
+	if( iIndex == -1 )
 	{
-		if( oVisualNode.m_uEntityID == uEntityID )
-			return &oVisualNode;
+		iIndex = m_aTechniques.Count();
+		m_aTechniques.PushBack( &oTechnique );
+
+		if( iIndex >= ( int )m_aImprovedNodes.Count() )
+			m_aImprovedNodes.PushBack( Array< VisualNode >() );
 	}
 
-	return nullptr;
+	m_aImprovedNodes[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, pMeshes ) );
+}
+
+Array< const VisualNode* > VisualStructure::FindNodes( const Entity* pEntity ) const
+{
+	return FindNodes( pEntity->GetID() );
+}
+
+Array< const VisualNode* > VisualStructure::FindNodes( const uint64 uEntityID ) const
+{
+	Array< const VisualNode* > aFoundVisualNodes;
+	for( const Array< VisualNode >& aVisualNodes : m_aImprovedNodes )
+	{
+		for( const VisualNode& oVisualNode : aVisualNodes )
+		{
+			if( oVisualNode.m_uEntityID == uEntityID )
+			{
+				aFoundVisualNodes.PushBack( &oVisualNode );
+				break;
+			}
+		}
+	}
+
+	return aFoundVisualNodes;
 }
 
 void VisualStructure::AddDirectionalLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity )
@@ -89,19 +104,11 @@ void VisualStructure::AddSpotLight( const Entity* pEntity, const glm::vec3& vCol
 
 void VisualStructure::Clear()
 {
-	m_aNodes.Clear();
+	for( Array< VisualNode >& aNodes : m_aImprovedNodes )
+		aNodes.Clear();
+	m_aTechniques.Clear();
 
 	m_aDirectionalLights.Clear();
 	m_aPointLights.Clear();
 	m_aSpotLights.Clear();
-}
-
-const VisualNode* VisualStructure::begin() const
-{
-	return m_aNodes.begin();
-}
-
-const VisualNode* VisualStructure::end() const
-{
-	return m_aNodes.end();
 }

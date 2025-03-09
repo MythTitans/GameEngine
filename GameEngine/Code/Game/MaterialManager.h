@@ -47,8 +47,6 @@ public:
 	{
 	}
 
-	int GetMaterialID() const;
-
 private:
 	std::type_index m_oTypeIndex;
 	int				m_iMaterialID;

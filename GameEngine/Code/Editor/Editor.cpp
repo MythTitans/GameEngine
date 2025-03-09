@@ -279,9 +279,12 @@ void Editor::Render( const RenderContext& oRenderContext )
 	{
 		if( m_uSelectedEntityID != UINT64_MAX )
 		{
-			const VisualNode* pVisualNode = g_pRenderer->m_oVisualStructure.FindNode( m_uSelectedEntityID );
-			if( pVisualNode != nullptr )
-				g_pRenderer->RenderOutline( oRenderContext, *pVisualNode );
+			const Array< const VisualNode* > aVisualNodes = g_pRenderer->m_oVisualStructure.FindNodes( m_uSelectedEntityID );
+			for( const VisualNode* pVisualNode : aVisualNodes )
+			{
+				if( pVisualNode != nullptr )
+					g_pRenderer->RenderOutline( oRenderContext, *pVisualNode );
+			}
 
 			g_pRenderer->RenderGizmos( oRenderContext );
 		}

@@ -122,6 +122,11 @@ void Mesh::Destroy()
 	m_iIndexCount = 0;
 }
 
+void Mesh::SetMaterial( const MaterialReference& oMaterial )
+{
+	m_oMaterial = oMaterial;
+}
+
 const MaterialReference& Mesh::GetMaterial() const
 {
 	return m_oMaterial;

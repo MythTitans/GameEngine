@@ -16,11 +16,6 @@ MaterialReference::MaterialReference()
 {
 }
 
-int MaterialReference::GetMaterialID() const
-{
-	return m_iMaterialID;
-}
-
 MaterialManager::MaterialManager()
 {
 	g_pMaterialManager = this;

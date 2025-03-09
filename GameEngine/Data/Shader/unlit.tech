@@ -1,0 +1,9 @@
+{
+    "vertexShader": "Shader/unlit.vs",
+    "pixelShader": "Shader/unlit.ps",
+    "parameters": [
+        "modelViewProjection",
+        "diffuseColor",
+        "diffuseMap"
+    ]
+}

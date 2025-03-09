@@ -7,6 +7,8 @@
 #include "Core/Array.h"
 #include "Game/MaterialManager.h"
 
+struct VisualNode;
+
 class Mesh
 {
 public:
@@ -14,13 +16,14 @@ public:
 	friend class TextRenderer;
 
 	template < typename Technique >
-	friend void DrawMeshes( Technique& oMeshesDefinition );
+	friend void DrawMeshes( const Array< VisualNode >& aVisualNodes, Technique& oTechnique );
 
 	Mesh();
 
 	void						Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< GLuint >& aIndices, const MaterialReference& oMaterial );
 	void						Destroy();
 
+	void						SetMaterial( const MaterialReference& oMaterial );
 	const MaterialReference&	GetMaterial() const;
 
 private:
