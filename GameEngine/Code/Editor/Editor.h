@@ -23,6 +23,8 @@ private:
 	Ray			ComputeCursorViewRay( const InputContext& oInputContext, const RenderContext& oRenderContext ) const;
 	glm::vec3	ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo ) const;
 
+	void		ColorEdit( const char* sLabel, glm::vec3& vColor );
+
 	uint64		m_uSelectedEntityID;
 	uint64		m_uGizmoEntityID;
 

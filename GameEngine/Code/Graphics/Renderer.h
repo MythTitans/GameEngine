@@ -106,6 +106,7 @@ private:
 
 	RenderingMode	m_eRenderingMode;
 	bool			m_bMSAA;
+	bool			m_bSRGB;
 
 	bool			m_bDisplayDebug;
 };

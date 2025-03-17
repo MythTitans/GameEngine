@@ -156,7 +156,7 @@ FontResPtr ResourceLoader::LoadFont( const char* sFilePath )
 	return xFontPtr;
 }
 
-TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath )
+TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath, const bool bSRGB /*= false*/ )
 {
 	TextureResPtr& xTexturePtr = m_mTextureResources[ sFilePath ];
 	if( xTexturePtr != nullptr )
@@ -165,7 +165,7 @@ TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath )
 	xTexturePtr = new TextureResource();
 
 	LOG_INFO( "Loading {}", sFilePath );
-	m_oPendingLoadCommands.m_aTextureLoadCommands.PushBack( TextureLoadCommand( sFilePath, xTexturePtr ) );
+	m_oPendingLoadCommands.m_aTextureLoadCommands.PushBack( TextureLoadCommand( sFilePath, xTexturePtr, bSRGB ) );
 
 	return xTexturePtr;
 }
@@ -484,11 +484,12 @@ void ResourceLoader::FontLoadCommand::OnDependenciesReady()
 {
 }
 
-ResourceLoader::TextureLoadCommand::TextureLoadCommand( const char* sFilePath, const TextureResPtr& xResource )
+ResourceLoader::TextureLoadCommand::TextureLoadCommand( const char* sFilePath, const TextureResPtr& xResource, const bool bSRGB )
 	: LoadCommand( sFilePath, xResource )
 	, m_iWidth( 0 )
 	, m_iHeight( 0 )
 	, m_iDepth( 0 )
+	, m_bSRGB( bSRGB )
 	, m_pData( nullptr )
 {
 }
@@ -514,7 +515,7 @@ void ResourceLoader::TextureLoadCommand::OnFinished()
 	switch( m_eStatus )
 	{
 	case ResourceLoader::LoadCommandStatus::FINISHED:
-		m_xResource->m_oTexture.Create( m_iWidth, m_iHeight, m_iDepth == 3 ? TextureFormat::RGB : TextureFormat::RGBA, m_pData );
+		m_xResource->m_oTexture.Create( m_iWidth, m_iHeight, m_iDepth == 3 ? TextureFormat::RGB : TextureFormat::RGBA, m_pData, m_bSRGB );
 		stbi_image_free( m_pData );
 		m_xResource->m_eStatus = Resource::Status::LOADED;
 		break;
@@ -623,7 +624,7 @@ Array< LitMaterialData > ResourceLoader::ModelLoadCommand::LoadMaterials( aiScen
 			aiString sFile;
 			if( pMaterial->GetTexture( aiTextureType_DIFFUSE, 0, &sFile ) == AI_SUCCESS )
 			{
-				TextureResPtr xTextureResource = g_pResourceLoader->LoadTexture( sFile.C_Str() );
+				TextureResPtr xTextureResource = g_pResourceLoader->LoadTexture( sFile.C_Str(), true );
 				aMaterials[ u ].m_xDiffuseTextureResource = xTextureResource;
 				m_aDependencies.PushBack( xTextureResource.GetPtr() );
 			}

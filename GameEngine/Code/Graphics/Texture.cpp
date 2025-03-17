@@ -10,7 +10,7 @@ Texture::Texture()
 {
 }
 
-void Texture::Create( const int iWidth, const int iHeight, const TextureFormat eTextureFormat, const uint8* pData )
+void Texture::Create( const int iWidth, const int iHeight, const TextureFormat eTextureFormat, const uint8* pData, const bool bSRGB /*= false*/ )
 {
 	m_iWidth = iWidth;
 	m_iHeight = iHeight;
@@ -35,11 +35,11 @@ void Texture::Create( const int iWidth, const int iHeight, const TextureFormat e
 		break;
 	case TextureFormat::RGB:
 		iFormat = GL_RGB;
-		iInternalFormat = GL_RGB;
+		iInternalFormat = bSRGB ? GL_SRGB8 : GL_RGB;
 		break;
 	case TextureFormat::RGBA:
 		iFormat = GL_RGBA;
-		iInternalFormat = GL_RGBA;
+		iInternalFormat = bSRGB ? GL_SRGB8_ALPHA8 : GL_RGBA;
 		break;
 	case TextureFormat::NORMAL:
 		iFormat = GL_RGB;

@@ -154,7 +154,7 @@ float RenderContext::ComputeAspectRatio() const
 Renderer* g_pRenderer = nullptr;
 
 Renderer::Renderer()
-	: m_xDefaultDiffuseMap( g_pResourceLoader->LoadTexture( "Default_diffuse.png" ) )
+	: m_xDefaultDiffuseMap( g_pResourceLoader->LoadTexture( "Default_diffuse.png", true ) )
 	, m_xDefaultNormalMap( g_pResourceLoader->LoadTexture( "Default_normal.png" ) )
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( "Shader/deferred_maps.tech" ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( "Shader/deferred_compose.tech" ) )
@@ -163,10 +163,10 @@ Renderer::Renderer()
 	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo.tech" ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
 	, m_bMSAA( false )
+	, m_bSRGB( true )
 	, m_bDisplayDebug( false )
 {
 	glEnable( GL_CULL_FACE );
-	//glEnable( GL_FRAMEBUFFER_SRGB );
 	
 	glClearColor( 0.f, 0.f, 0.f, 1.f );
 
@@ -198,6 +198,9 @@ Renderer::~Renderer()
 void Renderer::Render( const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "Renderer" );
+
+	if( m_bSRGB )
+		glEnable( GL_FRAMEBUFFER_SRGB );
 
 	glClearColor( 0.f, 0.f, 0.f, 1.f );
 
@@ -278,6 +281,8 @@ void Renderer::DisplayDebug()
 
 	if( m_eRenderingMode == FORWARD )
 		ImGui::Checkbox( "MSAA", &m_bMSAA );
+
+	ImGui::Checkbox( "SRGB", &m_bSRGB );
 
 	ImGui::End();
 }

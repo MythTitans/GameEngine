@@ -1,7 +1,8 @@
 #include "Editor.h"
 
- #define GLM_ENABLE_EXPERIMENTAL
- #include "glm/gtx/norm.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtc/color_space.hpp"
+#include "glm/gtx/norm.hpp"
 
 #include "Core/Profiler.h"
 #include "Game/Entity.h"
@@ -239,14 +240,14 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 				if( pDirectionalLightComponent != nullptr && ImGui::CollapsingHeader( "Directional light" ) )
 				{
 					ImGui::DragFloat( "Intensity", &pDirectionalLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					ImGui::ColorEdit3( "Color", &pDirectionalLightComponent->m_vColor.x );
+					ColorEdit( "Color", pDirectionalLightComponent->m_vColor );
 				}
 
 				PointLightComponent* pPointLightComponent = g_pComponentManager->GetComponent< PointLightComponent >( it.second.GetPtr() );
 				if( pPointLightComponent != nullptr && ImGui::CollapsingHeader( "Point light" ) )
 				{
 					ImGui::DragFloat( "Intensity", &pPointLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					ImGui::ColorEdit3( "Color", &pPointLightComponent->m_vColor.x );
+					ColorEdit( "Color", pPointLightComponent->m_vColor );
 					ImGui::DragFloat( "Falloff min distance", &pPointLightComponent->m_fFalloffMinDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 					ImGui::DragFloat( "Falloff max distance", &pPointLightComponent->m_fFalloffMaxDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 				}
@@ -255,7 +256,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 				if( pSpotLightComponent != nullptr && ImGui::CollapsingHeader( "Spot light" ) )
 				{
 					ImGui::DragFloat( "Intensity", &pSpotLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					ImGui::ColorEdit3( "Color", &pSpotLightComponent->m_vColor.x );
+					ColorEdit( "Color", pSpotLightComponent->m_vColor );
 					ImGui::DragFloat( "Inner angle", &pSpotLightComponent->m_fInnerAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 					ImGui::DragFloat( "Outer angle", &pSpotLightComponent->m_fOuterAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 					ImGui::DragFloat( "Falloff min distance", &pSpotLightComponent->m_fFalloffMinDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
@@ -270,8 +271,8 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 						if( g_pMaterialManager->IsMaterialType< LitMaterialData >( oMesh.GetMaterial() ) )
 						{
 							LitMaterialData oMaterialData = g_pMaterialManager->GetMaterial< LitMaterialData >( oMesh.GetMaterial() );
-							ImGui::ColorEdit3( "Diffuse color", &oMaterialData.m_vDiffuseColor.x );
-							ImGui::ColorEdit3( "Specular color", &oMaterialData.m_vSpecularColor.x );
+							ColorEdit( "Diffuse color", oMaterialData.m_vDiffuseColor );
+							ColorEdit( "Specular color", oMaterialData.m_vSpecularColor );
 							ImGui::DragFloat( "Shininess", &oMaterialData.m_fShininess );
 							g_pMaterialManager->UpdateMaterial( oMesh.GetMaterial(), oMaterialData );
 						}
@@ -392,4 +393,11 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 	}
 
 	return oTransform.GetO();
+}
+
+void Editor::ColorEdit( const char* sLabel, glm::vec3& vColor )
+{
+	glm::vec3 vSRGBColor = glm::convertLinearToSRGB( vColor );
+	ImGui::ColorEdit3( sLabel, &vSRGBColor.x );
+	vColor = glm::convertSRGBToLinear( vSRGBColor );
 }

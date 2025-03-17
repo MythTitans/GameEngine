@@ -75,6 +75,7 @@ void GameEngine::EndFrame()
 {
 	m_oRenderer.Clear();
 
+	glDisable( GL_FRAMEBUFFER_SRGB );
 	ImGui::Render();
 
 	Logger::Flush();
@@ -123,6 +124,8 @@ void GameEngine::Render()
 		m_oDebugDisplay.Display( m_oRenderContext );
 		m_oMemoryTracker.Display();
 		m_oEditor.Render( m_oRenderContext );
+
+		glDisable( GL_FRAMEBUFFER_SRGB );
 		m_oDebugDisplay.DisplayOverlay( m_oGameContext.m_fLastDeltaTime, m_oRenderContext );
 	}
 }

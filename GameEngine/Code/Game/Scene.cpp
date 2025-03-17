@@ -23,6 +23,7 @@ Scene::Scene()
 	m_mEntities[ 12 ] = new Entity( 12, "Light 3" );
 	m_mEntities[ 13 ] = new Entity( 13, "Light 4" );
 	m_mEntities[ 14 ] = new Entity( 14, "Env" );
+	m_mEntities[ 15 ] = new Entity( 15, "Sphere" );
 
 	GizmoComponent& oTranslateGizmoX = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 0 ].GetPtr() );
 	oTranslateGizmoX.Setup( GizmoType::TRANSLATE, GizmoAxis::X );
@@ -70,6 +71,8 @@ Scene::Scene()
 	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 14 ].GetPtr() ).Setup( "plane.obj" );
 //  	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 14 ].GetPtr() ).Setup( "sponza.obj" );
 //  	m_mEntities[ 14 ]->SetScale( 0.05f, 0.05f, 0.05f );
+
+	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 15 ].GetPtr() ).Setup( "sphere.obj" );
 }
 
 Entity* Scene::FindEntity( const uint64 uEntityID )

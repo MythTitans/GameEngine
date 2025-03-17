@@ -23,7 +23,7 @@ public:
 
 	Texture();
 
-	void			Create( const int iWidth, const int iHeight, const TextureFormat eTextureFormat, const uint8* pData );
+	void			Create( const int iWidth, const int iHeight, const TextureFormat eTextureFormat, const uint8* pData, const bool bSRGB = false );
 	void			Destroy();
 
 	int				GetWidth() const;

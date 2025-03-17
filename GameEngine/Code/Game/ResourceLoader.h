@@ -153,7 +153,7 @@ public:
 	~ResourceLoader();
 
 	FontResPtr		LoadFont( const char* sFilePath );
-	TextureResPtr	LoadTexture( const char* sFilePath );
+	TextureResPtr	LoadTexture( const char* sFilePath, const bool bSRGB = false );
 	ModelResPtr		LoadModel( const char* sFilePath );
 	ShaderResPtr	LoadShader( const char* sFilePath );
 	TechniqueResPtr LoadTechnique( const char* sFilePath );
@@ -245,7 +245,7 @@ private:
 
 	struct TextureLoadCommand : LoadCommand< TextureResource >
 	{
-		TextureLoadCommand( const char* sFilePath, const TextureResPtr& xResource );
+		TextureLoadCommand( const char* sFilePath, const TextureResPtr& xResource, const bool bSRGB );
 
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
@@ -254,6 +254,7 @@ private:
 		int		m_iWidth;
 		int		m_iHeight;
 		int		m_iDepth;
+		bool	m_bSRGB;
 		uint8*	m_pData;
 	};
 
