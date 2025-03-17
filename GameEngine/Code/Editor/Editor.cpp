@@ -4,11 +4,12 @@
  #include "glm/gtx/norm.hpp"
 
 #include "Core/Profiler.h"
-#include "Game/GameEngine.h"
 #include "Game/Entity.h"
+#include "Game/GameEngine.h"
 #include "Game/InputHandler.h"
 #include "Game/Light.h"
 #include "Game/Scene.h"
+#include "Game/Visual.h"
 #include "Graphics/Renderer.h"
 
 static glm::vec3 EditableVector3( const char* sName, glm::vec3 vVector )
@@ -259,6 +260,22 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 					ImGui::DragFloat( "Outer angle", &pSpotLightComponent->m_fOuterAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 					ImGui::DragFloat( "Falloff min distance", &pSpotLightComponent->m_fFalloffMinDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 					ImGui::DragFloat( "Falloff max distance", &pSpotLightComponent->m_fFalloffMaxDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+				}
+
+				VisualComponent* pVisualComponent = g_pComponentManager->GetComponent< VisualComponent >( it.second.GetPtr() );
+				if( pVisualComponent != nullptr && ImGui::CollapsingHeader( "Material" ) )
+				{
+					for( const Mesh& oMesh : pVisualComponent->GetMeshes() )
+					{
+						if( g_pMaterialManager->IsMaterialType< LitMaterialData >( oMesh.GetMaterial() ) )
+						{
+							LitMaterialData oMaterialData = g_pMaterialManager->GetMaterial< LitMaterialData >( oMesh.GetMaterial() );
+							ImGui::ColorEdit3( "Diffuse color", &oMaterialData.m_vDiffuseColor.x );
+							ImGui::ColorEdit3( "Specular color", &oMaterialData.m_vSpecularColor.x );
+							ImGui::DragFloat( "Shininess", &oMaterialData.m_fShininess );
+							g_pMaterialManager->UpdateMaterial( oMesh.GetMaterial(), oMaterialData );
+						}
+					}
 				}
 
 				ImGui::TreePop();

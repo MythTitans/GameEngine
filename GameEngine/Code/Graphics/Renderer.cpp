@@ -17,8 +17,8 @@ static const std::string PARAM_MODEL_VIEW_PROJECTION( "modelViewProjection" );
 static const std::string PARAM_MODEL_INVERSE_TRANSPOSE( "modelInverseTranspose" );
 static const std::string PARAM_MODEL( "model" );
 static const std::string PARAM_INVERSE_VIEW_PROJECTION( "inverseViewProjection" );
+static const std::string PARAM_VIEW_POSITION( "viewPosition" );
 
-static const std::string PARAM_DIFFUSE_COLOR( "diffuseColor" );
 static const std::string PARAM_DIFFUSE_MAP( "diffuseMap" );
 static const std::string PARAM_NORMAL_MAP( "normalMap" );
 static const std::string PARAM_COLOR_MAP( "colorMap" );
@@ -309,6 +309,9 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 
 		if( oTechnique.HasParameter( PARAM_DIRECTIONAL_LIGHT_COUNT ) )
 			SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+
+		if( oTechnique.HasParameter( PARAM_VIEW_POSITION ) )
+			oTechnique.SetParameter( PARAM_VIEW_POSITION, m_oCamera.m_vPosition );
 
 		DrawMeshes( m_oVisualStructure.m_aImprovedNodes[ u ], oTechnique );
 

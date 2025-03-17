@@ -97,6 +97,12 @@ public:
 		return pMaterialsHolder->m_aMaterialData[ oMaterialReference.m_iMaterialID ];
 	}
 
+	template < typename MaterialData >
+	bool IsMaterialType( const MaterialReference& oMaterialReference )
+	{
+		return oMaterialReference.m_oTypeIndex == std::type_index( typeid( MaterialData ) );
+	}
+
 	void ApplyMaterial( const MaterialReference& oMaterialReference, Technique& oTechnique );
 
 private:

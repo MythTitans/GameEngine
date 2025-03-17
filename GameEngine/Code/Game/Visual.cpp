@@ -28,3 +28,8 @@ void VisualComponent::Update( const float fDeltaTime )
 {
 	g_pRenderer->m_oVisualStructure.AddNode( GetEntity(), &m_xModel->GetMeshes(), m_xTechnique->GetTechnique() );
 }
+
+const Array< Mesh >& VisualComponent::GetMeshes() const
+{
+	return m_xModel->GetMeshes();
+}

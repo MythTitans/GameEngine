@@ -5,9 +5,12 @@
         "modelViewProjection",
         "model",
         "modelInverseTranspose",
+        "viewPosition",
         "diffuseColor",
         "diffuseMap",
         "normalMap",
+        "specularColor",
+        "shininess",
         "directionalLightCount",
         "pointLightCount",
         "spotLightCount"

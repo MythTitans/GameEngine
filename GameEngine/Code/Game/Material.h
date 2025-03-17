@@ -17,6 +17,8 @@ struct LitMaterialData
 	void ApplyMaterial( Technique& oTechnique );
 
 	glm::vec3		m_vDiffuseColor;
+	glm::vec3		m_vSpecularColor;
+	float			m_fShininess;
 
 	TextureResPtr	m_xDiffuseTextureResource;
 	TextureResPtr	m_xNormalTextureResource;
