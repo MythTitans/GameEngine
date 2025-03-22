@@ -162,7 +162,7 @@ Renderer::Renderer()
 	, m_xOutline( g_pResourceLoader->LoadTechnique( "Shader/outline.tech" ) )
 	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo.tech" ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
-	, m_bMSAA( false )
+	, m_bMSAA( true )
 	, m_bSRGB( true )
 	, m_bDisplayDebug( false )
 {

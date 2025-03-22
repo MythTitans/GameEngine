@@ -13,6 +13,7 @@
 #include "Core/Profiler.h"
 #include "Core/stb_image.h"
 #include "Core/stb_truetype.h"
+#include "Core/StringUtils.h"
 #include "DebugDisplay.h"
 
 Resource::Resource()
@@ -166,6 +167,33 @@ TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath, const bool bSR
 
 	LOG_INFO( "Loading {}", sFilePath );
 	m_oPendingLoadCommands.m_aTextureLoadCommands.PushBack( TextureLoadCommand( sFilePath, xTexturePtr, bSRGB ) );
+
+	return xTexturePtr;
+}
+
+TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath, const uint8* pData, const uint uDataSize, const bool bSRGB /*= false */ )
+{
+	TextureResPtr& xTexturePtr = m_mTextureResources[ sFilePath ];
+	if( xTexturePtr != nullptr )
+		return xTexturePtr;
+
+	xTexturePtr = new TextureResource();
+
+	LOG_INFO( "Loading {}", sFilePath );
+
+	int iWidth;
+	int iHeight;
+	int iDepth;
+	uint8* pImageData = stbi_load_from_memory( pData, uDataSize, &iWidth, &iHeight, &iDepth, 0 );
+
+	TextureLoadCommand oLoadCommand( sFilePath, xTexturePtr, bSRGB );
+	oLoadCommand.m_eStatus = pImageData != nullptr ? LoadCommandStatus::LOADED : LoadCommandStatus::ERROR_READING;
+	oLoadCommand.m_iWidth = iWidth;
+	oLoadCommand.m_iHeight = iHeight;
+	oLoadCommand.m_iDepth = iDepth;
+	oLoadCommand.m_pData = pImageData;
+
+	m_oPendingLoadCommands.m_aTextureLoadCommands.PushBack( oLoadCommand );
 
 	return xTexturePtr;
 }
@@ -624,7 +652,7 @@ Array< LitMaterialData > ResourceLoader::ModelLoadCommand::LoadMaterials( aiScen
 			aiString sFile;
 			if( pMaterial->GetTexture( aiTextureType_DIFFUSE, 0, &sFile ) == AI_SUCCESS )
 			{
-				TextureResPtr xTextureResource = g_pResourceLoader->LoadTexture( sFile.C_Str(), true );
+				TextureResPtr xTextureResource = LoadTexture( pScene, sFile.C_Str(), true );
 				aMaterials[ u ].m_xDiffuseTextureResource = xTextureResource;
 				m_aDependencies.PushBack( xTextureResource.GetPtr() );
 			}
@@ -635,7 +663,7 @@ Array< LitMaterialData > ResourceLoader::ModelLoadCommand::LoadMaterials( aiScen
 			aiString sFile;
 			if( pMaterial->GetTexture( aiTextureType_NORMALS, 0, &sFile ) == AI_SUCCESS )
 			{
-				TextureResPtr xTextureResource = g_pResourceLoader->LoadTexture( sFile.C_Str() );
+				TextureResPtr xTextureResource = LoadTexture( pScene, sFile.C_Str() );
 				aMaterials[ u ].m_xNormalTextureResource = xTextureResource;
 				m_aDependencies.PushBack( xTextureResource.GetPtr() );
 			}
@@ -699,6 +727,35 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh, const Array< Lit
 	}
 
 	m_xResource->m_aMeshes.PushBack( oMeshBuilder.Build() );
+}
+
+TextureResPtr ResourceLoader::ModelLoadCommand::LoadTexture( aiScene* pScene, const std::string& sFileName, const bool bSRGB /*= false*/ )
+{
+	int uTextureIndex = -1;
+	for( uint u = 0; u < pScene->mNumTextures; ++u )
+	{
+		if( sFileName == pScene->mTextures[ u ]->mFilename.C_Str() )
+		{
+			uTextureIndex = ( int )u;
+			break;
+		}
+	}
+
+	if( uTextureIndex != -1 )
+	{
+		aiTexture* pTexture = pScene->mTextures[ uTextureIndex ];
+
+		std::string sInternalFileName = sFileName;
+		const uint64 uOffset = sFileName.find( ".fbm/" );
+		if( uOffset != std::string::npos )
+			Replace( sInternalFileName, sInternalFileName.substr( 0, uOffset + 5 ), GetFilePath().string() + "@" );
+
+		return g_pResourceLoader->LoadTexture( sInternalFileName.c_str(), ( uint8* )pTexture->pcData, pTexture->mWidth, bSRGB );
+	}
+	else
+	{
+		return g_pResourceLoader->LoadTexture( sFileName.c_str(), bSRGB );
+	}
 }
 
 ResourceLoader::ShaderLoadCommand::ShaderLoadCommand( const char* sFilePath, const ShaderResPtr& xResource )

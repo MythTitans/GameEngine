@@ -154,6 +154,7 @@ public:
 
 	FontResPtr		LoadFont( const char* sFilePath );
 	TextureResPtr	LoadTexture( const char* sFilePath, const bool bSRGB = false );
+	TextureResPtr	LoadTexture( const char* sFilePath, const uint8* pData, const uint uDataSize, const bool bSRGB = false );
 	ModelResPtr		LoadModel( const char* sFilePath );
 	ShaderResPtr	LoadShader( const char* sFilePath );
 	TechniqueResPtr LoadTechnique( const char* sFilePath );
@@ -270,6 +271,8 @@ private:
 		Array< LitMaterialData >	LoadMaterials( aiScene* pScene );
 		void						LoadMeshes( aiNode* pNode, const Array< LitMaterialData >& aMaterials );
 		void						LoadMesh( aiMesh* pMesh, const Array< LitMaterialData >& aMaterials );
+
+		TextureResPtr				LoadTexture( aiScene* pScene, const std::string& sFileName, const bool bSRGB = false );
 
 		aiScene* m_pScene;
 	};

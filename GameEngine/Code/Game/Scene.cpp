@@ -52,7 +52,9 @@ Scene::Scene()
 	GizmoComponent& oGiroGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 8 ].GetPtr() );
 	oGiroGizmoXZ.Setup( GizmoType::ROTATE, GizmoAxis::XZ );
 
-	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( "Earth_Golem_OBJ.obj" );
+	//g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( "Earth_Golem_OBJ.obj" );
+	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( "TestAnim.fbx" );
+	m_mEntities[ 9 ]->SetScale( 0.05f, 0.05f, 0.05f );
 
 	m_mEntities[ 10 ]->SetPosition( -1.f, 10.f, 2.f );
 	g_pComponentManager->CreateComponent< PointLightComponent >( m_mEntities[ 10 ].GetPtr() );

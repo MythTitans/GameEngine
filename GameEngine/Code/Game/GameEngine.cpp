@@ -68,7 +68,7 @@ void GameEngine::ProcessFrame()
 
 	Render();
 
-	++( m_oGameContext.m_uFrameIndex );
+	++m_oGameContext.m_uFrameIndex;
 }
 
 void GameEngine::EndFrame()
