@@ -73,6 +73,11 @@ void Texture::Destroy()
 	m_eFormat = TextureFormat::RGBA;
 }
 
+GLuint Texture::GetID() const
+{
+	return m_uTextureID;
+}
+
 int Texture::GetWidth() const
 {
 	return m_iWidth;

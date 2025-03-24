@@ -6,9 +6,10 @@
 #include "Core/Types.h"
 #include "Math/MathUtils.h"
 
+class GizmoComponent;
 class InputContext;
 class RenderContext;
-class GizmoComponent;
+class TextureResource;
 
 class Editor
 {
@@ -24,6 +25,7 @@ private:
 	glm::vec3	ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo ) const;
 
 	void		ColorEdit( const char* sLabel, glm::vec3& vColor );
+	void		TexturePreview( const char* sLabel, const TextureResource* pTexture );
 
 	uint64		m_uSelectedEntityID;
 	uint64		m_uGizmoEntityID;

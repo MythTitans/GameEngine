@@ -26,6 +26,7 @@ public:
 	void			Create( const int iWidth, const int iHeight, const TextureFormat eTextureFormat, const uint8* pData, const bool bSRGB = false );
 	void			Destroy();
 
+	GLuint			GetID() const;
 	int				GetWidth() const;
 	int				GetHeight() const;
 	TextureFormat	GetFormat() const;

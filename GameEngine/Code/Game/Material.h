@@ -22,6 +22,7 @@ struct LitMaterialData
 
 	TextureResPtr	m_xDiffuseTextureResource;
 	TextureResPtr	m_xNormalTextureResource;
+	TextureResPtr	m_xSpecularTextureResource;
 };
 
 struct UnlitMaterialData

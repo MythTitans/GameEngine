@@ -15,10 +15,11 @@ out vec4 finalColor;
 uniform vec3 viewPosition;
 
 uniform vec3 diffuseColor;
-uniform sampler2D diffuseMap;
-uniform sampler2D normalMap;
 uniform vec3 specularColor;
 uniform float shininess;
+uniform sampler2D diffuseMap;
+uniform sampler2D normalMap;
+uniform sampler2D specularMap;
 
 uniform vec3 directionalLightDirections[ MAX_DIRECTIONAL_LIGHT_COUNT ];
 uniform vec3 directionalLightColors[ MAX_DIRECTIONAL_LIGHT_COUNT ];
@@ -66,7 +67,8 @@ void main()
 
         vec3 halfVector = normalize( -directionalLightDirections[ i ] + pointToViewDirection );
         float surfaceHighlight = pow( max( dot( halfVector, worldSpaceNormal ), 0.0 ), shininess );
-        specularIntensity += lightIntensity * surfaceHighlight * pointLightColors[ i ];
+        float highlightIntensity = texture( specularMap, texCoords ).r;
+        specularIntensity += lightIntensity * surfaceHighlight * highlightIntensity * pointLightColors[ i ];
     }
 
     for( int i = 0; i < pointLightCount; ++i )
@@ -84,7 +86,8 @@ void main()
 
         vec3 halfVector = normalize( pointToLightDirection + pointToViewDirection );
         float surfaceHighlight = pow( max( dot( halfVector, worldSpaceNormal ), 0.0 ), shininess );
-        specularIntensity += lightIntensity * surfaceHighlight * pointLightColors[ i ];
+        float highlightIntensity = texture( specularMap, texCoords ).r;
+        specularIntensity += lightIntensity * surfaceHighlight * highlightIntensity * pointLightColors[ i ];
     }
 
     for( int i = 0; i < spotLightCount; ++i )
@@ -103,7 +106,8 @@ void main()
 
         vec3 halfVector = normalize( pointToLightDirection + pointToViewDirection );
         float surfaceHighlight = pow( max( dot( halfVector, worldSpaceNormal ), 0.0 ), shininess ) * spotExposure;
-        specularIntensity += lightIntensity * surfaceHighlight * spotLightColors[ i ];
+        float highlightIntensity = texture( specularMap, texCoords ).r;
+        specularIntensity += lightIntensity * surfaceHighlight * highlightIntensity * spotLightColors[ i ];
     }
     
     vec3 color = clamp( diffuseIntensity * diffuseColor * diffuseTextureColor.rgb + specularIntensity * specularColor * diffuseTextureColor.rgb, 0.0, 1.0 );

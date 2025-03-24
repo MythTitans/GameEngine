@@ -647,6 +647,12 @@ Array< LitMaterialData > ResourceLoader::ModelLoadCommand::LoadMaterials( aiScen
 		pMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, oDiffuseColor );
 		aMaterials[ u ].m_vDiffuseColor = glm::vec3( oDiffuseColor.r, oDiffuseColor.g, oDiffuseColor.b );
 
+		aiColor3D oSpecularColor;
+		pMaterial->Get( AI_MATKEY_COLOR_SPECULAR, oSpecularColor );
+		aMaterials[ u ].m_vSpecularColor = glm::vec3( oSpecularColor.r, oSpecularColor.g, oSpecularColor.b );
+
+		pMaterial->Get( AI_MATKEY_SHININESS, aMaterials[ u ].m_fShininess );
+
 		if( pMaterial->GetTextureCount( aiTextureType_DIFFUSE ) != 0 )
 		{
 			aiString sFile;
@@ -665,6 +671,17 @@ Array< LitMaterialData > ResourceLoader::ModelLoadCommand::LoadMaterials( aiScen
 			{
 				TextureResPtr xTextureResource = LoadTexture( pScene, sFile.C_Str() );
 				aMaterials[ u ].m_xNormalTextureResource = xTextureResource;
+				m_aDependencies.PushBack( xTextureResource.GetPtr() );
+			}
+		}
+
+		if( pMaterial->GetTextureCount( aiTextureType_SPECULAR ) != 0 )
+		{
+			aiString sFile;
+			if( pMaterial->GetTexture( aiTextureType_SPECULAR, 0, &sFile ) == AI_SUCCESS )
+			{
+				TextureResPtr xTextureResource = LoadTexture( pScene, sFile.C_Str() );
+				aMaterials[ u ].m_xSpecularTextureResource = xTextureResource;
 				m_aDependencies.PushBack( xTextureResource.GetPtr() );
 			}
 		}
