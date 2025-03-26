@@ -18,11 +18,13 @@ struct LitMaterialData
 
 	glm::vec3		m_vDiffuseColor;
 	glm::vec3		m_vSpecularColor;
+	glm::vec3		m_vEmissiveColor;
 	float			m_fShininess;
 
 	TextureResPtr	m_xDiffuseTextureResource;
 	TextureResPtr	m_xNormalTextureResource;
 	TextureResPtr	m_xSpecularTextureResource;
+	TextureResPtr	m_xEmissiveTextureResource;
 };
 
 struct UnlitMaterialData

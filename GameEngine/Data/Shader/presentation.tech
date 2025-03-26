@@ -1,0 +1,11 @@
+{
+    "vertexShader": "Shader/presentation.vs",
+    "pixelShader": "Shader/presentation.ps",
+    "parameters":
+    [
+        "colorMap"
+    ],
+    "arrays":
+    [
+    ]
+}

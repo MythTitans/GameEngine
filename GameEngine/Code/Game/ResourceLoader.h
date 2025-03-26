@@ -162,6 +162,8 @@ public:
 	void			HandleLoadedResources();
 	void			ProcessLoadCommands();
 
+	void			DisplayDebug();
+
 private:
 	void			Load();
 	void			ProcessPendingLoadCommands();
@@ -339,6 +341,8 @@ private:
 	std::jthread			m_oIOThread;
 
 	Assimp::Importer		m_oModelImporter;
+
+	bool					m_bDisplayDebug;
 };
 
 extern ResourceLoader* g_pResourceLoader;

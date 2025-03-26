@@ -114,6 +114,7 @@ InputHandler::InputHandler()
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_RENDERER_DEBUG, GLFW_KEY_F2, ActionType::PRESSED ) );
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_MEMORY_TRACKER, GLFW_KEY_F3, ActionType::PRESSED ) );
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_PROFILER, GLFW_KEY_F4, ActionType::PRESSED ) );
+	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_TOGGLE_RESOURCES_DEBUG, GLFW_KEY_F5, ActionType::PRESSED ) );
 	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_MOUSE_LEFT_PRESS, GLFW_MOUSE_BUTTON_LEFT, ActionType::PRESSED, DeviceType::MOUSE ) );
 	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_MOUSE_LEFT_PRESSING, GLFW_MOUSE_BUTTON_LEFT, ActionType::PRESSING, DeviceType::MOUSE ) );
 	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_MOUSE_LEFT_RELEASE, GLFW_MOUSE_BUTTON_LEFT, ActionType::RELEASED, DeviceType::MOUSE ) );

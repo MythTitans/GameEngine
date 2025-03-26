@@ -15,6 +15,7 @@
 #include "Core/stb_truetype.h"
 #include "Core/StringUtils.h"
 #include "DebugDisplay.h"
+#include "InputHandler.h"
 
 Resource::Resource()
 	: m_eStatus( Status::LOADING )
@@ -128,6 +129,7 @@ ResourceLoader* g_pResourceLoader = nullptr;
 ResourceLoader::ResourceLoader()
 	: m_bRunning( true )
 	, m_oIOThread( &ResourceLoader::Load, this )
+	, m_bDisplayDebug( false )
 {
 	//SetThreadAffinityMask( m_oIOThread.native_handle(), IO_THREAD_AFFINITY_MASK );
 	SetThreadDescription( m_oIOThread.native_handle(), L"IO thread" );
@@ -253,6 +255,74 @@ void ResourceLoader::ProcessLoadCommands()
 	ProfilerBlock oBlock( "ProcessLoadCommands" );
 
 	ProcessPendingLoadCommands();
+}
+
+void ResourceLoader::DisplayDebug()
+{
+	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_TOGGLE_RESOURCES_DEBUG ) )
+		m_bDisplayDebug = !m_bDisplayDebug;
+
+	if( m_bDisplayDebug == false )
+		return;
+
+	ImGui::Begin( "Resources" );
+
+	if( ImGui::CollapsingHeader( "Textures" ) )
+	{
+		ImGui::Text( "Textures count : %d", m_mTextureResources.size() );
+
+		static bool bShowDetails = false;
+		ImGui::Checkbox( "Show details", &bShowDetails );
+
+		if( bShowDetails && ImGui::BeginTable( "Textures", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit ) )
+		{
+			ImGui::TableSetupColumn( "Texture" );
+			ImGui::TableSetupColumn( "Infos" );
+			ImGui::TableHeadersRow();
+
+			auto TextureFormatToString = []( const TextureFormat eFormat ) {
+				switch( eFormat )
+				{
+				case TextureFormat::RED:
+					return "RED";
+				case TextureFormat::RGB:
+					return "RGB";
+				case TextureFormat::RGBA:
+					return "RGBA";
+				default:
+					return "Undefined";
+				}
+			};
+
+			for( auto& oPair : m_mTextureResources )
+			{
+				const Texture& oTexture = oPair.second->GetTexture();
+
+				ImGui::TableNextRow();
+
+ 				ImGui::TableSetColumnIndex( 0 );
+				const ImVec2 vFrom = ImGui::GetCursorScreenPos();
+				ImGui::Image( oPair.second->GetTexture().GetID(), ImVec2( 128.f, 128.f ) );
+				const ImVec2 vTo = ImVec2( vFrom.x + 128.f, vFrom.y + 128.f );
+				if( ImGui::IsMouseHoveringRect( vFrom, vTo ) )
+				{
+					ImGui::BeginTooltip();
+					ImGui::Image( oTexture.GetID(), ImVec2( 512.f, 512.f ) );
+					ImGui::EndTooltip();
+				}
+
+				ImGui::TableSetColumnIndex( 1 );
+				ImGui::Text( "ID : %s", oPair.first.c_str() );
+				ImGui::Text( "Size : %d x %d", oTexture.GetWidth(), oTexture.GetHeight() );
+				ImGui::Text( "Format : %s", TextureFormatToString( oTexture.GetFormat() ) );
+				ImGui::Text( "References : %d", oPair.second->GetReferenceCount() - 1 );
+			}
+
+			ImGui::EndTable();
+		}
+	}
+
+	ImGui::End();
 }
 
 template < typename LoadCommand >
@@ -651,6 +721,10 @@ Array< LitMaterialData > ResourceLoader::ModelLoadCommand::LoadMaterials( aiScen
 		pMaterial->Get( AI_MATKEY_COLOR_SPECULAR, oSpecularColor );
 		aMaterials[ u ].m_vSpecularColor = glm::vec3( oSpecularColor.r, oSpecularColor.g, oSpecularColor.b );
 
+		aiColor3D oEmissiveColor;
+		pMaterial->Get( AI_MATKEY_COLOR_EMISSIVE, oEmissiveColor );
+		aMaterials[ u ].m_vEmissiveColor = glm::vec3( oEmissiveColor.r, oEmissiveColor.g, oEmissiveColor.b );
+
 		pMaterial->Get( AI_MATKEY_SHININESS, aMaterials[ u ].m_fShininess );
 
 		if( pMaterial->GetTextureCount( aiTextureType_DIFFUSE ) != 0 )
@@ -682,6 +756,17 @@ Array< LitMaterialData > ResourceLoader::ModelLoadCommand::LoadMaterials( aiScen
 			{
 				TextureResPtr xTextureResource = LoadTexture( pScene, sFile.C_Str() );
 				aMaterials[ u ].m_xSpecularTextureResource = xTextureResource;
+				m_aDependencies.PushBack( xTextureResource.GetPtr() );
+			}
+		}
+
+		if( pMaterial->GetTextureCount( aiTextureType_EMISSIVE ) != 0 )
+		{
+			aiString sFile;
+			if( pMaterial->GetTexture( aiTextureType_EMISSIVE, 0, &sFile ) == AI_SUCCESS )
+			{
+				TextureResPtr xTextureResource = LoadTexture( pScene, sFile.C_Str() );
+				aMaterials[ u ].m_xEmissiveTextureResource = xTextureResource;
 				m_aDependencies.PushBack( xTextureResource.GetPtr() );
 			}
 		}

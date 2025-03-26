@@ -41,6 +41,10 @@ void Texture::Create( const int iWidth, const int iHeight, const TextureFormat e
 		iFormat = GL_RGBA;
 		iInternalFormat = bSRGB ? GL_SRGB8_ALPHA8 : GL_RGBA;
 		break;
+	case TextureFormat::RGB16:
+		iFormat = GL_RGB;
+		iInternalFormat = GL_RGB16F;
+		break;
 	case TextureFormat::NORMAL:
 		iFormat = GL_RGB;
 		iInternalFormat = GL_RGB16F;

@@ -158,6 +158,7 @@ Renderer::Renderer()
 	, m_xDefaultNormalMap( g_pResourceLoader->LoadTexture( "Default_normal.png" ) )
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( "Shader/deferred_maps.tech" ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( "Shader/deferred_compose.tech" ) )
+	, m_xPresentation( g_pResourceLoader->LoadTechnique( "Shader/presentation.tech" ) )
 	, m_xPicking( g_pResourceLoader->LoadTechnique( "Shader/picking.tech" ) )
 	, m_xOutline( g_pResourceLoader->LoadTechnique( "Shader/outline.tech" ) )
 	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo.tech" ) )
@@ -207,14 +208,26 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 
-	if( oRenderRect.m_uWidth != m_oRenderTarget.GetWidth() || oRenderRect.m_uHeight != m_oRenderTarget.GetHeight() )
+	if( oRenderRect.m_uWidth != m_oForwardTarget.GetWidth() || oRenderRect.m_uHeight != m_oForwardTarget.GetHeight() )
 	{
-		m_oRenderTarget.Destroy();
+		m_oForwardTarget.Destroy();
+
+		Array< TextureFormat > aFormats( 2 );
+		aFormats[ 0 ] = TextureFormat::RGB16;
+		aFormats[ 1 ] = TextureFormat::RGB;
+		m_oForwardTarget.Create( oRenderRect.m_uWidth, oRenderRect.m_uHeight, aFormats, true );
+
+		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
+	}
+
+	if( oRenderRect.m_uWidth != m_oDeferredTarget.GetWidth() || oRenderRect.m_uHeight != m_oDeferredTarget.GetHeight() )
+	{
+		m_oDeferredTarget.Destroy();
 
 		Array< TextureFormat > aFormats( 2 );
 		aFormats[ 0 ] = TextureFormat::RGB;
 		aFormats[ 1 ] = TextureFormat::NORMAL;
-		m_oRenderTarget.Create( oRenderRect.m_uWidth, oRenderRect.m_uHeight, aFormats, true );
+		m_oDeferredTarget.Create( oRenderRect.m_uWidth, oRenderRect.m_uHeight, aFormats, true );
 
 		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
 	}
@@ -238,7 +251,7 @@ void Renderer::Clear()
 bool Renderer::OnLoading()
 {
 	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
-	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
+	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPresentation->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
 	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading();
 
 	return bLoaded;
@@ -299,6 +312,8 @@ const Texture* Renderer::GetDefaultNormalMap() const
 
 void Renderer::RenderForward( const RenderContext& oRenderContext )
 {
+	SetRenderTarget( m_oForwardTarget );
+
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
 
@@ -319,14 +334,30 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 			oTechnique.SetParameter( PARAM_VIEW_POSITION, m_oCamera.m_vPosition );
 
 		DrawMeshes( m_oVisualStructure.m_aImprovedNodes[ u ], oTechnique );
-
-		ClearTechnique();
 	}
+
+	ClearRenderTarget();
+
+	glClear( GL_COLOR_BUFFER_BIT );
+	glDisable( GL_DEPTH_TEST );
+
+	Technique& oPresentationTechnique = m_xPresentation->GetTechnique();
+	SetTechnique( oPresentationTechnique );
+
+	SetTextureSlot( m_oForwardTarget.GetColorMap( 0 ), 0 );
+	oPresentationTechnique.SetParameter( PARAM_COLOR_MAP, 0 );
+
+	DrawMesh( m_oRenderMesh );
+
+	ClearTextureSlot( 0 );
+	ClearTechnique();
+
+	CopyDepthToBackBuffer( m_oForwardTarget, oRenderContext.GetRenderRect() );
 }
 
 void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 {
-	SetRenderTarget( m_oRenderTarget );
+	SetRenderTarget( m_oDeferredTarget );
 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
@@ -345,11 +376,11 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	Technique& oComposeTechnique = m_xDeferredCompose->GetTechnique();
 	SetTechnique( oComposeTechnique );
 
-	SetTextureSlot( m_oRenderTarget.GetColorMap( 0 ), 0 );
+	SetTextureSlot( m_oDeferredTarget.GetColorMap( 0 ), 0 );
 	oComposeTechnique.SetParameter( PARAM_COLOR_MAP, 0 );
-	SetTextureSlot( m_oRenderTarget.GetColorMap( 1 ), 1 );
+	SetTextureSlot( m_oDeferredTarget.GetColorMap( 1 ), 1 );
 	oComposeTechnique.SetParameter( PARAM_NORMAL_MAP, 1 );
-	SetTextureSlot( m_oRenderTarget.GetDepthMap(), 2 );
+	SetTextureSlot( m_oDeferredTarget.GetDepthMap(), 2 );
 	oComposeTechnique.SetParameter( PARAM_DEPTH_MAP, 2 );
 	oComposeTechnique.SetParameter( PARAM_INVERSE_VIEW_PROJECTION, m_oCamera.GetInverseViewProjectionMatrix() );
 
@@ -360,7 +391,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	ClearTextureSlot( 0 );
 	ClearTechnique();
 
-	CopyDepthToBackBuffer( m_oRenderTarget, oRenderContext.GetRenderRect() );
+	CopyDepthToBackBuffer( m_oDeferredTarget, oRenderContext.GetRenderRect() );
 }
 
 uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos )

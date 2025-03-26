@@ -8,10 +8,12 @@
         "viewPosition",
         "diffuseColor",
         "specularColor",
+        "emissiveColor",
         "shininess",
         "diffuseMap",
         "normalMap",
         "specularMap",
+        "emissiveMap",
         "directionalLightCount",
         "pointLightCount",
         "spotLightCount"

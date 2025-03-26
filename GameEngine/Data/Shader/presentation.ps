@@ -1,0 +1,12 @@
+#version 330
+
+in vec2 uv;
+
+out vec4 finalColor;
+
+uniform sampler2D colorMap;
+
+void main()
+{
+    finalColor = vec4( texture( colorMap, uv ).rgb, 1.0 );
+}

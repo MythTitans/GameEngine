@@ -91,7 +91,8 @@ public:
 	VisualStructure	m_oVisualStructure;
 
 private:
-	RenderTarget	m_oRenderTarget;
+	RenderTarget	m_oForwardTarget;
+	RenderTarget	m_oDeferredTarget;
 	RenderTarget	m_oPickingTarget;
 
 	Mesh			m_oRenderMesh;
@@ -100,6 +101,7 @@ private:
 	TextureResPtr	m_xDefaultNormalMap;
 	TechniqueResPtr	m_xDeferredMaps;
 	TechniqueResPtr	m_xDeferredCompose;
+	TechniqueResPtr	m_xPresentation;
 	TechniqueResPtr	m_xPicking;
 	TechniqueResPtr	m_xOutline;
 	TechniqueResPtr	m_xGizmo;
