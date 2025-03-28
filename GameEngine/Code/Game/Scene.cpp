@@ -70,7 +70,7 @@ Scene::Scene()
 
 	AttachToParent( m_mEntities[ 10 ].GetPtr(), m_mEntities[ 9 ].GetPtr() );
 
-	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 14 ].GetPtr() ).Setup( "plane.obj" );
+	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 14 ].GetPtr() ).Setup( "sphere.obj" );
 //  	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 14 ].GetPtr() ).Setup( "sponza.obj" );
 //  	m_mEntities[ 14 ]->SetScale( 0.05f, 0.05f, 0.05f );
 

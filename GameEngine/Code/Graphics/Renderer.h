@@ -94,6 +94,7 @@ private:
 	RenderTarget	m_oForwardTarget;
 	RenderTarget	m_oDeferredTarget;
 	RenderTarget	m_oPickingTarget;
+	RenderTarget	m_oBloomTarget[ 2 ];
 
 	Mesh			m_oRenderMesh;
 
@@ -102,6 +103,7 @@ private:
 	TechniqueResPtr	m_xDeferredMaps;
 	TechniqueResPtr	m_xDeferredCompose;
 	TechniqueResPtr	m_xPresentation;
+	TechniqueResPtr	m_xBlur;
 	TechniqueResPtr	m_xPicking;
 	TechniqueResPtr	m_xOutline;
 	TechniqueResPtr	m_xGizmo;

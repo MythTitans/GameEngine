@@ -159,6 +159,7 @@ Renderer::Renderer()
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( "Shader/deferred_maps.tech" ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( "Shader/deferred_compose.tech" ) )
 	, m_xPresentation( g_pResourceLoader->LoadTechnique( "Shader/presentation.tech" ) )
+	, m_xBlur( g_pResourceLoader->LoadTechnique( "Shader/blur.tech" ) )
 	, m_xPicking( g_pResourceLoader->LoadTechnique( "Shader/picking.tech" ) )
 	, m_xOutline( g_pResourceLoader->LoadTechnique( "Shader/outline.tech" ) )
 	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo.tech" ) )
@@ -232,6 +233,20 @@ void Renderer::Render( const RenderContext& oRenderContext )
 		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
 	}
 
+	for( int i = 0; i < 2; ++i )
+	{
+		if( oRenderRect.m_uWidth != m_oBloomTarget[ i ].GetWidth() || oRenderRect.m_uHeight != m_oBloomTarget[ i ].GetHeight() )
+		{
+			m_oBloomTarget[ i ].Destroy();
+
+			Array< TextureFormat > aFormats( 1 );
+			aFormats[ 0 ] = TextureFormat::RGB;
+			m_oBloomTarget[ i ].Create( oRenderRect.m_uWidth, oRenderRect.m_uHeight, aFormats, true );
+
+			m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
+		}
+	}
+
 	switch( m_eRenderingMode )
 	{
 	case RenderingMode::FORWARD:
@@ -251,7 +266,7 @@ void Renderer::Clear()
 bool Renderer::OnLoading()
 {
 	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
-	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPresentation->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
+	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPresentation->IsLoaded() && m_xBlur->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
 	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading();
 
 	return bLoaded;
@@ -312,6 +327,7 @@ const Texture* Renderer::GetDefaultNormalMap() const
 
 void Renderer::RenderForward( const RenderContext& oRenderContext )
 {
+	// Render scene
 	SetRenderTarget( m_oForwardTarget );
 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -336,12 +352,51 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 		DrawMeshes( m_oVisualStructure.m_aImprovedNodes[ u ], oTechnique );
 	}
 
-	ClearRenderTarget();
+	// Apply bloom
+	SetRenderTarget( m_oBloomTarget[ 0 ] );
 
 	glClear( GL_COLOR_BUFFER_BIT );
 	glDisable( GL_DEPTH_TEST );
 
 	Technique& oPresentationTechnique = m_xPresentation->GetTechnique();
+	SetTechnique( oPresentationTechnique );
+
+	SetTextureSlot( m_oForwardTarget.GetColorMap( 1 ), 0 );
+	oPresentationTechnique.SetParameter( PARAM_COLOR_MAP, 0 );
+
+	DrawMesh( m_oRenderMesh );
+
+	//ClearTextureSlot( 0 );
+
+	SetRenderTarget( m_oBloomTarget[ 1 ] );
+
+	glClear( GL_COLOR_BUFFER_BIT );
+	glDisable( GL_DEPTH_TEST );
+
+	Technique& oBlurTechnique = m_xBlur->GetTechnique();
+	SetTechnique( oBlurTechnique );
+
+	static float aKernel[ 10 ] = { 0.00022609f, 0.00169965f, 0.01101961f, 0.0510116f, 0.14511987f, 0.23192685f, 0.23192685f, 0.14511987f, 0.0510116f, 0.01101961f };
+	for( int i = 0; i < 10; ++i )
+		oBlurTechnique.SetArrayParameter( "kernel", aKernel[ i ], i );
+
+	oBlurTechnique.SetParameter( "vertical", false );
+	oBlurTechnique.SetParameter( "delta", 1.f / oRenderContext.GetRenderRect().m_uWidth );
+
+	SetTextureSlot( m_oBloomTarget[ 0 ].GetColorMap( 0 ), 0 );
+	oBlurTechnique.SetParameter( "inputTexture", 0 );
+
+	DrawMesh( m_oRenderMesh );
+
+	ClearTextureSlot( 0 );
+
+	// Present on framebuffer
+	ClearRenderTarget();
+
+	glClear( GL_COLOR_BUFFER_BIT );
+	glDisable( GL_DEPTH_TEST );
+
+	//Technique& oPresentationTechnique = m_xPresentation->GetTechnique();
 	SetTechnique( oPresentationTechnique );
 
 	SetTextureSlot( m_oForwardTarget.GetColorMap( 0 ), 0 );
