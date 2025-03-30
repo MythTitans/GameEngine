@@ -65,6 +65,7 @@ int main()
 		s_oRenderContext.OnFrameBufferResized( iFrameBufferWidth, iFrameBufferHeight );
 
 		glfwMakeContextCurrent( pWindow );
+		glfwSwapInterval( 0 );
 
 		glewExperimental = GL_TRUE;
 
@@ -105,18 +106,23 @@ int main()
 
 				{
 					ProfilerBlock oBlock( "Frame" );
+
 					s_oInputContext.Refresh();
 					oGameEngine.ProcessFrame();
 
 					oGameEngine.EndFrame();
+					
+					{
+						ProfilerBlock oBlock( "Wait display" );
 
-					ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
+						ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
 
-					ImGui::UpdatePlatformWindows();
-					ImGui::RenderPlatformWindowsDefault();
-					glfwMakeContextCurrent( pWindow );
+						ImGui::UpdatePlatformWindows();
+						ImGui::RenderPlatformWindowsDefault();
+						glfwMakeContextCurrent( pWindow );
 
-					glfwSwapBuffers( pWindow );
+						glfwSwapBuffers( pWindow );
+					}
 				}
 			}
 		}

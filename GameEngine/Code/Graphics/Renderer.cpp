@@ -52,6 +52,9 @@ static const std::string PARAM_SPOT_LIGHT_RANGES( "spotLightRanges" );
 static const std::string PARAM_SPOT_LIGHT_FALLOFF_MIN_DISTANCES( "spotLightFalloffMinDistances" );
 static const std::string PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES( "spotLightFalloffMaxDistances" );
 
+static const std::string PARAM_TEXTURE_A( "textureA" );
+static const std::string PARAM_TEXTURE_B( "textureB" );
+
 template < typename Technique >
 static void SetupLighting( Technique& oTechnique, const Array< DirectionalLight >& aDirectionalLights, const Array< PointLight >& aPointLights, const Array< SpotLight >& aSpotLights )
 {
@@ -159,6 +162,7 @@ Renderer::Renderer()
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( "Shader/deferred_maps.tech" ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( "Shader/deferred_compose.tech" ) )
 	, m_xPresentation( g_pResourceLoader->LoadTechnique( "Shader/presentation.tech" ) )
+	, m_xBlend( g_pResourceLoader->LoadTechnique( "Shader/blend.tech" ) )
 	, m_xPicking( g_pResourceLoader->LoadTechnique( "Shader/picking.tech" ) )
 	, m_xOutline( g_pResourceLoader->LoadTechnique( "Shader/outline.tech" ) )
 	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo.tech" ) )
@@ -203,7 +207,7 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	if( m_bSRGB )
 		glEnable( GL_FRAMEBUFFER_SRGB );
 
-	glClearColor( 0.f, 0.f, 0.f, 1.f );
+	glClearColor( 0.f, 0.f, 0.f, 0.f );
 
 	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
@@ -251,8 +255,8 @@ void Renderer::Clear()
 bool Renderer::OnLoading()
 {
 	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
-	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPresentation->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
-	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading();
+	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPresentation->IsLoaded() && m_xBlend->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
+	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading() && m_oBloom.OnLoading();
 
 	return bLoaded;
 }
@@ -297,6 +301,8 @@ void Renderer::DisplayDebug()
 
 	ImGui::Checkbox( "SRGB", &m_bSRGB );
 
+	ImGui::InputInt( "Bloom iterations", &m_oBloom.m_iIterations );
+
 	ImGui::End();
 }
 
@@ -310,8 +316,96 @@ const Texture* Renderer::GetDefaultNormalMap() const
 	return &m_xDefaultNormalMap->GetTexture();
 }
 
+void Renderer::SetTechnique( const Technique& oTechnique )
+{
+	glUseProgram( oTechnique.m_uProgramID );
+}
+
+void Renderer::ClearTechnique()
+{
+	glUseProgram( 0 );
+}
+
+void Renderer::SetTextureSlot( const Texture& oTexture, const uint uTextureUnit )
+{
+	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
+	glBindTexture( GL_TEXTURE_2D, oTexture.m_uTextureID );
+}
+
+void Renderer::ClearTextureSlot( const uint uTextureUnit )
+{
+	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
+	glBindTexture( GL_TEXTURE_2D, 0 );
+}
+
+void Renderer::SetRenderTarget( const RenderTarget& oRenderTarget )
+{
+	glBindFramebuffer( GL_FRAMEBUFFER, oRenderTarget.m_uFrameBufferID );
+}
+
+void Renderer::ClearRenderTarget()
+{
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+void Renderer::CopyDepthToBackBuffer( const RenderTarget& oRenderTarget, const RenderRect& oRect )
+{
+	glBindFramebuffer( GL_READ_FRAMEBUFFER, oRenderTarget.m_uFrameBufferID );
+	glBindFramebuffer( GL_DRAW_FRAMEBUFFER, 0 );
+
+	const int iX = ( int )oRect.m_uX;
+	const int iY = ( int )oRect.m_uY;
+	const int iWidth = ( int )oRect.m_uWidth;
+	const int iHeight = ( int )oRect.m_uHeight;
+	glBlitFramebuffer( iX, iY, iWidth, iHeight, iX, iY, iWidth, iHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST );
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+void Renderer::DrawMesh( const Mesh& oMesh )
+{
+	glBindVertexArray( oMesh.m_uVertexArrayID );
+	glDrawElements( GL_TRIANGLES, oMesh.m_iIndexCount, GL_UNSIGNED_INT, nullptr );
+	glBindVertexArray( 0 );
+}
+
+void Renderer::RenderScreen()
+{
+	g_pRenderer->DrawMesh( m_oRenderMesh );
+}
+
+void Renderer::PresentTexture( const Texture& oTexture )
+{
+	Technique& oPresentationTechnique = m_xPresentation->GetTechnique();
+	SetTechnique( oPresentationTechnique );
+
+	SetTextureSlot( m_oForwardTarget.GetColorMap( 1 ), 0 );
+	oPresentationTechnique.SetParameter( PARAM_COLOR_MAP, 0 );
+
+	RenderScreen();
+
+	g_pRenderer->ClearTextureSlot( 0 );
+}
+
+void Renderer::BlendTextures( const Texture& oTextureA, const Texture& oTextureB )
+{
+	Technique& oBlendTechnique = m_xBlend->GetTechnique();
+	g_pRenderer->SetTechnique( oBlendTechnique );
+
+	g_pRenderer->SetTextureSlot( oTextureA, 0 );
+	oBlendTechnique.SetParameter( PARAM_TEXTURE_A, 0 );
+	g_pRenderer->SetTextureSlot( oTextureB, 1 );
+	oBlendTechnique.SetParameter( PARAM_TEXTURE_B, 1 );
+
+	RenderScreen();
+
+	g_pRenderer->ClearTextureSlot( 0 );
+	g_pRenderer->ClearTextureSlot( 1 );
+}
+
 void Renderer::RenderForward( const RenderContext& oRenderContext )
 {
+	// Render scene
 	SetRenderTarget( m_oForwardTarget );
 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -336,18 +430,15 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 		DrawMeshes( m_oVisualStructure.m_aImprovedNodes[ u ], oTechnique );
 	}
 
+	glDisable( GL_DEPTH_TEST );
+	m_oBloom.Render( m_oForwardTarget.GetColorMap( 0 ), m_oForwardTarget.GetColorMap( 1 ), m_oForwardTarget, oRenderContext );
+
+	// Present on framebuffer
 	ClearRenderTarget();
 
 	glClear( GL_COLOR_BUFFER_BIT );
-	glDisable( GL_DEPTH_TEST );
 
-	Technique& oPresentationTechnique = m_xPresentation->GetTechnique();
-	SetTechnique( oPresentationTechnique );
-
-	SetTextureSlot( m_oForwardTarget.GetColorMap( 0 ), 0 );
-	oPresentationTechnique.SetParameter( PARAM_COLOR_MAP, 0 );
-
-	DrawMesh( m_oRenderMesh );
+	PresentTexture( m_oForwardTarget.GetColorMap( 0 ) );
 
 	ClearTextureSlot( 0 );
 	ClearTechnique();
@@ -386,7 +477,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 
 	SetupLighting( oComposeTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 
-	DrawMesh( m_oRenderMesh );
+	RenderScreen();
 
 	ClearTextureSlot( 0 );
 	ClearTechnique();
@@ -534,57 +625,4 @@ void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 	}
 
 	ClearTechnique();
-}
-
-void Renderer::SetTechnique( const Technique& oTechnique )
-{
-	glUseProgram( oTechnique.m_uProgramID );
-}
-
-void Renderer::ClearTechnique()
-{
-	glUseProgram( 0 );
-}
-
-void Renderer::SetTextureSlot( const Texture& oTexture, const uint uTextureUnit )
-{
-	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
-	glBindTexture( GL_TEXTURE_2D, oTexture.m_uTextureID );
-}
-
-void Renderer::ClearTextureSlot( const uint uTextureUnit )
-{
-	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
-	glBindTexture( GL_TEXTURE_2D, 0 );
-}
-
-void Renderer::SetRenderTarget( const RenderTarget& oRenderTarget )
-{
-	glBindFramebuffer( GL_FRAMEBUFFER, oRenderTarget.m_uFrameBufferID );
-}
-
-void Renderer::ClearRenderTarget()
-{
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-}
-
-void Renderer::CopyDepthToBackBuffer( const RenderTarget& oRenderTarget, const RenderRect& oRect )
-{
-	glBindFramebuffer( GL_READ_FRAMEBUFFER, oRenderTarget.m_uFrameBufferID );
-	glBindFramebuffer( GL_DRAW_FRAMEBUFFER, 0 );
-
-	const int iX = ( int )oRect.m_uX;
-	const int iY = ( int )oRect.m_uY;
-	const int iWidth = ( int )oRect.m_uWidth;
-	const int iHeight = ( int )oRect.m_uHeight;
-	glBlitFramebuffer( iX, iY, iWidth, iHeight, iX, iY, iWidth, iHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-}
-
-void Renderer::DrawMesh( const Mesh& oMesh )
-{
-	glBindVertexArray( oMesh.m_uVertexArrayID );
-	glDrawElements( GL_TRIANGLES, oMesh.m_iIndexCount, GL_UNSIGNED_INT, nullptr );
-	glBindVertexArray( 0 );
 }

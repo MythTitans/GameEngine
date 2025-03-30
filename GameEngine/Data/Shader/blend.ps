@@ -1,0 +1,13 @@
+#version 330
+
+in vec2 uv;
+
+out vec4 finalColor;
+
+uniform sampler2D textureA;
+uniform sampler2D textureB;
+
+void main()
+{
+    finalColor = texture( textureA, uv ) + texture( textureB, uv );
+}

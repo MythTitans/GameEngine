@@ -1,0 +1,12 @@
+{
+    "vertexShader": "Shader/blend.vs",
+    "pixelShader": "Shader/blend.ps",
+    "parameters":
+    [
+        "textureA",
+        "textureB"
+    ],
+    "arrays":
+    [
+    ]
+}

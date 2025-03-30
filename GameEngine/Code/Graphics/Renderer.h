@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Bloom.h"
 #include "Camera.h"
 #include "Core/Common.h"
 #include "DebugRenderer.h"
@@ -42,9 +43,6 @@ class Renderer
 public:
 	friend class Editor;
 
-	template < typename Technique >
-	friend void DrawMeshes( const Array< VisualNode >& aVisualNodes, Technique& oTechnique );
-
 	Renderer();
 	~Renderer();
 
@@ -57,6 +55,19 @@ public:
 
 	const Texture*	GetDefaultDiffuseMap() const;
 	const Texture*	GetDefaultNormalMap() const;
+
+	void			SetTechnique( const Technique& oTechnique );
+	void			ClearTechnique();
+	void			SetTextureSlot( const Texture& oTexture, const uint uTextureUnit );
+	void			ClearTextureSlot( const uint uTextureUnit );
+	void			SetRenderTarget( const RenderTarget& oRenderTarget );
+	void			ClearRenderTarget();
+	void			CopyDepthToBackBuffer( const RenderTarget& oRenderTarget, const RenderRect& oRect );
+	void			DrawMesh( const Mesh& oMesh );
+
+	void			RenderScreen();
+	void			PresentTexture( const Texture& oTexture );
+	void			BlendTextures( const Texture& oTextureA, const Texture& oTextureB );
 
 private:
 	enum RenderingMode : uint8
@@ -71,15 +82,6 @@ private:
 	uint64			RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos );
 	void			RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode );
 	void			RenderGizmos( const RenderContext& oRenderContext );
-
-	void			SetTechnique( const Technique& oTechnique );
-	void			ClearTechnique();
-	void			SetTextureSlot( const Texture& oTexture, const uint uTextureUnit );
-	void			ClearTextureSlot( const uint uTextureUnit );
-	void			SetRenderTarget( const RenderTarget& oRenderTarget );
-	void			ClearRenderTarget();
-	void			CopyDepthToBackBuffer( const RenderTarget& oRenderTarget, const RenderRect& oRect );
-	void			DrawMesh( const Mesh& oMesh );
 
 public:
 	TextRenderer	m_oTextRenderer;
@@ -102,9 +104,12 @@ private:
 	TechniqueResPtr	m_xDeferredMaps;
 	TechniqueResPtr	m_xDeferredCompose;
 	TechniqueResPtr	m_xPresentation;
+	TechniqueResPtr	m_xBlend;
 	TechniqueResPtr	m_xPicking;
 	TechniqueResPtr	m_xOutline;
 	TechniqueResPtr	m_xGizmo;
+
+	Bloom			m_oBloom;
 
 	RenderingMode	m_eRenderingMode;
 	bool			m_bMSAA;

@@ -1,0 +1,20 @@
+{
+    "vertexShader": "Shader/blur.vs",
+    "pixelShader": "Shader/blur.ps",
+    "parameters":
+    [
+        "inputTexture",
+        "vertical",
+        "delta"
+    ],
+    "arrays":
+    [
+        {
+            "parameters":
+            [
+                "kernel"
+            ],
+            "count": 65
+        }
+    ]
+}

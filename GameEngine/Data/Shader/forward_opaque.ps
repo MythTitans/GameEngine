@@ -114,6 +114,7 @@ void main()
     }
     
     vec3 color = clamp( diffuseIntensity * diffuseColor * diffuseTextureColor.rgb + specularIntensity * specularColor * diffuseTextureColor.rgb, 0.0, 1.0 );
-    finalColor = vec4( color, 1.0 );
-    finalEmissive = vec4( texture( emissiveMap, texCoords ).rgb * emissiveColor, 1.0 );
+    vec3 emissive = texture( emissiveMap, texCoords ).rgb * emissiveColor;
+    finalColor = vec4( color + emissive, 1.0 );
+    finalEmissive = vec4( emissive, 1.0 );
 }
