@@ -62,12 +62,14 @@ public:
 	void			ClearTextureSlot( const uint uTextureUnit );
 	void			SetRenderTarget( const RenderTarget& oRenderTarget );
 	void			ClearRenderTarget();
-	void			CopyDepthToBackBuffer( const RenderTarget& oRenderTarget, const RenderRect& oRect );
 	void			DrawMesh( const Mesh& oMesh );
 
-	void			RenderScreen();
-	void			PresentTexture( const Texture& oTexture );
+	void			RenderQuad();
 	void			BlendTextures( const Texture& oTextureA, const Texture& oTextureB );
+
+	void			CopyRenderTarget( const RenderTarget& oSource, const RenderTarget& oDestination );
+	void			CopyRenderTargetColor( const RenderTarget& oSource, const uint uSourceColorIndex, const RenderTarget& oDestination, const uint uDestinationColorIndex );
+	void			CopyRenderTargetDepth( const RenderTarget& oSource, const RenderTarget& oDestination );
 
 private:
 	enum RenderingMode : uint8
@@ -83,6 +85,8 @@ private:
 	void			RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode );
 	void			RenderGizmos( const RenderContext& oRenderContext );
 
+	void			UpdateRenderPipeline( const RenderContext& oRenderContext );
+
 public:
 	TextRenderer	m_oTextRenderer;
 	DebugRenderer	m_oDebugRenderer;
@@ -93,7 +97,10 @@ public:
 	VisualStructure	m_oVisualStructure;
 
 private:
+	RenderTarget	m_oFramebuffer;
+	RenderTarget	m_oForwardMSAATarget;
 	RenderTarget	m_oForwardTarget;
+	RenderTarget	m_oPostProcessTarget;
 	RenderTarget	m_oDeferredTarget;
 	RenderTarget	m_oPickingTarget;
 
@@ -103,7 +110,6 @@ private:
 	TextureResPtr	m_xDefaultNormalMap;
 	TechniqueResPtr	m_xDeferredMaps;
 	TechniqueResPtr	m_xDeferredCompose;
-	TechniqueResPtr	m_xPresentation;
 	TechniqueResPtr	m_xBlend;
 	TechniqueResPtr	m_xPicking;
 	TechniqueResPtr	m_xOutline;

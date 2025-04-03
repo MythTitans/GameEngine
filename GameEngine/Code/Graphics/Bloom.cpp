@@ -34,7 +34,7 @@ Bloom::Bloom()
 {
 }
 
-void Bloom::Render( const Texture& oColor, const Texture& oEmissive, const RenderTarget& oRenderTarget, const RenderContext& oRenderContext )
+void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, const RenderContext& oRenderContext )
 {
 	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
 
@@ -43,20 +43,11 @@ void Bloom::Render( const Texture& oColor, const Texture& oEmissive, const Rende
 		if( oRenderRect.m_uWidth != m_oBloomRT[ i ].GetWidth() || oRenderRect.m_uHeight != m_oBloomRT[ i ].GetHeight() )
 		{
 			m_oBloomRT[ i ].Destroy();
-
-			Array< TextureFormat > aFormats( 1 );
-			aFormats[ 0 ] = TextureFormat::RGB16;
-			m_oBloomRT[ i ].Create( oRenderRect.m_uWidth, oRenderRect.m_uHeight, aFormats, true );
-
-			g_pRenderer->m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
+			m_oBloomRT[ i ].Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight, TextureFormat::RGB16 ) );
 		}
 	}
 
-	g_pRenderer->SetRenderTarget( m_oBloomRT[ 0 ] );
-
-	glClear( GL_COLOR_BUFFER_BIT );
-
-	g_pRenderer->PresentTexture( oEmissive );
+	g_pRenderer->CopyRenderTargetColor( oInput, 1, m_oBloomRT[ 0 ], 0 );
 
 	Technique& oBlurTechnique = m_xBlur->GetTechnique();
 	g_pRenderer->SetTechnique( oBlurTechnique );
@@ -94,16 +85,16 @@ void Bloom::Render( const Texture& oColor, const Texture& oEmissive, const Rende
 			oBlurTechnique.SetParameter( PARAM_INPUT_TEXTURE, 0 );
 		}
 
-		g_pRenderer->RenderScreen();
+		g_pRenderer->RenderQuad();
 
 		bVertical = !bVertical;
 	}
 
 	g_pRenderer->ClearTextureSlot( 0 );
 
-	g_pRenderer->SetRenderTarget( oRenderTarget );
+	g_pRenderer->SetRenderTarget( oOutput );
 
-	g_pRenderer->BlendTextures( oColor, m_oBloomRT[ 0 ].GetColorMap( 0 ) );
+	g_pRenderer->BlendTextures( oInput.GetColorMap( 0 ), m_oBloomRT[ 0 ].GetColorMap( 0 ) );
 }
 
 bool Bloom::OnLoading()

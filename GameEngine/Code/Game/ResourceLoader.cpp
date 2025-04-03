@@ -565,7 +565,7 @@ void ResourceLoader::FontLoadCommand::OnFinished()
 	switch( m_eStatus )
 	{
 	case ResourceLoader::LoadCommandStatus::FINISHED:
-		m_xResource->m_oAtlas.Create( FontResource::ATLAS_WIDTH, FontResource::ATLAS_HEIGHT, TextureFormat::RED, m_aAtlasData.Data() );
+		m_xResource->m_oAtlas.Create( TextureDesc( FontResource::ATLAS_WIDTH, FontResource::ATLAS_HEIGHT, TextureFormat::RED ).Data( m_aAtlasData.Data() ).GenerateMips() );
 		m_xResource->m_aPackedCharacters = std::move( m_aPackedCharacters );
 		m_xResource->m_eStatus = Resource::Status::LOADED;
 		break;
@@ -613,7 +613,7 @@ void ResourceLoader::TextureLoadCommand::OnFinished()
 	switch( m_eStatus )
 	{
 	case ResourceLoader::LoadCommandStatus::FINISHED:
-		m_xResource->m_oTexture.Create( m_iWidth, m_iHeight, m_iDepth == 3 ? TextureFormat::RGB : TextureFormat::RGBA, m_pData, m_bSRGB );
+		m_xResource->m_oTexture.Create( TextureDesc( m_iWidth, m_iHeight, m_iDepth == 3 ? TextureFormat::RGB : TextureFormat::RGBA ).Data( m_pData ).SRGB( m_bSRGB ).GenerateMips() );
 		stbi_image_free( m_pData );
 		m_xResource->m_eStatus = Resource::Status::LOADED;
 		break;

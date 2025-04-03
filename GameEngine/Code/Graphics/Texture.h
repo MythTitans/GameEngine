@@ -15,6 +15,24 @@ enum class TextureFormat
 	ID
 };
 
+struct TextureDesc
+{
+	TextureDesc( const int iWidth, const int iHeight, const TextureFormat eFormat );
+
+	TextureDesc& Data( const uint8* pData );
+	TextureDesc& Multisample( int8 iSamples );
+	TextureDesc& SRGB( const bool bSRGB = true );
+	TextureDesc& GenerateMips( const bool bGenerateMips = true );
+
+	int				m_iWidth;
+	int				m_iHeight;
+	const uint8*	m_pData;
+	TextureFormat	m_eFormat;
+	int8			m_iSamples;
+	bool			m_bSRGB;
+	bool			m_bGenerateMips;
+};
+
 class Texture
 {
 public:
@@ -24,7 +42,7 @@ public:
 
 	Texture();
 
-	void			Create( const int iWidth, const int iHeight, const TextureFormat eTextureFormat, const uint8* pData, const bool bSRGB = false );
+	void			Create( const TextureDesc& oDesc );
 	void			Destroy();
 
 	GLuint			GetID() const;

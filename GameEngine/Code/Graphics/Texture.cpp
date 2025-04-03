@@ -2,6 +2,41 @@
 
 #include "Core/Profiler.h"
 
+TextureDesc::TextureDesc( const int iWidth, const int iHeight, const TextureFormat eFormat )
+	: m_iWidth( iWidth )
+	, m_iHeight( iHeight )
+	, m_pData( nullptr )
+	, m_eFormat( eFormat )
+	, m_iSamples( 1 )
+	, m_bSRGB( false )
+	, m_bGenerateMips( false )
+{
+}
+
+TextureDesc& TextureDesc::Data( const uint8* pData )
+{
+	m_pData = pData;
+	return *this;
+}
+
+TextureDesc& TextureDesc::Multisample( int8 iSamples )
+{
+	m_iSamples = iSamples;
+	return *this;
+}
+
+TextureDesc& TextureDesc::SRGB( const bool bSRGB /*= true*/ )
+{
+	m_bSRGB = bSRGB;
+	return *this;
+}
+
+TextureDesc& TextureDesc::GenerateMips( const bool bGenerateMips /*= true*/ )
+{
+	m_bGenerateMips = bGenerateMips;
+	return *this;
+}
+
 Texture::Texture()
 	: m_uTextureID( GL_INVALID_VALUE )
 	, m_iWidth( 0 )
@@ -10,14 +45,18 @@ Texture::Texture()
 {
 }
 
-void Texture::Create( const int iWidth, const int iHeight, const TextureFormat eTextureFormat, const uint8* pData, const bool bSRGB /*= false*/ )
+void Texture::Create( const TextureDesc& oDesc )
 {
-	m_iWidth = iWidth;
-	m_iHeight = iHeight;
-	m_eFormat = eTextureFormat;
+	m_iWidth = oDesc.m_iWidth;
+	m_iHeight = oDesc.m_iHeight;
+	m_eFormat = oDesc.m_eFormat;
 
 	glGenTextures( 1, &m_uTextureID );
-	glBindTexture( GL_TEXTURE_2D, m_uTextureID );
+
+	if( oDesc.m_iSamples > 1 )
+		glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, m_uTextureID );
+	else
+		glBindTexture( GL_TEXTURE_2D, m_uTextureID );
 
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
@@ -27,7 +66,7 @@ void Texture::Create( const int iWidth, const int iHeight, const TextureFormat e
 	GLint iFormat = GL_RGBA;
 	GLint iInternalFormat = GL_RGBA;
 	GLenum eType = GL_UNSIGNED_BYTE;
-	switch( eTextureFormat )
+	switch( m_eFormat )
 	{
 	case TextureFormat::RED:
 		iFormat = GL_RED;
@@ -35,11 +74,11 @@ void Texture::Create( const int iWidth, const int iHeight, const TextureFormat e
 		break;
 	case TextureFormat::RGB:
 		iFormat = GL_RGB;
-		iInternalFormat = bSRGB ? GL_SRGB8 : GL_RGB;
+		iInternalFormat = oDesc.m_bSRGB ? GL_SRGB8 : GL_RGB;
 		break;
 	case TextureFormat::RGBA:
 		iFormat = GL_RGBA;
-		iInternalFormat = bSRGB ? GL_SRGB8_ALPHA8 : GL_RGBA;
+		iInternalFormat = oDesc.m_bSRGB ? GL_SRGB8_ALPHA8 : GL_RGBA;
 		break;
 	case TextureFormat::RGB16:
 		iFormat = GL_RGB;
@@ -60,11 +99,18 @@ void Texture::Create( const int iWidth, const int iHeight, const TextureFormat e
 		break;
 	}
 
-	glTexImage2D( GL_TEXTURE_2D, 0, iInternalFormat, iWidth, iHeight, 0, iFormat, eType, pData );
+	if( oDesc.m_iSamples > 1 )
+		glTexImage2DMultisample( GL_TEXTURE_2D_MULTISAMPLE, oDesc.m_iSamples, iInternalFormat, m_iWidth, m_iHeight, GL_TRUE );
+	else
+		glTexImage2D( GL_TEXTURE_2D, 0, iInternalFormat, m_iWidth, m_iHeight, 0, iFormat, eType, oDesc.m_pData );
 
-	glGenerateMipmap( GL_TEXTURE_2D );
+	if( oDesc.m_bGenerateMips )
+		glGenerateMipmap( GL_TEXTURE_2D );
 
-	glBindTexture( GL_TEXTURE_2D, 0 );
+	if( oDesc.m_iSamples > 1 )
+		glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, 0 );
+	else
+		glBindTexture( GL_TEXTURE_2D, 0 );
 }
 
 void Texture::Destroy()

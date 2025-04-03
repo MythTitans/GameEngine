@@ -161,7 +161,6 @@ Renderer::Renderer()
 	, m_xDefaultNormalMap( g_pResourceLoader->LoadTexture( "Default_normal.png" ) )
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( "Shader/deferred_maps.tech" ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( "Shader/deferred_compose.tech" ) )
-	, m_xPresentation( g_pResourceLoader->LoadTechnique( "Shader/presentation.tech" ) )
 	, m_xBlend( g_pResourceLoader->LoadTechnique( "Shader/blend.tech" ) )
 	, m_xPicking( g_pResourceLoader->LoadTechnique( "Shader/picking.tech" ) )
 	, m_xOutline( g_pResourceLoader->LoadTechnique( "Shader/outline.tech" ) )
@@ -173,8 +172,6 @@ Renderer::Renderer()
 {
 	glEnable( GL_CULL_FACE );
 	
-	glClearColor( 0.f, 0.f, 0.f, 1.f );
-
 	Array< glm::vec3 > aVertices( 3 );
 	aVertices[ 0 ] = glm::vec3( -3.f, -1.f, 0.f );
 	aVertices[ 1 ] = glm::vec3( 1.f, -1.f, 0.f );
@@ -191,6 +188,8 @@ Renderer::Renderer()
 	aUVs[ 2 ] = glm::vec2( 1.f, 2.f );
 
 	m_oRenderMesh = MeshBuilder( std::move( aVertices ), std::move( aIndices ) ).WithUVs( std::move( aUVs ) ).Build();
+
+	m_oFramebuffer.m_uFrameBufferID = 0;
 
 	g_pRenderer = this;
 }
@@ -209,32 +208,7 @@ void Renderer::Render( const RenderContext& oRenderContext )
 
 	glClearColor( 0.f, 0.f, 0.f, 0.f );
 
-	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
-	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
-
-	if( oRenderRect.m_uWidth != m_oForwardTarget.GetWidth() || oRenderRect.m_uHeight != m_oForwardTarget.GetHeight() )
-	{
-		m_oForwardTarget.Destroy();
-
-		Array< TextureFormat > aFormats( 2 );
-		aFormats[ 0 ] = TextureFormat::RGB16;
-		aFormats[ 1 ] = TextureFormat::RGB;
-		m_oForwardTarget.Create( oRenderRect.m_uWidth, oRenderRect.m_uHeight, aFormats, true );
-
-		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
-	}
-
-	if( oRenderRect.m_uWidth != m_oDeferredTarget.GetWidth() || oRenderRect.m_uHeight != m_oDeferredTarget.GetHeight() )
-	{
-		m_oDeferredTarget.Destroy();
-
-		Array< TextureFormat > aFormats( 2 );
-		aFormats[ 0 ] = TextureFormat::RGB;
-		aFormats[ 1 ] = TextureFormat::NORMAL;
-		m_oDeferredTarget.Create( oRenderRect.m_uWidth, oRenderRect.m_uHeight, aFormats, true );
-
-		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
-	}
+	UpdateRenderPipeline( oRenderContext );
 
 	switch( m_eRenderingMode )
 	{
@@ -255,7 +229,7 @@ void Renderer::Clear()
 bool Renderer::OnLoading()
 {
 	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
-	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xPresentation->IsLoaded() && m_xBlend->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
+	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xBlend->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
 	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading() && m_oBloom.OnLoading();
 
 	return bLoaded;
@@ -348,20 +322,6 @@ void Renderer::ClearRenderTarget()
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
 
-void Renderer::CopyDepthToBackBuffer( const RenderTarget& oRenderTarget, const RenderRect& oRect )
-{
-	glBindFramebuffer( GL_READ_FRAMEBUFFER, oRenderTarget.m_uFrameBufferID );
-	glBindFramebuffer( GL_DRAW_FRAMEBUFFER, 0 );
-
-	const int iX = ( int )oRect.m_uX;
-	const int iY = ( int )oRect.m_uY;
-	const int iWidth = ( int )oRect.m_uWidth;
-	const int iHeight = ( int )oRect.m_uHeight;
-	glBlitFramebuffer( iX, iY, iWidth, iHeight, iX, iY, iWidth, iHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST );
-
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-}
-
 void Renderer::DrawMesh( const Mesh& oMesh )
 {
 	glBindVertexArray( oMesh.m_uVertexArrayID );
@@ -369,22 +329,9 @@ void Renderer::DrawMesh( const Mesh& oMesh )
 	glBindVertexArray( 0 );
 }
 
-void Renderer::RenderScreen()
+void Renderer::RenderQuad()
 {
 	g_pRenderer->DrawMesh( m_oRenderMesh );
-}
-
-void Renderer::PresentTexture( const Texture& oTexture )
-{
-	Technique& oPresentationTechnique = m_xPresentation->GetTechnique();
-	SetTechnique( oPresentationTechnique );
-
-	SetTextureSlot( m_oForwardTarget.GetColorMap( 1 ), 0 );
-	oPresentationTechnique.SetParameter( PARAM_COLOR_MAP, 0 );
-
-	RenderScreen();
-
-	g_pRenderer->ClearTextureSlot( 0 );
 }
 
 void Renderer::BlendTextures( const Texture& oTextureA, const Texture& oTextureB )
@@ -397,24 +344,79 @@ void Renderer::BlendTextures( const Texture& oTextureA, const Texture& oTextureB
 	g_pRenderer->SetTextureSlot( oTextureB, 1 );
 	oBlendTechnique.SetParameter( PARAM_TEXTURE_B, 1 );
 
-	RenderScreen();
+	RenderQuad();
 
 	g_pRenderer->ClearTextureSlot( 0 );
 	g_pRenderer->ClearTextureSlot( 1 );
 }
 
+void Renderer::CopyRenderTarget( const RenderTarget& oSource, const RenderTarget& oDestination )
+{
+	ASSERT( oSource.m_aTextures.Count() == oDestination.m_aTextures.Count() );
+	ASSERT( oSource.m_bDepthMap == oDestination.m_bDepthMap );
+
+	glBindFramebuffer( GL_READ_FRAMEBUFFER, oSource.m_uFrameBufferID );
+	glBindFramebuffer( GL_DRAW_FRAMEBUFFER, oDestination.m_uFrameBufferID );
+
+	const uint uTextureCount = oSource.m_bDepthMap ? oSource.m_aTextures.Count() - 1 : oSource.m_aTextures.Count();
+
+	for( uint u = 0; u < uTextureCount; ++u )
+	{
+		ASSERT( oSource.m_aTextures[ u ].m_iWidth == oDestination.m_aTextures[ u ].m_iWidth );
+		ASSERT( oSource.m_aTextures[ u ].m_iHeight == oDestination.m_aTextures[ u ].m_iHeight );
+		ASSERT( oSource.m_aTextures[ u ].m_eFormat == oDestination.m_aTextures[ u ].m_eFormat );
+
+		glReadBuffer( GL_COLOR_ATTACHMENT0 + u );
+		glDrawBuffer( GL_COLOR_ATTACHMENT0 + u );
+
+		glBlitFramebuffer( 0, 0, oSource.m_iWidth, oSource.m_iHeight, 0, 0, oDestination.m_iWidth, oDestination.m_iHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST );
+	}
+
+	if( oSource.m_bDepthMap )
+	{
+		ASSERT( oSource.m_aTextures.Back().m_eFormat == oDestination.m_aTextures.Back().m_eFormat );
+
+		glReadBuffer( GL_DEPTH_ATTACHMENT );
+		glDrawBuffer( GL_DEPTH_ATTACHMENT );
+
+		glBlitFramebuffer( 0, 0, oSource.m_iWidth, oSource.m_iHeight, 0, 0, oDestination.m_iWidth, oDestination.m_iHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST );
+	}
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+void Renderer::CopyRenderTargetColor( const RenderTarget& oSource, const uint uSourceColorIndex, const RenderTarget& oDestination, const uint uDestinationColorIndex )
+{
+	glBindFramebuffer( GL_READ_FRAMEBUFFER, oSource.m_uFrameBufferID );
+	glBindFramebuffer( GL_DRAW_FRAMEBUFFER, oDestination.m_uFrameBufferID );
+
+	glReadBuffer( GL_COLOR_ATTACHMENT0 + uSourceColorIndex );
+	glDrawBuffer( GL_COLOR_ATTACHMENT0 + uDestinationColorIndex );
+
+	glBlitFramebuffer( 0, 0, oSource.m_iWidth, oSource.m_iHeight, 0, 0, oDestination.m_iWidth, oDestination.m_iHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST );
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+void Renderer::CopyRenderTargetDepth( const RenderTarget& oSource, const RenderTarget& oDestination )
+{
+	glBindFramebuffer( GL_READ_FRAMEBUFFER, oSource.m_uFrameBufferID );
+	glBindFramebuffer( GL_DRAW_FRAMEBUFFER, oDestination.m_uFrameBufferID );
+
+	glReadBuffer( GL_DEPTH_ATTACHMENT );
+	glDrawBuffer( GL_DEPTH_ATTACHMENT );
+
+	glBlitFramebuffer( 0, 0, oSource.m_iWidth, oSource.m_iHeight, 0, 0, oDestination.m_iWidth, oDestination.m_iHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST );
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
 void Renderer::RenderForward( const RenderContext& oRenderContext )
 {
-	// Render scene
-	SetRenderTarget( m_oForwardTarget );
+	SetRenderTarget( m_oForwardMSAATarget );
 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
-
-	if( m_bMSAA )
-		glEnable( GL_MULTISAMPLE );
-	else
-		glDisable( GL_MULTISAMPLE );
 
 	for( uint u = 0; u < m_oVisualStructure.m_aTechniques.Count(); ++u )
 	{
@@ -431,19 +433,16 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	}
 
 	glDisable( GL_DEPTH_TEST );
-	m_oBloom.Render( m_oForwardTarget.GetColorMap( 0 ), m_oForwardTarget.GetColorMap( 1 ), m_oForwardTarget, oRenderContext );
 
-	// Present on framebuffer
-	ClearRenderTarget();
+	CopyRenderTarget( m_oForwardMSAATarget, m_oForwardTarget );
 
-	glClear( GL_COLOR_BUFFER_BIT );
+	m_oBloom.Render( m_oForwardTarget, m_oPostProcessTarget, oRenderContext );
 
-	PresentTexture( m_oForwardTarget.GetColorMap( 0 ) );
+	CopyRenderTargetColor( m_oPostProcessTarget, 0, m_oFramebuffer, 0 );
+	CopyRenderTargetDepth( m_oForwardTarget, m_oFramebuffer );
 
 	ClearTextureSlot( 0 );
 	ClearTechnique();
-
-	CopyDepthToBackBuffer( m_oForwardTarget, oRenderContext.GetRenderRect() );
 }
 
 void Renderer::RenderDeferred( const RenderContext& oRenderContext )
@@ -477,12 +476,11 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 
 	SetupLighting( oComposeTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 
-	RenderScreen();
+	RenderQuad();
+	CopyRenderTargetDepth( m_oDeferredTarget, m_oFramebuffer );
 
 	ClearTextureSlot( 0 );
 	ClearTechnique();
-
-	CopyDepthToBackBuffer( m_oDeferredTarget, oRenderContext.GetRenderRect() );
 }
 
 uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos )
@@ -494,9 +492,7 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 	{
 		m_oPickingTarget.Destroy();
 
-		Array< TextureFormat > aFormats( 1 );
-		aFormats[ 0 ] = TextureFormat::ID;
-		m_oPickingTarget.Create( oRenderRect.m_uWidth, oRenderRect.m_uHeight, aFormats, true );
+		m_oPickingTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight, TextureFormat::ID ).Depth() );
 
 		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
 	}
@@ -625,4 +621,30 @@ void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 	}
 
 	ClearTechnique();
+}
+
+void Renderer::UpdateRenderPipeline( const RenderContext& oRenderContext )
+{
+	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
+	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
+
+	if( oRenderRect.m_uWidth != m_oFramebuffer.GetWidth() || oRenderRect.m_uHeight != m_oFramebuffer.GetHeight() )
+	{
+		m_oFramebuffer.m_iWidth = oRenderRect.m_uWidth;
+		m_oFramebuffer.m_iHeight = oRenderRect.m_uHeight;
+
+		m_oForwardMSAATarget.Destroy();
+		m_oForwardMSAATarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB16 ).AddColor( TextureFormat::RGB16 ).Depth().Multisample( 4 ) );
+
+		m_oForwardTarget.Destroy();
+		m_oForwardTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB16 ).AddColor( TextureFormat::RGB16 ).Depth() );
+
+		m_oPostProcessTarget.Destroy();
+		m_oPostProcessTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB16 ).AddColor( TextureFormat::RGB16 ).Depth() );
+
+		m_oDeferredTarget.Destroy();
+		m_oDeferredTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB ).AddColor( TextureFormat::NORMAL ).Depth() );
+
+		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
+	}
 }

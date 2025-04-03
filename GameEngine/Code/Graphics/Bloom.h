@@ -13,7 +13,7 @@ public:
 
 	Bloom();
 
-	void Render( const Texture& oColor, const Texture& oEmissive, const RenderTarget& oRenderTarget, const RenderContext& oRenderContext );
+	void Render( const RenderTarget& oInput, const RenderTarget& oOutput, const RenderContext& oRenderContext );
 
 	bool OnLoading();
 
