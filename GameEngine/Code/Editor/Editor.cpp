@@ -403,8 +403,8 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 void Editor::ColorEdit( const char* sLabel, glm::vec3& vColor )
 {
 	glm::vec3 vSRGBColor = glm::convertLinearToSRGB( vColor );
-	ImGui::ColorEdit3( sLabel, &vSRGBColor.x );
-	vColor = glm::convertSRGBToLinear( vSRGBColor );
+	if( ImGui::ColorEdit3( sLabel, &vSRGBColor.x ) )
+		vColor = glm::convertSRGBToLinear( vSRGBColor );
 }
 
 void Editor::TexturePreview( const char* sLabel, const TextureResource* pTexture )

@@ -36,14 +36,18 @@ Bloom::Bloom()
 
 void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, const RenderContext& oRenderContext )
 {
-	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
+	RenderRect oBloomRenderRect = oRenderContext.GetRenderRect();
+	oBloomRenderRect.m_uWidth /= 2;
+	oBloomRenderRect.m_uHeight /= 2;
+
+	glViewport( oBloomRenderRect.m_uX, oBloomRenderRect.m_uY, oBloomRenderRect.m_uWidth, oBloomRenderRect.m_uHeight );
 
 	for( int i = 0; i < 2; ++i )
 	{
-		if( oRenderRect.m_uWidth != m_oBloomRT[ i ].GetWidth() || oRenderRect.m_uHeight != m_oBloomRT[ i ].GetHeight() )
+		if( oBloomRenderRect.m_uWidth != m_oBloomRT[ i ].GetWidth() || oBloomRenderRect.m_uHeight != m_oBloomRT[ i ].GetHeight() )
 		{
 			m_oBloomRT[ i ].Destroy();
-			m_oBloomRT[ i ].Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight, TextureFormat::RGB16 ) );
+			m_oBloomRT[ i ].Create( RenderTargetDesc( oBloomRenderRect.m_uWidth, oBloomRenderRect.m_uHeight, TextureFormat::RGB16 ) );
 		}
 	}
 
@@ -52,7 +56,7 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 	Technique& oBlurTechnique = m_xBlur->GetTechnique();
 	g_pRenderer->SetTechnique( oBlurTechnique );
 
-	const Array< float > aKernel = ComputeBlurKernel( 32 );
+	const Array< float > aKernel = ComputeBlurKernel( 16 );
 	for( uint u = 0; u < aKernel.Count(); ++u )
 		oBlurTechnique.SetArrayParameter( PARAM_KERNEL, aKernel[ u ], u );
 
@@ -67,7 +71,7 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 			glClear( GL_COLOR_BUFFER_BIT );
 
 			oBlurTechnique.SetParameter( PARAM_VERTICAL, true );
-			oBlurTechnique.SetParameter( PARAM_DELTA, 1.f / oRenderContext.GetRenderRect().m_uHeight );
+			oBlurTechnique.SetParameter( PARAM_DELTA, 1.f / m_oBloomRT[ 0 ].GetHeight() );
 
 			g_pRenderer->SetTextureSlot( m_oBloomRT[ 1 ].GetColorMap( 0 ), 0 );
 			oBlurTechnique.SetParameter( PARAM_INPUT_TEXTURE, 0 );
@@ -79,7 +83,7 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 			glClear( GL_COLOR_BUFFER_BIT );
 
 			oBlurTechnique.SetParameter( PARAM_VERTICAL, false );
-			oBlurTechnique.SetParameter( PARAM_DELTA, 1.f / oRenderContext.GetRenderRect().m_uWidth );
+			oBlurTechnique.SetParameter( PARAM_DELTA, 1.f / m_oBloomRT[ 0 ].GetWidth() );
 
 			g_pRenderer->SetTextureSlot( m_oBloomRT[ 0 ].GetColorMap( 0 ), 0 );
 			oBlurTechnique.SetParameter( PARAM_INPUT_TEXTURE, 0 );
@@ -91,6 +95,10 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 	}
 
 	g_pRenderer->ClearTextureSlot( 0 );
+
+	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
+
+	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 
 	g_pRenderer->SetRenderTarget( oOutput );
 

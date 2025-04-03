@@ -209,6 +209,9 @@ void Renderer::Render( const RenderContext& oRenderContext )
 
 	glClearColor( 0.f, 0.f, 0.f, 0.f );
 
+	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
+	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
+
 	UpdateRenderPipeline( oRenderContext );
 
 	switch( m_eRenderingMode )
@@ -660,7 +663,6 @@ void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 void Renderer::UpdateRenderPipeline( const RenderContext& oRenderContext )
 {
 	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
-	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 
 	m_bUpdateRenderPipeline |= ( oRenderRect.m_uWidth != m_oFramebuffer.GetWidth() );
 	m_bUpdateRenderPipeline |= ( oRenderRect.m_uHeight != m_oFramebuffer.GetHeight() );
