@@ -72,10 +72,19 @@ public:
 	void			CopyRenderTargetDepth( const RenderTarget& oSource, const RenderTarget& oDestination );
 
 private:
-	enum RenderingMode : uint8
+	enum class RenderingMode : uint8
 	{
 		FORWARD,
 		DEFERRED,
+		_COUNT
+	};
+
+	enum class MSAALevel : uint8
+	{
+		MSAA_NONE,
+		MSAA_2X,
+		MSAA_4X,
+		MSAA_8X,
 		_COUNT
 	};
 
@@ -118,8 +127,10 @@ private:
 	Bloom			m_oBloom;
 
 	RenderingMode	m_eRenderingMode;
-	bool			m_bMSAA;
+	MSAALevel		m_eMSAALevel;
 	bool			m_bSRGB;
+
+	bool			m_bUpdateRenderPipeline;
 
 	bool			m_bDisplayDebug;
 };

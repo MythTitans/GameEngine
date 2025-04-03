@@ -166,8 +166,9 @@ Renderer::Renderer()
 	, m_xOutline( g_pResourceLoader->LoadTechnique( "Shader/outline.tech" ) )
 	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo.tech" ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
-	, m_bMSAA( true )
+	, m_eMSAALevel( MSAALevel::MSAA_8X )
 	, m_bSRGB( true )
+	, m_bUpdateRenderPipeline( false )
 	, m_bDisplayDebug( false )
 {
 	glEnable( GL_CULL_FACE );
@@ -261,7 +262,7 @@ void Renderer::DisplayDebug()
 
 	if( ImGui::BeginCombo( "Rendering mode", GetRenderingModeName( m_eRenderingMode ) ) )
 	{
-		for( uint u = 0; u < RenderingMode::_COUNT; ++u )
+		for( uint u = 0; u < ( uint )RenderingMode::_COUNT; ++u )
 		{
 			RenderingMode eRenderingMode = RenderingMode( u );
 			if( ImGui::Selectable( GetRenderingModeName( eRenderingMode ), eRenderingMode == m_eRenderingMode ) )
@@ -270,8 +271,41 @@ void Renderer::DisplayDebug()
 		ImGui::EndCombo();
 	}
 
-	if( m_eRenderingMode == FORWARD )
-		ImGui::Checkbox( "MSAA", &m_bMSAA );
+	if( m_eRenderingMode == RenderingMode::FORWARD )
+	{
+		auto GetMSAALevelName = []( const MSAALevel eMSAALevel ) {
+			switch( eMSAALevel )
+			{
+			case MSAALevel::MSAA_NONE:
+				return "None";
+			case MSAALevel::MSAA_2X:
+				return "2x";
+			case MSAALevel::MSAA_4X:
+				return "4x";
+			case MSAALevel::MSAA_8X:
+				return "8x";
+			case MSAALevel::_COUNT:
+				return "";
+			}
+
+			return "";
+		};
+
+		if( ImGui::BeginCombo( "MSAA", GetMSAALevelName( m_eMSAALevel ) ) )
+		{
+			for( uint u = 0; u < ( uint )MSAALevel::_COUNT; ++u )
+			{
+				MSAALevel eMSAALevel = MSAALevel( u );
+				if( ImGui::Selectable( GetMSAALevelName( eMSAALevel ), eMSAALevel == m_eMSAALevel ) )
+				{
+					m_eMSAALevel = eMSAALevel;
+					m_bUpdateRenderPipeline = true;
+				}
+			}
+
+			ImGui::EndCombo();
+		}
+	}
 
 	ImGui::Checkbox( "SRGB", &m_bSRGB );
 
@@ -628,13 +662,32 @@ void Renderer::UpdateRenderPipeline( const RenderContext& oRenderContext )
 	const RenderRect& oRenderRect = oRenderContext.m_oRenderRect;
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 
-	if( oRenderRect.m_uWidth != m_oFramebuffer.GetWidth() || oRenderRect.m_uHeight != m_oFramebuffer.GetHeight() )
+	m_bUpdateRenderPipeline |= ( oRenderRect.m_uWidth != m_oFramebuffer.GetWidth() );
+	m_bUpdateRenderPipeline |= ( oRenderRect.m_uHeight != m_oFramebuffer.GetHeight() );
+
+	if( m_bUpdateRenderPipeline )
 	{
 		m_oFramebuffer.m_iWidth = oRenderRect.m_uWidth;
 		m_oFramebuffer.m_iHeight = oRenderRect.m_uHeight;
 
+		auto GetMSAALEvelSamples = []( const MSAALevel eMSAALevel ) {
+			switch( eMSAALevel )
+			{
+			case Renderer::MSAALevel::MSAA_NONE:
+				return 1;
+			case Renderer::MSAALevel::MSAA_2X:
+				return 2;
+			case Renderer::MSAALevel::MSAA_4X:
+				return 4;
+			case Renderer::MSAALevel::MSAA_8X:
+				return 8;
+			default:
+				return 1;
+			}
+		};
+
 		m_oForwardMSAATarget.Destroy();
-		m_oForwardMSAATarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB16 ).AddColor( TextureFormat::RGB16 ).Depth().Multisample( 4 ) );
+		m_oForwardMSAATarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB16 ).AddColor( TextureFormat::RGB16 ).Depth().Multisample( GetMSAALEvelSamples( m_eMSAALevel ) ) );
 
 		m_oForwardTarget.Destroy();
 		m_oForwardTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB16 ).AddColor( TextureFormat::RGB16 ).Depth() );
@@ -646,5 +699,7 @@ void Renderer::UpdateRenderPipeline( const RenderContext& oRenderContext )
 		m_oDeferredTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB ).AddColor( TextureFormat::NORMAL ).Depth() );
 
 		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
+
+		m_bUpdateRenderPipeline = false;
 	}
 }
