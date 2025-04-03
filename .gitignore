@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 /GameEngine/imgui.ini
+!Data/*.obj
