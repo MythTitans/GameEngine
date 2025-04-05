@@ -299,8 +299,9 @@ private:
 		void OnFinished() override;
 		void OnDependenciesReady() override;
 
-		Array< std::string > m_aParameters;
+		Array< std::string >					m_aParameters;
 		Array< std::pair< std::string, uint > > m_aArrayParameters;
+		Array< std::string >					m_aShaders;
 	};
 
 	struct LoadCommands

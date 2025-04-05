@@ -964,8 +964,8 @@ void ResourceLoader::TechniqueLoadCommand::Load( std::unique_lock< std::mutex >&
 		m_eStatus = LoadCommandStatus::LOADED;
 		m_aParameters = std::move( aParameters );
 		m_aArrayParameters = std::move( aArrayParameters );
-		m_aDependencies.PushBack( g_pResourceLoader->LoadShader( sVertexShader.c_str() ).GetPtr() );
-		m_aDependencies.PushBack( g_pResourceLoader->LoadShader( sPixelShader.c_str() ).GetPtr() );
+		m_aShaders.PushBack( sVertexShader );
+		m_aShaders.PushBack( sPixelShader );
 	}
 	else
 	{
@@ -978,6 +978,10 @@ void ResourceLoader::TechniqueLoadCommand::OnFinished()
 {
 	switch( m_eStatus )
 	{
+	case ResourceLoader::LoadCommandStatus::FINISHED:
+		for( const std::string& sShader : m_aShaders )
+			m_aDependencies.PushBack( g_pResourceLoader->LoadShader( sShader.c_str() ).GetPtr() );
+		break;
 	case ResourceLoader::LoadCommandStatus::NOT_FOUND:
 	case ResourceLoader::LoadCommandStatus::ERROR_READING:
 		m_xResource->m_eStatus = Resource::Status::FAILED;
