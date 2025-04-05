@@ -29,6 +29,7 @@ void DebugDisplay::NewFrame()
 void DebugDisplay::Display( const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "DebugDisplay" );
+	GPUBlock oGPUBlock( "DebugDisplay" );
 
 	glEnable( GL_DEPTH_TEST );
 	g_pRenderer->m_oDebugRenderer.RenderLines( m_aLines, oRenderContext );
@@ -41,6 +42,7 @@ void DebugDisplay::Display( const RenderContext& oRenderContext )
 void DebugDisplay::DisplayOverlay( const float fDeltaTime, const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "DebugDisplayOverlay" );
+	GPUBlock oGPUBlock( "DebugDisplayOverlay" );
 
 	glDisable( GL_DEPTH_TEST );
 

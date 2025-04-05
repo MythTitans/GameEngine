@@ -36,6 +36,8 @@ Bloom::Bloom()
 
 void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, const RenderContext& oRenderContext )
 {
+	GPUBlock oGPUBlock( "Bloom" );
+
 	RenderRect oBloomRenderRect = oRenderContext.GetRenderRect();
 	oBloomRenderRect.m_uWidth /= 2;
 	oBloomRenderRect.m_uHeight /= 2;

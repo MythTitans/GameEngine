@@ -113,10 +113,14 @@ int main()
 					{
 						ProfilerBlock oBlock( "Wait display" );
 
-						ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
+						{
+							GPUBlock oGPUBlock( "ImGUI" );
+							ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
 
-						ImGui::UpdatePlatformWindows();
-						ImGui::RenderPlatformWindowsDefault();
+							ImGui::UpdatePlatformWindows();
+							ImGui::RenderPlatformWindowsDefault();
+						}
+						
 						glfwMakeContextCurrent( pWindow );
 
 						glfwSwapBuffers( pWindow );

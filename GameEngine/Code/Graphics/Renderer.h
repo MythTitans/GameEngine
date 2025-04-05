@@ -38,6 +38,13 @@ private:
 	RenderRect	m_oRenderRect;
 };
 
+class GPUBlock
+{
+public:
+	GPUBlock( const char* sName );
+	~GPUBlock();
+};
+
 class Renderer
 {
 public:

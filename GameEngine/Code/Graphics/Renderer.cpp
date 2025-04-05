@@ -154,6 +154,16 @@ float RenderContext::ComputeAspectRatio() const
 	return ( float )m_oRenderRect.m_uWidth / ( float )m_oRenderRect.m_uHeight;
 }
 
+GPUBlock::GPUBlock( const char* sName )
+{
+	glPushDebugGroup( GL_DEBUG_SOURCE_APPLICATION, 0, -1, sName );
+}
+
+GPUBlock::~GPUBlock()
+{
+	glPopDebugGroup();
+}
+
 Renderer* g_pRenderer = nullptr;
 
 Renderer::Renderer()
@@ -450,6 +460,8 @@ void Renderer::CopyRenderTargetDepth( const RenderTarget& oSource, const RenderT
 
 void Renderer::RenderForward( const RenderContext& oRenderContext )
 {
+	GPUBlock oGPUBlock( "Forward" );
+
 	SetRenderTarget( m_oForwardMSAATarget );
 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -522,6 +534,8 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 
 uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos )
 {
+	GPUBlock oGPUBlock( "Picking" );
+
 	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 
@@ -598,6 +612,8 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 
 void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode )
 {
+	GPUBlock oGPUBlock( "Outline" );
+
 	glDisable( GL_CULL_FACE );
 	glEnable( GL_DEPTH_TEST );
 	glEnable( GL_STENCIL_TEST );
@@ -641,6 +657,8 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 
 void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 {
+	GPUBlock oGPUBlock( "Gizmos" );
+
 	glEnable( GL_DEPTH_TEST );
 
 	glClear( GL_DEPTH_BUFFER_BIT );

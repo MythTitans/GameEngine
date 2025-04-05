@@ -90,6 +90,8 @@ bool TextRenderer::OnLoading()
 
 void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderContext )
 {
+	GPUBlock oGPUBlock( "Text" );
+
 	const Texture& oAtlas = m_xFont->GetAtlas();
 	const Array< stbtt_packedchar >& aPackedCharacters = m_xFont->GetGlyphs();
 

@@ -44,6 +44,8 @@ GizmoRenderer::~GizmoRenderer()
 
 void GizmoRenderer::RenderGizmo( const GizmoType eGizmoType, const GizmoAxis eGizmoAxis, const RenderContext& oRenderContext )
 {
+	GPUBlock oGPUBlock( "Gizmo" );
+
 	switch( eGizmoType )
 	{
 	case GizmoType::TRANSLATE:
