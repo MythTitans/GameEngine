@@ -9,3 +9,8 @@ void Replace( std::string& sString, const std::string_view sWhat, const std::str
 		uPos += sBy.length();
 	}
 }
+
+bool Contains( const std::string_view sString, const std::string_view sWhat )
+{
+	return sString.find( sWhat ) != std::string::npos;
+}

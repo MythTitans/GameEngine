@@ -170,6 +170,8 @@
     <ClCompile Include="Code\Core\FileUtils.cpp" />
     <ClCompile Include="Code\Editor\Editor.cpp" />
     <ClCompile Include="Code\Editor\Gizmo.cpp" />
+    <ClCompile Include="Code\Game\Animation.cpp" />
+    <ClCompile Include="Code\Game\Animator.cpp" />
     <ClCompile Include="Code\Game\Component.cpp" />
     <ClCompile Include="Code\Game\ComponentManager.cpp" />
     <ClCompile Include="Code\Game\DebugDisplay.cpp" />
@@ -223,6 +225,8 @@
     <ClInclude Include="Code\Core\FileUtils.h" />
     <ClInclude Include="Code\Editor\Editor.h" />
     <ClInclude Include="Code\Editor\Gizmo.h" />
+    <ClInclude Include="Code\Game\Animation.h" />
+    <ClInclude Include="Code\Game\Animator.h" />
     <ClInclude Include="Code\Game\Component.h" />
     <ClInclude Include="Code\Game\ComponentManager.h" />
     <ClInclude Include="Code\Game\DebugDisplay.h" />

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component.h"
+#include "ResourceLoader.h"
 
 class VisualComponent : public Component
 {

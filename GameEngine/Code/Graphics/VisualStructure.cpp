@@ -31,19 +31,15 @@ SpotLight::SpotLight( const glm::vec3& vPosition, const glm::vec3& vDirection, c
 {
 }
 
-VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4& mMatrix, const Array< Mesh >* pMeshes )
+VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4& mMatrix, const Array< Mesh >* pMeshes, const Array< glm::mat4 >* pBoneMatrices )
 	: m_uEntityID( uEntityID )
 	, m_mMatrix( mMatrix )
 	, m_pMeshes( pMeshes )
+	, m_pBoneMatrices( pBoneMatrices )
 {
 }
 
-void VisualStructure::AddNode( const Entity* pEntity, const Array< Mesh >* pMeshes, Technique& oTechnique )
-{
-	AddNode( pEntity, pEntity->GetWorldTransform().GetMatrixTRS(), pMeshes, oTechnique );
-}
-
-void VisualStructure::AddNode( const Entity* pEntity, glm::mat4 mMatrix, const Array< Mesh >* pMeshes, Technique& oTechnique )
+void VisualStructure::AddNode( const Entity* pEntity, const glm::mat4& mMatrix, const Array< Mesh >* pMeshes, const Array< glm::mat4 >* pBoneMatrices, Technique& oTechnique )
 {
 	ASSERT( pMeshes != nullptr );
 	ASSERT( pMeshes->Empty() == false );
@@ -54,11 +50,11 @@ void VisualStructure::AddNode( const Entity* pEntity, glm::mat4 mMatrix, const A
 		iIndex = m_aTechniques.Count();
 		m_aTechniques.PushBack( &oTechnique );
 
-		if( iIndex >= ( int )m_aImprovedNodes.Count() )
-			m_aImprovedNodes.PushBack( Array< VisualNode >() );
+		if( iIndex >= ( int )m_aVisualNodes.Count() )
+			m_aVisualNodes.PushBack( Array< VisualNode >() );
 	}
 
-	m_aImprovedNodes[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, pMeshes ) );
+	m_aVisualNodes[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, pMeshes, pBoneMatrices ) );
 }
 
 Array< const VisualNode* > VisualStructure::FindNodes( const Entity* pEntity ) const
@@ -69,7 +65,7 @@ Array< const VisualNode* > VisualStructure::FindNodes( const Entity* pEntity ) c
 Array< const VisualNode* > VisualStructure::FindNodes( const uint64 uEntityID ) const
 {
 	Array< const VisualNode* > aFoundVisualNodes;
-	for( const Array< VisualNode >& aVisualNodes : m_aImprovedNodes )
+	for( const Array< VisualNode >& aVisualNodes : m_aVisualNodes )
 	{
 		for( const VisualNode& oVisualNode : aVisualNodes )
 		{
@@ -104,7 +100,7 @@ void VisualStructure::AddSpotLight( const Entity* pEntity, const glm::vec3& vCol
 
 void VisualStructure::Clear()
 {
-	for( Array< VisualNode >& aNodes : m_aImprovedNodes )
+	for( Array< VisualNode >& aNodes : m_aVisualNodes )
 		aNodes.Clear();
 	m_aTechniques.Clear();
 

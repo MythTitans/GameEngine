@@ -2,6 +2,18 @@
 
 #include "Core/Types.h"
 
+SkinData::SkinData()
+{
+	m_aBones[ 0 ] = 0;
+	m_aWeights[ 0 ] = 1.f;
+
+	for( uint u = 1; u < MAX_VERTEX_BONE_COUNT; ++u )
+	{
+		m_aBones[ u ] = 0;
+		m_aWeights[ u ] = 0.f;
+	}
+}
+
 Mesh::Mesh()
 	: m_uVertexArrayID( GL_INVALID_VALUE )
 	, m_uVertexBufferID( GL_INVALID_VALUE )
@@ -10,12 +22,13 @@ Mesh::Mesh()
 {
 }
 
-void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< GLuint >& aIndices, const MaterialReference& oMaterial )
+void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< SkinData >& aSkinData, const Array< GLuint >& aIndices, const MaterialReference& oMaterial )
 {
 	ASSERT( aVertices.Empty() == false && aIndices.Empty() == false );
 	ASSERT( aUVs.Empty() || aUVs.Count() == aVertices.Count() );
 	ASSERT( aNormals.Empty() || aNormals.Count() == aVertices.Count() );
 	ASSERT( aTangents.Empty() || aTangents.Count() == aVertices.Count() );
+	ASSERT( aSkinData.Empty() || aSkinData.Count() == aVertices.Count() );
 
 	if( aVertices.Empty() || aIndices.Empty() )
 		return;
@@ -24,12 +37,16 @@ void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >
 	const uint uUVsSize = aUVs.Empty() ? 0 : sizeof( aUVs[ 0 ] ) / sizeof( GLfloat );
 	const uint uNormalsSize = aNormals.Empty() ? 0 : sizeof( aNormals[ 0 ] ) / sizeof( GLfloat );
 	const uint uTangentsSize = aTangents.Empty() ? 0 : sizeof( aTangents[ 0 ] ) / sizeof( GLfloat );
+	const uint uBonesSize = aSkinData.Empty() ? 0 : sizeof( aSkinData[ 0 ].m_aBones ) / sizeof( GLfloat );
+	const uint uWeightsSize = aSkinData.Empty() ? 0 : sizeof( aSkinData[ 0 ].m_aWeights ) / sizeof( GLfloat );
 
 	const uint uUVsOffset = uVerticesSize;
 	const uint uNormalsOffset = uUVsOffset + uUVsSize;
 	const uint uTangentsOffset = uNormalsOffset + uNormalsSize;
+	const uint uBonesOffset = uTangentsOffset + uTangentsSize;
+	const uint uWeightsOffset = uBonesOffset + uBonesSize;
 
-	const uint uVertexSize = uTangentsOffset + uTangentsSize;
+	const uint uVertexSize = uWeightsOffset + uWeightsSize;
 
 	Array< GLfloat > aPackedVertices;
 	aPackedVertices.Resize( uVertexSize * aVertices.Count() );
@@ -58,6 +75,23 @@ void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >
 			aPackedVertices[ u * uVertexSize + uTangentsOffset ] = aTangents[ u ].x;
 			aPackedVertices[ u * uVertexSize + uTangentsOffset + 1 ] = aTangents[ u ].y;
 			aPackedVertices[ u * uVertexSize + uTangentsOffset + 2 ] = aTangents[ u ].z;
+		}
+
+		if( uBonesSize != 0 )
+		{
+			// TODO #eric should use a struct instead of GLfloats and having to do things like this
+			aPackedVertices[ u * uVertexSize + uBonesOffset ] = *reinterpret_cast< const GLfloat* >( &aSkinData[ u ].m_aBones[ 0 ] );
+			aPackedVertices[ u * uVertexSize + uBonesOffset + 1 ] = *reinterpret_cast< const GLfloat* >( &aSkinData[ u ].m_aBones[ 1 ] );
+			aPackedVertices[ u * uVertexSize + uBonesOffset + 2 ] = *reinterpret_cast< const GLfloat* >( &aSkinData[ u ].m_aBones[ 2 ] );
+			aPackedVertices[ u * uVertexSize + uBonesOffset + 3 ] = *reinterpret_cast< const GLfloat* >( &aSkinData[ u ].m_aBones[ 3 ] );
+		}
+
+		if( uWeightsSize != 0 )
+		{
+			aPackedVertices[ u * uVertexSize + uWeightsOffset ] = aSkinData[ u ].m_aWeights[ 0 ];
+			aPackedVertices[ u * uVertexSize + uWeightsOffset + 1 ] = aSkinData[ u ].m_aWeights[ 1 ];
+			aPackedVertices[ u * uVertexSize + uWeightsOffset + 2 ] = aSkinData[ u ].m_aWeights[ 2 ];
+			aPackedVertices[ u * uVertexSize + uWeightsOffset + 3 ] = aSkinData[ u ].m_aWeights[ 3 ];
 		}
 	}
 
@@ -93,6 +127,20 @@ void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >
 	if( uTangentsSize != 0 )
 	{
 		glVertexAttribPointer( uAttributeIndex, uTangentsSize, GL_FLOAT, GL_FALSE, sizeof( aPackedVertices[ 0 ] ) * uVertexSize, ( void* )( sizeof( aPackedVertices[ 0 ] ) * uTangentsOffset ) );
+		glEnableVertexAttribArray( uAttributeIndex );
+		++uAttributeIndex;
+	}
+
+	if( uBonesSize != 0 )
+	{
+		glVertexAttribIPointer( uAttributeIndex, uBonesSize, GL_UNSIGNED_INT, sizeof( aPackedVertices[ 0 ] ) * uVertexSize, ( void* )( sizeof( aPackedVertices[ 0 ] ) * uBonesOffset ) );
+		glEnableVertexAttribArray( uAttributeIndex );
+		++uAttributeIndex;
+	}
+
+	if( uWeightsSize != 0 )
+	{
+		glVertexAttribPointer( uAttributeIndex, uWeightsSize, GL_FLOAT, GL_FALSE, sizeof( aPackedVertices[ 0 ] ) * uVertexSize, ( void* )( sizeof( aPackedVertices[ 0 ] ) * uWeightsOffset ) );
 		glEnableVertexAttribArray( uAttributeIndex );
 		++uAttributeIndex;
 	}
@@ -174,6 +222,18 @@ MeshBuilder& MeshBuilder::WithTangents( Array< glm::vec3 >&& aTangents )
 	return *this;
 }
 
+MeshBuilder& MeshBuilder::WithSkinData()
+{
+	m_aSkinData.Resize( m_aVertices.Count() );
+	return *this;
+}
+
+MeshBuilder& MeshBuilder::WithSkinData( Array< SkinData >&& aSkinData )
+{
+	m_aSkinData = aSkinData;
+	return *this;
+}
+
 MeshBuilder& MeshBuilder::WithMaterial( const MaterialReference& oMaterial )
 {
 	m_oMaterial = oMaterial;
@@ -183,7 +243,7 @@ MeshBuilder& MeshBuilder::WithMaterial( const MaterialReference& oMaterial )
 Mesh MeshBuilder::Build()
 {
 	Mesh oMesh;
-	oMesh.Create( m_aVertices, m_aUVs, m_aNormals, m_aTangents, m_aIndices, m_oMaterial );
+	oMesh.Create( m_aVertices, m_aUVs, m_aNormals, m_aTangents, m_aSkinData, m_aIndices, m_oMaterial );
 
 	return oMesh;
 }

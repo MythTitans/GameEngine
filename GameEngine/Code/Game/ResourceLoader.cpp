@@ -17,6 +17,30 @@
 #include "DebugDisplay.h"
 #include "InputHandler.h"
 
+template < typename T >
+auto AssimpToGLM( const T& oAssimp )
+{
+	static_assert( false, "Not implemented" );
+}
+
+template <>
+auto AssimpToGLM< aiVector3D >( const aiVector3D& vAssimp )
+{
+	return *reinterpret_cast< const glm::vec3* >( &vAssimp );
+}
+
+template <>
+auto AssimpToGLM< aiQuaternion >( const aiQuaternion& qAssimp )
+{
+	return *reinterpret_cast< const glm::quat* >( &qAssimp );
+}
+
+template <>
+auto AssimpToGLM< aiMatrix4x4 >( const aiMatrix4x4& mAssimp )
+{
+	return glm::transpose( *reinterpret_cast< const glm::mat4* >( &mAssimp ) );
+}
+
 Resource::Resource()
 	: m_eStatus( Status::LOADING )
 {
@@ -66,11 +90,6 @@ void TextureResource::Destroy()
 	m_oTexture.Destroy();
 }
 
-Texture& TextureResource::GetTexture()
-{
-	return m_oTexture;
-}
-
 const Texture& TextureResource::GetTexture() const
 {
 	return m_oTexture;
@@ -82,24 +101,34 @@ void ModelResource::Destroy()
 		oMesh.Destroy();
 }
 
-Array< Mesh >& ModelResource::GetMeshes()
-{
-	return m_aMeshes;
-}
-
 const Array< Mesh >& ModelResource::GetMeshes() const
 {
 	return m_aMeshes;
 }
 
+const Array< Animation >& ModelResource::GetAnimations() const
+{
+	return m_aAnimations;
+}
+
+const Skeleton& ModelResource::GetSkeleton() const
+{
+	return m_oSkeleton;
+}
+
+const Array< glm::mat4 >& ModelResource::GetPoseMatrices() const
+{
+	return m_aPoseMatrices;
+}
+
+const Array< glm::mat4 >& ModelResource::GetSkinMatrices() const
+{
+	return m_aSkinMatrices;
+}
+
 void ShaderResource::Destroy()
 {
 	m_oShader.Destroy();
-}
-
-Shader& ShaderResource::GetShader()
-{
-	return m_oShader;
 }
 
 const Shader& ShaderResource::GetShader() const
@@ -656,10 +685,10 @@ void ResourceLoader::ModelLoadCommand::OnFinished()
 	{
 	case ResourceLoader::LoadCommandStatus::FINISHED:
 	{
-		aiNode* pRoot = m_pScene->mRootNode;
-		m_xResource->m_aMeshes.Reserve( CountMeshes( pRoot ) );
-		Array< LitMaterialData > aMaterials = LoadMaterials( m_pScene );
-		LoadMeshes( pRoot, aMaterials );
+		LoadAnimations();
+		LoadSkeleton();
+		LoadMaterials();
+		LoadMeshes();
 		delete m_pScene;
 		if( HasDependencies() == false )
 			m_xResource->m_eStatus = Resource::Status::LOADED;
@@ -692,6 +721,148 @@ void ResourceLoader::ModelLoadCommand::OnDependenciesReady()
 	m_aDependencies.Clear();
 }
 
+void ResourceLoader::ModelLoadCommand::LoadAnimations()
+{
+	m_mNodeIndices[ "SkeletonRoot" ] = 0;
+
+	m_xResource->m_aAnimations.Resize( m_pScene->mNumAnimations );
+
+	for( uint uAnimation = 0; uAnimation < m_pScene->mNumAnimations; ++uAnimation )
+	{
+		const aiAnimation* pAnimation = m_pScene->mAnimations[ uAnimation ];
+
+		Animation& oAnimation = m_xResource->m_aAnimations[ uAnimation ];
+		oAnimation.m_sName = pAnimation->mName.C_Str();
+		oAnimation.m_fDuration = ( float )( pAnimation->mDuration / pAnimation->mTicksPerSecond );
+		oAnimation.m_aNodeAnimations.Resize( pAnimation->mNumChannels );
+
+		for( uint uChannel = 0; uChannel < pAnimation->mNumChannels; ++uChannel )
+		{
+			const aiNodeAnim* pNodeAnimation = pAnimation->mChannels[ uChannel ];
+
+			NodeAnimation& oNodeAnimation = oAnimation.m_aNodeAnimations[ uChannel ];
+			const std::string sNodeName = pNodeAnimation->mNodeName.C_Str();
+
+			oNodeAnimation.m_oPositionCurve.m_aTimes.Resize( pNodeAnimation->mNumPositionKeys );
+			oNodeAnimation.m_oPositionCurve.m_aValues.Resize( pNodeAnimation->mNumPositionKeys );
+			for( uint u = 0; u < pNodeAnimation->mNumPositionKeys; ++u )
+			{
+				oNodeAnimation.m_oPositionCurve.m_aTimes[ u ] = ( float )( pNodeAnimation->mPositionKeys[ u ].mTime / pAnimation->mTicksPerSecond );
+				oNodeAnimation.m_oPositionCurve.m_aValues[ u ] = AssimpToGLM( pNodeAnimation->mPositionKeys[ u ].mValue );
+			}
+
+			oNodeAnimation.m_oRotationCurve.m_aTimes.Resize( pNodeAnimation->mNumRotationKeys );
+			oNodeAnimation.m_oRotationCurve.m_aValues.Resize( pNodeAnimation->mNumRotationKeys );
+			for( uint u = 0; u < pNodeAnimation->mNumRotationKeys; ++u )
+			{
+				oNodeAnimation.m_oRotationCurve.m_aTimes[ u ] = ( float )( pNodeAnimation->mRotationKeys[ u ].mTime / pAnimation->mTicksPerSecond );
+				glm::quat qRotation = AssimpToGLM( pNodeAnimation->mRotationKeys[ u ].mValue );
+				oNodeAnimation.m_oRotationCurve.m_aValues[ u ] = glm::quat( qRotation.x, qRotation.y, qRotation.z, qRotation.w );
+			}
+
+			oNodeAnimation.m_oScaleCurve.m_aTimes.Resize( pNodeAnimation->mNumScalingKeys );
+			oNodeAnimation.m_oScaleCurve.m_aValues.Resize( pNodeAnimation->mNumScalingKeys );
+			for( uint u = 0; u < pNodeAnimation->mNumScalingKeys; ++u )
+			{
+				oNodeAnimation.m_oScaleCurve.m_aTimes[ u ] = ( float )( pNodeAnimation->mScalingKeys[ u ].mTime / pAnimation->mTicksPerSecond );
+				oNodeAnimation.m_oScaleCurve.m_aValues[ u ] = AssimpToGLM( pNodeAnimation->mScalingKeys[ u ].mValue );
+			}
+
+			oNodeAnimation.m_uMatrixIndex = FetchNodeIndex( sNodeName );
+		}
+	}
+}
+
+void ResourceLoader::ModelLoadCommand::LoadSkeleton()
+{
+	m_xResource->m_oSkeleton.m_uMatrixIndex = 0;
+
+	m_xResource->m_aPoseMatrices.Resize( ( uint )m_mNodeIndices.size(), glm::mat4( 1.f ) );
+	LoadSkeleton( m_pScene->mRootNode, m_xResource->m_oSkeleton );
+
+	ASSERT( m_mNodeIndices.size() < MAX_BONE_COUNT );
+	m_xResource->m_aSkinMatrices.Resize( glm::min( ( uint )m_mNodeIndices.size(), MAX_BONE_COUNT ), glm::mat4( 1.f ) );
+}
+
+void ResourceLoader::ModelLoadCommand::LoadMaterials()
+{
+	m_aMaterials.Resize( m_pScene->mNumMaterials );
+
+	for( uint u = 0; u < m_pScene->mNumMaterials; ++u )
+	{
+		// 		TechniqueResPtr xTechniqueResource = g_pResourceLoader->LoadTechnique( "Shader/forward_opaque.tech" );
+		// 		m_aDependencies.PushBack( xTechniqueResource.GetPtr() );
+
+		const aiMaterial* pMaterial = m_pScene->mMaterials[ u ];
+
+		aiColor3D oDiffuseColor;
+		pMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, oDiffuseColor );
+		m_aMaterials[ u ].m_vDiffuseColor = glm::vec3( oDiffuseColor.r, oDiffuseColor.g, oDiffuseColor.b );
+
+		aiColor3D oSpecularColor;
+		pMaterial->Get( AI_MATKEY_COLOR_SPECULAR, oSpecularColor );
+		m_aMaterials[ u ].m_vSpecularColor = glm::vec3( oSpecularColor.r, oSpecularColor.g, oSpecularColor.b );
+
+		aiColor3D oEmissiveColor;
+		pMaterial->Get( AI_MATKEY_COLOR_EMISSIVE, oEmissiveColor );
+		m_aMaterials[ u ].m_vEmissiveColor = glm::vec3( oEmissiveColor.r, oEmissiveColor.g, oEmissiveColor.b );
+
+		pMaterial->Get( AI_MATKEY_SHININESS, m_aMaterials[ u ].m_fShininess );
+
+		if( pMaterial->GetTextureCount( aiTextureType_DIFFUSE ) != 0 )
+		{
+			aiString sFile;
+			if( pMaterial->GetTexture( aiTextureType_DIFFUSE, 0, &sFile ) == AI_SUCCESS )
+			{
+				TextureResPtr xTextureResource = LoadTexture( sFile.C_Str(), true );
+				m_aMaterials[ u ].m_xDiffuseTextureResource = xTextureResource;
+				m_aDependencies.PushBack( xTextureResource.GetPtr() );
+			}
+		}
+
+		if( pMaterial->GetTextureCount( aiTextureType_NORMALS ) != 0 )
+		{
+			aiString sFile;
+			if( pMaterial->GetTexture( aiTextureType_NORMALS, 0, &sFile ) == AI_SUCCESS )
+			{
+				TextureResPtr xTextureResource = LoadTexture( sFile.C_Str() );
+				m_aMaterials[ u ].m_xNormalTextureResource = xTextureResource;
+				m_aDependencies.PushBack( xTextureResource.GetPtr() );
+			}
+		}
+
+		if( pMaterial->GetTextureCount( aiTextureType_SPECULAR ) != 0 )
+		{
+			aiString sFile;
+			if( pMaterial->GetTexture( aiTextureType_SPECULAR, 0, &sFile ) == AI_SUCCESS )
+			{
+				TextureResPtr xTextureResource = LoadTexture( sFile.C_Str() );
+				m_aMaterials[ u ].m_xSpecularTextureResource = xTextureResource;
+				m_aDependencies.PushBack( xTextureResource.GetPtr() );
+			}
+		}
+
+		if( pMaterial->GetTextureCount( aiTextureType_EMISSIVE ) != 0 )
+		{
+			aiString sFile;
+			if( pMaterial->GetTexture( aiTextureType_EMISSIVE, 0, &sFile ) == AI_SUCCESS )
+			{
+				TextureResPtr xTextureResource = LoadTexture( sFile.C_Str() );
+				m_aMaterials[ u ].m_xEmissiveTextureResource = xTextureResource;
+				m_aDependencies.PushBack( xTextureResource.GetPtr() );
+			}
+		}
+	}
+}
+
+void ResourceLoader::ModelLoadCommand::LoadMeshes()
+{
+	aiNode* pRoot = m_pScene->mRootNode;
+
+	m_xResource->m_aMeshes.Reserve( CountMeshes( pRoot ) );
+	LoadMeshes( pRoot );
+}
+
 uint ResourceLoader::ModelLoadCommand::CountMeshes( aiNode* pNode )
 {
 	uint uCount = pNode->mNumMeshes;
@@ -702,89 +873,16 @@ uint ResourceLoader::ModelLoadCommand::CountMeshes( aiNode* pNode )
 	return uCount;
 }
 
-Array< LitMaterialData > ResourceLoader::ModelLoadCommand::LoadMaterials( aiScene* pScene )
-{
-	Array< LitMaterialData > aMaterials( pScene->mNumMaterials );
-
-	for( uint u = 0; u < pScene->mNumMaterials; ++u )
-	{
-// 		TechniqueResPtr xTechniqueResource = g_pResourceLoader->LoadTechnique( "Shader/forward_opaque.tech" );
-// 		m_aDependencies.PushBack( xTechniqueResource.GetPtr() );
-
-		const aiMaterial* pMaterial = pScene->mMaterials[ u ];
-
-		aiColor3D oDiffuseColor;
-		pMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, oDiffuseColor );
-		aMaterials[ u ].m_vDiffuseColor = glm::vec3( oDiffuseColor.r, oDiffuseColor.g, oDiffuseColor.b );
-
-		aiColor3D oSpecularColor;
-		pMaterial->Get( AI_MATKEY_COLOR_SPECULAR, oSpecularColor );
-		aMaterials[ u ].m_vSpecularColor = glm::vec3( oSpecularColor.r, oSpecularColor.g, oSpecularColor.b );
-
-		aiColor3D oEmissiveColor;
-		pMaterial->Get( AI_MATKEY_COLOR_EMISSIVE, oEmissiveColor );
-		aMaterials[ u ].m_vEmissiveColor = glm::vec3( oEmissiveColor.r, oEmissiveColor.g, oEmissiveColor.b );
-
-		pMaterial->Get( AI_MATKEY_SHININESS, aMaterials[ u ].m_fShininess );
-
-		if( pMaterial->GetTextureCount( aiTextureType_DIFFUSE ) != 0 )
-		{
-			aiString sFile;
-			if( pMaterial->GetTexture( aiTextureType_DIFFUSE, 0, &sFile ) == AI_SUCCESS )
-			{
-				TextureResPtr xTextureResource = LoadTexture( pScene, sFile.C_Str(), true );
-				aMaterials[ u ].m_xDiffuseTextureResource = xTextureResource;
-				m_aDependencies.PushBack( xTextureResource.GetPtr() );
-			}
-		}
-
-		if( pMaterial->GetTextureCount( aiTextureType_NORMALS ) != 0 )
-		{
-			aiString sFile;
-			if( pMaterial->GetTexture( aiTextureType_NORMALS, 0, &sFile ) == AI_SUCCESS )
-			{
-				TextureResPtr xTextureResource = LoadTexture( pScene, sFile.C_Str() );
-				aMaterials[ u ].m_xNormalTextureResource = xTextureResource;
-				m_aDependencies.PushBack( xTextureResource.GetPtr() );
-			}
-		}
-
-		if( pMaterial->GetTextureCount( aiTextureType_SPECULAR ) != 0 )
-		{
-			aiString sFile;
-			if( pMaterial->GetTexture( aiTextureType_SPECULAR, 0, &sFile ) == AI_SUCCESS )
-			{
-				TextureResPtr xTextureResource = LoadTexture( pScene, sFile.C_Str() );
-				aMaterials[ u ].m_xSpecularTextureResource = xTextureResource;
-				m_aDependencies.PushBack( xTextureResource.GetPtr() );
-			}
-		}
-
-		if( pMaterial->GetTextureCount( aiTextureType_EMISSIVE ) != 0 )
-		{
-			aiString sFile;
-			if( pMaterial->GetTexture( aiTextureType_EMISSIVE, 0, &sFile ) == AI_SUCCESS )
-			{
-				TextureResPtr xTextureResource = LoadTexture( pScene, sFile.C_Str() );
-				aMaterials[ u ].m_xEmissiveTextureResource = xTextureResource;
-				m_aDependencies.PushBack( xTextureResource.GetPtr() );
-			}
-		}
-	}
-
-	return aMaterials;
-}
-
-void ResourceLoader::ModelLoadCommand::LoadMeshes( aiNode* pNode, const Array< LitMaterialData >& aMaterials )
+void ResourceLoader::ModelLoadCommand::LoadMeshes( aiNode* pNode )
 {
 	for( uint u = 0; u < pNode->mNumMeshes; ++u )
-		LoadMesh( m_pScene->mMeshes[ pNode->mMeshes[ u ] ], aMaterials );
+		LoadMesh( m_pScene->mMeshes[ pNode->mMeshes[ u ] ] );
 
 	for( uint u = 0; u < pNode->mNumChildren; ++u )
-		LoadMeshes( pNode->mChildren[ u ], aMaterials );
+		LoadMeshes( pNode->mChildren[ u ] );
 }
 
-void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh, const Array< LitMaterialData >& aMaterials )
+void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
 {
 	const uint uVertexCount = pMesh->mNumVertices;
 
@@ -817,26 +915,85 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh, const Array< Lit
 			aIndices.PushBack( oFace.mIndices[ uIndex ] );
 	}
 
+	Array< uint > aBonesCount( uVertexCount, 0 );
+	Array< SkinData > aSkinData( uVertexCount );
+
+	for( uint uBone = 0; uBone < pMesh->mNumBones; ++uBone )
+	{
+		const aiBone* pBone = pMesh->mBones[ uBone ];
+
+		uint uBoneIndex = 0;
+		const auto it = m_mNodeIndices.find( pBone->mName.C_Str() );
+		ASSERT( it != m_mNodeIndices.cend() );
+		if( it != m_mNodeIndices.cend() )
+			uBoneIndex = it->second;
+		
+		m_xResource->m_aSkinMatrices[ uBoneIndex ] = AssimpToGLM( pBone->mOffsetMatrix );
+
+		for( uint uWeight = 0; uWeight < pBone->mNumWeights; ++uWeight )
+		{
+			const aiVertexWeight& oVertexWeight = pBone->mWeights[ uWeight ];
+
+			const uint uVertexIndex = oVertexWeight.mVertexId;
+			const float fBoneWeight = ( float )oVertexWeight.mWeight;
+
+			uint& uVertexBoneIndex = aBonesCount[ uVertexIndex ];
+			ASSERT( uVertexBoneIndex < MAX_VERTEX_BONE_COUNT );
+			aSkinData[ uVertexIndex ].m_aBones[ uVertexBoneIndex ] = uBoneIndex;
+			aSkinData[ uVertexIndex ].m_aWeights[ uVertexBoneIndex ] = fBoneWeight;
+			++uVertexBoneIndex;
+		}
+	}
+
 	MeshBuilder oMeshBuilder = MeshBuilder( std::move( aVertices ), std::move( aIndices ) )
 		.WithUVs( std::move( aUVs ) )
 		.WithNormals( std::move( aNormals ) )
-		.WithTangents( std::move( aTangents ) );
+		.WithTangents( std::move( aTangents ) )
+		.WithSkinData( std::move( aSkinData ) );
 
-	if( pMesh->mMaterialIndex >= 0 && pMesh->mMaterialIndex < aMaterials.Count() )
+	if( pMesh->mMaterialIndex >= 0 && pMesh->mMaterialIndex < m_aMaterials.Count() )
 	{
-		const MaterialReference oMaterial = g_pMaterialManager->CreateMaterial( aMaterials[ pMesh->mMaterialIndex ] );
+		const MaterialReference oMaterial = g_pMaterialManager->CreateMaterial( m_aMaterials[ pMesh->mMaterialIndex ] );
 		oMeshBuilder.WithMaterial( oMaterial );
 	}
 
 	m_xResource->m_aMeshes.PushBack( oMeshBuilder.Build() );
 }
 
-TextureResPtr ResourceLoader::ModelLoadCommand::LoadTexture( aiScene* pScene, const std::string& sFileName, const bool bSRGB /*= false*/ )
+void ResourceLoader::ModelLoadCommand::LoadSkeleton( aiNode* pNode, Skeleton& oParent )
+{
+	const std::string sNodeName = pNode->mName.C_Str();
+	if( Contains( sNodeName, "$_Translation" ) || Contains( sNodeName, "$_PreRotation" ) || Contains( sNodeName, "$_Rotation" ) )
+	{
+		oParent.m_aChildren.Reserve( pNode->mNumChildren );
+		for( uint u = 0; u < pNode->mNumChildren; ++u )
+			LoadSkeleton( pNode->mChildren[ u ], oParent );
+	}
+	else
+	{
+		oParent.m_aChildren.PushBack( Skeleton() );
+
+		Skeleton& oSkeleton = oParent.m_aChildren.Back();
+		oSkeleton.m_aChildren.Reserve( pNode->mNumChildren );
+		for( uint u = 0; u < pNode->mNumChildren; ++u )
+			LoadSkeleton( pNode->mChildren[ u ], oSkeleton );
+
+		const uint uNodeIndex = FetchNodeIndex( sNodeName );
+		oSkeleton.m_uMatrixIndex = uNodeIndex;
+
+		if( uNodeIndex >= m_xResource->m_aPoseMatrices.Count() )
+			m_xResource->m_aPoseMatrices.Resize( uNodeIndex + 1 );
+
+		m_xResource->m_aPoseMatrices[ uNodeIndex ] = AssimpToGLM( pNode->mTransformation );
+	}
+}
+
+TextureResPtr ResourceLoader::ModelLoadCommand::LoadTexture( const std::string& sFileName, const bool bSRGB /*= false*/ )
 {
 	int uTextureIndex = -1;
-	for( uint u = 0; u < pScene->mNumTextures; ++u )
+	for( uint u = 0; u < m_pScene->mNumTextures; ++u )
 	{
-		if( sFileName == pScene->mTextures[ u ]->mFilename.C_Str() )
+		if( sFileName == m_pScene->mTextures[ u ]->mFilename.C_Str() )
 		{
 			uTextureIndex = ( int )u;
 			break;
@@ -845,7 +1002,7 @@ TextureResPtr ResourceLoader::ModelLoadCommand::LoadTexture( aiScene* pScene, co
 
 	if( uTextureIndex != -1 )
 	{
-		aiTexture* pTexture = pScene->mTextures[ uTextureIndex ];
+		aiTexture* pTexture = m_pScene->mTextures[ uTextureIndex ];
 
 		std::string sInternalFileName = sFileName;
 		const uint64 uOffset = sFileName.find( ".fbm/" );
@@ -858,6 +1015,19 @@ TextureResPtr ResourceLoader::ModelLoadCommand::LoadTexture( aiScene* pScene, co
 	{
 		return g_pResourceLoader->LoadTexture( sFileName.c_str(), bSRGB );
 	}
+}
+
+uint ResourceLoader::ModelLoadCommand::FetchNodeIndex( const std::string& sName )
+{
+	const auto it = m_mNodeIndices.find( sName );
+	if( it != m_mNodeIndices.cend() )
+	{
+		return it->second;
+	}
+
+	const uint uIndex = ( uint )m_mNodeIndices.size();
+	m_mNodeIndices[ sName ] = uIndex;
+	return uIndex;
 }
 
 ResourceLoader::ShaderLoadCommand::ShaderLoadCommand( const char* sFilePath, const ShaderResPtr& xResource )

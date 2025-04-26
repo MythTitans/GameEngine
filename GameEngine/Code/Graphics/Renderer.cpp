@@ -55,6 +55,8 @@ static const std::string PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES( "spotLightFallo
 static const std::string PARAM_TEXTURE_A( "textureA" );
 static const std::string PARAM_TEXTURE_B( "textureB" );
 
+static const std::string PARAM_BONE_MATRICES( "boneMatrices" );
+
 template < typename Technique >
 static void SetupLighting( Technique& oTechnique, const Array< DirectionalLight >& aDirectionalLights, const Array< PointLight >& aPointLights, const Array< SpotLight >& aSpotLights )
 {
@@ -96,6 +98,23 @@ static void DrawMeshes( const Array< VisualNode >& aVisualNodes, Technique& oTec
 {
 	for( const VisualNode& oVisualNode : aVisualNodes )
 	{
+		if( oTechnique.HasArrayParameter( PARAM_BONE_MATRICES ) )
+		{
+			if( oVisualNode.m_pBoneMatrices != nullptr )
+			{
+				const Array< glm::mat4 >& aBoneMatrices = *oVisualNode.m_pBoneMatrices;
+				for( uint u = 0; u < aBoneMatrices.Count(); ++u )
+					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, aBoneMatrices[ u ], u );
+				for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
+					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
+			}
+			else
+			{
+				for( uint u = 0; u < MAX_BONE_COUNT; ++u )
+					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
+			}
+		}
+
 		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, g_pRenderer->m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
 
 		if( oTechnique.HasParameter( PARAM_MODEL_INVERSE_TRANSPOSE ) )
@@ -478,7 +497,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 		if( oTechnique.HasParameter( PARAM_VIEW_POSITION ) )
 			oTechnique.SetParameter( PARAM_VIEW_POSITION, m_oCamera.m_vPosition );
 
-		DrawMeshes( m_oVisualStructure.m_aImprovedNodes[ u ], oTechnique );
+		DrawMeshes( m_oVisualStructure.m_aVisualNodes[ u ], oTechnique );
 	}
 
 	glDisable( GL_DEPTH_TEST );
@@ -504,7 +523,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	Technique& oMapsTechnique = m_xDeferredMaps->GetTechnique();
 	SetTechnique( oMapsTechnique );
 
-	for( const Array< VisualNode >& aVisualNodes : m_oVisualStructure.m_aImprovedNodes )
+	for( const Array< VisualNode >& aVisualNodes : m_oVisualStructure.m_aVisualNodes )
 		DrawMeshes( aVisualNodes, oMapsTechnique );
 
 	ClearRenderTarget();
@@ -566,7 +585,7 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 		return glm::uvec4( uRed, uGreen, uBlue, uAlpha );
 	};
 
-	for( const Array< VisualNode >& aVisualNodes : g_pRenderer->m_oVisualStructure.m_aImprovedNodes )
+	for( const Array< VisualNode >& aVisualNodes : g_pRenderer->m_oVisualStructure.m_aVisualNodes )
 	{
 		for( const VisualNode& oVisualNode : aVisualNodes )
 		{

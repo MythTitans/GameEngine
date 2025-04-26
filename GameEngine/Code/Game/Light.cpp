@@ -7,7 +7,7 @@
 #include "Graphics/Mesh.h"
 #include "Graphics/Renderer.h"
 
-static void DisplayLightVisual( const Entity* pEntity )
+static void DisplayLightVisual( const Entity* pEntity, const glm::vec3& vColor )
 {
 	static Array< Mesh > s_aLightVisuals;
 	static ModelResPtr s_xLightModel;
@@ -24,7 +24,7 @@ static void DisplayLightVisual( const Entity* pEntity )
 		if( s_xLightModel->IsLoaded() && s_xUnlitTechnique->IsLoaded() )
 		{
 			UnlitMaterialData oMaterialData;
-			oMaterialData.m_vDiffuseColor = glm::vec3( 1.f, 1.f, 0.f );
+			oMaterialData.m_vDiffuseColor = vColor;
 			MaterialReference oMaterial = g_pMaterialManager->CreateMaterial( oMaterialData );
 
 			s_aLightVisuals = s_xLightModel->GetMeshes();
@@ -36,7 +36,7 @@ static void DisplayLightVisual( const Entity* pEntity )
 	{
 		Transform oTransform = pEntity->GetWorldTransform();
 		oTransform.SetScale( 0.25f, 0.25f, 0.25f );
-		g_pRenderer->m_oVisualStructure.AddNode( pEntity, oTransform.GetMatrixTRS(), &s_aLightVisuals, s_xUnlitTechnique->GetTechnique() );
+		g_pRenderer->m_oVisualStructure.AddNode( pEntity, oTransform.GetMatrixTRS(), &s_aLightVisuals, nullptr, s_xUnlitTechnique->GetTechnique() );
 	}
 }
 
@@ -54,7 +54,7 @@ void DirectionalLightComponent::Update( const float fDeltaTime )
 
 void DirectionalLightComponent::DisplayGizmos( const bool bSelected )
 {
-	DisplayLightVisual( GetEntity() );
+	DisplayLightVisual( GetEntity(), m_vColor );
 
 	if( bSelected )
 	{
@@ -82,7 +82,7 @@ void PointLightComponent::Update( const float fDeltaTime )
 
 void PointLightComponent::DisplayGizmos( const bool bSelected )
 {
-	DisplayLightVisual( GetEntity() );
+	DisplayLightVisual( GetEntity(), m_vColor );
 
 	if( bSelected )
 	{
@@ -112,7 +112,7 @@ void SpotLightComponent::Update( const float fDeltaTime )
 
 void SpotLightComponent::DisplayGizmos( const bool bSelected )
 {
-	DisplayLightVisual( GetEntity() );
+	DisplayLightVisual( GetEntity(), m_vColor );
 
 	if( bSelected )
 	{

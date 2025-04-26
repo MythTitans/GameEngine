@@ -12,6 +12,7 @@
 #include "Core/Array.h"
 #include "Core/Intrusive.h"
 #include "Core/stb_truetype.h"
+#include "Game/Animation.h"
 #include "Game/Material.h"
 #include "Graphics/Mesh.h"
 #include "Graphics/Shader.h"
@@ -78,7 +79,6 @@ public:
 
 	void			Destroy() override;
 
-	Shader&			GetShader();
 	const Shader&	GetShader() const;
 
 private:
@@ -112,7 +112,6 @@ public:
 
 	void			Destroy() override;
 
-	Texture&		GetTexture();
 	const Texture&	GetTexture() const;
 
 private:
@@ -126,13 +125,22 @@ class ModelResource : public Resource
 public:
 	friend class ResourceLoader;
 
-	void					Destroy() override;
+	void						Destroy() override;
 
-	Array< Mesh >&			GetMeshes();
-	const Array< Mesh >&	GetMeshes() const;
+	const Array< Mesh >&		GetMeshes() const;
+
+	const Array< Animation >&	GetAnimations() const;
+	const Skeleton&				GetSkeleton() const;
+
+	const Array< glm::mat4 >&	GetPoseMatrices() const;
+	const Array< glm::mat4 >&	GetSkinMatrices() const;
 
 private:
-	Array< Mesh > m_aMeshes;
+	Array< Mesh >			m_aMeshes;
+	Array< Animation >		m_aAnimations;
+	Skeleton				m_oSkeleton;
+	Array < glm::mat4 >		m_aPoseMatrices;
+	Array < glm::mat4 >		m_aSkinMatrices;
 };
 
 using ModelResPtr = StrongPtr< ModelResource >;
@@ -269,14 +277,20 @@ private:
 		void						OnFinished() override;
 		void						OnDependenciesReady() override;
 
+		void						LoadAnimations();
+		void						LoadSkeleton();
+		void						LoadMaterials();
+		void						LoadMeshes();
 		uint						CountMeshes( aiNode* pNode );
-		Array< LitMaterialData >	LoadMaterials( aiScene* pScene );
-		void						LoadMeshes( aiNode* pNode, const Array< LitMaterialData >& aMaterials );
-		void						LoadMesh( aiMesh* pMesh, const Array< LitMaterialData >& aMaterials );
+		void						LoadMeshes( aiNode* pNode );
+		void						LoadMesh( aiMesh* pMesh );
+		void						LoadSkeleton( aiNode* pNode, Skeleton& oParent );
+		TextureResPtr				LoadTexture( const std::string& sFileName, const bool bSRGB = false );
+		uint						FetchNodeIndex( const std::string& sName );
 
-		TextureResPtr				LoadTexture( aiScene* pScene, const std::string& sFileName, const bool bSRGB = false );
-
-		aiScene* m_pScene;
+		aiScene*								m_pScene;
+		Array< LitMaterialData >				m_aMaterials;
+		std::unordered_map< std::string, uint > m_mNodeIndices;
 	};
 
 	struct ShaderLoadCommand : LoadCommand< ShaderResource >

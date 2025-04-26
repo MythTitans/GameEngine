@@ -2,7 +2,6 @@
 
 #include "ComponentManager.h"
 #include "Core/Array.h"
-#include "ResourceLoader.h"
 
 class Entity;
 

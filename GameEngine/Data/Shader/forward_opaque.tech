@@ -53,6 +53,13 @@
                 "spotLightFalloffMaxDistances"
             ],
             "count": 6
+        },
+        {
+            "parameters":
+            [
+                "boneMatrices"
+            ],
+            "count": 128
         }
     ]
 }

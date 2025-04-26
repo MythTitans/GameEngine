@@ -1,5 +1,6 @@
 #include "Scene.h"
 
+#include "Animator.h"
 #include "Core/ArrayUtils.h"
 #include "Entity.h"
 #include "GameEngine.h"
@@ -54,6 +55,7 @@ Scene::Scene()
 
 	//g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( "Earth_Golem_OBJ.obj" );
 	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( "TestAnim.fbx" );
+	g_pComponentManager->CreateComponent< AnimatorComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( "TestAnim.fbx" );
 	m_mEntities[ 9 ]->SetScale( 0.05f, 0.05f, 0.05f );
 
 	m_mEntities[ 10 ]->SetPosition( -1.f, 10.f, 2.f );

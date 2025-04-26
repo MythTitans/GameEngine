@@ -1,10 +1,11 @@
 #include "Visual.h"
 
+#include "Animator.h"
+#include "Entity.h"
 #include "Graphics/Renderer.h"
 
 VisualComponent::VisualComponent( Entity* pEntity )
 	: Component( pEntity )
-	, m_sModelFile( "" )
 {
 }
 
@@ -26,7 +27,12 @@ bool VisualComponent::IsInitialized()
 
 void VisualComponent::Update( const float fDeltaTime )
 {
-	g_pRenderer->m_oVisualStructure.AddNode( GetEntity(), &m_xModel->GetMeshes(), m_xTechnique->GetTechnique() );
+	const Entity* pEntity = GetEntity();
+
+	const AnimatorComponent* pAnimatorComponent = g_pComponentManager->GetComponent< AnimatorComponent >( pEntity );
+	const Array< Mesh >* pMeshes = &m_xModel->GetMeshes();
+	const Array< glm::mat4 >* pBoneMatrices = pAnimatorComponent != nullptr ? &pAnimatorComponent->GetBoneMatrices() : nullptr;
+	g_pRenderer->m_oVisualStructure.AddNode( pEntity, pEntity->GetWorldTransform().GetMatrixTRS(), pMeshes, pBoneMatrices, m_xTechnique->GetTechnique() );
 }
 
 const Array< Mesh >& VisualComponent::GetMeshes() const

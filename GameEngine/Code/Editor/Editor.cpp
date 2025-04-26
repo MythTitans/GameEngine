@@ -5,6 +5,7 @@
 #include "glm/gtx/norm.hpp"
 
 #include "Core/Profiler.h"
+#include "Game/Animator.h"
 #include "Game/Entity.h"
 #include "Game/GameEngine.h"
 #include "Game/InputHandler.h"
@@ -283,6 +284,10 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 						}
 					}
 				}
+
+				AnimatorComponent* pAnimatorComponent = g_pComponentManager->GetComponent< AnimatorComponent >( it.second.GetPtr() );
+				if( pAnimatorComponent != nullptr )
+					pAnimatorComponent->DisplayInspector();
 
 				ImGui::TreePop();
 			}
