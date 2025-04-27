@@ -94,33 +94,6 @@ void AnimatorComponent::Update( const float fDeltaTime )
 	}
 }
 
-void AnimatorComponent::PlayAnimation()
-{
-	m_fRunningTime = 0.f;
-	m_eAnimationState = AnimationState::PLAYING;
-}
-
-void AnimatorComponent::StopAnimation()
-{
-	m_fRunningTime = 0.f;
-	m_eAnimationState = AnimationState::STOPPED;
-}
-
-void AnimatorComponent::ResumeAnimation()
-{
-	m_eAnimationState = AnimationState::PLAYING;
-}
-
-void AnimatorComponent::PauseAnimation()
-{
-	m_eAnimationState = AnimationState::PAUSED;
-}
-
-const Array< glm::mat4 >& AnimatorComponent::GetBoneMatrices() const
-{
-	return m_aBoneMatrices;
-}
-
 void AnimatorComponent::DisplayInspector()
 {
 	auto GetAnimationTypeName = []( const AnimationType eAnimationType ) {
@@ -135,7 +108,7 @@ void AnimatorComponent::DisplayInspector()
 		}
 
 		return "UNKNOWN";
-		};
+	};
 
 	auto GetAnimationStateName = []( const AnimationState eAnimationState ) {
 		switch( eAnimationState )
@@ -152,7 +125,7 @@ void AnimatorComponent::DisplayInspector()
 	};
 
 	if( ImGui::CollapsingHeader( "Animation" ) )
-	{	
+	{
 		if( ImGui::BeginCombo( "Selected animation", m_xModel->GetAnimations()[ m_uAnimationIndex ].m_sName.c_str() ) )
 		{
 			for( uint u = 0; u < m_xModel->GetAnimations().Count(); ++u )
@@ -179,7 +152,7 @@ void AnimatorComponent::DisplayInspector()
 		ImGui::SliderFloat( "Time", &m_fRunningTime, 0.f, fDuration );
 
 		ImGui::Text( std::format( "Animation state : {}", GetAnimationStateName( m_eAnimationState ) ).c_str() );
-		
+
 		if( ImGui::Button( "Play" ) )
 			PlayAnimation();
 		ImGui::SameLine();
@@ -197,4 +170,31 @@ void AnimatorComponent::DisplayInspector()
 				ResumeAnimation();
 		}
 	}
+}
+
+void AnimatorComponent::PlayAnimation()
+{
+	m_fRunningTime = 0.f;
+	m_eAnimationState = AnimationState::PLAYING;
+}
+
+void AnimatorComponent::StopAnimation()
+{
+	m_fRunningTime = 0.f;
+	m_eAnimationState = AnimationState::STOPPED;
+}
+
+void AnimatorComponent::ResumeAnimation()
+{
+	m_eAnimationState = AnimationState::PLAYING;
+}
+
+void AnimatorComponent::PauseAnimation()
+{
+	m_eAnimationState = AnimationState::PAUSED;
+}
+
+const Array< glm::mat4 >& AnimatorComponent::GetBoneMatrices() const
+{
+	return m_aBoneMatrices;
 }

@@ -13,6 +13,8 @@ public:
 	bool					IsInitialized() override;
 	void					Update( const float fDeltaTime ) override;
 
+	void					DisplayInspector() override;
+
 	const Array< Mesh >&	GetMeshes() const;
 
 private:

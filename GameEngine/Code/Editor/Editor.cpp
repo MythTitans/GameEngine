@@ -238,52 +238,20 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 				pEntity->SetScale( EditableVector3( "Scale", pEntity->GetScale() ) );
 
 				DirectionalLightComponent* pDirectionalLightComponent = g_pComponentManager->GetComponent< DirectionalLightComponent >( it.second.GetPtr() );
-				if( pDirectionalLightComponent != nullptr && ImGui::CollapsingHeader( "Directional light" ) )
-				{
-					ImGui::DragFloat( "Intensity", &pDirectionalLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					ColorEdit( "Color", pDirectionalLightComponent->m_vColor );
-				}
+				if( pDirectionalLightComponent != nullptr )
+					pDirectionalLightComponent->DisplayInspector();
 
 				PointLightComponent* pPointLightComponent = g_pComponentManager->GetComponent< PointLightComponent >( it.second.GetPtr() );
-				if( pPointLightComponent != nullptr && ImGui::CollapsingHeader( "Point light" ) )
-				{
-					ImGui::DragFloat( "Intensity", &pPointLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					ColorEdit( "Color", pPointLightComponent->m_vColor );
-					ImGui::DragFloat( "Falloff min distance", &pPointLightComponent->m_fFalloffMinDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					ImGui::DragFloat( "Falloff max distance", &pPointLightComponent->m_fFalloffMaxDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-				}
+				if( pPointLightComponent != nullptr )
+					pPointLightComponent->DisplayInspector();
 
 				SpotLightComponent* pSpotLightComponent = g_pComponentManager->GetComponent< SpotLightComponent >( it.second.GetPtr() );
-				if( pSpotLightComponent != nullptr && ImGui::CollapsingHeader( "Spot light" ) )
-				{
-					ImGui::DragFloat( "Intensity", &pSpotLightComponent->m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					ColorEdit( "Color", pSpotLightComponent->m_vColor );
-					ImGui::DragFloat( "Inner angle", &pSpotLightComponent->m_fInnerAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					ImGui::DragFloat( "Outer angle", &pSpotLightComponent->m_fOuterAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					ImGui::DragFloat( "Falloff min distance", &pSpotLightComponent->m_fFalloffMinDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-					ImGui::DragFloat( "Falloff max distance", &pSpotLightComponent->m_fFalloffMaxDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-				}
+				if( pSpotLightComponent != nullptr )
+					pSpotLightComponent->DisplayInspector();
 
 				VisualComponent* pVisualComponent = g_pComponentManager->GetComponent< VisualComponent >( it.second.GetPtr() );
-				if( pVisualComponent != nullptr && ImGui::CollapsingHeader( "Material" ) )
-				{
-					for( const Mesh& oMesh : pVisualComponent->GetMeshes() )
-					{
-						if( g_pMaterialManager->IsMaterialType< LitMaterialData >( oMesh.GetMaterial() ) )
-						{
-							LitMaterialData oMaterialData = g_pMaterialManager->GetMaterial< LitMaterialData >( oMesh.GetMaterial() );
-							ColorEdit( "Diffuse color", oMaterialData.m_vDiffuseColor );
-							ColorEdit( "Specular color", oMaterialData.m_vSpecularColor );
-							ColorEdit( "Emissive color", oMaterialData.m_vEmissiveColor );
-							ImGui::DragFloat( "Shininess", &oMaterialData.m_fShininess );
-							TexturePreview( "Diffuse map", oMaterialData.m_xDiffuseTextureResource.GetPtr() );
-							TexturePreview( "Normal map", oMaterialData.m_xNormalTextureResource.GetPtr() );
-							TexturePreview( "Specular map", oMaterialData.m_xSpecularTextureResource.GetPtr() );
-							TexturePreview( "Emissive map", oMaterialData.m_xEmissiveTextureResource.GetPtr() );
-							g_pMaterialManager->UpdateMaterial( oMesh.GetMaterial(), oMaterialData );
-						}
-					}
-				}
+				if( pVisualComponent != nullptr )
+					pVisualComponent->DisplayInspector();
 
 				AnimatorComponent* pAnimatorComponent = g_pComponentManager->GetComponent< AnimatorComponent >( it.second.GetPtr() );
 				if( pAnimatorComponent != nullptr )
@@ -403,38 +371,4 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 	}
 
 	return oTransform.GetO();
-}
-
-void Editor::ColorEdit( const char* sLabel, glm::vec3& vColor )
-{
-	glm::vec3 vSRGBColor = glm::convertLinearToSRGB( vColor );
-	if( ImGui::ColorEdit3( sLabel, &vSRGBColor.x ) )
-		vColor = glm::convertSRGBToLinear( vSRGBColor );
-}
-
-void Editor::TexturePreview( const char* sLabel, const TextureResource* pTexture )
-{
-	if( pTexture == nullptr )
-		return;
-
-	const Texture& oTexture = pTexture->GetTexture();
-
-	ImGui::Text( "%s :", sLabel );
-
-	float fWidth = min( oTexture.GetWidth(), 128.f );
-	float fHeight = min( oTexture.GetHeight(), 128.f );
-
-	const ImVec2 vFrom = ImGui::GetCursorScreenPos();
-	ImGui::Image( oTexture.GetID(), ImVec2( fWidth, fHeight ) );
-	const ImVec2 vTo = ImVec2( vFrom.x + fWidth, vFrom.y + fHeight );
-	
-	if( ImGui::IsMouseHoveringRect( vFrom, vTo ) )
-	{
-		ImGui::BeginTooltip();
-		ImGui::Text( "%d x %d", oTexture.GetWidth(), oTexture.GetHeight() );
-		fWidth = min( oTexture.GetWidth(), 512.f );
-		fHeight = min( oTexture.GetHeight(), 512.f );
-		ImGui::Image( oTexture.GetID(), ImVec2( fWidth, fHeight ) );
-		ImGui::EndTooltip();
-	}
 }

@@ -30,14 +30,14 @@ public:
 	void						Stop() override;
 	void						Update( const float fDeltaTime ) override;
 
+	void						DisplayInspector() override;
+
 	void						PlayAnimation();
 	void						StopAnimation();
 	void						ResumeAnimation();
 	void						PauseAnimation();
 
 	const Array< glm::mat4 >&	GetBoneMatrices() const;
-
-	void						DisplayInspector();
 
 private:
 	std::string			m_sModelFile;

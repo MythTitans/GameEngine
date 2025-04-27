@@ -169,6 +169,7 @@
     <ClCompile Include="Code\Core\TaskScheduler.cpp" />
     <ClCompile Include="Code\Core\FileUtils.cpp" />
     <ClCompile Include="Code\Editor\Editor.cpp" />
+    <ClCompile Include="Code\Editor\EditorHelpers.cpp" />
     <ClCompile Include="Code\Editor\Gizmo.cpp" />
     <ClCompile Include="Code\Game\Animation.cpp" />
     <ClCompile Include="Code\Game\Animator.cpp" />
@@ -224,6 +225,7 @@
     <ClInclude Include="Code\Core\Types.h" />
     <ClInclude Include="Code\Core\FileUtils.h" />
     <ClInclude Include="Code\Editor\Editor.h" />
+    <ClInclude Include="Code\Editor\EditorHelpers.h" />
     <ClInclude Include="Code\Editor\Gizmo.h" />
     <ClInclude Include="Code\Game\Animation.h" />
     <ClInclude Include="Code\Game\Animator.h" />

@@ -34,6 +34,10 @@ void Component::DisplayGizmos( const bool /*bSelected*/ )
 {
 }
 
+void Component::DisplayInspector()
+{
+}
+
 Entity* Component::GetEntity()
 {
 	return m_pEntity;
