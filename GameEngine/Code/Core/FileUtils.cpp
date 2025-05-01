@@ -50,3 +50,21 @@ Array< uint8 > ReadBinaryFile( const std::filesystem::path& oFilePath )
 
 	return aContent;
 }
+
+bool WriteTextFile( const std::string& sContent, const std::filesystem::path& oFilePath )
+{
+	std::string sFileContent;
+	std::ofstream oFileStream( oFilePath );
+
+	if( !oFileStream.is_open() )
+	{
+		LOG_ERROR( "Error writing file {}", oFilePath.string() );
+		return false;
+	}
+
+	oFileStream.write( sContent.c_str(), sContent.size() );
+
+	oFileStream.close();
+
+	return true;
+}

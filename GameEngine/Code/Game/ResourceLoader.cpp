@@ -323,7 +323,7 @@ void ResourceLoader::DisplayDebug()
 				}
 			};
 
-			for( auto& oPair : m_mTextureResources )
+			for( const auto& oPair : m_mTextureResources )
 			{
 				const Texture& oTexture = oPair.second->GetTexture();
 

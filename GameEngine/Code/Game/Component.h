@@ -18,7 +18,7 @@ public:
 	explicit Component( Entity* pEntity );
 
 	virtual void						Initialize();
-	virtual bool						IsInitialized();
+	virtual bool						IsInitialized() const;
 	virtual void						Start();
 	virtual void						Stop();
 	virtual void						Update( const float fDeltaTime );

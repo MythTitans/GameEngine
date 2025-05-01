@@ -13,7 +13,7 @@ void Component::Initialize()
 {
 }
 
-bool Component::IsInitialized()
+bool Component::IsInitialized() const
 {
 	return true;
 }

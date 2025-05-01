@@ -1,82 +1,20 @@
 #include "Scene.h"
 
-#include "Animator.h"
 #include "Core/ArrayUtils.h"
+#include "Core/FileUtils.h"
+#include "Core/Logger.h"
 #include "Entity.h"
 #include "GameEngine.h"
-#include "Light.h"
-#include "Visual.h"
+
+inline constexpr uint64 ENTITIES_START_ID = 1024;
 
 Scene::Scene()
+	: m_uNextInternalID( 0 )
+	, m_uNextID( ENTITIES_START_ID )
 {
-	m_mEntities[ 0 ] = new Entity( 0, "X" );
-	m_mEntities[ 1 ] = new Entity( 1, "Y" );
-	m_mEntities[ 2 ] = new Entity( 2, "Z" );
-	m_mEntities[ 3 ] = new Entity( 3, "XY" );
-	m_mEntities[ 4 ] = new Entity( 4, "YZ" );
-	m_mEntities[ 5 ] = new Entity( 5, "XZ" );
-	m_mEntities[ 6 ] = new Entity( 6, "GiroXY" );
-	m_mEntities[ 7 ] = new Entity( 7, "GiroYZ" );
-	m_mEntities[ 8 ] = new Entity( 8, "GiroXZ" );
-	m_mEntities[ 9 ] = new Entity( 9, "Golem" );
-	m_mEntities[ 10 ] = new Entity( 10, "Light 1" );
-	m_mEntities[ 11 ] = new Entity( 11, "Light 2" );
-	m_mEntities[ 12 ] = new Entity( 12, "Light 3" );
-	m_mEntities[ 13 ] = new Entity( 13, "Light 4" );
-	m_mEntities[ 14 ] = new Entity( 14, "Env" );
-	m_mEntities[ 15 ] = new Entity( 15, "Sphere" );
+	CreateInternalEntities();
 
-	GizmoComponent& oTranslateGizmoX = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 0 ].GetPtr() );
-	oTranslateGizmoX.Setup( GizmoType::TRANSLATE, GizmoAxis::X );
-
-	GizmoComponent& oTranslateGizmoY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 1 ].GetPtr() );
-	oTranslateGizmoY.Setup( GizmoType::TRANSLATE, GizmoAxis::Y );
-
-	GizmoComponent& oTranslateGizmoZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 2 ].GetPtr() );
-	oTranslateGizmoZ.Setup( GizmoType::TRANSLATE, GizmoAxis::Z );
-
-	GizmoComponent& oTranslateGizmoXY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 3 ].GetPtr() );
-	oTranslateGizmoXY.Setup( GizmoType::TRANSLATE, GizmoAxis::XY );
-
-	GizmoComponent& oTranslateGizmoYZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 4 ].GetPtr() );
-	oTranslateGizmoYZ.Setup( GizmoType::TRANSLATE, GizmoAxis::YZ );
-
-	GizmoComponent& oTranslateGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 5 ].GetPtr() );
-	oTranslateGizmoXZ.Setup( GizmoType::TRANSLATE, GizmoAxis::XZ );
-
-	GizmoComponent& oGiroGizmoXY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 6 ].GetPtr() );
-	oGiroGizmoXY.Setup( GizmoType::ROTATE, GizmoAxis::XY );
-
-	GizmoComponent& oGiroGizmoYZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 7 ].GetPtr() );
-	oGiroGizmoYZ.Setup( GizmoType::ROTATE, GizmoAxis::YZ );
-
-	GizmoComponent& oGiroGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ 8 ].GetPtr() );
-	oGiroGizmoXZ.Setup( GizmoType::ROTATE, GizmoAxis::XZ );
-
-	//g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( "Earth_Golem_OBJ.obj" );
-	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( "TestAnim.fbx" );
-	g_pComponentManager->CreateComponent< AnimatorComponent >( m_mEntities[ 9 ].GetPtr() ).Setup( "TestAnim.fbx" );
-	m_mEntities[ 9 ]->SetScale( 0.05f, 0.05f, 0.05f );
-
-	m_mEntities[ 10 ]->SetPosition( -1.f, 10.f, 2.f );
-	g_pComponentManager->CreateComponent< PointLightComponent >( m_mEntities[ 10 ].GetPtr() );
-
-	m_mEntities[ 11 ]->SetPosition( 7.f, 5.f, 5.f );
-	g_pComponentManager->CreateComponent< PointLightComponent >( m_mEntities[ 11 ].GetPtr() );
-
-	m_mEntities[ 12 ]->SetRotationX( glm::radians( 90.f ) );
-	g_pComponentManager->CreateComponent< DirectionalLightComponent >( m_mEntities[ 12 ].GetPtr() );
-
-	m_mEntities[ 13 ]->SetRotationX( glm::radians( 90.f ) );
-	g_pComponentManager->CreateComponent< SpotLightComponent >( m_mEntities[ 13 ].GetPtr() );
-
-	AttachToParent( m_mEntities[ 10 ].GetPtr(), m_mEntities[ 9 ].GetPtr() );
-
-	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 14 ].GetPtr() ).Setup( "plane.obj" );
-//  	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 14 ].GetPtr() ).Setup( "sponza.obj" );
-//  	m_mEntities[ 14 ]->SetScale( 0.05f, 0.05f, 0.05f );
-
-	g_pComponentManager->CreateComponent< VisualComponent >( m_mEntities[ 15 ].GetPtr() ).Setup( "sphere.obj" );
+	LoadTestScene();
 }
 
 Entity* Scene::FindEntity( const uint64 uEntityID )
@@ -132,4 +70,124 @@ void Scene::DetachFromParent( Entity* pChild )
 	}
 
 	pChild->m_pParent = nullptr;
+}
+
+void Scene::SaveTestScene()
+{
+	Array< nlohmann::json > aSerializedEntities;
+	aSerializedEntities.Reserve( ( uint )m_mEntities.size() );
+
+	for( const auto& it : m_mEntities )
+	{
+		if( it.first >= ENTITIES_START_ID )
+			aSerializedEntities.PushBack( *it.second.GetPtr() );
+	}
+
+	nlohmann::json oJsonContent;
+	oJsonContent[ "scene" ] = aSerializedEntities;
+	WriteTextFile( oJsonContent.dump( 4 ), std::filesystem::path( "Data/Scene/test.scene" ) );
+}
+
+void Scene::LoadTestScene()
+{
+	const nlohmann::json oJsonContent = nlohmann::json::parse( ReadTextFile( std::filesystem::path( "Data/Scene/test.scene" ) ) );
+
+	for( const auto& oEntityIt: oJsonContent[ "scene" ].items() )
+	{
+		const nlohmann::json& oEntity = oEntityIt.value();
+
+		const uint64 uEntityID = oEntity[ "id" ];
+		const std::string& sName = oEntity[ "name" ];
+		LOG_INFO( "Create entity {} (id : {})", sName, uEntityID );
+		m_mEntities[ uEntityID ] = new Entity( uEntityID, sName );
+		Entity* pEntity = m_mEntities[ uEntityID ].GetPtr();
+
+		pEntity->SetPosition( oEntity[ "position" ] );
+		pEntity->SetRotation( oEntity[ "rotation" ] );
+		pEntity->SetScale( oEntity[ "scale" ] );
+	}
+
+	for( const auto& oEntityIt : oJsonContent[ "scene" ].items() )
+	{
+		const nlohmann::json& oEntity = oEntityIt.value();
+
+		const uint64 uEntityID = oEntity[ "id" ];
+		Entity* pEntity = m_mEntities[ uEntityID ].GetPtr();
+
+		if( oEntity.contains( "parentId" ) )
+		{
+			const uint64 uParentID = oEntity[ "parentId" ];
+			Entity* pParent = m_mEntities[ uParentID ].GetPtr();
+			AttachToParent( pEntity, pParent );
+		}
+
+		for( const auto& oComponentIt : oEntityIt.value()[ "components" ].items() )
+		{
+			const nlohmann::json& oComponent = oComponentIt.value();
+
+			const std::string& sComponentName = oComponent[ "name" ];
+			const std::function< void( Entity* ) >& pCreateComponentFunction = ComponentManager::GetComponentsFactory()[ sComponentName ];
+			pCreateComponentFunction( pEntity );
+
+			g_pComponentManager->DeserializeComponents( oComponent[ "properties" ], pEntity);
+		}
+	}
+}
+
+void Scene::CreateInternalEntities()
+{
+	uint64 uEntityID = GenerateInternalID();
+	m_mEntities[ uEntityID ] = new Entity( uEntityID, "X" );
+	GizmoComponent& oTranslateGizmoX = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oTranslateGizmoX.Setup( GizmoType::TRANSLATE, GizmoAxis::X );
+
+	uEntityID = GenerateInternalID();
+	m_mEntities[ uEntityID ] = new Entity( uEntityID, "Y" );
+	GizmoComponent& oTranslateGizmoY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oTranslateGizmoY.Setup( GizmoType::TRANSLATE, GizmoAxis::Y );
+
+	uEntityID = GenerateInternalID();
+	m_mEntities[ uEntityID ] = new Entity( uEntityID, "Z" );
+	GizmoComponent& oTranslateGizmoZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oTranslateGizmoZ.Setup( GizmoType::TRANSLATE, GizmoAxis::Z );
+
+	uEntityID = GenerateInternalID();
+	m_mEntities[ uEntityID ] = new Entity( uEntityID, "XY" );
+	GizmoComponent& oTranslateGizmoXY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oTranslateGizmoXY.Setup( GizmoType::TRANSLATE, GizmoAxis::XY );
+
+	uEntityID = GenerateInternalID();
+	m_mEntities[ uEntityID ] = new Entity( uEntityID, "YZ" );
+	GizmoComponent& oTranslateGizmoYZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oTranslateGizmoYZ.Setup( GizmoType::TRANSLATE, GizmoAxis::YZ );
+
+	uEntityID = GenerateInternalID();
+	m_mEntities[ uEntityID ] = new Entity( uEntityID, "XZ" );
+	GizmoComponent& oTranslateGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oTranslateGizmoXZ.Setup( GizmoType::TRANSLATE, GizmoAxis::XZ );
+
+	uEntityID = GenerateInternalID();
+	m_mEntities[ uEntityID ] = new Entity( uEntityID, "GiroXY" );
+	GizmoComponent& oGiroGizmoXY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oGiroGizmoXY.Setup( GizmoType::ROTATE, GizmoAxis::XY );
+
+	uEntityID = GenerateInternalID();
+	m_mEntities[ uEntityID ] = new Entity( uEntityID, "GiroYZ" );
+	GizmoComponent& oGiroGizmoYZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oGiroGizmoYZ.Setup( GizmoType::ROTATE, GizmoAxis::YZ );
+
+	uEntityID = GenerateInternalID();
+	m_mEntities[ uEntityID ] = new Entity( uEntityID, "GiroXZ" );
+	GizmoComponent& oGiroGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oGiroGizmoXZ.Setup( GizmoType::ROTATE, GizmoAxis::XZ );
+}
+
+uint64 Scene::GenerateInternalID()
+{
+	return m_uNextInternalID++;
+}
+
+uint64 Scene::GenerateID()
+{
+	return m_uNextID++;
 }

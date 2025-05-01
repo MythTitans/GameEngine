@@ -1,5 +1,9 @@
 #include "ComponentManager.h"
 
+PropertiesHolderBase::~PropertiesHolderBase()
+{
+}
+
 ComponentsHolderBase::ComponentsHolderBase()
 	: m_uVersion( 0 )
 {
@@ -23,13 +27,13 @@ ComponentManager::~ComponentManager()
 
 void ComponentManager::InitializeComponents()
 {
-	for( auto& oPair : m_mComponentsHolders )
+	for( const auto& oPair : m_mComponentsHolders )
 		oPair.second->InitializeComponents();
 }
 
 bool ComponentManager::AreComponentsInitialized() const
 {
-	for( auto& oPair : m_mComponentsHolders )
+	for( const auto& oPair : m_mComponentsHolders )
 	{
 		if( oPair.second->AreComponentsInitialized() == false )
 			return false;
@@ -40,24 +44,43 @@ bool ComponentManager::AreComponentsInitialized() const
 
 void ComponentManager::StartComponents()
 {
-	for( auto& oPair : m_mComponentsHolders )
+	for( const auto& oPair : m_mComponentsHolders )
 		oPair.second->StartComponents();
 }
 
 void ComponentManager::StopComponents()
 {
-	for( auto& oPair : m_mComponentsHolders )
+	for( const auto& oPair : m_mComponentsHolders )
 		oPair.second->StopComponents();
 }
 
 void ComponentManager::UpdateComponents( const float fDeltaTime )
 {
-	for( auto& oPair : m_mComponentsHolders )
+	for( const auto& oPair : m_mComponentsHolders )
 		oPair.second->UpdateComponents( fDeltaTime );
+}
+
+Array< nlohmann::json > ComponentManager::SerializeComponents( const Entity* pEntity )
+{
+	Array< nlohmann::json > aSerializedComponents;
+	for( const auto& oPair : m_mComponentsHolders )
+	{
+		const nlohmann::json oSerializedComponent = oPair.second->SerializeComponent( pEntity );
+		if( oSerializedComponent.is_null() == false )
+			aSerializedComponents.PushBack( oSerializedComponent );
+	}
+
+	return aSerializedComponents;
+}
+
+void ComponentManager::DeserializeComponents( const nlohmann::json& oJsonContent, Entity* pEntity )
+{
+	for( const auto& oPair : m_mComponentsHolders )
+		oPair.second->DeserializeComponent( oJsonContent, pEntity );
 }
 
 void ComponentManager::DisplayGizmos( const uint64 uSelectedEntityID )
 {
-	for( auto& oPair : m_mComponentsHolders )
+	for( const auto& oPair : m_mComponentsHolders )
 		oPair.second->DisplayGizmos( uSelectedEntityID );
 }

@@ -10,7 +10,7 @@ public:
 
 	void					Setup( const char* sModelFile );
 	void					Initialize() override;
-	bool					IsInitialized() override;
+	bool					IsInitialized() const override;
 	void					Update( const float fDeltaTime ) override;
 
 	void					DisplayInspector() override;
@@ -18,7 +18,9 @@ public:
 	const Array< Mesh >&	GetMeshes() const;
 
 private:
-	std::string		m_sModelFile;
+	PROPERTIES( VisualComponent );
+	PROPERTY( "Model", m_sModelFile, std::string );
+
 	ModelResPtr		m_xModel;
 	TechniqueResPtr m_xTechnique;
 };

@@ -1,0 +1,283 @@
+{
+    "scene": [
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "TestAnim.fbx"
+                        }
+                    ]
+                },
+                {
+                    "name": "AnimatorComponent",
+                    "properties": [
+                        {
+                            "Model": "TestAnim.fbx"
+                        }
+                    ]
+                }
+            ],
+            "id": 1024,
+            "name": "Golem",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.05000000074505806,
+                "y": 0.05000000074505806,
+                "z": 0.05000000074505806
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "PointLightComponent",
+                    "properties": [
+                        {
+                            "Color": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                            }
+                        },
+                        {
+                            "Intensity": 1.0
+                        },
+                        {
+                            "FalloffMinDistance": 1.0
+                        },
+                        {
+                            "FalloffMaxDistance": 10.0
+                        }
+                    ]
+                }
+            ],
+            "id": 1025,
+            "name": "Light 1",
+            "parentId": 1024,
+            "position": {
+                "x": -1.0,
+                "y": 10.0,
+                "z": 2.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "PointLightComponent",
+                    "properties": [
+                        {
+                            "Color": {
+                                "x": 0.9999998807907104,
+                                "y": 0.0,
+                                "z": 0.0
+                            }
+                        },
+                        {
+                            "Intensity": 2.5
+                        },
+                        {
+                            "FalloffMinDistance": 1.0
+                        },
+                        {
+                            "FalloffMaxDistance": 10.0
+                        }
+                    ]
+                }
+            ],
+            "id": 1026,
+            "name": "Light 2",
+            "position": {
+                "x": 6.151871681213379,
+                "y": 5.0,
+                "z": 2.3311386108398438
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "DirectionalLightComponent",
+                    "properties": [
+                        {
+                            "Color": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                            }
+                        },
+                        {
+                            "Intensity": 1.0
+                        }
+                    ]
+                }
+            ],
+            "id": 1027,
+            "name": "Light 3",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 0.70710688829422,
+                "x": 0.7071066498756409,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "SpotLightComponent",
+                    "properties": [
+                        {
+                            "Color": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                            }
+                        },
+                        {
+                            "Intensity": 1.0
+                        },
+                        {
+                            "InnerAngle": 30.0
+                        },
+                        {
+                            "OuterAngle": 60.0
+                        },
+                        {
+                            "FalloffMinDistance": 1.0
+                        },
+                        {
+                            "FalloffMaxDistance": 10.0
+                        }
+                    ]
+                }
+            ],
+            "id": 1028,
+            "name": "Light 4",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 0.70710688829422,
+                "x": 0.7071066498756409,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "plane.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1029,
+            "name": "Env",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "TestAnim.fbx"
+                        }
+                    ]
+                },
+                {
+                    "name": "AnimatorComponent",
+                    "properties": [
+                        {
+                            "Model": "TestAnim.fbx"
+                        }
+                    ]
+                }
+            ],
+            "id": 1030,
+            "name": "Sphere",
+            "position": {
+                "x": 2.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.05000000074505806,
+                "y": 0.05000000074505806,
+                "z": 0.05000000074505806
+            }
+        }
+    ]
+}

@@ -1,0 +1,17 @@
+{
+    "scene":
+    [
+        {
+            "name": "TestEntity",
+            "position": {},
+            "rotation": {},
+            "scale": {},
+            "components":
+            [
+            ],
+            "children":
+            [
+            ]
+        }
+    ]
+}

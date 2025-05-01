@@ -14,8 +14,10 @@ public:
 	void DisplayGizmos( const bool bSelected ) override;
 	void DisplayInspector() override;
 
-	glm::vec3	m_vColor;
-	float		m_fIntensity;
+private:
+	PROPERTIES( DirectionalLightComponent );
+	PROPERTY_DEFAULT( "Color", m_vColor, glm::vec3, glm::vec3( 1.f ) );
+	PROPERTY_DEFAULT( "Intensity", m_fIntensity, float, 1.f );
 };
 
 class PointLightComponent : public Component
@@ -28,11 +30,12 @@ public:
 	void DisplayGizmos( const bool bSelected ) override;
 	void DisplayInspector() override;
 
-public:
-	glm::vec3	m_vColor;
-	float		m_fIntensity;
-	float		m_fFalloffMinDistance;
-	float		m_fFalloffMaxDistance;
+private:
+	PROPERTIES( PointLightComponent );
+	PROPERTY_DEFAULT( "Color", m_vColor, glm::vec3, glm::vec3( 1.f ) );
+	PROPERTY_DEFAULT( "Intensity", m_fIntensity, float, 1.f );
+	PROPERTY_DEFAULT( "FalloffMinDistance", m_fFalloffMinDistance, float, 1.f );
+	PROPERTY_DEFAULT( "FalloffMaxDistance", m_fFalloffMaxDistance, float, 10.f );
 };
 
 class SpotLightComponent : public Component
@@ -45,11 +48,12 @@ public:
 	void DisplayGizmos( const bool bSelected ) override;
 	void DisplayInspector() override;
 
-public:
-	glm::vec3	m_vColor;
-	float		m_fIntensity;
-	float		m_fInnerAngle;
-	float		m_fOuterAngle;
-	float		m_fFalloffMinDistance;
-	float		m_fFalloffMaxDistance;
+private:
+	PROPERTIES( SpotLightComponent );
+	PROPERTY_DEFAULT( "Color", m_vColor, glm::vec3, glm::vec3( 1.f ) );
+	PROPERTY_DEFAULT( "Intensity", m_fIntensity, float, 1.f );
+	PROPERTY_DEFAULT( "InnerAngle", m_fInnerAngle, float, 30.f );
+	PROPERTY_DEFAULT( "OuterAngle", m_fOuterAngle, float, 60.f );
+	PROPERTY_DEFAULT( "FalloffMinDistance", m_fFalloffMinDistance, float, 1.f );
+	PROPERTY_DEFAULT( "FalloffMaxDistance", m_fFalloffMaxDistance, float, 10.f );
 };

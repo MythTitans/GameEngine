@@ -43,7 +43,7 @@ public:
 
 	template < typename MaterialData >
 	MaterialReference( const MaterialData& /*oMaterialData*/, const uint uMaterialID )
-		: m_oTypeIndex( std::type_index( typeid( MaterialData ) ) )
+		: m_oTypeIndex( typeid( MaterialData ) )
 		, m_iMaterialID( uMaterialID )
 	{
 	}
@@ -62,7 +62,7 @@ public:
 	template < typename MaterialData >
 	MaterialReference CreateMaterial( const MaterialData& oMaterialData )
 	{
-		MaterialsHolderBase*& pMaterialsHolderBase = m_mMaterialsHolders[ std::type_index( typeid( MaterialData ) ) ];
+		MaterialsHolderBase*& pMaterialsHolderBase = m_mMaterialsHolders[ typeid( MaterialData ) ];
 		if( pMaterialsHolderBase == nullptr )
 			pMaterialsHolderBase = new MaterialsHolder< MaterialData >;
 
@@ -75,7 +75,7 @@ public:
 	template < typename MaterialData >
 	void UpdateMaterial( const MaterialReference& oMaterialReference, const MaterialData& oMaterialData )
 	{
-		ASSERT( oMaterialReference.m_oTypeIndex == std::type_index( typeid( MaterialData ) ) );
+		ASSERT( oMaterialReference.m_oTypeIndex == typeid( MaterialData ) );
 
 		auto it = m_mMaterialsHolders.find( oMaterialReference.m_oTypeIndex );
 		if( it == m_mMaterialsHolders.end() || it->second == nullptr )
@@ -88,7 +88,7 @@ public:
 	template < typename MaterialData >
 	const MaterialData& GetMaterial( const MaterialReference& oMaterialReference )
 	{
-		ASSERT( oMaterialReference.m_oTypeIndex == std::type_index( typeid( MaterialData ) ) );
+		ASSERT( oMaterialReference.m_oTypeIndex == typeid( MaterialData ) );
 
 		auto it = m_mMaterialsHolders.find( oMaterialReference.m_oTypeIndex );
 		if( it == m_mMaterialsHolders.end() || it->second == nullptr )
@@ -101,7 +101,7 @@ public:
 	template < typename MaterialData >
 	bool IsMaterialType( const MaterialReference& oMaterialReference )
 	{
-		return oMaterialReference.m_oTypeIndex == std::type_index( typeid( MaterialData ) );
+		return oMaterialReference.m_oTypeIndex == typeid( MaterialData );
 	}
 
 	void ApplyMaterial( const MaterialReference& oMaterialReference, Technique& oTechnique );

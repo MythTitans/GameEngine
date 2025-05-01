@@ -41,10 +41,10 @@ static void DisplayLightVisual( const Entity* pEntity, const glm::vec3& vColor )
 	}
 }
 
+REGISTER_COMPONENT( DirectionalLightComponent );
+
 DirectionalLightComponent::DirectionalLightComponent( Entity* pEntity )
 	: Component( pEntity )
-	, m_vColor( 1.f )
-	, m_fIntensity( 1.f )
 {
 }
 
@@ -76,12 +76,10 @@ void DirectionalLightComponent::DisplayInspector()
 	}
 }
 
+REGISTER_COMPONENT( PointLightComponent );
+
 PointLightComponent::PointLightComponent( Entity* pEntity )
 	: Component( pEntity )
-	, m_vColor( 1.f )
-	, m_fIntensity( 1.f )
-	, m_fFalloffMinDistance( 1.f )
-	, m_fFalloffMaxDistance( 10.f )
 {
 }
 
@@ -115,14 +113,10 @@ void PointLightComponent::DisplayInspector()
 	}
 }
 
+REGISTER_COMPONENT( SpotLightComponent );
+
 SpotLightComponent::SpotLightComponent( Entity* pEntity )
 	: Component( pEntity )
-	, m_vColor( 1.f )
-	, m_fIntensity( 1.f )
-	, m_fInnerAngle( 30.f )
-	, m_fOuterAngle( 60.f )
-	, m_fFalloffMinDistance( 1.f )
-	, m_fFalloffMaxDistance( 10.f )
 {
 }
 

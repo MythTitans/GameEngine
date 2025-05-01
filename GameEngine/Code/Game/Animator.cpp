@@ -2,6 +2,8 @@
 
 #include "Entity.h"
 
+REGISTER_COMPONENT( AnimatorComponent );
+
 AnimatorComponent::AnimatorComponent( Entity* pEntity )
 	: Component( pEntity )
 	, m_fRunningTime( 0.f )
@@ -21,7 +23,7 @@ void AnimatorComponent::Initialize()
 	m_xModel = g_pResourceLoader->LoadModel( m_sModelFile.c_str() );
 }
 
-bool AnimatorComponent::IsInitialized()
+bool AnimatorComponent::IsInitialized() const
 {
 	return m_xModel->IsLoaded();
 }

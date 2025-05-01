@@ -25,7 +25,7 @@ public:
 
 	void						Setup( const char* sModelFile );
 	void						Initialize() override;
-	bool						IsInitialized() override;
+	bool						IsInitialized() const override;
 	void						Start() override;
 	void						Stop() override;
 	void						Update( const float fDeltaTime ) override;
@@ -40,7 +40,9 @@ public:
 	const Array< glm::mat4 >&	GetBoneMatrices() const;
 
 private:
-	std::string			m_sModelFile;
+	PROPERTIES( AnimatorComponent );
+	PROPERTY( "Model", m_sModelFile, std::string );
+
 	ModelResPtr			m_xModel;
 	Array< glm::mat4 >	m_aBoneMatrices;
 	uint				m_uAnimationIndex;

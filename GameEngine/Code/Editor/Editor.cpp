@@ -1,10 +1,13 @@
 #include "Editor.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtc/color_space.hpp"
-#include "glm/gtx/norm.hpp"
+#include <glm/gtc/color_space.hpp>
+#include <glm/gtx/norm.hpp>
+#include <nlohmann/json.hpp>
 
+#include "Core/FileUtils.h"
 #include "Core/Profiler.h"
+#include "Core/Serialization.h"
 #include "Game/Animator.h"
 #include "Game/Entity.h"
 #include "Game/GameEngine.h"
@@ -218,11 +221,14 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 	ImGui::Begin( "Editor" );
 
+	if( ImGui::Button( "Save scene" ) )
+		g_pGameEngine->GetScene().SaveTestScene();
+
 	if( ImGui::TreeNode( "Root" ) )
 	{
 		for( auto& it : g_pGameEngine->GetScene().m_mEntities )
 		{
-			if( ImGui::TreeNode( it.second->GetName() ) )
+			if( ImGui::TreeNode( it.second->GetName().c_str() ) )
 			{
 				Entity* pEntity = it.second.GetPtr();
 				EulerComponent* pEuler = g_pComponentManager->GetComponent< EulerComponent >( pEntity );
@@ -255,7 +261,12 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 				AnimatorComponent* pAnimatorComponent = g_pComponentManager->GetComponent< AnimatorComponent >( it.second.GetPtr() );
 				if( pAnimatorComponent != nullptr )
+				{
 					pAnimatorComponent->DisplayInspector();
+
+					if( ImGui::Button( "Test test" ) )
+						g_pComponentManager->SerializeComponents( pAnimatorComponent->GetEntity() );
+				}
 
 				ImGui::TreePop();
 			}

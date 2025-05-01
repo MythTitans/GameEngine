@@ -215,7 +215,7 @@ Entity::Entity()
 {
 }
 
-Entity::Entity( const uint64 uID, const char* sName )
+Entity::Entity( const uint64 uID, const std::string& sName )
 	: m_uID( uID )
 	, m_sName( sName )
 	, m_pParent( nullptr )
@@ -229,9 +229,19 @@ uint64 Entity::GetID() const
 	return m_uID;
 }
 
-const char* Entity::GetName() const
+const std::string& Entity::GetName() const
 {
 	return m_sName;
+}
+
+Entity* Entity::GetParent()
+{
+	return m_pParent;
+}
+
+const Entity* Entity::GetParent() const
+{
+	return m_pParent;
 }
 
 void Entity::SetWorldTransform( const Transform& oTransform )

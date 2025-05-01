@@ -11,7 +11,7 @@ MaterialsHolderBase::~MaterialsHolderBase()
 }
 
 MaterialReference::MaterialReference()
-	: m_oTypeIndex( std::type_index( typeid( void ) ) )
+	: m_oTypeIndex( typeid( void ) )
 	, m_iMaterialID( -1 )
 {
 }

@@ -5,6 +5,8 @@
 #include "Entity.h"
 #include "Graphics/Renderer.h"
 
+REGISTER_COMPONENT( VisualComponent );
+
 VisualComponent::VisualComponent( Entity* pEntity )
 	: Component( pEntity )
 {
@@ -21,7 +23,7 @@ void VisualComponent::Initialize()
 	m_xTechnique = g_pResourceLoader->LoadTechnique( "Shader/forward_opaque.tech" );
 }
 
-bool VisualComponent::IsInitialized()
+bool VisualComponent::IsInitialized() const
 {
 	return m_xModel->IsLoaded() && m_xTechnique->IsLoaded();
 }

@@ -77,10 +77,13 @@ public:
 	friend class Scene;
 
 	Entity();
-	Entity( const uint64 uID, const char* sName );
+	Entity( const uint64 uID, const std::string& sName );
 
 	uint64				GetID() const;
-	const char*			GetName() const;
+	const std::string&	GetName() const;
+
+	Entity*				GetParent();
+	const Entity*		GetParent() const;
 
 	void				SetWorldTransform( const Transform& oTransform );
 	Transform			GetWorldTransform() const;
@@ -110,7 +113,7 @@ public:
 
 private:
 	uint64				m_uID;
-	const char*			m_sName;
+	std::string			m_sName;
 
 	Entity*				m_pParent;
 	Array< Entity* >	m_aChildren;
