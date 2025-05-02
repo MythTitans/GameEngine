@@ -12,7 +12,6 @@ public:
 	void Update( const float fDeltaTime ) override;
 
 	void DisplayGizmos( const bool bSelected ) override;
-	void DisplayInspector() override;
 
 private:
 	PROPERTIES( DirectionalLightComponent );
@@ -28,7 +27,6 @@ public:
 	void Update( const float fDeltaTime ) override;
 
 	void DisplayGizmos( const bool bSelected ) override;
-	void DisplayInspector() override;
 
 private:
 	PROPERTIES( PointLightComponent );
@@ -46,7 +44,6 @@ public:
 	void Update( const float fDeltaTime ) override;
 
 	void DisplayGizmos( const bool bSelected ) override;
-	void DisplayInspector() override;
 
 private:
 	PROPERTIES( SpotLightComponent );

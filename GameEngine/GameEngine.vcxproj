@@ -174,8 +174,8 @@
     <ClCompile Include="Code\Core\TaskScheduler.cpp" />
     <ClCompile Include="Code\Core\FileUtils.cpp" />
     <ClCompile Include="Code\Editor\Editor.cpp" />
-    <ClCompile Include="Code\Editor\EditorHelpers.cpp" />
     <ClCompile Include="Code\Editor\Gizmo.cpp" />
+    <ClCompile Include="Code\Editor\Inspector.cpp" />
     <ClCompile Include="Code\Game\Animation.cpp" />
     <ClCompile Include="Code\Game\Animator.cpp" />
     <ClCompile Include="Code\Game\Component.cpp" />
@@ -208,6 +208,7 @@
     <ClCompile Include="Code\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Code\ImGui\imgui_impl_glfw.cpp" />
     <ClCompile Include="Code\ImGui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Code\ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="Code\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Code\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="Code\Main.cpp" />
@@ -231,8 +232,8 @@
     <ClInclude Include="Code\Core\Types.h" />
     <ClInclude Include="Code\Core\FileUtils.h" />
     <ClInclude Include="Code\Editor\Editor.h" />
-    <ClInclude Include="Code\Editor\EditorHelpers.h" />
     <ClInclude Include="Code\Editor\Gizmo.h" />
+    <ClInclude Include="Code\Editor\Inspector.h" />
     <ClInclude Include="Code\Game\Animation.h" />
     <ClInclude Include="Code\Game\Animator.h" />
     <ClInclude Include="Code\Game\Component.h" />
@@ -266,6 +267,7 @@
     <ClInclude Include="Code\ImGui\imgui_impl_opengl3.h" />
     <ClInclude Include="Code\ImGui\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="Code\ImGui\imgui_internal.h" />
+    <ClInclude Include="Code\ImGui\imgui_stdlib.h" />
     <ClInclude Include="Code\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Code\ImGui\imstb_textedit.h" />
     <ClInclude Include="Code\ImGui\imstb_truetype.h" />

@@ -1,17 +1,20 @@
-#include "EditorHelpers.h"
+#include "Inspector.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/color_space.hpp>
 
 #include "Game/ResourceLoader.h"
 #include "Graphics/Texture.h"
-#include "ImGui/imgui.h"
 
-void ColorEdit( const char* sLabel, glm::vec3& vColor )
+bool ColorEdit( const char* sLabel, glm::vec3& vColor )
 {
+	bool bEdit = false;
 	glm::vec3 vSRGBColor = glm::convertLinearToSRGB( vColor );
-	if( ImGui::ColorEdit3( sLabel, &vSRGBColor.x ) )
+	bEdit = ImGui::ColorEdit3( sLabel, &vSRGBColor.x );
+	if( bEdit )
 		vColor = glm::convertSRGBToLinear( vSRGBColor );
+
+	return bEdit;
 }
 
 void TexturePreview( const char* sLabel, const TextureResource* pTexture )

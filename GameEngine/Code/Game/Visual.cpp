@@ -1,7 +1,7 @@
 #include "Visual.h"
 
 #include "Animator.h"
-#include "Editor/EditorHelpers.h"
+#include "Editor/Inspector.h"
 #include "Entity.h"
 #include "Graphics/Renderer.h"
 
@@ -30,6 +30,9 @@ bool VisualComponent::IsInitialized() const
 
 void VisualComponent::Update( const float fDeltaTime )
 {
+	if( m_xModel->IsLoaded() == false )
+		return;
+
 	const Entity* pEntity = GetEntity();
 
 	const AnimatorComponent* pAnimatorComponent = g_pComponentManager->GetComponent< AnimatorComponent >( pEntity );
@@ -59,6 +62,12 @@ void VisualComponent::DisplayInspector()
 			}
 		}
 	}
+}
+
+void VisualComponent::OnPropertyChanged( const std::string& sProperty )
+{
+	if( sProperty == "Model" )
+		m_xModel = g_pResourceLoader->LoadModel( m_sModelFile.c_str() );
 }
 
 const Array< Mesh >& VisualComponent::GetMeshes() const

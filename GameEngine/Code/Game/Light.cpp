@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "DebugDisplay.h"
-#include "Editor/EditorHelpers.h"
+#include "Editor/Inspector.h"
 #include "Entity.h"
 #include "Graphics/Mesh.h"
 #include "Graphics/Renderer.h"
@@ -67,15 +67,6 @@ void DirectionalLightComponent::DisplayGizmos( const bool bSelected )
 	}
 }
 
-void DirectionalLightComponent::DisplayInspector()
-{
-	if( ImGui::CollapsingHeader( "Directional light" ) )
-	{
-		ImGui::DragFloat( "Intensity", &m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-		ColorEdit( "Color", m_vColor );
-	}
-}
-
 REGISTER_COMPONENT( PointLightComponent );
 
 PointLightComponent::PointLightComponent( Entity* pEntity )
@@ -99,17 +90,6 @@ void PointLightComponent::DisplayGizmos( const bool bSelected )
 
 		g_pDebugDisplay->DisplayWireSphere( vPosition, m_fFalloffMinDistance, glm::vec3( 0.f, 0.5f, 1.f ) );
 		g_pDebugDisplay->DisplayWireSphere( vPosition, m_fFalloffMaxDistance, glm::vec3( 1.f, 0.5f, 0.f ) );
-	}
-}
-
-void PointLightComponent::DisplayInspector()
-{
-	if( ImGui::CollapsingHeader( "Point light" ) )
-	{
-		ImGui::DragFloat( "Intensity", &m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-		ColorEdit( "Color", m_vColor );
-		ImGui::DragFloat( "Falloff min distance", &m_fFalloffMinDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-		ImGui::DragFloat( "Falloff max distance", &m_fFalloffMaxDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
 	}
 }
 
@@ -145,15 +125,16 @@ void SpotLightComponent::DisplayGizmos( const bool bSelected )
 	}
 }
 
-void SpotLightComponent::DisplayInspector()
-{
-	if( ImGui::CollapsingHeader( "Spot light" ) )
-	{
-		ImGui::DragFloat( "Intensity", &m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-		ColorEdit( "Color", m_vColor );
-		ImGui::DragFloat( "Inner angle", &m_fInnerAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-		ImGui::DragFloat( "Outer angle", &m_fOuterAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-		ImGui::DragFloat( "Falloff min distance", &m_fFalloffMinDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-		ImGui::DragFloat( "Falloff max distance", &m_fFalloffMaxDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-	}
-}
+// This is kept as a reference for ranges, for the day I want properties to handle that
+// void SpotLightComponent::DisplayInspector()
+// {
+// 	if( ImGui::CollapsingHeader( "Spot light" ) )
+// 	{
+// 		ImGui::DragFloat( "Intensity", &m_fIntensity, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+// 		ColorEdit( "Color", m_vColor );
+// 		ImGui::DragFloat( "Inner angle", &m_fInnerAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+// 		ImGui::DragFloat( "Outer angle", &m_fOuterAngle, 1.f, 0.f, 90.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+// 		ImGui::DragFloat( "Falloff min distance", &m_fFalloffMinDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+// 		ImGui::DragFloat( "Falloff max distance", &m_fFalloffMaxDistance, 1.f, 0.f, 100.f, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+// 	}
+// }

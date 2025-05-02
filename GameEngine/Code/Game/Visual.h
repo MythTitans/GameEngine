@@ -14,6 +14,7 @@ public:
 	void					Update( const float fDeltaTime ) override;
 
 	void					DisplayInspector() override;
+	void					OnPropertyChanged( const std::string& sProperty ) override;
 
 	const Array< Mesh >&	GetMeshes() const;
 

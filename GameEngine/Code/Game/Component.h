@@ -25,6 +25,7 @@ public:
 
 	virtual void						DisplayGizmos( const bool bSelected );
 	virtual void						DisplayInspector();
+	virtual void						OnPropertyChanged( const std::string& sProperty );
 
 	Entity*								GetEntity();
 	const Entity*						GetEntity() const;

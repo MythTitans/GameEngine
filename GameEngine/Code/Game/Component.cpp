@@ -38,6 +38,10 @@ void Component::DisplayInspector()
 {
 }
 
+void Component::OnPropertyChanged( const std::string& sProperty )
+{
+}
+
 Entity* Component::GetEntity()
 {
 	return m_pEntity;

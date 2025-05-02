@@ -8,13 +8,10 @@
 #include "Core/FileUtils.h"
 #include "Core/Profiler.h"
 #include "Core/Serialization.h"
-#include "Game/Animator.h"
 #include "Game/Entity.h"
 #include "Game/GameEngine.h"
 #include "Game/InputHandler.h"
-#include "Game/Light.h"
 #include "Game/Scene.h"
-#include "Game/Visual.h"
 #include "Graphics/Renderer.h"
 
 static glm::vec3 EditableVector3( const char* sName, glm::vec3 vVector )
@@ -243,30 +240,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 				pEntity->SetScale( EditableVector3( "Scale", pEntity->GetScale() ) );
 
-				DirectionalLightComponent* pDirectionalLightComponent = g_pComponentManager->GetComponent< DirectionalLightComponent >( it.second.GetPtr() );
-				if( pDirectionalLightComponent != nullptr )
-					pDirectionalLightComponent->DisplayInspector();
-
-				PointLightComponent* pPointLightComponent = g_pComponentManager->GetComponent< PointLightComponent >( it.second.GetPtr() );
-				if( pPointLightComponent != nullptr )
-					pPointLightComponent->DisplayInspector();
-
-				SpotLightComponent* pSpotLightComponent = g_pComponentManager->GetComponent< SpotLightComponent >( it.second.GetPtr() );
-				if( pSpotLightComponent != nullptr )
-					pSpotLightComponent->DisplayInspector();
-
-				VisualComponent* pVisualComponent = g_pComponentManager->GetComponent< VisualComponent >( it.second.GetPtr() );
-				if( pVisualComponent != nullptr )
-					pVisualComponent->DisplayInspector();
-
-				AnimatorComponent* pAnimatorComponent = g_pComponentManager->GetComponent< AnimatorComponent >( it.second.GetPtr() );
-				if( pAnimatorComponent != nullptr )
-				{
-					pAnimatorComponent->DisplayInspector();
-
-					if( ImGui::Button( "Test test" ) )
-						g_pComponentManager->SerializeComponents( pAnimatorComponent->GetEntity() );
-				}
+				g_pComponentManager->DisplayInspector( pEntity );
 
 				ImGui::TreePop();
 			}

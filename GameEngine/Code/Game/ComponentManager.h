@@ -7,6 +7,7 @@
 #include "Core/MemoryTracker.h"
 #include "Core/Profiler.h"
 #include "Core/Serialization.h"
+#include "Editor/Inspector.h"
 #include "Scene.h"
 
 #define REGISTER_COMPONENT( COMPONENT )					\
@@ -43,6 +44,7 @@ struct PropertiesHolderBase
 
 	virtual Array< nlohmann::json > Serialize( const void* pClass ) const = 0;
 	virtual void					Deserialize( const nlohmann::json& oJsonContent, void* pClass ) = 0;
+	virtual Array< std::string >	DisplayInspector( void* pClass ) = 0;
 
 	Array< std::string > m_aNames;
 };
@@ -81,6 +83,20 @@ struct PropertiesHolder : PropertiesHolderBase
 		}
 	}
 
+	Array< std::string > DisplayInspector( void* pClass ) override
+	{
+		PropertyClass* pTypedClass = static_cast< PropertyClass* >( pClass );
+
+		Array< std::string > aPropertiesChanged;
+		for( uint u = 0; u < m_aNames.Count(); ++u )
+		{
+			if( ::DisplayInspector( m_aNames[ u ].c_str(), pTypedClass->*m_aProperties[ u ] ) )
+				aPropertiesChanged.PushBack( m_aNames[ u ] );
+		}
+
+		return aPropertiesChanged;
+	}
+
 	Array< PropertyType PropertyClass::* > m_aProperties;
 };
 
@@ -98,6 +114,7 @@ struct ComponentsHolderBase
 	virtual nlohmann::json	SerializeComponent( const Entity* pEntity ) const = 0;
 	virtual void			DeserializeComponent( const nlohmann::json& oJsonContent, const Entity* pEntity ) = 0;
 
+	virtual void			DisplayInspector( const Entity* pEntity ) = 0;
 	virtual void			DisplayGizmos( const uint64 uSelectedEntityID ) = 0;
 
 	virtual uint			GetCount() const = 0;
@@ -162,14 +179,6 @@ struct ComponentsHolder : ComponentsHolderBase
 			oComponent.Update( fDeltaTime );
 	}
 
-	void DisplayGizmos( const uint64 uSelectedEntityID ) override
-	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
-		for( ComponentType& oComponent : m_aComponents )
-			oComponent.DisplayGizmos( oComponent.GetEntity()->GetID() == uSelectedEntityID );
-	}
-
 	nlohmann::json SerializeComponent( const Entity* pEntity ) const override
 	{
 		nlohmann::json oJsonContent;
@@ -213,6 +222,51 @@ struct ComponentsHolder : ComponentsHolderBase
 				break;
 			}
 		}
+	}
+
+	void DisplayInspector( const Entity* pEntity ) override
+	{
+		if( ComponentManager::GetComponentsFactory().find( GetComponentName() ) == ComponentManager::GetComponentsFactory().end() )
+			return;
+
+		for( ComponentType& oComponent : m_aComponents )
+		{
+			if( oComponent.m_pEntity == pEntity )
+			{
+				ImGui::Separator();
+
+				if( ImGui::CollapsingHeader( GetComponentName().c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
+				{
+					ImGui::Indent();
+
+					int iImGuiID = 0;
+					ImGui::PushID( iImGuiID++ );
+					for( const auto& it : s_mProperties )
+					{
+						Array< std::string > aChangedProperties = it.second->DisplayInspector( &oComponent );
+						for( const std::string& sChangedProperty : aChangedProperties )
+							oComponent.OnPropertyChanged( sChangedProperty );
+					}
+					ImGui::PopID();
+
+					ImGui::PushID( iImGuiID++ );
+					oComponent.DisplayInspector();
+					ImGui::PopID();
+
+					ImGui::Unindent();
+				}
+
+				break;
+			}
+		}
+	}
+
+	void DisplayGizmos( const uint64 uSelectedEntityID ) override
+	{
+		ProfilerBlock oBlock( GetComponentName().c_str() );
+
+		for( ComponentType& oComponent : m_aComponents )
+			oComponent.DisplayGizmos( oComponent.GetEntity()->GetID() == uSelectedEntityID );
 	}
 
 	ComponentType* GetComponent( const Entity* pEntity )
@@ -326,6 +380,7 @@ public:
 	Array< nlohmann::json >	SerializeComponents( const Entity* pEntity );
 	void					DeserializeComponents( const nlohmann::json& oJsonContent, Entity* pEntity );
 
+	void					DisplayInspector( Entity* pEntity );
 	void					DisplayGizmos( const uint64 uSelectedEntityID );
 
 	template < typename ComponentType >

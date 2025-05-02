@@ -12,4 +12,4 @@ d 1.000000
 illum 1
 map_Kd EarthGolem_albedo.jpeg
 map_Kn EarthGolem_normal.png
-map_Ke textures/golem/earth_emissive.jpeg
+map_Ke EarthGolem_emissive.jpeg

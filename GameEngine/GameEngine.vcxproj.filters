@@ -162,10 +162,13 @@
     <ClCompile Include="Code\Game\Animator.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Editor\EditorHelpers.cpp">
+    <ClCompile Include="Code\Core\Serialization.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Core\Serialization.cpp">
+    <ClCompile Include="Code\Editor\Inspector.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\ImGui\imgui_stdlib.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -332,10 +335,13 @@
     <ClInclude Include="Code\Game\Animator.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Editor\EditorHelpers.h">
+    <ClInclude Include="Code\Core\Serialization.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Core\Serialization.h">
+    <ClInclude Include="Code\Editor\Inspector.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\ImGui\imgui_stdlib.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>

@@ -79,6 +79,17 @@ void ComponentManager::DeserializeComponents( const nlohmann::json& oJsonContent
 		oPair.second->DeserializeComponent( oJsonContent, pEntity );
 }
 
+void ComponentManager::DisplayInspector( Entity* pEntity )
+{
+	int iImGuiID = 0;
+	for( const auto& oPair : m_mComponentsHolders )
+	{
+		ImGui::PushID( iImGuiID++ );
+		oPair.second->DisplayInspector( pEntity );
+		ImGui::PopID();
+	}
+}
+
 void ComponentManager::DisplayGizmos( const uint64 uSelectedEntityID )
 {
 	for( const auto& oPair : m_mComponentsHolders )
