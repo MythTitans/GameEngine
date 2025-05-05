@@ -46,7 +46,7 @@ struct PropertiesHolderBase
 	virtual void					Deserialize( const nlohmann::json& oJsonContent, void* pClass ) = 0;
 	virtual Array< std::string >	DisplayInspector( void* pClass ) = 0;
 
-	Array< std::string > m_aNames;
+	Array< std::string, ArrayFlags::NO_TRACKING > m_aNames;
 };
 
 template < typename PropertyType, typename PropertyClass >
@@ -97,7 +97,7 @@ struct PropertiesHolder : PropertiesHolderBase
 		return aPropertiesChanged;
 	}
 
-	Array< PropertyType PropertyClass::* > m_aProperties;
+	Array< PropertyType PropertyClass::*, ArrayFlags::NO_TRACKING > m_aProperties;
 };
 
 struct ComponentsHolderBase
@@ -109,6 +109,9 @@ struct ComponentsHolderBase
 	virtual bool			AreComponentsInitialized() const = 0;
 	virtual void			StartComponents() = 0;
 	virtual void			StopComponents() = 0;
+	virtual void			TickComponents() = 0;
+	virtual void			NotifyBeforePhysicsOnComponents() = 0;
+	virtual void			NotifyAfterPhysicsOnComponents() = 0;
 	virtual void			UpdateComponents( const float fDeltaTime ) = 0;
 
 	virtual nlohmann::json	SerializeComponent( const Entity* pEntity ) const = 0;
@@ -169,6 +172,30 @@ struct ComponentsHolder : ComponentsHolderBase
 
 		for( ComponentType& oComponent : m_aComponents )
 			oComponent.Stop();
+	}
+
+	void TickComponents() override
+	{
+		ProfilerBlock oBlock( GetComponentName().c_str() );
+
+		for( ComponentType& oComponent : m_aComponents )
+			oComponent.Tick();
+	}
+
+	void NotifyBeforePhysicsOnComponents() override
+	{
+		ProfilerBlock oBlock( GetComponentName().c_str() );
+
+		for( ComponentType& oComponent : m_aComponents )
+			oComponent.BeforePhysics();
+	}
+
+	void NotifyAfterPhysicsOnComponents() override
+	{
+		ProfilerBlock oBlock( GetComponentName().c_str() );
+
+		for( ComponentType& oComponent : m_aComponents )
+			oComponent.AfterPhysics();
 	}
 
 	void UpdateComponents( const float fDeltaTime ) override
@@ -335,9 +362,8 @@ public:
 	ComponentManager();
 	~ComponentManager();
 
-	// TODO #eric maybe we should always return component handles ?
 	template < typename ComponentType >
-	ComponentType& CreateComponent( Entity* oEntity )
+	ComponentHandle< ComponentType > CreateComponent( Entity* oEntity )
 	{
 		ComponentsHolderBase*& pComponentsHolderBase = m_mComponentsHolders[ typeid( ComponentType ) ];
 		if( pComponentsHolderBase == nullptr )
@@ -346,11 +372,11 @@ public:
 		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( pComponentsHolderBase );
 		pComponentsHolder->m_aComponents.PushBack( ComponentType( oEntity ) );
 
-		return pComponentsHolder->m_aComponents.Back();
+		return &pComponentsHolder->m_aComponents.Back();
 	}
 
 	template < typename ComponentType >
-	ComponentType* GetComponent( const Entity* pEntity )
+	ComponentHandle< ComponentType > GetComponent( const Entity* pEntity )
 	{
 		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
 		if( it == m_mComponentsHolders.end() || it->second == nullptr )
@@ -375,6 +401,9 @@ public:
 	bool					AreComponentsInitialized() const;
 	void					StartComponents();
 	void					StopComponents();
+	void					TickComponents();
+	void					NotifyBeforePhysicsOnComponents();
+	void					NotifyAfterPhysicsOnComponents();
 	void					UpdateComponents( const float fDeltaTime );
 
 	Array< nlohmann::json >	SerializeComponents( const Entity* pEntity );

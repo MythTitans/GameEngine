@@ -15,6 +15,10 @@ static std::string GetDisplayableTypeName( const std::type_index oTypeIndex )
 	Replace( sDisplayableType, "struct ", "" );
 	Replace( sDisplayableType, "class ", "" );
 	Replace( sDisplayableType, " * __ptr64", "*" );
+	Replace( sDisplayableType, "std::basic_string<char,std::char_traits<char>,std::allocator<char> >", "std::string" );
+	Replace( sDisplayableType, "glm::vec<3,float,0>", "glm::vec3" );
+	Replace( sDisplayableType, "glm::qua<float,0>", "glm::quat" );
+	Replace( sDisplayableType, "glm::mat<4,4,float,0>", "glm::mat4" );
 
 	return sDisplayableType;
 }

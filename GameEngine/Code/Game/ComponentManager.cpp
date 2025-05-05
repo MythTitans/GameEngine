@@ -54,6 +54,24 @@ void ComponentManager::StopComponents()
 		oPair.second->StopComponents();
 }
 
+void ComponentManager::TickComponents()
+{
+	for( const auto& oPair : m_mComponentsHolders )
+		oPair.second->TickComponents();
+}
+
+void ComponentManager::NotifyBeforePhysicsOnComponents()
+{
+	for( const auto& oPair : m_mComponentsHolders )
+		oPair.second->NotifyBeforePhysicsOnComponents();
+}
+
+void ComponentManager::NotifyAfterPhysicsOnComponents()
+{
+	for( const auto& oPair : m_mComponentsHolders )
+		oPair.second->NotifyAfterPhysicsOnComponents();
+}
+
 void ComponentManager::UpdateComponents( const float fDeltaTime )
 {
 	for( const auto& oPair : m_mComponentsHolders )

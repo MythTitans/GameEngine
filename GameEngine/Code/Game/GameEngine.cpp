@@ -62,6 +62,7 @@ void GameEngine::ProcessFrame()
 
 	m_oResourceLoader.HandleLoadedResources();
 
+	Tick();
 	Update();
 
 	m_oResourceLoader.ProcessLoadCommands();
@@ -79,6 +80,27 @@ void GameEngine::EndFrame()
 	ImGui::Render();
 
 	Logger::Flush();
+}
+
+void GameEngine::Tick()
+{
+	ProfilerBlock oBlock( "Tick" );
+
+	if( m_eGameState == GameState::RUNNING )
+	{
+		static float fAccumulatedTime = Physics::TICK_STEP;
+		fAccumulatedTime += m_oGameContext.m_fLastDeltaTime;
+
+		while( fAccumulatedTime >= Physics::TICK_STEP )
+		{
+			fAccumulatedTime -= Physics::TICK_STEP;
+
+			m_oComponentManager.TickComponents();
+			m_oComponentManager.NotifyBeforePhysicsOnComponents();
+			m_oPhysics.Tick();
+			m_oComponentManager.NotifyAfterPhysicsOnComponents();
+		}
+	}
 }
 
 void GameEngine::Update()

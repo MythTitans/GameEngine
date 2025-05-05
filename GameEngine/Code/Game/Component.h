@@ -21,6 +21,9 @@ public:
 	virtual bool						IsInitialized() const;
 	virtual void						Start();
 	virtual void						Stop();
+	virtual void						Tick();
+	virtual void						BeforePhysics();
+	virtual void						AfterPhysics();
 	virtual void						Update( const float fDeltaTime );
 
 	virtual void						DisplayGizmos( const bool bSelected );
@@ -32,6 +35,12 @@ public:
 	
 	template < typename ComponentType >
 	ComponentHandle< ComponentType >	GetComponent()
+	{
+		return g_pComponentManager->GetComponent< ComponentType >( m_pEntity );
+	}
+
+	template < typename ComponentType >
+	const ComponentHandle< ComponentType >	GetComponent() const
 	{
 		return g_pComponentManager->GetComponent< ComponentType >( m_pEntity );
 	}
@@ -97,6 +106,32 @@ public:
 
 		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
 		return aComponents[ m_iIndex ];
+	}
+
+	operator ComponentType*()
+	{
+		Refresh();
+
+		ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
+
+		if( m_iIndex == -1 )
+			return nullptr;
+
+		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
+		return &aComponents[ m_iIndex ];
+	}
+
+	operator const ComponentType*() const
+	{
+		Refresh();
+
+		ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
+
+		if( m_iIndex == -1 )
+			return nullptr;
+
+		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
+		return &aComponents[ m_iIndex ];
 	}
 
 	bool IsValid() const

@@ -26,6 +26,18 @@ void Component::Stop()
 {
 }
 
+void Component::Tick()
+{
+}
+
+void Component::BeforePhysics()
+{
+}
+
+void Component::AfterPhysics()
+{
+}
+
 void Component::Update( const float /*fDeltaTime*/ )
 {
 }

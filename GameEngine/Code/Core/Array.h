@@ -11,7 +11,8 @@
 enum ArrayFlags
 {
 	STANDARD = 0,
-	FAST_RESIZE = 1
+	FAST_RESIZE = 1 << 1,
+	NO_TRACKING = 1 << 2
 };
 
 class ArrayBase
@@ -434,16 +435,22 @@ private:
 	void TrackMemory()
 	{
 #ifdef TRACK_MEMORY
-		if( g_pMemoryTracker != nullptr )
-			g_pMemoryTracker->RegisterArray< T >( this );
+		if constexpr( ( Flags & ArrayFlags::NO_TRACKING ) == 0 )
+		{
+			if( g_pMemoryTracker != nullptr )
+				g_pMemoryTracker->RegisterArray< T >( this );
+		}
 #endif
 	}
 
 	void UnTracMemory()
 	{
 #ifdef TRACK_MEMORY
-		if( g_pMemoryTracker != nullptr )
-			g_pMemoryTracker->UnRegisterArray( this );
+		if constexpr( ( Flags & ArrayFlags::NO_TRACKING ) == 0 )
+		{
+			if( g_pMemoryTracker != nullptr )
+				g_pMemoryTracker->UnRegisterArray( this );
+		}
 #endif
 	}
 

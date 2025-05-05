@@ -138,48 +138,48 @@ void Scene::CreateInternalEntities()
 {
 	uint64 uEntityID = GenerateInternalID();
 	m_mEntities[ uEntityID ] = new Entity( uEntityID, "X" );
-	GizmoComponent& oTranslateGizmoX = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
-	oTranslateGizmoX.Setup( GizmoType::TRANSLATE, GizmoAxis::X );
+	GizmoComponent* oTranslateGizmoX = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oTranslateGizmoX->Setup( GizmoType::TRANSLATE, GizmoAxis::X );
 
 	uEntityID = GenerateInternalID();
 	m_mEntities[ uEntityID ] = new Entity( uEntityID, "Y" );
-	GizmoComponent& oTranslateGizmoY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
-	oTranslateGizmoY.Setup( GizmoType::TRANSLATE, GizmoAxis::Y );
+	GizmoComponent* oTranslateGizmoY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oTranslateGizmoY->Setup( GizmoType::TRANSLATE, GizmoAxis::Y );
 
 	uEntityID = GenerateInternalID();
 	m_mEntities[ uEntityID ] = new Entity( uEntityID, "Z" );
-	GizmoComponent& oTranslateGizmoZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
-	oTranslateGizmoZ.Setup( GizmoType::TRANSLATE, GizmoAxis::Z );
+	GizmoComponent* oTranslateGizmoZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oTranslateGizmoZ->Setup( GizmoType::TRANSLATE, GizmoAxis::Z );
 
 	uEntityID = GenerateInternalID();
 	m_mEntities[ uEntityID ] = new Entity( uEntityID, "XY" );
-	GizmoComponent& oTranslateGizmoXY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
-	oTranslateGizmoXY.Setup( GizmoType::TRANSLATE, GizmoAxis::XY );
+	GizmoComponent* oTranslateGizmoXY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oTranslateGizmoXY->Setup( GizmoType::TRANSLATE, GizmoAxis::XY );
 
 	uEntityID = GenerateInternalID();
 	m_mEntities[ uEntityID ] = new Entity( uEntityID, "YZ" );
-	GizmoComponent& oTranslateGizmoYZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
-	oTranslateGizmoYZ.Setup( GizmoType::TRANSLATE, GizmoAxis::YZ );
+	GizmoComponent* oTranslateGizmoYZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oTranslateGizmoYZ->Setup( GizmoType::TRANSLATE, GizmoAxis::YZ );
 
 	uEntityID = GenerateInternalID();
 	m_mEntities[ uEntityID ] = new Entity( uEntityID, "XZ" );
-	GizmoComponent& oTranslateGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
-	oTranslateGizmoXZ.Setup( GizmoType::TRANSLATE, GizmoAxis::XZ );
+	GizmoComponent* oTranslateGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oTranslateGizmoXZ->Setup( GizmoType::TRANSLATE, GizmoAxis::XZ );
 
 	uEntityID = GenerateInternalID();
 	m_mEntities[ uEntityID ] = new Entity( uEntityID, "GiroXY" );
-	GizmoComponent& oGiroGizmoXY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
-	oGiroGizmoXY.Setup( GizmoType::ROTATE, GizmoAxis::XY );
+	GizmoComponent* oGiroGizmoXY = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oGiroGizmoXY->Setup( GizmoType::ROTATE, GizmoAxis::XY );
 
 	uEntityID = GenerateInternalID();
 	m_mEntities[ uEntityID ] = new Entity( uEntityID, "GiroYZ" );
-	GizmoComponent& oGiroGizmoYZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
-	oGiroGizmoYZ.Setup( GizmoType::ROTATE, GizmoAxis::YZ );
+	GizmoComponent* oGiroGizmoYZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oGiroGizmoYZ->Setup( GizmoType::ROTATE, GizmoAxis::YZ );
 
 	uEntityID = GenerateInternalID();
 	m_mEntities[ uEntityID ] = new Entity( uEntityID, "GiroXZ" );
-	GizmoComponent& oGiroGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
-	oGiroGizmoXZ.Setup( GizmoType::ROTATE, GizmoAxis::XZ );
+	GizmoComponent* oGiroGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( m_mEntities[ uEntityID ].GetPtr() );
+	oGiroGizmoXZ->Setup( GizmoType::ROTATE, GizmoAxis::XZ );
 }
 
 uint64 Scene::GenerateInternalID()

@@ -220,7 +220,7 @@ Entity::Entity( const uint64 uID, const std::string& sName )
 	, m_sName( sName )
 	, m_pParent( nullptr )
 {
-	m_hTransformComponent = &g_pComponentManager->CreateComponent< TransformComponent >( this );
+	m_hTransformComponent = g_pComponentManager->CreateComponent< TransformComponent >( this );
 	g_pComponentManager->CreateComponent< EulerComponent >( this );
 }
 

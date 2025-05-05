@@ -1,5 +1,6 @@
 #include "ResourceLoader.h"
 
+#include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <nlohmann/json.hpp>
@@ -689,7 +690,7 @@ void ResourceLoader::ModelLoadCommand::OnFinished()
 		LoadSkeleton();
 		LoadMaterials();
 		LoadMeshes();
-		delete m_pScene;
+		aiReleaseImport( m_pScene );
 		if( HasDependencies() == false )
 			m_xResource->m_eStatus = Resource::Status::LOADED;
 		break;

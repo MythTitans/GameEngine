@@ -9,6 +9,7 @@
 #include "FreeCamera.h"
 #include "Graphics/Renderer.h"
 #include "InputHandler.h"
+#include "Physics/Physics.h"
 #include "ResourceLoader.h"
 #include "Scene.h"
 
@@ -40,6 +41,7 @@ public:
 	void					EndFrame();
 
 private:
+	void					Tick();
 	void					Update();
 	void					Render();
 
@@ -61,6 +63,7 @@ private:
 	Renderer				m_oRenderer;
 	MaterialManager			m_oMaterialManager;
 	ComponentManager		m_oComponentManager;
+	Physics					m_oPhysics;
 
 	DebugDisplay			m_oDebugDisplay;
 	Editor					m_oEditor;
