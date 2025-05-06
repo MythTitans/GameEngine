@@ -1,8 +1,8 @@
 #include "Visual.h"
 
-#include "Animator.h"
 #include "Editor/Inspector.h"
-#include "Entity.h"
+#include "Game/Animator.h"
+#include "Game/Entity.h"
 #include "Graphics/Renderer.h"
 
 REGISTER_COMPONENT( VisualComponent );

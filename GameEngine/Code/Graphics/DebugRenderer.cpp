@@ -402,8 +402,6 @@ Array< GLfloat > DebugRenderer::GenerateSphereMeridians()
 	return aVertices;
 }
 
-#include "Game/DebugDisplay.h"
-
 Array< GLfloat > DebugRenderer::GenerateCylinderEquator( const glm::vec3& vNormal, const float fRadius )
 {
 	ASSERT( glm::isNormalized( vNormal, 0.001f ) );

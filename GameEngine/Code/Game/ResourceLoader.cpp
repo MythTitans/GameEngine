@@ -15,7 +15,7 @@
 #include "Core/stb_image.h"
 #include "Core/stb_truetype.h"
 #include "Core/StringUtils.h"
-#include "DebugDisplay.h"
+#include "Graphics/DebugDisplay.h"
 #include "InputHandler.h"
 
 template < typename T >

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Component.h"
-#include "ResourceLoader.h"
+#include "Game/Component.h"
+#include "Game/ResourceLoader.h"
 
 class VisualComponent : public Component
 {

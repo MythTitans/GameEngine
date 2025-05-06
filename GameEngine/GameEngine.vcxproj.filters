@@ -93,7 +93,7 @@
     <ClCompile Include="Code\Graphics\TextRenderer.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Game\DebugDisplay.cpp">
+    <ClCompile Include="Code\Graphics\DebugDisplay.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graphics\RenderTarget.cpp">
@@ -141,16 +141,16 @@
     <ClCompile Include="Code\Graphics\VisualStructure.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Game\Light.cpp">
+    <ClCompile Include="Code\Graphics\Light.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Game\Visual.cpp">
+    <ClCompile Include="Code\Graphics\Visual.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Game\MaterialManager.cpp">
+    <ClCompile Include="Code\Graphics\MaterialManager.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Game\Material.cpp">
+    <ClCompile Include="Code\Graphics\Material.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Code\Graphics\Bloom.cpp">
@@ -174,7 +174,7 @@
     <ClCompile Include="Code\Physics\Physics.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Game\Rigidbody.cpp">
+    <ClCompile Include="Code\Physics\Rigidbody.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -275,7 +275,7 @@
     <ClInclude Include="Code\Core\stb_image_write.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Game\DebugDisplay.h">
+    <ClInclude Include="Code\Graphics\DebugDisplay.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Code\Graphics\RenderTarget.h">
@@ -320,16 +320,16 @@
     <ClInclude Include="Code\Graphics\VisualStructure.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Game\Light.h">
+    <ClInclude Include="Code\Graphics\Light.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Game\Visual.h">
+    <ClInclude Include="Code\Graphics\Visual.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Game\MaterialManager.h">
+    <ClInclude Include="Code\Graphics\MaterialManager.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Game\Material.h">
+    <ClInclude Include="Code\Graphics\Material.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Code\Graphics\Bloom.h">
@@ -353,7 +353,7 @@
     <ClInclude Include="Code\Physics\Physics.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Game\Rigidbody.h">
+    <ClInclude Include="Code\Physics\Rigidbody.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>

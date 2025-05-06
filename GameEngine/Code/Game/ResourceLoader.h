@@ -13,7 +13,7 @@
 #include "Core/Intrusive.h"
 #include "Core/stb_truetype.h"
 #include "Game/Animation.h"
-#include "Game/Material.h"
+#include "Graphics/Material.h"
 #include "Graphics/Mesh.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Technique.h"
