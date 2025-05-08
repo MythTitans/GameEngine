@@ -8,7 +8,7 @@
 
 class ArrayBase;
 class Intrusive;
-struct ComponentsHolderBase;
+class ComponentsHolderBase;
 
 struct IntrusiveMemory
 {

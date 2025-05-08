@@ -141,11 +141,12 @@ void MemoryTracker::Display()
 		{
 			uint64 uTotalBytes = 0;
 
-			if( ImGui::BeginTable( "ComponentsTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp ) )
+			if( ImGui::BeginTable( "ComponentsTable", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingStretchProp ) )
 			{
 				ImGui::TableSetupColumn( "Type" );
 				ImGui::TableSetupColumn( "Memory" );
 				ImGui::TableSetupColumn( "Count" );
+				ImGui::TableSetupColumn( "Disposed count" );
 				ImGui::TableHeadersRow();
 
 				for( const ComponentMemory& oComponentMemory : m_aComponents )
@@ -160,6 +161,8 @@ void MemoryTracker::Display()
 					ImGui::Text( GetDisplayableMemory( uBytes ).c_str() );
 					ImGui::TableSetColumnIndex( 2 );
 					ImGui::Text( "%d", oComponentMemory.m_pComponentHolder->GetCount() );
+					ImGui::TableSetColumnIndex( 3 );
+					ImGui::Text( "%d", oComponentMemory.m_pComponentHolder->GetDisposedCount() );
 				}
 				ImGui::EndTable();
 			}

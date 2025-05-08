@@ -11,7 +11,7 @@ class Component
 {
 public:
 	template < typename ComponentType >
-	friend struct ComponentsHolder;
+	friend class ComponentsHolder;
 
 	template < typename ComponentType >
 	friend class ComponentHandle;
@@ -73,66 +73,48 @@ public:
 	{
 		Refresh();
 
-		ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
-
-		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
-		return &aComponents[ m_iIndex ];
+		return g_pComponentManager->GetComponentFromIndex< ComponentType >( m_iIndex );
 	}
 
 	const ComponentType* operator->() const
 	{
 		Refresh();
 
-		ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
-
-		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
-		return &aComponents[ m_iIndex ];
+		return g_pComponentManager->GetComponentFromIndex< ComponentType >( m_iIndex );
 	}
 
 	ComponentType& operator*()
 	{
 		Refresh();
 
-		ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
-
-		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
-		return aComponents[ m_iIndex ];
+		return *g_pComponentManager->GetComponentFromIndex< ComponentType >( m_iIndex );
 	}
 
 	const ComponentType& operator*() const
 	{
 		Refresh();
 
-		ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
-
-		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
-		return aComponents[ m_iIndex ];
+		return *g_pComponentManager->GetComponentFromIndex< ComponentType >( m_iIndex );
 	}
 
 	operator ComponentType*()
 	{
 		Refresh();
 
-		ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
-
 		if( m_iIndex == -1 )
 			return nullptr;
 
-		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
-		return &aComponents[ m_iIndex ];
+		return g_pComponentManager->GetComponentFromIndex< ComponentType >( m_iIndex );
 	}
 
 	operator const ComponentType*() const
 	{
 		Refresh();
 
-		ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
-
 		if( m_iIndex == -1 )
 			return nullptr;
 
-		ASSERT( m_iIndex >= 0 && m_iIndex < ( int )aComponents.Count() );
-		return &aComponents[ m_iIndex ];
+		return g_pComponentManager->GetComponentFromIndex< ComponentType >( m_iIndex );
 	}
 
 	bool IsValid() const
@@ -151,15 +133,7 @@ private:
 			m_iIndex = -1;
 			m_uVersion = uVersion;
 
-			ArrayView< ComponentType > aComponents = g_pComponentManager->GetComponents< ComponentType >();
-			for( uint u = 0; u < aComponents.Count(); ++u )
-			{
-				if( aComponents[ u ].m_pEntity == m_pEntity )
-				{
-					m_iIndex = u;
-					break;
-				}
-			}
+			m_iIndex = g_pComponentManager->GetComponentIndexFromEntity< ComponentType >( m_pEntity );
 		}
 	}
 

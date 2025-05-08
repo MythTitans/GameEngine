@@ -102,8 +102,9 @@ struct PropertiesHolder : PropertiesHolderBase
 	Array< PropertyType PropertyClass::*, ArrayFlags::NO_TRACKING > m_aProperties;
 };
 
-struct ComponentsHolderBase
+class ComponentsHolderBase
 {
+public:
 	ComponentsHolderBase();
 	virtual ~ComponentsHolderBase();
 
@@ -123,6 +124,7 @@ struct ComponentsHolderBase
 	virtual void			DisplayGizmos( const uint64 uSelectedEntityID ) = 0;
 
 	virtual uint			GetCount() const = 0;
+	virtual uint			GetDisposedCount() const = 0;
 
 	uint m_uVersion;
 };
@@ -130,8 +132,9 @@ struct ComponentsHolderBase
 class ComponentManager;
 
 template < typename ComponentType >
-struct ComponentsHolder : ComponentsHolderBase
+class ComponentsHolder : public ComponentsHolderBase
 {
+public:
 	ComponentsHolder()
 	{
 #ifdef TRACK_MEMORY
@@ -143,17 +146,26 @@ struct ComponentsHolder : ComponentsHolderBase
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
-		for( ComponentType& oComponent : m_aComponents )
-			oComponent.Initialize();
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			m_aComponents[ u ].Initialize();
+			m_aStates[ u ] = ComponentState::STOPPED;
+		}
 	}
 
 	bool AreComponentsInitialized() const override
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
-		for( const ComponentType& oComponent : m_aComponents )
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
-			if( oComponent.IsInitialized() == false )
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			if( m_aStates[ u ] == ComponentState::UNINITIALIZED || m_aComponents[ u ].IsInitialized() == false )
 				return false;
 		}
 
@@ -164,48 +176,90 @@ struct ComponentsHolder : ComponentsHolderBase
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
-		for( ComponentType& oComponent : m_aComponents )
-			oComponent.Start();
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			if( m_aStates[ u ] == ComponentState::STOPPED )
+			{
+				m_aComponents[ u ].Start();
+				m_aStates[ u ] = ComponentState::STARTED;
+			}
+		}
 	}
 
 	void StopComponents() override
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
-		for( ComponentType& oComponent : m_aComponents )
-			oComponent.Stop();
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			if( m_aStates[ u ] == ComponentState::STARTED )
+			{
+				m_aComponents[ u ].Stop();
+				m_aStates[ u ] = ComponentState::STOPPED;
+			}
+		}
 	}
 
 	void TickComponents() override
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
-		for( ComponentType& oComponent : m_aComponents )
-			oComponent.Tick();
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			if( m_aStates[ u ] == ComponentState::STARTED )
+				m_aComponents[ u ].Tick();
+		}
 	}
 
 	void NotifyBeforePhysicsOnComponents() override
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
-		for( ComponentType& oComponent : m_aComponents )
-			oComponent.BeforePhysics();
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			if( m_aStates[ u ] == ComponentState::STARTED )
+				m_aComponents[ u ].BeforePhysics();
+		}
 	}
 
 	void NotifyAfterPhysicsOnComponents() override
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
-		for( ComponentType& oComponent : m_aComponents )
-			oComponent.AfterPhysics();
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			if( m_aStates[ u ] == ComponentState::STARTED )
+				m_aComponents[ u ].AfterPhysics();
+		}
 	}
 
 	void UpdateComponents( const GameContext& oGameContext ) override
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
-		for( ComponentType& oComponent : m_aComponents )
-			oComponent.Update( oGameContext );
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			if( m_aStates[ u ] == ComponentState::STARTED )
+				m_aComponents[ u ].Update( oGameContext );
+		}
 	}
 
 	nlohmann::json SerializeComponent( const Entity* pEntity ) const override
@@ -215,8 +269,12 @@ struct ComponentsHolder : ComponentsHolderBase
 		if( ComponentManager::GetComponentsFactory().find( GetComponentName() ) == ComponentManager::GetComponentsFactory().end() )
 			return oJsonContent;
 
-		for( const ComponentType& oComponent : m_aComponents )
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			const ComponentType& oComponent = m_aComponents[ u ];
 			if( oComponent.m_pEntity == pEntity )
 			{
 				oJsonContent[ "name" ] = GetComponentName();
@@ -241,8 +299,12 @@ struct ComponentsHolder : ComponentsHolderBase
 
 	void DeserializeComponent( const nlohmann::json& oJsonContent, const Entity* pEntity ) override
 	{
-		for( ComponentType& oComponent : m_aComponents )
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			ComponentType& oComponent = m_aComponents[ u ];
 			if( oComponent.m_pEntity == pEntity )
 			{
 				for( const auto& it : s_mProperties )
@@ -258,8 +320,12 @@ struct ComponentsHolder : ComponentsHolderBase
 		if( ComponentManager::GetComponentsFactory().find( GetComponentName() ) == ComponentManager::GetComponentsFactory().end() )
 			return;
 
-		for( ComponentType& oComponent : m_aComponents )
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			ComponentType& oComponent = m_aComponents[ u ];
 			if( oComponent.m_pEntity == pEntity )
 			{
 				ImGui::Separator();
@@ -294,14 +360,31 @@ struct ComponentsHolder : ComponentsHolderBase
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
-		for( ComponentType& oComponent : m_aComponents )
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			ComponentType& oComponent = m_aComponents[ u ];
 			oComponent.DisplayGizmos( oComponent.GetEntity()->GetID() == uSelectedEntityID );
+		}
+	}
+
+	ComponentType* CreateComponent( Entity* pEntity )
+	{
+		m_aComponents.PushBack( ComponentType( pEntity ) );
+		m_aStates.PushBack( ComponentState::UNINITIALIZED );
+		return &m_aComponents.Back();
 	}
 
 	ComponentType* GetComponent( const Entity* pEntity )
 	{
-		for( ComponentType& oComponent : m_aComponents )
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			ComponentType& oComponent = m_aComponents[ u ];
 			if( oComponent.m_pEntity == pEntity )
 				return &oComponent;
 		}
@@ -309,9 +392,56 @@ struct ComponentsHolder : ComponentsHolderBase
 		return nullptr;
 	}
 
+	ComponentType* GetComponentFromIndex( const int iIndex )
+	{
+		ASSERT( iIndex >= 0 && iIndex < ( int )m_aComponents.Count() );
+
+		if( m_aStates[ iIndex ] == ComponentState::DISPOSED )
+			return nullptr;
+
+		return &m_aComponents[ iIndex ];
+	}
+
+	int GetComponentIndexFromEntity( const Entity* pEntity )
+	{
+		int iIndex = -1;
+
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			if( m_aComponents[ u ].m_pEntity == pEntity )
+			{
+				iIndex = u;
+				break;
+			}
+		}
+
+		return iIndex;
+	}
+
+	// TODO #eric I would like to remove this function but it's still needed for Editor and Renderer at the moment
+	ArrayView< ComponentType > GetComponents()
+	{
+		return m_aComponents;
+	}
+
 	uint GetCount() const
 	{
 		return m_aComponents.Count();
+	}
+
+	uint GetDisposedCount() const
+	{
+		int iCount = 0;
+		for( uint u = 0; u < m_aStates.Count(); ++u )
+		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				++iCount;
+		}
+
+		return iCount;
 	}
 
 	static const std::string& GetComponentName()
@@ -324,10 +454,20 @@ struct ComponentsHolder : ComponentsHolderBase
 		return sComponentName;
 	}
 
-	Array< ComponentType >		m_aComponents;
-
 	using ComponentProperties = std::unordered_map< std::type_index, PropertiesHolderBase* >;
 	static ComponentProperties	s_mProperties;
+
+private:
+	enum ComponentState : uint8
+	{
+		UNINITIALIZED,
+		STARTED,
+		STOPPED,
+		DISPOSED
+	};
+
+	Array< ComponentType >		m_aComponents;
+	Array< ComponentState >		m_aStates;
 };
 
 template < typename ComponentType >
@@ -357,25 +497,27 @@ public:
 	friend class ComponentHandle;
 
 	template < typename ComponentType >
-	friend struct ComponentsHolder;
+	friend class ComponentsHolder;
 
 	friend class Scene;
 	friend class GameWorld;
+
+	// TODO #eric I would like to remove these friendships but it's still needed for Editor and Renderer at the moment
+	friend class Editor;
+	friend class Renderer;
 
 	ComponentManager();
 	~ComponentManager();
 
 	template < typename ComponentType >
-	ComponentHandle< ComponentType > CreateComponent( Entity* oEntity )
+	ComponentHandle< ComponentType > CreateComponent( Entity* pEntity )
 	{
 		ComponentsHolderBase*& pComponentsHolderBase = m_mComponentsHolders[ typeid( ComponentType ) ];
 		if( pComponentsHolderBase == nullptr )
 			pComponentsHolderBase = new ComponentsHolder< ComponentType >;
 
 		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( pComponentsHolderBase );
-		pComponentsHolder->m_aComponents.PushBack( ComponentType( oEntity ) );
-
-		return &pComponentsHolder->m_aComponents.Back();
+		return pComponentsHolder->CreateComponent( pEntity );
 	}
 
 	template < typename ComponentType >
@@ -390,14 +532,25 @@ public:
 	}
 
 	template < typename ComponentType >
-	ArrayView< ComponentType > GetComponents()
+	ComponentType* GetComponentFromIndex( const int iIndex )
 	{
 		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
 		if( it == m_mComponentsHolders.end() || it->second == nullptr )
-			return ArrayView< ComponentType >();
+			return nullptr;
 
 		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( it->second );
-		return pComponentsHolder->m_aComponents;
+		return pComponentsHolder->GetComponentFromIndex( iIndex );
+	}
+
+	template < typename ComponentType >
+	int GetComponentIndexFromEntity( const Entity* pEntity )
+	{
+		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
+		if( it == m_mComponentsHolders.end() || it->second == nullptr )
+			return -1;
+
+		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( it->second );
+		return pComponentsHolder->GetComponentIndexFromEntity( pEntity );
 	}
 
 	void					InitializeComponents();
@@ -424,6 +577,18 @@ public:
 	}
 
 private:
+	// TODO #eric I would like to remove this function but it's still needed for Editor and Renderer at the moment
+	template < typename ComponentType >
+	ArrayView< ComponentType > GetComponents()
+	{
+		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
+		if( it == m_mComponentsHolders.end() || it->second == nullptr )
+			return ArrayView< ComponentType >();
+
+		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( it->second );
+		return pComponentsHolder->GetComponents();
+	}
+
 	template < typename ComponentType >
 	uint GetVersion()
 	{
