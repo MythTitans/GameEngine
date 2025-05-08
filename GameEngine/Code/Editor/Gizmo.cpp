@@ -17,7 +17,7 @@ void GizmoComponent::Setup( const GizmoType eGizmoType, const GizmoAxis eGizmoAx
 	m_eGizmoAxis = eGizmoAxis;
 }
 
-void GizmoComponent::Update( const float fDeltaTime )
+void GizmoComponent::Update( const GameContext& oGameContext )
 {
 	if( m_xAnchor != nullptr )
 	{

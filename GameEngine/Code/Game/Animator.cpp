@@ -1,5 +1,6 @@
 #include "Animator.h"
 
+#include "GameEngine.h"
 #include "Entity.h"
 
 REGISTER_COMPONENT( AnimatorComponent );
@@ -44,14 +45,14 @@ void AnimatorComponent::Stop()
 	m_aBoneMatrices.Clear();
 }
 
-void AnimatorComponent::Update( const float fDeltaTime )
+void AnimatorComponent::Update( const GameContext& oGameContext )
 {
 	const Skeleton& oSkeleton = m_xModel->GetSkeleton();
 	const Animation& oAnimation = m_xModel->GetAnimations()[ m_uAnimationIndex ];
 
 	if( m_eAnimationState == AnimationState::PLAYING )
 	{
-		m_fRunningTime += fDeltaTime;
+		m_fRunningTime += oGameContext.m_fLastDeltaTime;
 
 		switch( m_eAnimationType )
 		{

@@ -75,7 +75,7 @@ Editor::~Editor()
 	g_pEditor = nullptr;
 }
 
-void Editor::Update( const InputContext& oInputContext, const RenderContext& oRenderContext )
+bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "Editor" );
 
@@ -83,7 +83,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		m_bDisplayEditor = !m_bDisplayEditor;
 
 	if( m_bDisplayEditor == false )
-		return;
+		return false;
 
 // 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 20.f, 0.f, 0.f ), glm::vec3( 1.f, 0.f, 0.f ) );
 // 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 20.f, 0.f ), glm::vec3( 0.f, 1.f, 0.f ) );
@@ -105,8 +105,8 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 			{
 				const Ray oRay = ComputeCursorViewRay( oInputContext, oRenderContext );
 
-				Entity* pSelectedEntity = g_pGameEngine->GetScene().FindEntity( m_uSelectedEntityID );
-				Entity* pGizmoEntity = g_pGameEngine->GetScene().FindEntity( uGizmoEntityID );
+				Entity* pSelectedEntity = g_pGameWorld->m_oScene.FindEntity( m_uSelectedEntityID );
+				Entity* pGizmoEntity = g_pGameWorld->m_oScene.FindEntity( uGizmoEntityID );
 				GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pGizmoEntity );
 				if( pGizmoComponent != nullptr )
 				{
@@ -144,8 +144,8 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		{
 			const Ray oRay = ComputeCursorViewRay( oInputContext, oRenderContext );
 
-			Entity* pSelectedEntity = g_pGameEngine->GetScene().FindEntity( m_uSelectedEntityID );
-			Entity* pGizmoEntity = g_pGameEngine->GetScene().FindEntity( m_uGizmoEntityID );
+			Entity* pSelectedEntity = g_pGameWorld->m_oScene.FindEntity( m_uSelectedEntityID );
+			Entity* pGizmoEntity = g_pGameWorld->m_oScene.FindEntity( m_uGizmoEntityID );
 			GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pGizmoEntity );
 
 			switch( pGizmoComponent->GetType() )
@@ -189,7 +189,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	{
 		if( m_uGizmoEntityID != UINT64_MAX )
 		{
-			Entity* pEntity = g_pGameEngine->GetScene().FindEntity( m_uGizmoEntityID );
+			Entity* pEntity = g_pGameWorld->m_oScene.FindEntity( m_uGizmoEntityID );
 			GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pEntity );
 
 			pGizmoComponent->SetEditing( false );
@@ -203,7 +203,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 			if( m_uSelectedEntityID != UINT64_MAX )
 			{
-				Entity* pEntity = g_pGameEngine->GetScene().FindEntity( m_uSelectedEntityID );
+				Entity* pEntity = g_pGameWorld->m_oScene.FindEntity( m_uSelectedEntityID );
 
 				for( GizmoComponent& oGizmoComponent : aGizmoComponents )
 					oGizmoComponent.SetAnchor( pEntity );
@@ -219,11 +219,17 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	ImGui::Begin( "Editor" );
 
 	if( ImGui::Button( "Save scene" ) )
-		g_pGameEngine->GetScene().SaveTestScene();
+		g_pGameWorld->m_oScene.Save( "Data/Scene/scene.test" );
+
+	if( ImGui::Button( "Run" ) )
+		g_pGameWorld->Run();
+
+	if( ImGui::Button( "Reset" ) )
+		g_pGameWorld->Reset();
 
 	if( ImGui::TreeNode( "Root" ) )
 	{
-		for( auto& it : g_pGameEngine->GetScene().m_mEntities )
+		for( auto& it : g_pGameWorld->m_oScene.m_mEntities )
 		{
 			if( ImGui::TreeNode( it.second->GetName().c_str() ) )
 			{
@@ -250,6 +256,8 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	}
 
 	ImGui::End();
+
+	return true;
 }
 
 void Editor::Render( const RenderContext& oRenderContext )

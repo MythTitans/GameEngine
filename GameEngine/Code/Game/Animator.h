@@ -28,7 +28,7 @@ public:
 	bool						IsInitialized() const override;
 	void						Start() override;
 	void						Stop() override;
-	void						Update( const float fDeltaTime ) override;
+	void						Update( const GameContext& oGameContext ) override;
 
 	void						DisplayInspector() override;
 

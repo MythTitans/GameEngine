@@ -17,7 +17,7 @@ public:
 	Editor();
 	~Editor();
 
-	void		Update( const InputContext& oInputContext, const RenderContext& oRenderContext );
+	bool		Update( const InputContext& oInputContext, const RenderContext& oRenderContext );
 	void		Render( const RenderContext& oRenderContext );
 
 private:

@@ -164,7 +164,7 @@ void EulerComponent::Start()
 	ASSERT( m_hTransformComponent.IsValid() );
 }
 
-void EulerComponent::Update( const float fDeltaTime )
+void EulerComponent::Update( const GameContext& oGameContext )
 {
 	Transform& oTransform = m_hTransformComponent->m_oTransform;
 

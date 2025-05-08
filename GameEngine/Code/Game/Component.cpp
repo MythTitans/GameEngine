@@ -38,11 +38,11 @@ void Component::AfterPhysics()
 {
 }
 
-void Component::Update( const float /*fDeltaTime*/ )
+void Component::Update( const GameContext& oGameContext )
 {
 }
 
-void Component::DisplayGizmos( const bool /*bSelected*/ )
+void Component::DisplayGizmos( const bool bSelected )
 {
 }
 

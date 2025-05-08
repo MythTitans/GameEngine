@@ -2,14 +2,14 @@
 
 #include <glm/glm.hpp>
 
-#include "Component.h"
+#include "Game/Component.h"
 
 class DirectionalLightComponent : public Component
 {
 public:
 	explicit DirectionalLightComponent( Entity* pEntity );
 
-	void Update( const float fDeltaTime ) override;
+	void Update( const GameContext& oGameContext ) override;
 
 	void DisplayGizmos( const bool bSelected ) override;
 
@@ -24,7 +24,7 @@ class PointLightComponent : public Component
 public:
 	explicit PointLightComponent( Entity* pEntity );
 
-	void Update( const float fDeltaTime ) override;
+	void Update( const GameContext& oGameContext ) override;
 
 	void DisplayGizmos( const bool bSelected ) override;
 
@@ -41,7 +41,7 @@ class SpotLightComponent : public Component
 public:
 	explicit SpotLightComponent( Entity* pEntity );
 
-	void Update( const float fDeltaTime ) override;
+	void Update( const GameContext& oGameContext ) override;
 
 	void DisplayGizmos( const bool bSelected ) override;
 

@@ -72,10 +72,10 @@ void ComponentManager::NotifyAfterPhysicsOnComponents()
 		oPair.second->NotifyAfterPhysicsOnComponents();
 }
 
-void ComponentManager::UpdateComponents( const float fDeltaTime )
+void ComponentManager::UpdateComponents( const GameContext& oGameContext )
 {
 	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->UpdateComponents( fDeltaTime );
+		oPair.second->UpdateComponents( oGameContext );
 }
 
 Array< nlohmann::json > ComponentManager::SerializeComponents( const Entity* pEntity )

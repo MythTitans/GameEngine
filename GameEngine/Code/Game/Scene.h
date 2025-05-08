@@ -11,17 +11,18 @@ class Scene
 {
 public:
 	friend class Editor;
+	friend class GameWorld;
 
 	Scene();
+
+	void			Load( const std::string& sFilePath );
+	void			Save( const std::string& sFilePath );
 
 	Entity*			FindEntity( const uint64 uEntityID );
 	const Entity*	FindEntity( const uint64 uEntityID ) const;
 
 	void			AttachToParent( Entity* pChild, Entity* pParent );
 	void			DetachFromParent( Entity* pChild );
-
-	void			SaveTestScene();
-	void			LoadTestScene();
 
 private:
 	void			CreateInternalEntities();

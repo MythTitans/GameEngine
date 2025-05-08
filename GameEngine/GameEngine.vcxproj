@@ -186,6 +186,7 @@
     <ClCompile Include="Code\Game\Animator.cpp" />
     <ClCompile Include="Code\Game\Component.cpp" />
     <ClCompile Include="Code\Game\ComponentManager.cpp" />
+    <ClCompile Include="Code\Game\GameWorld.cpp" />
     <ClCompile Include="Code\Graphics\DebugDisplay.cpp" />
     <ClCompile Include="Code\Game\Entity.cpp" />
     <ClCompile Include="Code\Game\FreeCamera.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="Code\Game\Animator.h" />
     <ClInclude Include="Code\Game\Component.h" />
     <ClInclude Include="Code\Game\ComponentManager.h" />
+    <ClInclude Include="Code\Game\GameWorld.h" />
     <ClInclude Include="Code\Graphics\DebugDisplay.h" />
     <ClInclude Include="Code\Game\Entity.h" />
     <ClInclude Include="Code\Game\FreeCamera.h" />

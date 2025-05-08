@@ -5,6 +5,9 @@
 GameContext::GameContext()
 	: m_uFrameIndex( 0 )
 	, m_fLastDeltaTime( 0.f )
+	, m_fLastRealDeltaTime( 0.f )
+	, m_uLastTicks( 0 )
+	, m_bEditing( false )
 {
 }
 
@@ -23,16 +26,6 @@ GameEngine::~GameEngine()
 	g_pGameEngine = nullptr;
 }
 
-Scene& GameEngine::GetScene()
-{
-	return m_oScene;
-}
-
-const Scene& GameEngine::GetScene() const
-{
-	return m_oScene;
-}
-
 const GameContext& GameEngine::GetGameContext() const
 {
 	return m_oGameContext;
@@ -44,9 +37,30 @@ void GameEngine::NewFrame()
 	if( m_oGameContext.m_uFrameIndex != 0 )
 	{
 		const uint64 uMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oNow - m_oGameContext.m_oFrameStart ).count();
-		m_oGameContext.m_fLastDeltaTime = uMicroSeconds / 1000000.f;
+		m_oGameContext.m_fLastRealDeltaTime = uMicroSeconds / 1000000.f;
 	}
 	m_oGameContext.m_oFrameStart = oNow;
+
+	if( m_eGameState == GameState::EDITING )
+	{
+		m_oGameContext.m_fLastDeltaTime = 0.f;
+		m_oGameContext.m_bEditing = true;
+	}
+	else
+	{
+		m_oGameContext.m_fLastDeltaTime = m_oGameContext.m_fLastRealDeltaTime;
+		m_oGameContext.m_bEditing = false;
+	}
+
+	static float fAccumulatedTime = Physics::TICK_STEP;
+	fAccumulatedTime += m_oGameContext.m_fLastDeltaTime;
+
+	m_oGameContext.m_uLastTicks = 0;
+	while( fAccumulatedTime >= Physics::TICK_STEP )
+	{
+		fAccumulatedTime -= Physics::TICK_STEP;
+		++m_oGameContext.m_uLastTicks;
+	}
 
 	ImGui::NewFrame();
 
@@ -62,7 +76,6 @@ void GameEngine::ProcessFrame()
 
 	m_oResourceLoader.HandleLoadedResources();
 
-	Tick();
 	Update();
 
 	m_oResourceLoader.ProcessLoadCommands();
@@ -82,56 +95,36 @@ void GameEngine::EndFrame()
 	Logger::Flush();
 }
 
-void GameEngine::Tick()
-{
-	ProfilerBlock oBlock( "Tick" );
-
-	if( m_eGameState == GameState::RUNNING )
-	{
-		static float fAccumulatedTime = Physics::TICK_STEP;
-		fAccumulatedTime += m_oGameContext.m_fLastDeltaTime;
-
-		while( fAccumulatedTime >= Physics::TICK_STEP )
-		{
-			fAccumulatedTime -= Physics::TICK_STEP;
-
-			m_oComponentManager.TickComponents();
-			m_oComponentManager.NotifyBeforePhysicsOnComponents();
-			m_oPhysics.Tick();
-			m_oComponentManager.NotifyAfterPhysicsOnComponents();
-		}
-	}
-}
-
 void GameEngine::Update()
 {
 	ProfilerBlock oBlock( "Update" );
 
-	if( m_eGameState != GameState::INITIALIZING )
+	if( m_eGameState == GameState::INITIALIZING )
+	{
+		if( m_oRenderer.OnLoading() )
+		{
+			m_oGameWorld.Load( "Data/Scene/test.scene" );
+			m_eGameState = GameState::RUNNING;
+		}
+	}
+	else
 	{
 		m_oDebugDisplay.DisplayText( CurrentStateStr(), glm::vec4( 0.f, 1.f, 0.f, 1.f ) );
 
 		m_oInputHandler.UpdateInputs( m_oInputContext );
 
-		if( m_eGameState == GameState::RUNNING )
+		if( m_oGameWorld.IsReady() )
 		{
-			m_oFreeCamera.Update( m_oGameContext.m_fLastDeltaTime );
-			m_oComponentManager.UpdateComponents( m_oGameContext.m_fLastDeltaTime );
-			m_oEditor.Update( m_oInputContext, m_oRenderContext );
-		}
-		else if( m_oComponentManager.AreComponentsInitialized() )
-		{
+			m_oGameWorld.Run();
 			m_eGameState = GameState::RUNNING;
-			m_oComponentManager.StartComponents();
 		}
-	}
-	else
-	{
-		if( m_oRenderer.OnLoading() )
-		{
-			m_eGameState = GameState::LOADING;
-			m_oComponentManager.InitializeComponents();
-		}
+
+		m_oGameWorld.Update( m_oGameContext );
+		
+		if( m_oEditor.Update( m_oInputContext, m_oRenderContext ) )
+			m_eGameState = GameState::EDITING;
+		else
+			m_eGameState = GameState::RUNNING;
 	}
 }
 
@@ -158,11 +151,11 @@ const char* GameEngine::CurrentStateStr() const
 	switch( m_eGameState )
 	{
 	case GameEngine::GameState::INITIALIZING:
-		return "SETUP";
-	case GameEngine::GameState::LOADING:
-		return "LOADING";
+		return "INITIALIZING";
 	case GameEngine::GameState::RUNNING:
 		return "RUNNING";
+	case GameEngine::GameState::EDITING:
+		return "EDITING";
 	}
 
 	return "";

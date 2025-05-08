@@ -6,6 +6,7 @@
 #include "Core/Profiler.h"
 #include "Editor/Editor.h"
 #include "FreeCamera.h"
+#include "GameWorld.h"
 #include "Graphics/DebugDisplay.h"
 #include "Graphics/Renderer.h"
 #include "InputHandler.h"
@@ -23,6 +24,11 @@ struct GameContext
 	uint64			m_uFrameIndex;
 
 	float			m_fLastDeltaTime;
+	float			m_fLastRealDeltaTime;
+
+	uint			m_uLastTicks;
+
+	bool			m_bEditing;
 };
 
 class GameEngine
@@ -31,9 +37,6 @@ public:
 	GameEngine( const InputContext& oInputContext, const RenderContext& oRenderContext );
 	~GameEngine();
 
-	Scene&					GetScene();
-	const Scene&			GetScene() const;
-
 	const GameContext&		GetGameContext() const;
 
 	void					NewFrame();
@@ -41,7 +44,6 @@ public:
 	void					EndFrame();
 
 private:
-	void					Tick();
 	void					Update();
 	void					Render();
 
@@ -50,8 +52,8 @@ private:
 	enum class GameState
 	{
 		INITIALIZING,
-		LOADING,
-		RUNNING
+		RUNNING,
+		EDITING
 	};
 
 private:
@@ -64,16 +66,14 @@ private:
 	MaterialManager			m_oMaterialManager;
 	ComponentManager		m_oComponentManager;
 	Physics					m_oPhysics;
+	GameWorld				m_oGameWorld;
 
 	DebugDisplay			m_oDebugDisplay;
 	Editor					m_oEditor;
 
-	FreeCamera				m_oFreeCamera;
-
 	const InputContext&		m_oInputContext;
 	const RenderContext&	m_oRenderContext;
 
-	Scene					m_oScene;
 	GameContext				m_oGameContext;
 	GameState				m_eGameState;
 };

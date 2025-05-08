@@ -27,7 +27,7 @@ public:
 	explicit GizmoComponent( Entity* pEntity );
 
 	void			Setup( const GizmoType eGizmoType, const GizmoAxis eGizmoAxis );
-	void			Update( const float fDeltaTime ) override;
+	void			Update( const GameContext& oGameContext ) override;
 
 	const glm::vec3	GetColor() const;
 

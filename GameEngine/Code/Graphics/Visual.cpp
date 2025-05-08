@@ -28,7 +28,7 @@ bool VisualComponent::IsInitialized() const
 	return m_xModel->IsLoaded() && m_xTechnique->IsLoaded();
 }
 
-void VisualComponent::Update( const float fDeltaTime )
+void VisualComponent::Update( const GameContext& oGameContext )
 {
 	if( m_xModel->IsLoaded() == false )
 		return;

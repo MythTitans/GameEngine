@@ -12,9 +12,70 @@ Scene::Scene()
 	: m_uNextInternalID( 0 )
 	, m_uNextID( ENTITIES_START_ID )
 {
+}
+
+void Scene::Load( const std::string& sFilePath )
+{
 	CreateInternalEntities();
 
-	LoadTestScene();
+	const nlohmann::json oJsonContent = nlohmann::json::parse( ReadTextFile( std::filesystem::path( sFilePath ) ) );
+
+	for( const auto& oEntityIt : oJsonContent[ "scene" ].items() )
+	{
+		const nlohmann::json& oEntity = oEntityIt.value();
+
+		const uint64 uEntityID = oEntity[ "id" ];
+		const std::string& sName = oEntity[ "name" ];
+		LOG_INFO( "Create entity {} (id : {})", sName, uEntityID );
+		m_mEntities[ uEntityID ] = new Entity( uEntityID, sName );
+		Entity* pEntity = m_mEntities[ uEntityID ].GetPtr();
+
+		pEntity->SetPosition( oEntity[ "position" ] );
+		pEntity->SetRotation( oEntity[ "rotation" ] );
+		pEntity->SetScale( oEntity[ "scale" ] );
+	}
+
+	for( const auto& oEntityIt : oJsonContent[ "scene" ].items() )
+	{
+		const nlohmann::json& oEntity = oEntityIt.value();
+
+		const uint64 uEntityID = oEntity[ "id" ];
+		Entity* pEntity = m_mEntities[ uEntityID ].GetPtr();
+
+		if( oEntity.contains( "parentId" ) )
+		{
+			const uint64 uParentID = oEntity[ "parentId" ];
+			Entity* pParent = m_mEntities[ uParentID ].GetPtr();
+			AttachToParent( pEntity, pParent );
+		}
+
+		for( const auto& oComponentIt : oEntityIt.value()[ "components" ].items() )
+		{
+			const nlohmann::json& oComponent = oComponentIt.value();
+
+			const std::string& sComponentName = oComponent[ "name" ];
+			const std::function< void( Entity* ) >& pCreateComponentFunction = ComponentManager::GetComponentsFactory()[ sComponentName ];
+			pCreateComponentFunction( pEntity );
+
+			g_pComponentManager->DeserializeComponents( oComponent[ "properties" ], pEntity );
+		}
+	}
+}
+
+void Scene::Save( const std::string& sFilePath )
+{
+	Array< nlohmann::json > aSerializedEntities;
+	aSerializedEntities.Reserve( ( uint )m_mEntities.size() );
+
+	for( const auto& it : m_mEntities )
+	{
+		if( it.first >= ENTITIES_START_ID )
+			aSerializedEntities.PushBack( *it.second.GetPtr() );
+	}
+
+	nlohmann::json oJsonContent;
+	oJsonContent[ "scene" ] = aSerializedEntities;
+	WriteTextFile( oJsonContent.dump( 4 ), std::filesystem::path( sFilePath ) );
 }
 
 Entity* Scene::FindEntity( const uint64 uEntityID )
@@ -70,68 +131,6 @@ void Scene::DetachFromParent( Entity* pChild )
 	}
 
 	pChild->m_pParent = nullptr;
-}
-
-void Scene::SaveTestScene()
-{
-	Array< nlohmann::json > aSerializedEntities;
-	aSerializedEntities.Reserve( ( uint )m_mEntities.size() );
-
-	for( const auto& it : m_mEntities )
-	{
-		if( it.first >= ENTITIES_START_ID )
-			aSerializedEntities.PushBack( *it.second.GetPtr() );
-	}
-
-	nlohmann::json oJsonContent;
-	oJsonContent[ "scene" ] = aSerializedEntities;
-	WriteTextFile( oJsonContent.dump( 4 ), std::filesystem::path( "Data/Scene/test.scene" ) );
-}
-
-void Scene::LoadTestScene()
-{
-	const nlohmann::json oJsonContent = nlohmann::json::parse( ReadTextFile( std::filesystem::path( "Data/Scene/test.scene" ) ) );
-
-	for( const auto& oEntityIt: oJsonContent[ "scene" ].items() )
-	{
-		const nlohmann::json& oEntity = oEntityIt.value();
-
-		const uint64 uEntityID = oEntity[ "id" ];
-		const std::string& sName = oEntity[ "name" ];
-		LOG_INFO( "Create entity {} (id : {})", sName, uEntityID );
-		m_mEntities[ uEntityID ] = new Entity( uEntityID, sName );
-		Entity* pEntity = m_mEntities[ uEntityID ].GetPtr();
-
-		pEntity->SetPosition( oEntity[ "position" ] );
-		pEntity->SetRotation( oEntity[ "rotation" ] );
-		pEntity->SetScale( oEntity[ "scale" ] );
-	}
-
-	for( const auto& oEntityIt : oJsonContent[ "scene" ].items() )
-	{
-		const nlohmann::json& oEntity = oEntityIt.value();
-
-		const uint64 uEntityID = oEntity[ "id" ];
-		Entity* pEntity = m_mEntities[ uEntityID ].GetPtr();
-
-		if( oEntity.contains( "parentId" ) )
-		{
-			const uint64 uParentID = oEntity[ "parentId" ];
-			Entity* pParent = m_mEntities[ uParentID ].GetPtr();
-			AttachToParent( pEntity, pParent );
-		}
-
-		for( const auto& oComponentIt : oEntityIt.value()[ "components" ].items() )
-		{
-			const nlohmann::json& oComponent = oComponentIt.value();
-
-			const std::string& sComponentName = oComponent[ "name" ];
-			const std::function< void( Entity* ) >& pCreateComponentFunction = ComponentManager::GetComponentsFactory()[ sComponentName ];
-			pCreateComponentFunction( pEntity );
-
-			g_pComponentManager->DeserializeComponents( oComponent[ "properties" ], pEntity);
-		}
-	}
 }
 
 void Scene::CreateInternalEntities()

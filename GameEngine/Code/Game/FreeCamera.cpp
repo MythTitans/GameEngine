@@ -2,7 +2,7 @@
 
 #include <glm/gtc/constants.hpp>
 
-#include "DebugDisplay.h"
+#include "Graphics/DebugDisplay.h"
 #include "Graphics/Renderer.h"
 #include "InputHandler.h"
 

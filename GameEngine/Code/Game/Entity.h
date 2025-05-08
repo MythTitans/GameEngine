@@ -59,7 +59,7 @@ struct EulerComponent : public Component
 	explicit EulerComponent( Entity* pEntity );
 
 	void		Start() override;
-	void		Update( const float fDeltaTime ) override;
+	void		Update( const GameContext& oGameContext ) override;
 
 	void		SetRotationEuler( const glm::vec3& vEuler );
  	void		SetRotationEuler( const float fX, const float fY, const float fZ );

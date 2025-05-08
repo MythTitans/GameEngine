@@ -3,8 +3,8 @@
 #include <glm/glm.hpp>
 
 #include "DebugDisplay.h"
+#include "Game/Entity.h"
 #include "Editor/Inspector.h"
-#include "Entity.h"
 #include "Graphics/Mesh.h"
 #include "Graphics/Renderer.h"
 
@@ -48,7 +48,7 @@ DirectionalLightComponent::DirectionalLightComponent( Entity* pEntity )
 {
 }
 
-void DirectionalLightComponent::Update( const float fDeltaTime )
+void DirectionalLightComponent::Update( const GameContext& oGameContext )
 {
 	g_pRenderer->m_oVisualStructure.AddDirectionalLight( GetEntity(), m_vColor, m_fIntensity );
 }
@@ -74,7 +74,7 @@ PointLightComponent::PointLightComponent( Entity* pEntity )
 {
 }
 
-void PointLightComponent::Update( const float fDeltaTime )
+void PointLightComponent::Update( const GameContext& oGameContext )
 {
 	g_pRenderer->m_oVisualStructure.AddPointLight( GetEntity(), m_vColor, m_fIntensity, m_fFalloffMinDistance, m_fFalloffMaxDistance );
 }
@@ -100,7 +100,7 @@ SpotLightComponent::SpotLightComponent( Entity* pEntity )
 {
 }
 
-void SpotLightComponent::Update( const float fDeltaTime )
+void SpotLightComponent::Update( const GameContext& oGameContext )
 {
 	g_pRenderer->m_oVisualStructure.AddSpotLight( GetEntity(), m_vColor, m_fIntensity, m_fInnerAngle, m_fOuterAngle, m_fFalloffMinDistance, m_fFalloffMaxDistance );
 }

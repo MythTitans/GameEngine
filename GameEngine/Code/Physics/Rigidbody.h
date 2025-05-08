@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component.h"
+#include "Game/Component.h"
 #include "PxPhysicsAPI.h"
 
 class ShapeCreator
@@ -40,9 +40,10 @@ class RigidbodyComponent : public Component
 public:
 	explicit RigidbodyComponent( Entity* pEntity );
 
+	void Initialize() override;
 	void Start() override;
 	void AfterPhysics() override;
-	void Update( const float fDeltaTime ) override;
+	void Update( const GameContext& oGameContext ) override;
 
 private:
 	const ShapeCreator* FindShapeCreator() const;

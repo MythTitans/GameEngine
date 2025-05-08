@@ -11,7 +11,7 @@ public:
 	void					Setup( const char* sModelFile );
 	void					Initialize() override;
 	bool					IsInitialized() const override;
-	void					Update( const float fDeltaTime ) override;
+	void					Update( const GameContext& oGameContext ) override;
 
 	void					DisplayInspector() override;
 	void					OnPropertyChanged( const std::string& sProperty ) override;

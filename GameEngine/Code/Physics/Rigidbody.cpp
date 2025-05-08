@@ -4,8 +4,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/compatibility.hpp>
 
-#include "ComponentManager.h"
-#include "Entity.h"
+#include "Game/ComponentManager.h"
+#include "Game/Entity.h"
+#include "Game/GameEngine.h"
 #include "Physics/Physics.h"
 
 using namespace physx;
@@ -43,6 +44,18 @@ RigidbodyComponent::RigidbodyComponent( Entity* pEntity )
 {
 }
 
+void RigidbodyComponent::Initialize()
+{
+	m_pRigidbody = g_pPhysics->m_pPhysics->createRigidDynamic( PxTransform( PxIdentity ) );
+
+	const ShapeCreator* pColliderCreator = FindShapeCreator();
+	if( pColliderCreator != nullptr )
+		pColliderCreator->CreateShape( m_pRigidbody, g_pPhysics->m_pMaterial );
+	PxRigidBodyExt::updateMassAndInertia( *m_pRigidbody, 1.f );
+
+	g_pPhysics->m_pScene->addActor( *m_pRigidbody );
+}
+
 void RigidbodyComponent::Start()
 {
 	Entity* pEntity = GetEntity();
@@ -51,18 +64,11 @@ void RigidbodyComponent::Start()
 	const glm::quat qRotation = pEntity->GetRotation();
 
 	m_oLastTransform = PxTransform( PxVec3( vPosition.x, vPosition.y, vPosition.z ), PxQuat( qRotation.x, qRotation.y, qRotation.z, qRotation.w ) );
-	m_oTransform = PxTransform( PxVec3( vPosition.x, vPosition.y, vPosition.z ) );
+	m_oTransform = m_oLastTransform;
 
 	m_fTime = 0.f;
 
-	m_pRigidbody = g_pPhysics->m_pPhysics->createRigidDynamic( m_oTransform );
-
-	const ShapeCreator* pColliderCreator = FindShapeCreator();
-	if( pColliderCreator != nullptr )
-		pColliderCreator->CreateShape( m_pRigidbody, g_pPhysics->m_pMaterial );
-	PxRigidBodyExt::updateMassAndInertia( *m_pRigidbody, 1.f );
-
-	g_pPhysics->m_pScene->addActor( *m_pRigidbody );
+	m_pRigidbody->setGlobalPose( m_oTransform );
 
 	//m_pRigidbody->is< PxRigidDynamic >()->setAngularVelocity( PxVec3( 0.5f, 0.1f, 0.2f ) );
 	//m_pRigidbody->is< PxRigidDynamic >()->setLinearVelocity( PxVec3( 1.f, 0.5f, 0.2f ) );
@@ -76,9 +82,22 @@ void RigidbodyComponent::AfterPhysics()
 	m_fTime -= Physics::TICK_STEP;
 }
 
-void RigidbodyComponent::Update( const float fDeltaTime )
+void RigidbodyComponent::Update( const GameContext& oGameContext )
 {
-	m_fTime += fDeltaTime;
+	if( oGameContext.m_bEditing )
+	{
+		Entity* pEntity = GetEntity();
+
+		const glm::vec3 vPosition = pEntity->GetWorldPosition();
+		const glm::quat qRotation = pEntity->GetRotation();
+
+		m_oLastTransform = PxTransform( PxVec3( vPosition.x, vPosition.y, vPosition.z ), PxQuat( qRotation.x, qRotation.y, qRotation.z, qRotation.w ) );
+		m_oTransform = m_oLastTransform;
+
+		m_pRigidbody->setGlobalPose( m_oTransform );
+	}
+
+	m_fTime += oGameContext.m_fLastDeltaTime;
 
 	Entity* pEntity = GetEntity();
 

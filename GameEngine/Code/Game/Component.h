@@ -4,6 +4,7 @@
 #include "Core/Array.h"
 
 class Entity;
+struct GameContext;
 
 // This class is not polymorphic, it just defines an interface for subclasses to follow
 class Component
@@ -24,7 +25,7 @@ public:
 	virtual void						Tick();
 	virtual void						BeforePhysics();
 	virtual void						AfterPhysics();
-	virtual void						Update( const float fDeltaTime );
+	virtual void						Update( const GameContext& oGameContext );
 
 	virtual void						DisplayGizmos( const bool bSelected );
 	virtual void						DisplayInspector();

@@ -38,6 +38,8 @@ TYPE FIELD = []() {																\
 	return DEFAULT;																\
 }()
 
+struct GameContext;
+
 struct PropertiesHolderBase
 {
 	virtual ~PropertiesHolderBase();
@@ -112,7 +114,7 @@ struct ComponentsHolderBase
 	virtual void			TickComponents() = 0;
 	virtual void			NotifyBeforePhysicsOnComponents() = 0;
 	virtual void			NotifyAfterPhysicsOnComponents() = 0;
-	virtual void			UpdateComponents( const float fDeltaTime ) = 0;
+	virtual void			UpdateComponents( const GameContext& oGameContext ) = 0;
 
 	virtual nlohmann::json	SerializeComponent( const Entity* pEntity ) const = 0;
 	virtual void			DeserializeComponent( const nlohmann::json& oJsonContent, const Entity* pEntity ) = 0;
@@ -198,12 +200,12 @@ struct ComponentsHolder : ComponentsHolderBase
 			oComponent.AfterPhysics();
 	}
 
-	void UpdateComponents( const float fDeltaTime ) override
+	void UpdateComponents( const GameContext& oGameContext ) override
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
 		for( ComponentType& oComponent : m_aComponents )
-			oComponent.Update( fDeltaTime );
+			oComponent.Update( oGameContext );
 	}
 
 	nlohmann::json SerializeComponent( const Entity* pEntity ) const override
@@ -358,6 +360,7 @@ public:
 	friend struct ComponentsHolder;
 
 	friend class Scene;
+	friend class GameWorld;
 
 	ComponentManager();
 	~ComponentManager();
@@ -404,7 +407,7 @@ public:
 	void					TickComponents();
 	void					NotifyBeforePhysicsOnComponents();
 	void					NotifyAfterPhysicsOnComponents();
-	void					UpdateComponents( const float fDeltaTime );
+	void					UpdateComponents( const GameContext& oGameContext );
 
 	Array< nlohmann::json >	SerializeComponents( const Entity* pEntity );
 	void					DeserializeComponents( const nlohmann::json& oJsonContent, Entity* pEntity );
