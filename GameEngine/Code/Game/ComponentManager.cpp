@@ -42,6 +42,12 @@ bool ComponentManager::AreComponentsInitialized() const
 	return true;
 }
 
+void ComponentManager::StartPendingComponents()
+{
+	for( const auto& oPair : m_mComponentsHolders )
+		oPair.second->StartPendingComponents();
+}
+
 void ComponentManager::StartComponents()
 {
 	for( const auto& oPair : m_mComponentsHolders )

@@ -100,19 +100,11 @@ static void DrawMeshes( const Array< VisualNode >& aVisualNodes, Technique& oTec
 	{
 		if( oTechnique.HasArrayParameter( PARAM_BONE_MATRICES ) )
 		{
-			if( oVisualNode.m_pBoneMatrices != nullptr )
-			{
-				const Array< glm::mat4 >& aBoneMatrices = *oVisualNode.m_pBoneMatrices;
-				for( uint u = 0; u < aBoneMatrices.Count(); ++u )
-					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, aBoneMatrices[ u ], u );
-				for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
-					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
-			}
-			else
-			{
-				for( uint u = 0; u < MAX_BONE_COUNT; ++u )
-					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
-			}
+			const Array< glm::mat4 >& aBoneMatrices = oVisualNode.m_aBoneMatrices;
+			for( uint u = 0; u < aBoneMatrices.Count(); ++u )
+				oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, aBoneMatrices[ u ], u );
+			for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
+				oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
 		}
 
 		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, g_pRenderer->m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
@@ -123,7 +115,7 @@ static void DrawMeshes( const Array< VisualNode >& aVisualNodes, Technique& oTec
 		if( oTechnique.HasParameter( PARAM_MODEL ) )
 			oTechnique.SetParameter( PARAM_MODEL, oVisualNode.m_mMatrix );
 
-		const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
+		const Array< Mesh >& aMeshes = oVisualNode.m_aMeshes;
 		for( const Mesh& oMesh : aMeshes )
 		{
 			g_pMaterialManager->ApplyMaterial( oMesh.m_oMaterial, oTechnique );
@@ -592,7 +584,7 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
 			oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( oVisualNode.m_uEntityID ) );
 
-			const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
+			const Array< Mesh >& aMeshes = oVisualNode.m_aMeshes;
 			for( const Mesh& oMesh : aMeshes )
 				DrawMesh( oMesh );
 		}
@@ -650,7 +642,7 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
 	oTechnique.SetParameter( PARAM_DISPLACEMENT, 0.f );
 
-	const Array< Mesh >& aMeshes = *oVisualNode.m_pMeshes;
+	const Array< Mesh >& aMeshes = oVisualNode.m_aMeshes;
 	for( const Mesh& oMesh : aMeshes )
 		DrawMesh( oMesh );
 

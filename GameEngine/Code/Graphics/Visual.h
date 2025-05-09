@@ -12,6 +12,7 @@ public:
 	void					Initialize() override;
 	bool					IsInitialized() const override;
 	void					Update( const GameContext& oGameContext ) override;
+	void					Dispose() override;
 
 	void					DisplayInspector() override;
 	void					OnPropertyChanged( const std::string& sProperty ) override;

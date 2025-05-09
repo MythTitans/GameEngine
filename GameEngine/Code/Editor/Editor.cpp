@@ -236,6 +236,32 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 				Entity* pEntity = it.second.GetPtr();
 				EulerComponent* pEuler = g_pComponentManager->GetComponent< EulerComponent >( pEntity );
 
+				if( ImGui::BeginPopupContextItem( "ContextMenu" ) )
+				{
+					const std::unordered_map< std::string, ComponentManager::ComponentFactory >& mComponentsFactory = g_pComponentManager->GetComponentsFactory();
+					if( ImGui::BeginMenu( "Add component" ) )
+					{
+						for( const auto& it : mComponentsFactory )
+						{
+							if( ImGui::MenuItem( it.first.c_str() ) )
+								it.second.m_pCreate( pEntity, ComponentManagement::INITIALIZE_THEN_START );
+						}
+
+						ImGui::EndMenu();
+					}
+					if( ImGui::BeginMenu( "Remove component" ) )
+					{
+						for( const auto& it : mComponentsFactory )
+						{
+							if( ImGui::MenuItem( it.first.c_str() ) )
+								it.second.m_pDispose( pEntity );
+						}
+
+						ImGui::EndMenu();
+					}
+					ImGui::EndPopup();
+				}
+
 				pEntity->SetPosition( EditableVector3( "Position", pEntity->GetPosition() ) );
 
 				glm::vec3 vEuler = pEuler->GetRotationEuler();

@@ -115,6 +115,12 @@ void RigidbodyComponent::Update( const GameContext& oGameContext )
 	pEntity->SetWorldTransform( oTransfom );
 }
 
+void RigidbodyComponent::Dispose()
+{
+	g_pPhysics->m_pScene->removeActor( *m_pRigidbody );
+	PX_RELEASE( m_pRigidbody );
+}
+
 const ShapeCreator* RigidbodyComponent::FindShapeCreator() const
 {
 	// TODO #eric improve this code

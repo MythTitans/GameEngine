@@ -97,6 +97,11 @@ void AnimatorComponent::Update( const GameContext& oGameContext )
 	}
 }
 
+void AnimatorComponent::Dispose()
+{
+	m_xModel = nullptr;
+}
+
 void AnimatorComponent::DisplayInspector()
 {
 	auto GetAnimationTypeName = []( const AnimationType eAnimationType ) {
@@ -129,6 +134,12 @@ void AnimatorComponent::DisplayInspector()
 
 	if( ImGui::CollapsingHeader( "Animation" ) )
 	{
+		if( m_xModel->GetAnimations().Empty() )
+		{
+			ImGui::Text( "No animation available" );
+			return;
+		}
+
 		if( ImGui::BeginCombo( "Selected animation", m_xModel->GetAnimations()[ m_uAnimationIndex ].m_sName.c_str() ) )
 		{
 			for( uint u = 0; u < m_xModel->GetAnimations().Count(); ++u )
@@ -173,6 +184,12 @@ void AnimatorComponent::DisplayInspector()
 				ResumeAnimation();
 		}
 	}
+}
+
+void AnimatorComponent::OnPropertyChanged( const std::string& sProperty )
+{
+	if( sProperty == "Model" )
+		m_xModel = g_pResourceLoader->LoadModel( m_sModelFile.c_str() );
 }
 
 void AnimatorComponent::PlayAnimation()

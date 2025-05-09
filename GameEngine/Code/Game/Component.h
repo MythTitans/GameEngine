@@ -26,6 +26,7 @@ public:
 	virtual void						BeforePhysics();
 	virtual void						AfterPhysics();
 	virtual void						Update( const GameContext& oGameContext );
+	virtual void						Dispose();
 
 	virtual void						DisplayGizmos( const bool bSelected );
 	virtual void						DisplayInspector();
@@ -122,6 +123,13 @@ public:
 		Refresh();
 
 		return m_iIndex != -1;
+	}
+
+	int GetIndex() const
+	{
+		Refresh();
+
+		return m_iIndex;
 	}
 
 private:

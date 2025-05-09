@@ -44,6 +44,7 @@ public:
 	void Start() override;
 	void AfterPhysics() override;
 	void Update( const GameContext& oGameContext ) override;
+	void Dispose() override;
 
 private:
 	const ShapeCreator* FindShapeCreator() const;

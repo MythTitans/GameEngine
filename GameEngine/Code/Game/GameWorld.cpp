@@ -89,6 +89,8 @@ bool GameWorld::IsReady() const
 
 void GameWorld::UpdateWorld( const GameContext& oGameContext )
 {
+	g_pComponentManager->StartPendingComponents();
+
 	for( uint u = 0; u < oGameContext.m_uLastTicks; ++u )
 	{
 		g_pComponentManager->TickComponents();

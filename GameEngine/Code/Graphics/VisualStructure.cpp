@@ -31,18 +31,17 @@ SpotLight::SpotLight( const glm::vec3& vPosition, const glm::vec3& vDirection, c
 {
 }
 
-VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4& mMatrix, const Array< Mesh >* pMeshes, const Array< glm::mat4 >* pBoneMatrices )
+VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4& mMatrix, const Array< Mesh >& aMeshes, const Array< glm::mat4 >& aBoneMatrices )
 	: m_uEntityID( uEntityID )
 	, m_mMatrix( mMatrix )
-	, m_pMeshes( pMeshes )
-	, m_pBoneMatrices( pBoneMatrices )
+	, m_aMeshes( aMeshes )
+	, m_aBoneMatrices( aBoneMatrices )
 {
 }
 
-void VisualStructure::AddNode( const Entity* pEntity, const glm::mat4& mMatrix, const Array< Mesh >* pMeshes, const Array< glm::mat4 >* pBoneMatrices, Technique& oTechnique )
+void VisualStructure::AddNode( const Entity* pEntity, const glm::mat4& mMatrix, const Array< Mesh >& aMeshes, const Array< glm::mat4 >& aBoneMatrices, Technique& oTechnique )
 {
-	ASSERT( pMeshes != nullptr );
-	ASSERT( pMeshes->Empty() == false );
+	ASSERT( aMeshes.Empty() == false );
 
 	int iIndex = Find( m_aTechniques, &oTechnique );
 	if( iIndex == -1 )
@@ -54,7 +53,7 @@ void VisualStructure::AddNode( const Entity* pEntity, const glm::mat4& mMatrix, 
 			m_aVisualNodes.PushBack( Array< VisualNode >() );
 	}
 
-	m_aVisualNodes[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, pMeshes, pBoneMatrices ) );
+	m_aVisualNodes[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, aMeshes, aBoneMatrices ) );
 }
 
 Array< const VisualNode* > VisualStructure::FindNodes( const Entity* pEntity ) const

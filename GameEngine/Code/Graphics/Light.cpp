@@ -37,7 +37,7 @@ static void DisplayLightVisual( const Entity* pEntity, const glm::vec3& vColor )
 	{
 		Transform oTransform = pEntity->GetWorldTransform();
 		oTransform.SetScale( 0.25f, 0.25f, 0.25f );
-		g_pRenderer->m_oVisualStructure.AddNode( pEntity, oTransform.GetMatrixTRS(), &s_aLightVisuals, nullptr, s_xUnlitTechnique->GetTechnique() );
+		g_pRenderer->m_oVisualStructure.AddNode( pEntity, oTransform.GetMatrixTRS(), s_aLightVisuals, Array< glm::mat4 >(), s_xUnlitTechnique->GetTechnique() );
 	}
 }
 

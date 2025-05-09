@@ -42,6 +42,10 @@ void Component::Update( const GameContext& oGameContext )
 {
 }
 
+void Component::Dispose()
+{
+}
+
 void Component::DisplayGizmos( const bool bSelected )
 {
 }

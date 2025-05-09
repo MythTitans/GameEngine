@@ -102,6 +102,13 @@ struct PropertiesHolder : PropertiesHolderBase
 	Array< PropertyType PropertyClass::*, ArrayFlags::NO_TRACKING > m_aProperties;
 };
 
+enum class ComponentManagement : uint8
+{
+	NONE,
+	INITIALIZE,
+	INITIALIZE_THEN_START
+};
+
 class ComponentsHolderBase
 {
 public:
@@ -110,6 +117,7 @@ public:
 
 	virtual void			InitializeComponents() = 0;
 	virtual bool			AreComponentsInitialized() const = 0;
+	virtual void			StartPendingComponents() = 0;
 	virtual void			StartComponents() = 0;
 	virtual void			StopComponents() = 0;
 	virtual void			TickComponents() = 0;
@@ -147,13 +155,7 @@ public:
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
-		{
-			if( m_aStates[ u ] == ComponentState::DISPOSED )
-				continue;
-
-			m_aComponents[ u ].Initialize();
-			m_aStates[ u ] = ComponentState::STOPPED;
-		}
+			InitializeComponentFromIndex( u );
 	}
 
 	bool AreComponentsInitialized() const override
@@ -172,20 +174,35 @@ public:
 		return true;
 	}
 
+	void StartPendingComponents() override
+	{
+		ProfilerBlock oBlock( GetComponentName().c_str() );
+
+		for( int u = ( int )m_aPendingComponents.Count() - 1; u >= 0; --u )
+		{
+			const uint uIndex = m_aPendingComponents[ u ];
+			if( m_aStates[ uIndex ] == ComponentState::DISPOSED )
+			{
+				m_aPendingComponents.Remove( u );
+				return;
+			}
+
+			if( m_aComponents[ uIndex ].IsInitialized() )
+			{
+				m_aPendingComponents.Remove( u );
+				StartComponentFromIndex( uIndex );
+				return;
+			}
+		}
+	}
+
 	void StartComponents() override
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
-			if( m_aStates[ u ] == ComponentState::DISPOSED )
-				continue;
-
-			if( m_aStates[ u ] == ComponentState::STOPPED )
-			{
-				m_aComponents[ u ].Start();
-				m_aStates[ u ] = ComponentState::STARTED;
-			}
+			StartComponentFromIndex( u );
 		}
 	}
 
@@ -195,14 +212,7 @@ public:
 
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
-			if( m_aStates[ u ] == ComponentState::DISPOSED )
-				continue;
-
-			if( m_aStates[ u ] == ComponentState::STARTED )
-			{
-				m_aComponents[ u ].Stop();
-				m_aStates[ u ] = ComponentState::STOPPED;
-			}
+			StopComponentFromIndex( u );
 		}
 	}
 
@@ -370,23 +380,163 @@ public:
 		}
 	}
 
-	ComponentType* CreateComponent( Entity* pEntity )
+	ComponentType* CreateComponent( Entity* pEntity, const ComponentManagement eComponentManagement )
 	{
+		for( uint u = 0; u < m_aStates.Count(); ++u )
+		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+			{
+				m_aComponents[ u ] = ComponentType( pEntity );
+				m_aStates[ u ] = ComponentState::UNINITIALIZED;
+
+				if( eComponentManagement != ComponentManagement::NONE )
+					InitializeComponentFromIndex( u );
+
+				if( eComponentManagement == ComponentManagement::INITIALIZE_THEN_START )
+					m_aPendingComponents.PushBack( u );
+
+				return &m_aComponents[ u ];
+			}
+		}
+
 		m_aComponents.PushBack( ComponentType( pEntity ) );
 		m_aStates.PushBack( ComponentState::UNINITIALIZED );
+
+		if( eComponentManagement != ComponentManagement::NONE )
+			InitializeComponentFromIndex( m_aComponents.Count() - 1 );
+
+		if( eComponentManagement == ComponentManagement::INITIALIZE_THEN_START )
+			m_aPendingComponents.PushBack( m_aComponents.Count() - 1 );
+
 		return &m_aComponents.Back();
+	}
+
+	void InitializeComponent( Entity* pEntity )
+	{
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aComponents[ u ].m_pEntity == pEntity )
+			{
+				InitializeComponentFromIndex( u );
+				break;
+			}
+		}
+	}
+
+	void InitializeComponentFromIndex( const int iIndex )
+	{
+		if( iIndex < 0 )
+			return;
+
+		ASSERT( iIndex < ( int )m_aComponents.Count() );
+
+		if( m_aStates[ iIndex ] == ComponentState::DISPOSED )
+			return;
+
+		if( m_aStates[ iIndex ] == ComponentState::UNINITIALIZED )
+		{
+			m_aComponents[ iIndex ].Initialize();
+			m_aStates[ iIndex ] = ComponentState::STOPPED;
+		}
+	}
+
+	void StartComponent( Entity* pEntity )
+	{
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aComponents[ u ].m_pEntity == pEntity )
+			{
+				StartComponentFromIndex( u );
+				break;
+			}
+		}
+	}
+
+	void StartComponentFromIndex( const int iIndex )
+	{
+		if( iIndex < 0 )
+			return;
+
+		ASSERT( iIndex < ( int )m_aComponents.Count() );
+
+		if( m_aStates[ iIndex ] == ComponentState::DISPOSED )
+			return;
+
+		if( m_aStates[ iIndex ] == ComponentState::STOPPED )
+		{
+			m_aComponents[ iIndex ].Start();
+			m_aStates[ iIndex ] = ComponentState::STARTED;
+		}
+	}
+
+	void StopComponent( Entity* pEntity )
+	{
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aComponents[ u ].m_pEntity == pEntity )
+			{
+				StopComponentFromIndex( u );
+				break;
+			}
+		}
+	}
+
+	void StopComponentFromIndex( const int iIndex )
+	{
+		if( iIndex < 0 )
+			return;
+
+		ASSERT( iIndex < ( int )m_aComponents.Count() );
+
+		if( m_aStates[ iIndex ] == ComponentState::DISPOSED )
+			return;
+
+		if( m_aStates[ iIndex ] == ComponentState::STARTED )
+		{
+			m_aComponents[ iIndex ].Stop();
+			m_aStates[ iIndex ] = ComponentState::STOPPED;
+		}
+	}
+
+	void DisposeComponent( Entity* pEntity )
+	{
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aComponents[ u ].m_pEntity == pEntity )
+			{
+				DisposeComponentFromIndex( u );
+				break;
+			}
+		}
+	}
+
+	void DisposeComponentFromIndex( const int iIndex )
+	{
+		if( iIndex < 0 )
+			return;
+
+		ASSERT( iIndex < ( int )m_aComponents.Count() );
+
+		if( m_aStates[ iIndex ] == ComponentState::DISPOSED )
+			return;
+
+		if( m_aStates[ iIndex ] == ComponentState::STARTED )
+		{
+			m_aComponents[ iIndex ].Stop();
+			m_aStates[ iIndex ] = ComponentState::STOPPED;
+		}
+
+		m_aComponents[ iIndex ].Dispose();
+		m_aStates[ iIndex ] = ComponentState::DISPOSED;
+		++m_uVersion;
 	}
 
 	ComponentType* GetComponent( const Entity* pEntity )
 	{
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
-			if( m_aStates[ u ] == ComponentState::DISPOSED )
-				continue;
-
-			ComponentType& oComponent = m_aComponents[ u ];
-			if( oComponent.m_pEntity == pEntity )
-				return &oComponent;
+			if( m_aComponents[ u ].m_pEntity == pEntity )
+				return GetComponentFromIndex( u );
 		}
 
 		return nullptr;
@@ -394,7 +544,10 @@ public:
 
 	ComponentType* GetComponentFromIndex( const int iIndex )
 	{
-		ASSERT( iIndex >= 0 && iIndex < ( int )m_aComponents.Count() );
+		if( iIndex < 0 )
+			return nullptr;
+
+		ASSERT( iIndex < ( int )m_aComponents.Count() );
 
 		if( m_aStates[ iIndex ] == ComponentState::DISPOSED )
 			return nullptr;
@@ -466,8 +619,10 @@ private:
 		DISPOSED
 	};
 
-	Array< ComponentType >		m_aComponents;
-	Array< ComponentState >		m_aStates;
+	Array< ComponentType >	m_aComponents;
+	Array< ComponentState >	m_aStates;
+
+	Array< uint >			m_aPendingComponents;
 };
 
 template < typename ComponentType >
@@ -510,14 +665,94 @@ public:
 	~ComponentManager();
 
 	template < typename ComponentType >
-	ComponentHandle< ComponentType > CreateComponent( Entity* pEntity )
+	ComponentHandle< ComponentType > CreateComponent( Entity* pEntity, const ComponentManagement eComponentManagement = ComponentManagement::INITIALIZE_THEN_START )
 	{
 		ComponentsHolderBase*& pComponentsHolderBase = m_mComponentsHolders[ typeid( ComponentType ) ];
 		if( pComponentsHolderBase == nullptr )
 			pComponentsHolderBase = new ComponentsHolder< ComponentType >;
 
 		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( pComponentsHolderBase );
-		return pComponentsHolder->CreateComponent( pEntity );
+		return pComponentsHolder->CreateComponent( pEntity, eComponentManagement );
+	}
+
+	template < typename ComponentType >
+	void InitializeComponent( Entity* pEntity )
+	{
+		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		if( pComponentsHolder == nullptr )
+			return;
+
+		pComponentsHolder->InitializeComponent( pEntity );
+	}
+
+	template < typename ComponentType >
+	void InitializeComponentFromIndex( const int iIndex )
+	{
+		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		if( pComponentsHolder == nullptr )
+			return;
+
+		pComponentsHolder->InitializeComponentFromIndex( iIndex );
+	}
+
+	template < typename ComponentType >
+	void StartComponent( Entity* pEntity )
+	{
+		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		if( pComponentsHolder == nullptr )
+			return;
+
+		pComponentsHolder->StartComponent( pEntity );
+	}
+
+	template < typename ComponentType >
+	void StartComponentFromIndex( const int iIndex )
+	{
+		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		if( pComponentsHolder == nullptr )
+			return;
+
+		pComponentsHolder->StartComponentFromIndex( iIndex );
+	}
+
+	template < typename ComponentType >
+	void StopComponent( Entity* pEntity )
+	{
+		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		if( pComponentsHolder == nullptr )
+			return;
+
+		pComponentsHolder->StopComponent( pEntity );
+	}
+
+	template < typename ComponentType >
+	void StopComponentFromIndex( const int iIndex )
+	{
+		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		if( pComponentsHolder == nullptr )
+			return;
+
+		pComponentsHolder->StopComponentFromIndex( iIndex );
+	}
+
+	template < typename ComponentType >
+	void DisposeComponent( Entity* pEntity )
+	{
+		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		if( pComponentsHolder == nullptr )
+			return;
+
+		pComponentsHolder->DisposeComponent( pEntity );
+	}
+
+	template < typename ComponentType >
+	void DisposeComponentFromIndex( const int iIndex )
+	{
+		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		if( pComponentsHolder == nullptr )
+			return;
+
+		pComponentsHolder->DisposeComponentFromIndex( iIndex );
 	}
 
 	template < typename ComponentType >
@@ -555,6 +790,7 @@ public:
 
 	void					InitializeComponents();
 	bool					AreComponentsInitialized() const;
+	void					StartPendingComponents();
 	void					StartComponents();
 	void					StopComponents();
 	void					TickComponents();
@@ -571,9 +807,9 @@ public:
 	template < typename ComponentType >
 	static void RegisterComponent()
 	{
-		GetComponentsFactory()[ ComponentsHolder< ComponentType >::GetComponentName() ] = []( Entity* pEntity ) {
-			g_pComponentManager->CreateComponent< ComponentType >( pEntity );
-		};
+		ComponentFactory& oFactory = GetComponentsFactory()[ ComponentsHolder< ComponentType >::GetComponentName() ];
+		oFactory.m_pCreate = []( Entity* pEntity, const ComponentManagement eComponentManagement ) { g_pComponentManager->CreateComponent< ComponentType >( pEntity, eComponentManagement ); };
+		oFactory.m_pDispose = []( Entity* pEntity ) { g_pComponentManager->DisposeComponent< ComponentType >( pEntity ); };
 	}
 
 private:
@@ -590,6 +826,16 @@ private:
 	}
 
 	template < typename ComponentType >
+	ComponentsHolder< ComponentType >* GetComponentsHolder()
+	{
+		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
+		if( it == m_mComponentsHolders.end() || it->second == nullptr )
+			return nullptr;
+
+		return static_cast< ComponentsHolder< ComponentType >* >( it->second );
+	}
+
+	template < typename ComponentType >
 	uint GetVersion()
 	{
 		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
@@ -599,9 +845,15 @@ private:
 		return it->second->m_uVersion;
 	}
 
-	static std::unordered_map< std::string, std::function< void( Entity* ) > >& GetComponentsFactory()
+	struct ComponentFactory
 	{
-		static std::unordered_map< std::string, std::function< void( Entity* ) > > s_mComponentsFactory;
+		std::function< void( Entity*, const ComponentManagement ) > m_pCreate;
+		std::function< void( Entity* ) > m_pDispose;
+	};
+
+	static std::unordered_map< std::string, ComponentFactory >& GetComponentsFactory()
+	{
+		static std::unordered_map< std::string, ComponentFactory > s_mComponentsFactory;
 		return s_mComponentsFactory;
 	}
 

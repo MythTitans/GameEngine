@@ -35,10 +35,16 @@ void VisualComponent::Update( const GameContext& oGameContext )
 
 	const Entity* pEntity = GetEntity();
 
-	const AnimatorComponent* pAnimatorComponent = g_pComponentManager->GetComponent< AnimatorComponent >( pEntity );
-	const Array< Mesh >* pMeshes = &m_xModel->GetMeshes();
-	const Array< glm::mat4 >* pBoneMatrices = pAnimatorComponent != nullptr ? &pAnimatorComponent->GetBoneMatrices() : nullptr;
-	g_pRenderer->m_oVisualStructure.AddNode( pEntity, pEntity->GetWorldTransform().GetMatrixTRS(), pMeshes, pBoneMatrices, m_xTechnique->GetTechnique() );
+	const AnimatorComponent* pAnimatorComponent = GetComponent< AnimatorComponent >();
+	const Array< glm::mat4 > aEmpty;
+	const Array< glm::mat4 >& aBoneMatrices = pAnimatorComponent != nullptr ? pAnimatorComponent->GetBoneMatrices() : aEmpty;
+	g_pRenderer->m_oVisualStructure.AddNode( pEntity, pEntity->GetWorldTransform().GetMatrixTRS(), m_xModel->GetMeshes(), aBoneMatrices, m_xTechnique->GetTechnique() );
+}
+
+void VisualComponent::Dispose()
+{
+	m_xModel = nullptr;
+	m_xTechnique = nullptr;
 }
 
 void VisualComponent::DisplayInspector()

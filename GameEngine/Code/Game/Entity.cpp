@@ -220,8 +220,9 @@ Entity::Entity( const uint64 uID, const std::string& sName )
 	, m_sName( sName )
 	, m_pParent( nullptr )
 {
-	m_hTransformComponent = g_pComponentManager->CreateComponent< TransformComponent >( this );
-	g_pComponentManager->CreateComponent< EulerComponent >( this );
+	// TODO #eric need to revisit how components are created when creating Entities at runtime
+	m_hTransformComponent = g_pComponentManager->CreateComponent< TransformComponent >( this, ComponentManagement::NONE );
+	g_pComponentManager->CreateComponent< EulerComponent >( this, ComponentManagement::NONE );
 }
 
 uint64 Entity::GetID() const

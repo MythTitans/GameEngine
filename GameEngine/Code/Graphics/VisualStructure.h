@@ -43,12 +43,12 @@ struct SpotLight
 
 struct VisualNode
 {
-	VisualNode( const uint64 uEntityID, const glm::mat4& mMatrix, const Array< Mesh >* pMeshes, const Array< glm::mat4 >* pBoneMatrices );
+	VisualNode( const uint64 uEntityID, const glm::mat4& mMatrix, const Array< Mesh >& aMeshes, const Array< glm::mat4 >& aBoneMatrices );
 
-	uint64						m_uEntityID;
-	glm::mat4					m_mMatrix;
-	const Array< Mesh >*		m_pMeshes;
-	const Array< glm::mat4 >*	m_pBoneMatrices;
+	uint64				m_uEntityID;
+	glm::mat4			m_mMatrix;
+	Array< Mesh >		m_aMeshes;
+	Array< glm::mat4 >	m_aBoneMatrices;
 };
 
 class VisualStructure
@@ -56,7 +56,7 @@ class VisualStructure
 public:
 	friend class Renderer;
 
-	void						AddNode( const Entity* pEntity, const glm::mat4& mMatrix, const Array< Mesh >* pMeshes, const Array< glm::mat4 >* pBoneMatrices, Technique& oTechnique );
+	void						AddNode( const Entity* pEntity, const glm::mat4& mMatrix, const Array< Mesh >& aMeshes, const Array< glm::mat4 >& aBoneMatrices, Technique& oTechnique );
 	Array< const VisualNode* >	FindNodes( const Entity* pEntity ) const;
 	Array< const VisualNode* >	FindNodes( const uint64 uEntityID ) const;
 
