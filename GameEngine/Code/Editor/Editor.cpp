@@ -229,22 +229,41 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 	if( ImGui::TreeNode( "Root" ) )
 	{
-		for( auto& it : g_pGameWorld->m_oScene.m_mEntities )
+		if( ImGui::BeginPopupContextItem( "ContextMenu" ) )
 		{
-			if( ImGui::TreeNode( it.second->GetName().c_str() ) )
+			if( ImGui::MenuItem( "Create entity" ) )
+				g_pGameWorld->m_oScene.CreateEntity( "NewEntity" );
+
+			ImGui::EndPopup();
+		}
+
+		Array< uint64 > aIDs;
+		aIDs.Reserve( ( uint )g_pGameWorld->m_oScene.m_mEntities.size() );
+		for( auto& it : g_pGameWorld->m_oScene.m_mEntities )
+			aIDs.PushBack( it.first );
+
+		int iImGuiID = 0;
+		for( uint64 uID : aIDs )
+		{
+			ImGui::PushID( iImGuiID++ );
+			auto it = g_pGameWorld->m_oScene.m_mEntities.find( uID );
+			if( it != g_pGameWorld->m_oScene.m_mEntities.end() && ImGui::TreeNode( it->second->GetName().c_str() ) )
 			{
-				Entity* pEntity = it.second.GetPtr();
-				EulerComponent* pEuler = g_pComponentManager->GetComponent< EulerComponent >( pEntity );
+				StrongPtr< Entity > xEntity = it->second;
+				EulerComponent* pEuler = g_pComponentManager->GetComponent< EulerComponent >( xEntity.GetPtr() );
 
 				if( ImGui::BeginPopupContextItem( "ContextMenu" ) )
 				{
+					if( ImGui::MenuItem( "Remove entity" ) )
+						g_pGameWorld->m_oScene.RemoveEntity( xEntity.GetPtr() );
+
 					const std::unordered_map< std::string, ComponentManager::ComponentFactory >& mComponentsFactory = g_pComponentManager->GetComponentsFactory();
 					if( ImGui::BeginMenu( "Add component" ) )
 					{
 						for( const auto& it : mComponentsFactory )
 						{
 							if( ImGui::MenuItem( it.first.c_str() ) )
-								it.second.m_pCreate( pEntity, ComponentManagement::INITIALIZE_THEN_START );
+								it.second.m_pCreate( xEntity.GetPtr(), ComponentManagement::INITIALIZE_THEN_START );
 						}
 
 						ImGui::EndMenu();
@@ -254,7 +273,7 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 						for( const auto& it : mComponentsFactory )
 						{
 							if( ImGui::MenuItem( it.first.c_str() ) )
-								it.second.m_pDispose( pEntity );
+								it.second.m_pDispose( xEntity.GetPtr() );
 						}
 
 						ImGui::EndMenu();
@@ -262,7 +281,7 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 					ImGui::EndPopup();
 				}
 
-				pEntity->SetPosition( EditableVector3( "Position", pEntity->GetPosition() ) );
+				xEntity->SetPosition( EditableVector3( "Position", xEntity->GetPosition() ) );
 
 				glm::vec3 vEuler = pEuler->GetRotationEuler();
 				vEuler = glm::vec3( glm::degrees( vEuler.x ), glm::degrees( vEuler.y ), glm::degrees( vEuler.z ) );
@@ -270,12 +289,14 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 				vEuler = glm::vec3( glm::radians( vEuler.x ), glm::radians( vEuler.y ), glm::radians( vEuler.z ) );
 				pEuler->SetRotationEuler( vEuler );
 
-				pEntity->SetScale( EditableVector3( "Scale", pEntity->GetScale() ) );
+				xEntity->SetScale( EditableVector3( "Scale", xEntity->GetScale() ) );
 
-				g_pComponentManager->DisplayInspector( pEntity );
+				g_pComponentManager->DisplayInspector( xEntity.GetPtr() );
 
 				ImGui::TreePop();
 			}
+
+			ImGui::PopID();
 		}
 
 		ImGui::TreePop();

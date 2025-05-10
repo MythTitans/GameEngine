@@ -120,6 +120,7 @@ public:
 	virtual void			StartPendingComponents() = 0;
 	virtual void			StartComponents() = 0;
 	virtual void			StopComponents() = 0;
+	virtual void			DisposeComponent( Entity* pEntity ) = 0;
 	virtual void			TickComponents() = 0;
 	virtual void			NotifyBeforePhysicsOnComponents() = 0;
 	virtual void			NotifyAfterPhysicsOnComponents() = 0;
@@ -498,7 +499,7 @@ public:
 		}
 	}
 
-	void DisposeComponent( Entity* pEntity )
+	void DisposeComponent( Entity* pEntity ) override
 	{
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
@@ -793,6 +794,7 @@ public:
 	void					StartPendingComponents();
 	void					StartComponents();
 	void					StopComponents();
+	void					DisposeComponents( Entity* pEntity );
 	void					TickComponents();
 	void					NotifyBeforePhysicsOnComponents();
 	void					NotifyAfterPhysicsOnComponents();

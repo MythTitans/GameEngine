@@ -58,7 +58,7 @@ struct EulerComponent : public Component
 {
 	explicit EulerComponent( Entity* pEntity );
 
-	void		Start() override;
+	void		Initialize() override;
 	void		Update( const GameContext& oGameContext ) override;
 
 	void		SetRotationEuler( const glm::vec3& vEuler );
@@ -78,6 +78,7 @@ public:
 
 	Entity();
 	Entity( const uint64 uID, const std::string& sName );
+	~Entity();
 
 	uint64				GetID() const;
 	const std::string&	GetName() const;

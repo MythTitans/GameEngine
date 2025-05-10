@@ -10,6 +10,7 @@ class GameWorld
 {
 public:
 	friend class Editor;
+	friend class Entity;
 
 	GameWorld();
 	~GameWorld();

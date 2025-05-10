@@ -60,6 +60,12 @@ void ComponentManager::StopComponents()
 		oPair.second->StopComponents();
 }
 
+void ComponentManager::DisposeComponents( Entity* pEntity )
+{
+	for( const auto& oPair : m_mComponentsHolders )
+		oPair.second->DisposeComponent( pEntity );
+}
+
 void ComponentManager::TickComponents()
 {
 	for( const auto& oPair : m_mComponentsHolders )

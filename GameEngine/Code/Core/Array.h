@@ -142,7 +142,7 @@ public:
 
 	~Array()
 	{
-		UnTracMemory();
+		UnTrackMemory();
 
 		Destroy();
 
@@ -443,7 +443,7 @@ private:
 #endif
 	}
 
-	void UnTracMemory()
+	void UnTrackMemory()
 	{
 #ifdef TRACK_MEMORY
 		if constexpr( ( Flags & ArrayFlags::NO_TRACKING ) == 0 )

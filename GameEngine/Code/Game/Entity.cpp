@@ -5,6 +5,7 @@
 #include <glm/gtx/euler_angles.hpp>
 
 #include "Game/ComponentManager.h"
+#include "Game/GameWorld.h"
 
 static bool IsUniformScale( const glm::vec3& vScale )
 {
@@ -158,7 +159,7 @@ EulerComponent::EulerComponent( Entity* pEntity )
 {
 }
 
-void EulerComponent::Start()
+void EulerComponent::Initialize()
 {
 	m_hTransformComponent = GetComponent< TransformComponent >();
 	ASSERT( m_hTransformComponent.IsValid() );
@@ -220,9 +221,16 @@ Entity::Entity( const uint64 uID, const std::string& sName )
 	, m_sName( sName )
 	, m_pParent( nullptr )
 {
-	// TODO #eric need to revisit how components are created when creating Entities at runtime
-	m_hTransformComponent = g_pComponentManager->CreateComponent< TransformComponent >( this, ComponentManagement::NONE );
-	g_pComponentManager->CreateComponent< EulerComponent >( this, ComponentManagement::NONE );
+	m_hTransformComponent = g_pComponentManager->CreateComponent< TransformComponent >( this, ComponentManagement::INITIALIZE_THEN_START );
+	g_pComponentManager->CreateComponent< EulerComponent >( this, ComponentManagement::INITIALIZE_THEN_START );
+}
+
+Entity::~Entity()
+{
+	if( g_pGameWorld != nullptr )
+		g_pGameWorld->m_oScene.DetachFromParent( this );
+
+	g_pComponentManager->DisposeComponents( this );
 }
 
 uint64 Entity::GetID() const

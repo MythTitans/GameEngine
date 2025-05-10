@@ -3,6 +3,8 @@
 #include "Game/Component.h"
 #include "Game/ResourceLoader.h"
 
+class AnimatorComponent;
+
 class VisualComponent : public Component
 {
 public:
@@ -23,6 +25,9 @@ private:
 	PROPERTIES( VisualComponent );
 	PROPERTY( "Model", m_sModelFile, std::string );
 
-	ModelResPtr		m_xModel;
-	TechniqueResPtr m_xTechnique;
+	ModelResPtr			m_xModel;
+	TechniqueResPtr		m_xTechnique;
+
+	using AnimatorHandle = ComponentHandle< AnimatorComponent >;
+	AnimatorHandle		m_hAnimatorComponent;
 };

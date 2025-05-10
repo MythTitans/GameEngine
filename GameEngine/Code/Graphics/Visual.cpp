@@ -2,6 +2,7 @@
 
 #include "Editor/Inspector.h"
 #include "Game/Animator.h"
+#include "Game/GameEngine.h"
 #include "Game/Entity.h"
 #include "Graphics/Renderer.h"
 
@@ -21,6 +22,7 @@ void VisualComponent::Initialize()
 {
 	m_xModel = g_pResourceLoader->LoadModel( m_sModelFile.c_str() );
 	m_xTechnique = g_pResourceLoader->LoadTechnique( "Shader/forward_opaque.tech" );
+	m_hAnimatorComponent = GetComponent< AnimatorComponent >();
 }
 
 bool VisualComponent::IsInitialized() const
@@ -33,11 +35,13 @@ void VisualComponent::Update( const GameContext& oGameContext )
 	if( m_xModel->IsLoaded() == false )
 		return;
 
+	if( oGameContext.m_bEditing )
+		m_hAnimatorComponent = GetComponent< AnimatorComponent >();
+
 	const Entity* pEntity = GetEntity();
 
-	const AnimatorComponent* pAnimatorComponent = GetComponent< AnimatorComponent >();
 	const Array< glm::mat4 > aEmpty;
-	const Array< glm::mat4 >& aBoneMatrices = pAnimatorComponent != nullptr ? pAnimatorComponent->GetBoneMatrices() : aEmpty;
+	const Array< glm::mat4 >& aBoneMatrices = m_hAnimatorComponent.IsValid() ? m_hAnimatorComponent->GetBoneMatrices() : aEmpty;
 	g_pRenderer->m_oVisualStructure.AddNode( pEntity, pEntity->GetWorldTransform().GetMatrixTRS(), m_xModel->GetMeshes(), aBoneMatrices, m_xTechnique->GetTechnique() );
 }
 
