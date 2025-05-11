@@ -9,8 +9,6 @@ class Entity;
 
 struct DirectionalLight
 {
-	DirectionalLight( const glm::vec3& vDirection, const glm::vec3& vColor, const float fIntensity );
-
 	glm::vec3	m_vDirection;
 	glm::vec3	m_vColor;
 	float		m_fIntensity;
@@ -18,8 +16,6 @@ struct DirectionalLight
 
 struct PointLight
 {
-	PointLight( const glm::vec3& vPosition, const glm::vec3& vColor, const float fIntensity, const float fFalloffMinDistance, const float fFalloffMaxDistance );
-
 	glm::vec3	m_vPosition;
 	glm::vec3	m_vColor;
 	float		m_fIntensity;
@@ -29,8 +25,6 @@ struct PointLight
 
 struct SpotLight
 {
-	SpotLight( const glm::vec3& vPosition, const glm::vec3& vDirection, const glm::vec3& vColor, const float fIntensity, const float fInnerAngle, const float fOuterAngle, const float fFalloffMinDistance, const float fFalloffMaxDistance );
-
 	glm::vec3	m_vPosition;
 	glm::vec3	m_vDirection;
 	glm::vec3	m_vColor;
@@ -43,6 +37,7 @@ struct SpotLight
 
 struct VisualNode
 {
+	explicit VisualNode( const uint64 uEntityID );
 	VisualNode( const uint64 uEntityID, const glm::mat4& mMatrix, const Array< Mesh >& aMeshes, const Array< glm::mat4 >& aBoneMatrices );
 
 	uint64				m_uEntityID;
@@ -56,21 +51,32 @@ class VisualStructure
 public:
 	friend class Renderer;
 
-	void						AddNode( const Entity* pEntity, const glm::mat4& mMatrix, const Array< Mesh >& aMeshes, const Array< glm::mat4 >& aBoneMatrices, Technique& oTechnique );
-	Array< const VisualNode* >	FindNodes( const Entity* pEntity ) const;
-	Array< const VisualNode* >	FindNodes( const uint64 uEntityID ) const;
+	VisualNode*				AddNode( const Entity* pEntity, Technique& oTechnique );
+	void					AddTemporaryNode( const Entity* pEntity, const glm::mat4& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique );
 
-	void						AddDirectionalLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity );
-	void						AddPointLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity, const float fFalloffMinDistance, const float fFalloffMaxDistance );
-	void						AddSpotLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity, const float fInnerAngle, const float fOuterAngle, const float fFalloffMinDistance, const float fFalloffMaxDistance );
+	void					RemoveNode( VisualNode*& pNode );
+
+	Array< VisualNode* >	FindNodes( const Entity* pEntity );
+	Array< VisualNode* >	FindNodes( const uint64 uEntityID );
+
+	DirectionalLight*		AddDirectionalLight();
+	PointLight*				AddPointLight();
+	SpotLight*				AddSpotLight();
+
+	void					RemoveDirectionalLight( DirectionalLight*& pDirectionalLight );
+	void					RemovePointLight( PointLight*& pPointLight );
+	void					RemoveSpotLight( SpotLight*& pSpotLight );
 
 private:
-	void						Clear();
+	void					Clear();
 
-	Array< Array< VisualNode > >	m_aVisualNodes;
+	Array< Array< VisualNode* > >	m_aVisualNodes;
 	Array< Technique* >				m_aTechniques;
 
-	Array< DirectionalLight >		m_aDirectionalLights;
-	Array< PointLight >				m_aPointLights;
-	Array< SpotLight >				m_aSpotLights;
+	Array< Array< VisualNode > >	m_aTemporaryVisualNodes;
+	Array< Technique* >				m_aTemporaryTechniques;
+
+	Array< DirectionalLight* >		m_aDirectionalLights;
+	Array< PointLight* >			m_aPointLights;
+	Array< SpotLight* >				m_aSpotLights;
 };

@@ -26,7 +26,7 @@ public:
 	friend class TextRenderer;
 
 	template < typename Technique >
-	friend void DrawMeshes( const Array< VisualNode >& aVisualNodes, Technique& oTechnique );
+	friend void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique );
 
 	Mesh();
 

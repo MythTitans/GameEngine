@@ -58,7 +58,7 @@ static const std::string PARAM_TEXTURE_B( "textureB" );
 static const std::string PARAM_BONE_MATRICES( "boneMatrices" );
 
 template < typename Technique >
-static void SetupLighting( Technique& oTechnique, const Array< DirectionalLight >& aDirectionalLights, const Array< PointLight >& aPointLights, const Array< SpotLight >& aSpotLights )
+static void SetupLighting( Technique& oTechnique, const Array< DirectionalLight* >& aDirectionalLights, const Array< PointLight* >& aPointLights, const Array< SpotLight* >& aSpotLights )
 {
 	oTechnique.SetParameter( PARAM_DIRECTIONAL_LIGHT_COUNT, ( int )aDirectionalLights.Count() );
 	oTechnique.SetParameter( PARAM_POINT_LIGHT_COUNT, ( int )aPointLights.Count() );
@@ -66,56 +66,56 @@ static void SetupLighting( Technique& oTechnique, const Array< DirectionalLight 
 
 	for( uint u = 0; u < aDirectionalLights.Count(); ++u )
 	{
-		oTechnique.SetArrayParameter( PARAM_DIRECTIONAL_LIGHT_DIRECTIONS, aDirectionalLights[ u ].m_vDirection, u );
-		oTechnique.SetArrayParameter( PARAM_DIRECTIONAL_LIGHT_COLORS, aDirectionalLights[ u ].m_vColor, u );
-		oTechnique.SetArrayParameter( PARAM_DIRECTIONAL_LIGHT_INTENSITIES, aDirectionalLights[ u ].m_fIntensity, u );
+		oTechnique.SetArrayParameter( PARAM_DIRECTIONAL_LIGHT_DIRECTIONS, aDirectionalLights[ u ]->m_vDirection, u );
+		oTechnique.SetArrayParameter( PARAM_DIRECTIONAL_LIGHT_COLORS, aDirectionalLights[ u ]->m_vColor, u );
+		oTechnique.SetArrayParameter( PARAM_DIRECTIONAL_LIGHT_INTENSITIES, aDirectionalLights[ u ]->m_fIntensity, u );
 	}
 
 	for( uint u = 0; u < aPointLights.Count(); ++u )
 	{
-		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_POSITIONS, aPointLights[ u ].m_vPosition, u );
-		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_COLORS, aPointLights[ u ].m_vColor, u );
-		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_INTENSITIES, aPointLights[ u ].m_fIntensity, u );
-		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_FALLOFF_MIN_DISTANCES, aPointLights[ u ].m_fFalloffMinDistance, u );
-		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_FALLOFF_MAX_DISTANCES, aPointLights[ u ].m_fFalloffMaxDistance, u );
+		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_POSITIONS, aPointLights[ u ]->m_vPosition, u );
+		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_COLORS, aPointLights[ u ]->m_vColor, u );
+		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_INTENSITIES, aPointLights[ u ]->m_fIntensity, u );
+		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_FALLOFF_MIN_DISTANCES, aPointLights[ u ]->m_fFalloffMinDistance, u );
+		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_FALLOFF_MAX_DISTANCES, aPointLights[ u ]->m_fFalloffMaxDistance, u );
 	}
 
 	for( uint u = 0; u < aSpotLights.Count(); ++u )
 	{
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_POSITIONS, aSpotLights[ u ].m_vPosition, u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_DIRECTIONS, aSpotLights[ u ].m_vDirection, u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_COLORS, aSpotLights[ u ].m_vColor, u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_INTENSITIES, aSpotLights[ u ].m_fIntensity, u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_OUTERRANGES, glm::cos( glm::radians( aSpotLights[ u ].m_fOuterAngle / 2.f ) ), u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_RANGES, glm::cos( glm::radians( aSpotLights[ u ].m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ u ].m_fOuterAngle / 2.f ) ), u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_FALLOFF_MIN_DISTANCES, aSpotLights[ u ].m_fFalloffMinDistance, u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES, aSpotLights[ u ].m_fFalloffMaxDistance, u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_POSITIONS, aSpotLights[ u ]->m_vPosition, u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_DIRECTIONS, aSpotLights[ u ]->m_vDirection, u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_COLORS, aSpotLights[ u ]->m_vColor, u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_INTENSITIES, aSpotLights[ u ]->m_fIntensity, u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_OUTERRANGES, glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) ), u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_RANGES, glm::cos( glm::radians( aSpotLights[ u ]->m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) ), u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_FALLOFF_MIN_DISTANCES, aSpotLights[ u ]->m_fFalloffMinDistance, u );
+		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES, aSpotLights[ u ]->m_fFalloffMaxDistance, u );
 	}
 }
 
 template < typename Technique >
-static void DrawMeshes( const Array< VisualNode >& aVisualNodes, Technique& oTechnique )
+static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique )
 {
-	for( const VisualNode& oVisualNode : aVisualNodes )
+	for( const VisualNode* pVisualNode : aVisualNodes )
 	{
 		if( oTechnique.HasArrayParameter( PARAM_BONE_MATRICES ) )
 		{
-			const Array< glm::mat4 >& aBoneMatrices = oVisualNode.m_aBoneMatrices;
+			const Array< glm::mat4 >& aBoneMatrices = pVisualNode->m_aBoneMatrices;
 			for( uint u = 0; u < aBoneMatrices.Count(); ++u )
 				oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, aBoneMatrices[ u ], u );
 			for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
 				oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
 		}
 
-		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, g_pRenderer->m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, g_pRenderer->m_oCamera.GetViewProjectionMatrix() * pVisualNode->m_mMatrix );
 
 		if( oTechnique.HasParameter( PARAM_MODEL_INVERSE_TRANSPOSE ) )
-			oTechnique.SetParameter( PARAM_MODEL_INVERSE_TRANSPOSE, glm::inverseTranspose( oVisualNode.m_mMatrix ) );
+			oTechnique.SetParameter( PARAM_MODEL_INVERSE_TRANSPOSE, glm::inverseTranspose( pVisualNode->m_mMatrix ) );
 
 		if( oTechnique.HasParameter( PARAM_MODEL ) )
-			oTechnique.SetParameter( PARAM_MODEL, oVisualNode.m_mMatrix );
+			oTechnique.SetParameter( PARAM_MODEL, pVisualNode->m_mMatrix );
 
-		const Array< Mesh >& aMeshes = oVisualNode.m_aMeshes;
+		const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
 		for( const Mesh& oMesh : aMeshes )
 		{
 			g_pMaterialManager->ApplyMaterial( oMesh.m_oMaterial, oTechnique );
@@ -129,6 +129,15 @@ static void DrawMeshes( const Array< VisualNode >& aVisualNodes, Technique& oTec
 			oTechnique.m_aTextures.Clear();
 		}
 	}
+}
+
+Array< VisualNode* > BuildTemporaryVisualNodesArray( ArrayView< VisualNode > aVisualNodes )
+{
+	Array< VisualNode* > aTemporaryVisualNodes( aVisualNodes.Count() );
+	for( uint u = 0; u < aVisualNodes.Count(); ++u )
+		aTemporaryVisualNodes[ u ] = &aVisualNodes[ u ];
+
+	return aTemporaryVisualNodes;
 }
 
 RenderRect::RenderRect()
@@ -492,6 +501,21 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 		DrawMeshes( m_oVisualStructure.m_aVisualNodes[ u ], oTechnique );
 	}
 
+	for( uint u = 0; u < m_oVisualStructure.m_aTemporaryTechniques.Count(); ++u )
+	{
+		Technique& oTechnique = *m_oVisualStructure.m_aTemporaryTechniques[ u ];
+		SetTechnique( oTechnique );
+
+		if( oTechnique.HasParameter( PARAM_DIRECTIONAL_LIGHT_COUNT ) )
+			SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+
+		if( oTechnique.HasParameter( PARAM_VIEW_POSITION ) )
+			oTechnique.SetParameter( PARAM_VIEW_POSITION, m_oCamera.m_vPosition );
+
+		const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( m_oVisualStructure.m_aTemporaryVisualNodes[ u ] );
+		DrawMeshes( aTemporaryVisualNodes, oTechnique );
+	}
+
 	glDisable( GL_DEPTH_TEST );
 
 	CopyRenderTarget( m_oForwardMSAATarget, m_oForwardTarget );
@@ -515,8 +539,14 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	Technique& oMapsTechnique = m_xDeferredMaps->GetTechnique();
 	SetTechnique( oMapsTechnique );
 
-	for( const Array< VisualNode >& aVisualNodes : m_oVisualStructure.m_aVisualNodes )
+	for( const Array< VisualNode* >& aVisualNodes : m_oVisualStructure.m_aVisualNodes )
 		DrawMeshes( aVisualNodes, oMapsTechnique );
+
+	for( Array< VisualNode >& aVisualNodes : m_oVisualStructure.m_aTemporaryVisualNodes )
+	{
+		const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( aVisualNodes );
+		DrawMeshes( aTemporaryVisualNodes, oMapsTechnique );
+	}
 
 	ClearRenderTarget();
 
@@ -577,7 +607,20 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 		return glm::uvec4( uRed, uGreen, uBlue, uAlpha );
 	};
 
-	for( const Array< VisualNode >& aVisualNodes : g_pRenderer->m_oVisualStructure.m_aVisualNodes )
+	for( const Array< VisualNode* >& aVisualNodes : g_pRenderer->m_oVisualStructure.m_aVisualNodes )
+	{
+		for( const VisualNode* pVisualNode : aVisualNodes )
+		{
+			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * pVisualNode->m_mMatrix );
+			oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( pVisualNode->m_uEntityID ) );
+
+			const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
+			for( const Mesh& oMesh : aMeshes )
+				DrawMesh( oMesh );
+		}
+	}
+
+	for( const Array< VisualNode >& aVisualNodes : g_pRenderer->m_oVisualStructure.m_aTemporaryVisualNodes )
 	{
 		for( const VisualNode& oVisualNode : aVisualNodes )
 		{

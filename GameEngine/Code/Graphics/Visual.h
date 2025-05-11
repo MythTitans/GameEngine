@@ -13,7 +13,9 @@ public:
 	void					Setup( const char* sModelFile );
 	void					Initialize() override;
 	bool					IsInitialized() const override;
+	void					Start() override;
 	void					Update( const GameContext& oGameContext ) override;
+	void					Stop() override;
 	void					Dispose() override;
 
 	void					DisplayInspector() override;
@@ -30,4 +32,6 @@ private:
 
 	using AnimatorHandle = ComponentHandle< AnimatorComponent >;
 	AnimatorHandle		m_hAnimatorComponent;
+
+	VisualNode*			m_pVisualNode;
 };

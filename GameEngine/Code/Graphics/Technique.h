@@ -21,7 +21,7 @@ public:
 	friend class GizmoRenderer;
 
 	template < typename Technique >
-	friend void DrawMeshes( const Array< VisualNode >& aVisualNodes, Technique& oTechnique );
+	friend void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique );
 
 	Technique();
 

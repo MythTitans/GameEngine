@@ -10,6 +10,7 @@ REGISTER_COMPONENT( VisualComponent );
 
 VisualComponent::VisualComponent( Entity* pEntity )
 	: Component( pEntity )
+	, m_pVisualNode( nullptr )
 {
 }
 
@@ -30,19 +31,30 @@ bool VisualComponent::IsInitialized() const
 	return m_xModel->IsLoaded() && m_xTechnique->IsLoaded();
 }
 
+void VisualComponent::Start()
+{
+	const Entity* pEntity = GetEntity();
+
+	m_pVisualNode = g_pRenderer->m_oVisualStructure.AddNode( pEntity, m_xTechnique->GetTechnique() );
+	m_pVisualNode->m_aMeshes = m_xModel->GetMeshes();
+}
+
 void VisualComponent::Update( const GameContext& oGameContext )
 {
 	if( m_xModel->IsLoaded() == false )
 		return;
 
 	if( oGameContext.m_bEditing )
-		m_hAnimatorComponent = GetComponent< AnimatorComponent >();
+		m_pVisualNode->m_aMeshes = m_xModel->GetMeshes();
 
 	const Entity* pEntity = GetEntity();
 
-	const Array< glm::mat4 > aEmpty;
-	const Array< glm::mat4 >& aBoneMatrices = m_hAnimatorComponent.IsValid() ? m_hAnimatorComponent->GetBoneMatrices() : aEmpty;
-	g_pRenderer->m_oVisualStructure.AddNode( pEntity, pEntity->GetWorldTransform().GetMatrixTRS(), m_xModel->GetMeshes(), aBoneMatrices, m_xTechnique->GetTechnique() );
+	m_pVisualNode->m_mMatrix = pEntity->GetWorldTransform().GetMatrixTRS();
+}
+
+void VisualComponent::Stop()
+{
+	g_pRenderer->m_oVisualStructure.RemoveNode( m_pVisualNode );
 }
 
 void VisualComponent::Dispose()

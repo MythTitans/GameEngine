@@ -37,7 +37,7 @@ static void DisplayLightVisual( const Entity* pEntity, const glm::vec3& vColor )
 	{
 		Transform oTransform = pEntity->GetWorldTransform();
 		oTransform.SetScale( 0.25f, 0.25f, 0.25f );
-		g_pRenderer->m_oVisualStructure.AddNode( pEntity, oTransform.GetMatrixTRS(), s_aLightVisuals, Array< glm::mat4 >(), s_xUnlitTechnique->GetTechnique() );
+		g_pRenderer->m_oVisualStructure.AddTemporaryNode( pEntity, oTransform.GetMatrixTRS(), s_aLightVisuals, s_xUnlitTechnique->GetTechnique() );
 	}
 }
 
@@ -45,12 +45,27 @@ REGISTER_COMPONENT( DirectionalLightComponent );
 
 DirectionalLightComponent::DirectionalLightComponent( Entity* pEntity )
 	: Component( pEntity )
+	, m_pDirectionalLight( nullptr )
 {
+}
+
+void DirectionalLightComponent::Start()
+{
+	m_pDirectionalLight = g_pRenderer->m_oVisualStructure.AddDirectionalLight();
+}
+
+void DirectionalLightComponent::Stop()
+{
+	g_pRenderer->m_oVisualStructure.RemoveDirectionalLight( m_pDirectionalLight );
 }
 
 void DirectionalLightComponent::Update( const GameContext& oGameContext )
 {
-	g_pRenderer->m_oVisualStructure.AddDirectionalLight( GetEntity(), m_vColor, m_fIntensity );
+	const Transform oTransform = GetEntity()->GetWorldTransform();
+
+	m_pDirectionalLight->m_vDirection = oTransform.GetK();
+	m_pDirectionalLight->m_vColor = m_vColor;
+	m_pDirectionalLight->m_fIntensity = m_fIntensity;
 }
 
 void DirectionalLightComponent::DisplayGizmos( const bool bSelected )
@@ -71,12 +86,29 @@ REGISTER_COMPONENT( PointLightComponent );
 
 PointLightComponent::PointLightComponent( Entity* pEntity )
 	: Component( pEntity )
+	, m_pPointLight( nullptr )
 {
+}
+
+void PointLightComponent::Start()
+{
+	m_pPointLight = g_pRenderer->m_oVisualStructure.AddPointLight();
+}
+
+void PointLightComponent::Stop()
+{
+	g_pRenderer->m_oVisualStructure.RemovePointLight( m_pPointLight );
 }
 
 void PointLightComponent::Update( const GameContext& oGameContext )
 {
-	g_pRenderer->m_oVisualStructure.AddPointLight( GetEntity(), m_vColor, m_fIntensity, m_fFalloffMinDistance, m_fFalloffMaxDistance );
+	const Transform oTransform = GetEntity()->GetWorldTransform();
+
+	m_pPointLight->m_vPosition = oTransform.GetO();
+	m_pPointLight->m_vColor = m_vColor;
+	m_pPointLight->m_fIntensity = m_fIntensity;
+	m_pPointLight->m_fFalloffMinDistance = m_fFalloffMinDistance;
+	m_pPointLight->m_fFalloffMaxDistance = m_fFalloffMaxDistance;
 }
 
 void PointLightComponent::DisplayGizmos( const bool bSelected )
@@ -97,12 +129,32 @@ REGISTER_COMPONENT( SpotLightComponent );
 
 SpotLightComponent::SpotLightComponent( Entity* pEntity )
 	: Component( pEntity )
+	, m_pSpotLight( nullptr )
 {
+}
+
+void SpotLightComponent::Start()
+{
+	m_pSpotLight = g_pRenderer->m_oVisualStructure.AddSpotLight();
+}
+
+void SpotLightComponent::Stop()
+{
+	g_pRenderer->m_oVisualStructure.RemoveSpotLight( m_pSpotLight );
 }
 
 void SpotLightComponent::Update( const GameContext& oGameContext )
 {
-	g_pRenderer->m_oVisualStructure.AddSpotLight( GetEntity(), m_vColor, m_fIntensity, m_fInnerAngle, m_fOuterAngle, m_fFalloffMinDistance, m_fFalloffMaxDistance );
+	const Transform oTransform = GetEntity()->GetWorldTransform();
+
+	m_pSpotLight->m_vPosition = oTransform.GetO();
+	m_pSpotLight->m_vDirection = oTransform.GetK();
+	m_pSpotLight->m_vColor = m_vColor;
+	m_pSpotLight->m_fIntensity = m_fIntensity;
+	m_pSpotLight->m_fInnerAngle = m_fInnerAngle;
+	m_pSpotLight->m_fOuterAngle = m_fOuterAngle;
+	m_pSpotLight->m_fFalloffMinDistance = m_fFalloffMinDistance;
+	m_pSpotLight->m_fFalloffMaxDistance = m_fFalloffMaxDistance;
 }
 
 void SpotLightComponent::DisplayGizmos( const bool bSelected )

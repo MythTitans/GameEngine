@@ -315,7 +315,7 @@ void Editor::Render( const RenderContext& oRenderContext )
 	{
 		if( m_uSelectedEntityID != UINT64_MAX )
 		{
-			const Array< const VisualNode* > aVisualNodes = g_pRenderer->m_oVisualStructure.FindNodes( m_uSelectedEntityID );
+			const Array< VisualNode* > aVisualNodes = g_pRenderer->m_oVisualStructure.FindNodes( m_uSelectedEntityID );
 			for( const VisualNode* pVisualNode : aVisualNodes )
 			{
 				if( pVisualNode != nullptr )

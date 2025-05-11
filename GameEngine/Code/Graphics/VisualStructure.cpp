@@ -3,31 +3,8 @@
 #include "Core/ArrayUtils.h"
 #include "Game/Entity.h"
 
-DirectionalLight::DirectionalLight( const glm::vec3& vDirection, const glm::vec3& vColor, const float fIntensity )
-	: m_vDirection( vDirection )
-	, m_vColor( vColor )
-	, m_fIntensity( fIntensity )
-{
-}
-
-PointLight::PointLight( const glm::vec3& vPosition, const glm::vec3& vColor, const float fIntensity, const float fFalloffMinDistance, const float fFalloffMaxDistance )
-	: m_vPosition( vPosition )
-	, m_vColor( vColor )
-	, m_fIntensity( fIntensity )
-	, m_fFalloffMinDistance( fFalloffMinDistance )
-	, m_fFalloffMaxDistance( fFalloffMaxDistance )
-{
-}
-
-SpotLight::SpotLight( const glm::vec3& vPosition, const glm::vec3& vDirection, const glm::vec3& vColor, const float fIntensity, const float fInnerAngle, const float fOuterAngle, const float fFalloffMinDistance, const float fFalloffMaxDistance )
-	: m_vPosition( vPosition )
-	, m_vDirection( vDirection )
-	, m_vColor( vColor )
-	, m_fIntensity( fIntensity )
-	, m_fInnerAngle( fInnerAngle )
-	, m_fOuterAngle( fOuterAngle )
-	, m_fFalloffMinDistance( fFalloffMinDistance )
-	, m_fFalloffMaxDistance( fFalloffMaxDistance )
+VisualNode::VisualNode( const uint64 uEntityID )
+	: m_uEntityID( uEntityID )
 {
 }
 
@@ -39,10 +16,8 @@ VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4& mMatrix, const 
 {
 }
 
-void VisualStructure::AddNode( const Entity* pEntity, const glm::mat4& mMatrix, const Array< Mesh >& aMeshes, const Array< glm::mat4 >& aBoneMatrices, Technique& oTechnique )
+VisualNode* VisualStructure::AddNode( const Entity* pEntity, Technique& oTechnique )
 {
-	ASSERT( aMeshes.Empty() == false );
-
 	int iIndex = Find( m_aTechniques, &oTechnique );
 	if( iIndex == -1 )
 	{
@@ -50,23 +25,69 @@ void VisualStructure::AddNode( const Entity* pEntity, const glm::mat4& mMatrix, 
 		m_aTechniques.PushBack( &oTechnique );
 
 		if( iIndex >= ( int )m_aVisualNodes.Count() )
-			m_aVisualNodes.PushBack( Array< VisualNode >() );
+			m_aVisualNodes.PushBack( Array< VisualNode* >() );
 	}
 
-	m_aVisualNodes[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, aMeshes, aBoneMatrices ) );
+	m_aVisualNodes[ iIndex ].PushBack( new VisualNode( pEntity->GetID() ) );
+
+	return m_aVisualNodes[ iIndex ].Back();
 }
 
-Array< const VisualNode* > VisualStructure::FindNodes( const Entity* pEntity ) const
+void VisualStructure::AddTemporaryNode( const Entity* pEntity, const glm::mat4& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique )
+{
+	ASSERT( aMeshes.Empty() == false );
+
+	int iIndex = Find( m_aTemporaryTechniques, &oTechnique );
+	if( iIndex == -1 )
+	{
+		iIndex = m_aTemporaryTechniques.Count();
+		m_aTemporaryTechniques.PushBack( &oTechnique );
+
+		if( iIndex >= ( int )m_aTemporaryVisualNodes.Count() )
+			m_aTemporaryVisualNodes.PushBack( Array< VisualNode >() );
+	}
+
+	m_aTemporaryVisualNodes[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, aMeshes, Array< glm::mat4 >() ) );
+}
+
+void VisualStructure::RemoveNode( VisualNode*& pNode )
+{
+	for( Array< VisualNode* >& aNodes : m_aVisualNodes )
+	{
+		const int iIndex = Find( aNodes, pNode );
+		if( iIndex != -1 )
+		{
+			aNodes.Remove( iIndex );
+			delete pNode;
+			pNode = nullptr;
+			return;
+		}
+	}
+}
+
+Array< VisualNode* > VisualStructure::FindNodes( const Entity* pEntity )
 {
 	return FindNodes( pEntity->GetID() );
 }
 
-Array< const VisualNode* > VisualStructure::FindNodes( const uint64 uEntityID ) const
+Array< VisualNode* > VisualStructure::FindNodes( const uint64 uEntityID )
 {
-	Array< const VisualNode* > aFoundVisualNodes;
-	for( const Array< VisualNode >& aVisualNodes : m_aVisualNodes )
+	Array< VisualNode* > aFoundVisualNodes;
+	for( Array< VisualNode* >& aVisualNodes : m_aVisualNodes )
 	{
-		for( const VisualNode& oVisualNode : aVisualNodes )
+		for( VisualNode* pVisualNode : aVisualNodes )
+		{
+			if( pVisualNode->m_uEntityID == uEntityID )
+			{
+				aFoundVisualNodes.PushBack( pVisualNode );
+				break;
+			}
+		}
+	}
+
+	for( Array< VisualNode >& aVisualNodes : m_aTemporaryVisualNodes )
+	{
+		for( VisualNode& oVisualNode : aVisualNodes )
 		{
 			if( oVisualNode.m_uEntityID == uEntityID )
 			{
@@ -79,31 +100,64 @@ Array< const VisualNode* > VisualStructure::FindNodes( const uint64 uEntityID ) 
 	return aFoundVisualNodes;
 }
 
-void VisualStructure::AddDirectionalLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity )
+DirectionalLight* VisualStructure::AddDirectionalLight()
 {
-	const Transform& oTransform = pEntity->GetWorldTransform();
-	m_aDirectionalLights.PushBack( DirectionalLight( oTransform.GetK(), vColor, fIntensity ) );
+	m_aDirectionalLights.PushBack( new DirectionalLight );
+
+	return m_aDirectionalLights.Back();
 }
 
-void VisualStructure::AddPointLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity, const float fFalloffMinDistance, const float fFalloffMaxDistance )
+PointLight* VisualStructure::AddPointLight()
 {
-	const Transform& oTransform = pEntity->GetWorldTransform();
-	m_aPointLights.PushBack( PointLight( oTransform.GetO(), vColor, fIntensity, fFalloffMinDistance, fFalloffMaxDistance ) );
+	m_aPointLights.PushBack( new PointLight );
+
+	return m_aPointLights.Back();
 }
 
-void VisualStructure::AddSpotLight( const Entity* pEntity, const glm::vec3& vColor, const float fIntensity, const float fInnerAngle, const float fOuterAngle, const float fFalloffMinDistance, const float fFalloffMaxDistance )
+SpotLight* VisualStructure::AddSpotLight()
 {
-	const Transform& oTransform = pEntity->GetWorldTransform();
-	m_aSpotLights.PushBack( SpotLight( oTransform.GetO(), oTransform.GetK(), vColor, fIntensity, fInnerAngle, fOuterAngle, fFalloffMinDistance, fFalloffMaxDistance ) );
+	m_aSpotLights.PushBack( new SpotLight );
+
+	return m_aSpotLights.Back();
+}
+
+void VisualStructure::RemoveDirectionalLight( DirectionalLight*& pDirectionalLight )
+{
+	const int iIndex = Find( m_aDirectionalLights, pDirectionalLight );
+	if( iIndex != -1 )
+	{
+		m_aDirectionalLights.Remove( iIndex );
+		delete pDirectionalLight;
+		pDirectionalLight = nullptr;
+	}
+}
+
+void VisualStructure::RemovePointLight( PointLight*& pPointLight )
+{
+	const int iIndex = Find( m_aPointLights, pPointLight );
+	if( iIndex != -1 )
+	{
+		m_aPointLights.Remove( iIndex );
+		delete pPointLight;
+		pPointLight = nullptr;
+	}
+}
+
+void VisualStructure::RemoveSpotLight( SpotLight*& pSpotLight )
+{
+	const int iIndex = Find( m_aSpotLights, pSpotLight );
+	if( iIndex != -1 )
+	{
+		m_aSpotLights.Remove( iIndex );
+		delete pSpotLight;
+		pSpotLight = nullptr;
+	}
 }
 
 void VisualStructure::Clear()
 {
-	for( Array< VisualNode >& aNodes : m_aVisualNodes )
+	for( Array< VisualNode >& aNodes : m_aTemporaryVisualNodes )
 		aNodes.Clear();
-	m_aTechniques.Clear();
 
-	m_aDirectionalLights.Clear();
-	m_aPointLights.Clear();
-	m_aSpotLights.Clear();
+	m_aTemporaryTechniques.Clear();
 }
