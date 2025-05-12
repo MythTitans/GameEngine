@@ -159,6 +159,7 @@ ResourceLoader* g_pResourceLoader = nullptr;
 ResourceLoader::ResourceLoader()
 	: m_bRunning( true )
 	, m_oIOThread( &ResourceLoader::Load, this )
+	, m_bDisableUnusedResourcesDestruction( false )
 	, m_bDisplayDebug( false )
 {
 	//SetThreadAffinityMask( m_oIOThread.native_handle(), IO_THREAD_AFFINITY_MASK );
@@ -277,7 +278,9 @@ void ResourceLoader::HandleLoadedResources()
 	ProfilerBlock oBlock( "HandleLoadedResources" );
 
 	CheckFinishedProcessingLoadCommands();
-	DestroyUnusedResources();
+
+	if( m_bDisableUnusedResourcesDestruction == false )
+		DestroyUnusedResources();
 }
 
 void ResourceLoader::ProcessLoadCommands()

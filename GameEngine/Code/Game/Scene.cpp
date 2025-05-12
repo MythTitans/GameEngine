@@ -119,6 +119,8 @@ void Scene::RemoveEntity( Entity* pEntity )
 		RemoveEntity( pChild );
 	}
 
+	pEntity->m_aChildren.Clear();
+
 	m_mEntities.erase( pEntity->GetID() );
 }
 
@@ -167,14 +169,17 @@ void Scene::DetachFromParent( Entity* pChild )
 	Entity* pParent = pChild->m_pParent;
 	if( pParent != nullptr )
 	{
-		for( uint u = 0; u < pParent->m_aChildren.Count(); ++u )
-		{
-			if( pChild == pParent->m_aChildren[ u ] )
-				pParent->m_aChildren.Remove( u );
-		}
+		const int iIndex = Find( pParent->m_aChildren, pChild );
+		if( iIndex != -1 )
+			pParent->m_aChildren.Remove( iIndex );
 	}
 
 	pChild->m_pParent = nullptr;
+}
+
+void Scene::Clear()
+{
+	m_mEntities.clear();
 }
 
 void Scene::CreateInternalEntities()

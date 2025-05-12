@@ -62,6 +62,7 @@ void GameWorld::Update( const GameContext& oGameContext )
 	case WorldState::READY:
 		if( m_eWorldTrigger == WorldTrigger::RUN )
 		{
+			g_pResourceLoader->m_bDisableUnusedResourcesDestruction = false;
 			g_pComponentManager->StartComponents();
 			m_eWorldState = WorldState::RUNNING;
 			m_eWorldTrigger = WorldTrigger::NONE;
@@ -70,9 +71,10 @@ void GameWorld::Update( const GameContext& oGameContext )
 	case WorldState::RUNNING:
 		if( m_eWorldTrigger == WorldTrigger::RESET )
 		{
-			g_pComponentManager->StopComponents();
-			m_eWorldState = WorldState::READY;
-			m_eWorldTrigger = WorldTrigger::NONE;
+			//g_pResourceLoader->m_bDisableUnusedResourcesDestruction = true; // TODO #eric this should only be required for faster loading, but atm it will crash if not present (probably need to clear the techniques in the visual structure ?)
+			m_oScene.Clear(); // TODO #eric internal entities can probably be kept alive
+			m_eWorldState = WorldState::EMPTY;
+			m_eWorldTrigger = WorldTrigger::LOAD;
 		}
 		else
 		{

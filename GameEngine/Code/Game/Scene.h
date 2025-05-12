@@ -29,6 +29,8 @@ public:
 	void			AttachToParent( Entity* pChild, Entity* pParent );
 	void			DetachFromParent( Entity* pChild );
 
+	void			Clear();
+
 private:
 	void			CreateInternalEntities();
 	Entity*			CreateInternalEntity( const std::string& sName );

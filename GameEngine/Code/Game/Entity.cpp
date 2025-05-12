@@ -228,7 +228,12 @@ Entity::Entity( const uint64 uID, const std::string& sName )
 Entity::~Entity()
 {
 	if( g_pGameWorld != nullptr )
+	{
+		for( int i = ( int )m_aChildren.Count() - 1; i >= 0; --i )
+			g_pGameWorld->m_oScene.DetachFromParent( m_aChildren[ i ] );
+
 		g_pGameWorld->m_oScene.DetachFromParent( this );
+	}
 
 	g_pComponentManager->DisposeComponents( this );
 }
