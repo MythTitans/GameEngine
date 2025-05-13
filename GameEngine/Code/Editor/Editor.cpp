@@ -199,19 +199,19 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		{
 			m_uSelectedEntityID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY(), false );
 
-			ArrayView< GizmoComponent > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
+			Array< GizmoComponent* > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
 
 			if( m_uSelectedEntityID != UINT64_MAX )
 			{
 				Entity* pEntity = g_pGameWorld->m_oScene.FindEntity( m_uSelectedEntityID );
 
-				for( GizmoComponent& oGizmoComponent : aGizmoComponents )
-					oGizmoComponent.SetAnchor( pEntity );
+				for( GizmoComponent* pGizmoComponent : aGizmoComponents )
+					pGizmoComponent->SetAnchor( pEntity );
 			}
 			else
 			{
-				for( GizmoComponent& oGizmoComponent : aGizmoComponents )
-					oGizmoComponent.SetAnchor( nullptr );
+				for( GizmoComponent* pGizmoComponent : aGizmoComponents )
+					pGizmoComponent->SetAnchor( nullptr );
 			}
 		}
 	}

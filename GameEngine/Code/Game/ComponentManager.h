@@ -575,10 +575,18 @@ public:
 		return iIndex;
 	}
 
-	// TODO #eric I would like to remove this function but it's still needed for Editor and Renderer at the moment
-	ArrayView< ComponentType > GetComponents()
+	Array< ComponentType* > GetComponents( const bool bDisposed )
 	{
-		return m_aComponents;
+		Array< ComponentType* > aComponents;
+		aComponents.Reserve( GetCount() );
+
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( bDisposed || m_aStates[ u ] != ComponentState::DISPOSED )
+				aComponents.PushBack( &m_aComponents[ u ] );
+		}
+
+		return aComponents;
 	}
 
 	uint GetCount() const
@@ -612,7 +620,7 @@ public:
 	static ComponentProperties	s_mProperties;
 
 private:
-	enum ComponentState : uint8
+	enum class ComponentState : uint8
 	{
 		UNINITIALIZED,
 		STARTED,
@@ -815,16 +823,15 @@ public:
 	}
 
 private:
-	// TODO #eric I would like to remove this function but it's still needed for Editor and Renderer at the moment
 	template < typename ComponentType >
-	ArrayView< ComponentType > GetComponents()
+	Array< ComponentType* > GetComponents( const bool bDisposed = false )
 	{
 		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
 		if( it == m_mComponentsHolders.end() || it->second == nullptr )
-			return ArrayView< ComponentType >();
+			return Array< ComponentType* >();
 
 		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( it->second );
-		return pComponentsHolder->GetComponents();
+		return pComponentsHolder->GetComponents( bDisposed );
 	}
 
 	template < typename ComponentType >

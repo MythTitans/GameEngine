@@ -72,7 +72,7 @@ void GameWorld::Update( const GameContext& oGameContext )
 		if( m_eWorldTrigger == WorldTrigger::RESET )
 		{
 			//g_pResourceLoader->m_bDisableUnusedResourcesDestruction = true; // TODO #eric this should only be required for faster loading, but atm it will crash if not present (probably need to clear the techniques in the visual structure ?)
-			m_oScene.Clear(); // TODO #eric internal entities can probably be kept alive
+			m_oScene.Clear(); 
 			m_eWorldState = WorldState::EMPTY;
 			m_eWorldTrigger = WorldTrigger::LOAD;
 		}

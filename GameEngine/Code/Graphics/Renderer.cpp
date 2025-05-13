@@ -637,13 +637,13 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 	{
 		glClear( GL_DEPTH_BUFFER_BIT );
 
-		ArrayView< GizmoComponent > aComponents = g_pComponentManager->GetComponents< GizmoComponent >();
-		for( const GizmoComponent& oComponent : aComponents )
+		Array< GizmoComponent* > aComponents = g_pComponentManager->GetComponents< GizmoComponent >();
+		for( const GizmoComponent* pComponent : aComponents )
 		{
-			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oComponent.GetWorldMatrix() );
-			oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( oComponent.GetEntity()->GetID() ) );
+			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * pComponent->GetWorldMatrix() );
+			oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( pComponent->GetEntity()->GetID() ) );
 
-			m_oGizmoRenderer.RenderGizmo( oComponent.GetType(), oComponent.GetAxis(), oRenderContext );
+			m_oGizmoRenderer.RenderGizmo( pComponent->GetType(), pComponent->GetAxis(), oRenderContext );
 		}
 	}
 
@@ -720,13 +720,13 @@ void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 	Technique& oTechnique = m_xGizmo->GetTechnique();
 	SetTechnique( oTechnique );
 
-	ArrayView< GizmoComponent > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
-	for( const GizmoComponent& oGizmoComponent : aGizmoComponents )
+	Array< GizmoComponent* > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
+	for( const GizmoComponent* pGizmoComponent : aGizmoComponents )
 	{
-		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oGizmoComponent.GetWorldMatrix() );
-		oTechnique.SetParameter( PARAM_COLOR, oGizmoComponent.GetColor() );
+		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * pGizmoComponent->GetWorldMatrix() );
+		oTechnique.SetParameter( PARAM_COLOR, pGizmoComponent->GetColor() );
 
-		m_oGizmoRenderer.RenderGizmo( oGizmoComponent.GetType(), oGizmoComponent.GetAxis(), oRenderContext );
+		m_oGizmoRenderer.RenderGizmo( pGizmoComponent->GetType(), pGizmoComponent->GetAxis(), oRenderContext );
 	}
 
 	ClearTechnique();
