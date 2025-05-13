@@ -85,6 +85,10 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	if( m_bDisplayEditor == false )
 		return false;
 
+	Entity* pSelectedEntity = g_pGameWorld->m_oScene.FindEntity( m_uSelectedEntityID );
+	if( pSelectedEntity == nullptr )
+		m_uSelectedEntityID = UINT64_MAX;
+
 // 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 20.f, 0.f, 0.f ), glm::vec3( 1.f, 0.f, 0.f ) );
 // 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 20.f, 0.f ), glm::vec3( 0.f, 1.f, 0.f ) );
 // 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 0.f, 20.f ), glm::vec3( 0.f, 0.f, 1.f ) );
@@ -105,7 +109,6 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 			{
 				const Ray oRay = ComputeCursorViewRay( oInputContext, oRenderContext );
 
-				Entity* pSelectedEntity = g_pGameWorld->m_oScene.FindEntity( m_uSelectedEntityID );
 				Entity* pGizmoEntity = g_pGameWorld->m_oScene.FindEntity( uGizmoEntityID );
 				GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pGizmoEntity );
 				if( pGizmoComponent != nullptr )
