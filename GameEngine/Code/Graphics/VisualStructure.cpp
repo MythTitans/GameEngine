@@ -52,14 +52,23 @@ void VisualStructure::AddTemporaryNode( const Entity* pEntity, const glm::mat4& 
 
 void VisualStructure::RemoveNode( VisualNode*& pNode )
 {
-	for( Array< VisualNode* >& aNodes : m_aVisualNodes )
+	for( uint uGroupIndex = 0; uGroupIndex < m_aVisualNodes.Count(); ++uGroupIndex )
 	{
+		Array< VisualNode* >& aNodes = m_aVisualNodes[ uGroupIndex ];
+
 		const int iIndex = Find( aNodes, pNode );
 		if( iIndex != -1 )
 		{
 			aNodes.Remove( iIndex );
 			delete pNode;
 			pNode = nullptr;
+
+			if( aNodes.Empty() )
+			{
+				m_aVisualNodes.Remove( uGroupIndex );
+				m_aTechniques.Remove( uGroupIndex );
+			}
+
 			return;
 		}
 	}
