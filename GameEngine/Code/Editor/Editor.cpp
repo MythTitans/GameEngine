@@ -222,7 +222,7 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	ImGui::Begin( "Editor" );
 
 	if( ImGui::Button( "Save scene" ) )
-		g_pGameWorld->m_oScene.Save( "Data/Scene/scene.test" );
+		g_pGameWorld->m_oScene.Save( "Data/Scene/test.scene" );
 
 	if( ImGui::Button( "Run" ) )
 		g_pGameWorld->Run();

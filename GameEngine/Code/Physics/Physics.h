@@ -6,6 +6,9 @@ class Physics
 {
 public:
 	friend class RigidbodyComponent;
+	// TODO #eric this is temporary
+	friend class SphereShapeComponent;
+	friend class BoxShapeComponent;
 
 	Physics();
 	~Physics();
