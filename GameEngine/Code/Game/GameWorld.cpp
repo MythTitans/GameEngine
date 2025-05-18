@@ -1,7 +1,5 @@
 #include "GameWorld.h"
 
-#include <nlohmann/json.hpp>
-
 #include "Core/FileUtils.h"
 #include "Core/Logger.h"
 #include "Entity.h"
@@ -21,9 +19,9 @@ GameWorld::~GameWorld()
 	g_pGameWorld = nullptr;
 }
 
-void GameWorld::Load( const std::string& sFilePath )
+void GameWorld::Load( const nlohmann::json& oJsonContent )
 {
-	m_sSceneFilePath = sFilePath;
+	m_oSceneJson = oJsonContent;
 	m_eWorldTrigger = WorldTrigger::LOAD;
 }
 
@@ -46,7 +44,7 @@ void GameWorld::Update( const GameContext& oGameContext )
 	case WorldState::EMPTY:
 		if( m_eWorldTrigger == WorldTrigger::LOAD )
 		{
-			m_oScene.Load( m_sSceneFilePath );
+			m_oScene.Load( m_oSceneJson );
 			g_pComponentManager->InitializeComponents();
 			m_eWorldState = WorldState::LOADING;
 			m_eWorldTrigger = WorldTrigger::NONE;

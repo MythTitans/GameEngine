@@ -14,11 +14,9 @@ Scene::Scene()
 {
 }
 
-void Scene::Load( const std::string& sFilePath )
+void Scene::Load( const nlohmann::json& oJsonContent )
 {
 	CreateInternalEntities();
-
-	const nlohmann::json oJsonContent = nlohmann::json::parse( ReadTextFile( std::filesystem::path( sFilePath ) ) );
 
 	for( const auto& oEntityIt : oJsonContent[ "scene" ].items() )
 	{
@@ -61,7 +59,7 @@ void Scene::Load( const std::string& sFilePath )
 	}
 }
 
-void Scene::Save( const std::string& sFilePath )
+void Scene::Save( nlohmann::json& oJsonContent )
 {
 	Array< nlohmann::json > aSerializedEntities;
 	aSerializedEntities.Reserve( ( uint )m_mEntities.size() );
@@ -72,9 +70,7 @@ void Scene::Save( const std::string& sFilePath )
 			aSerializedEntities.PushBack( *it.second.GetPtr() );
 	}
 
-	nlohmann::json oJsonContent;
 	oJsonContent[ "scene" ] = aSerializedEntities;
-	WriteTextFile( oJsonContent.dump( 4 ), std::filesystem::path( sFilePath ) );
 }
 
 Entity* Scene::CreateEntity( const std::string& sName )

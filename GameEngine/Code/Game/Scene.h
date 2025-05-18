@@ -1,5 +1,6 @@
 #pragma once
 
+#include <nlohmann/json_fwd.hpp>
 #include <unordered_map>
 
 #include "Core/Array.h"
@@ -14,8 +15,8 @@ public:
 
 	Scene();
 
-	void			Load( const std::string& sFilePath );
-	void			Save( const std::string& sFilePath );
+	void			Load( const nlohmann::json& oJsonContent );
+	void			Save( nlohmann::json& oJsonContent );
 
 	Entity*			CreateEntity( const std::string& sName );
 	Entity*			CreateEntity( const std::string& sName, const uint64 uID );
@@ -42,5 +43,5 @@ private:
 	uint64			m_uNextInternalID;
 	uint64			m_uNextID;
 
-	std::unordered_map< uint64, StrongPtr< Entity > >	m_mEntities;
+	std::unordered_map< uint64, StrongPtr< Entity > > m_mEntities;
 };

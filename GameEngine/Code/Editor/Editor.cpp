@@ -75,7 +75,7 @@ Editor::~Editor()
 	g_pEditor = nullptr;
 }
 
-bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRenderContext )
+void Editor::Update( const InputContext& oInputContext, const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "Editor" );
 
@@ -83,7 +83,7 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		m_bDisplayEditor = !m_bDisplayEditor;
 
 	if( m_bDisplayEditor == false )
-		return false;
+		return;
 
 	Entity* pSelectedEntity = g_pGameWorld->m_oScene.FindEntity( m_uSelectedEntityID );
 	if( pSelectedEntity == nullptr )
@@ -222,13 +222,26 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	ImGui::Begin( "Editor" );
 
 	if( ImGui::Button( "Save scene" ) )
-		g_pGameWorld->m_oScene.Save( "Data/Scene/test.scene" );
+	{
+		nlohmann::json oJsonContent;
+		g_pGameWorld->m_oScene.Save( oJsonContent );
+		WriteTextFile( oJsonContent.dump( 4 ), std::filesystem::path( "Data/Scene/test.scene" ) );
+	}
 
-	if( ImGui::Button( "Run" ) )
+	if( g_pGameEngine->m_eGameState == GameEngine::GameState::EDITING && ImGui::Button( "Start running " ) )
+	{
+		g_pGameEngine->m_eGameState = GameEngine::GameState::RUNNING;
+		m_oSceneJson.clear();
+		g_pGameWorld->m_oScene.Save( m_oSceneJson );
 		g_pGameWorld->Run();
+	}
 
-	if( ImGui::Button( "Reset" ) )
+	if( g_pGameEngine->m_eGameState == GameEngine::GameState::RUNNING && ImGui::Button( "Stop running " ) )
+	{
+		g_pGameEngine->m_eGameState = GameEngine::GameState::EDITING;
+		g_pGameWorld->m_oSceneJson = m_oSceneJson;
 		g_pGameWorld->Reset();
+	}
 
 	if( ImGui::TreeNode( "Root" ) )
 	{
@@ -306,8 +319,6 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	}
 
 	ImGui::End();
-
-	return true;
 }
 
 void Editor::Render( const RenderContext& oRenderContext )
