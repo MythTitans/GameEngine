@@ -41,10 +41,7 @@ void VisualComponent::Start()
 
 void VisualComponent::Update( const GameContext& oGameContext )
 {
-	if( m_xModel->IsLoaded() == false )
-		return;
-
-	if( oGameContext.m_bEditing )
+	if( oGameContext.m_bEditing && m_xModel->IsLoaded() )
 		m_pVisualNode->m_aMeshes = m_xModel->GetMeshes();
 
 	const Entity* pEntity = GetEntity();

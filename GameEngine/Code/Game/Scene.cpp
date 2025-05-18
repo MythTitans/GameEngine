@@ -55,7 +55,8 @@ void Scene::Load( const std::string& sFilePath )
 			const std::string& sComponentName = oComponent[ "name" ];
 			ComponentManager::GetComponentsFactory()[ sComponentName ].m_pCreate( pEntity, ComponentManagement::NONE );
 
-			g_pComponentManager->DeserializeComponents( oComponent[ "properties" ], pEntity );
+			if( oComponent.contains( "properties" ) )
+				g_pComponentManager->DeserializeComponents( oComponent[ "properties" ], pEntity );
 		}
 	}
 }
