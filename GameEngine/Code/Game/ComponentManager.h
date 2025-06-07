@@ -127,9 +127,9 @@ public:
 	virtual void			UpdateComponents( const GameContext& oGameContext ) = 0;
 
 	virtual nlohmann::json	SerializeComponent( const Entity* pEntity ) const = 0;
-	virtual void			DeserializeComponent( const nlohmann::json& oJsonContent, const Entity* pEntity ) = 0;
+	virtual void			DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, const Entity* pEntity ) = 0;
 
-	virtual void			DisplayInspector( const Entity* pEntity ) = 0;
+	virtual bool			DisplayInspector( const Entity* pEntity ) = 0;
 	virtual void			DisplayGizmos( const uint64 uSelectedEntityID ) = 0;
 
 	virtual uint			GetCount() const = 0;
@@ -308,8 +308,11 @@ public:
 		return oJsonContent;
 	}
 
-	void DeserializeComponent( const nlohmann::json& oJsonContent, const Entity* pEntity ) override
+	void DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, const Entity* pEntity ) override
 	{
+		if( sComponentName != GetComponentName() )
+			return;
+
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			if( m_aStates[ u ] == ComponentState::DISPOSED )
@@ -326,10 +329,12 @@ public:
 		}
 	}
 
-	void DisplayInspector( const Entity* pEntity ) override
+	bool DisplayInspector( const Entity* pEntity ) override
 	{
 		if( ComponentManager::GetComponentsFactory().find( GetComponentName() ) == ComponentManager::GetComponentsFactory().end() )
-			return;
+			return false;
+
+		bool bModified = false;
 
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
@@ -352,6 +357,8 @@ public:
 						Array< std::string > aChangedProperties = it.second->DisplayInspector( &oComponent );
 						for( const std::string& sChangedProperty : aChangedProperties )
 							oComponent.OnPropertyChanged( sChangedProperty );
+
+						bModified |= !aChangedProperties.Empty();
 					}
 					ImGui::PopID();
 
@@ -365,6 +372,8 @@ public:
 				break;
 			}
 		}
+
+		return bModified;
 	}
 
 	void DisplayGizmos( const uint64 uSelectedEntityID ) override
@@ -575,10 +584,18 @@ public:
 		return iIndex;
 	}
 
-	// TODO #eric I would like to remove this function but it's still needed for Editor and Renderer at the moment
-	ArrayView< ComponentType > GetComponents()
+	Array< ComponentType* > GetComponents( const bool bDisposed )
 	{
-		return m_aComponents;
+		Array< ComponentType* > aComponents;
+		aComponents.Reserve( GetCount() );
+
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( bDisposed || m_aStates[ u ] != ComponentState::DISPOSED )
+				aComponents.PushBack( &m_aComponents[ u ] );
+		}
+
+		return aComponents;
 	}
 
 	uint GetCount() const
@@ -612,7 +629,7 @@ public:
 	static ComponentProperties	s_mProperties;
 
 private:
-	enum ComponentState : uint8
+	enum class ComponentState : uint8
 	{
 		UNINITIALIZED,
 		STARTED,
@@ -620,10 +637,10 @@ private:
 		DISPOSED
 	};
 
-	Array< ComponentType >	m_aComponents;
-	Array< ComponentState >	m_aStates;
+	Array< ComponentType, ArrayFlags::NO_TRACKING >		m_aComponents;
+	Array< ComponentState, ArrayFlags::NO_TRACKING >	m_aStates;
 
-	Array< uint >			m_aPendingComponents;
+	Array< uint >										m_aPendingComponents;
 };
 
 template < typename ComponentType >
@@ -801,9 +818,9 @@ public:
 	void					UpdateComponents( const GameContext& oGameContext );
 
 	Array< nlohmann::json >	SerializeComponents( const Entity* pEntity );
-	void					DeserializeComponents( const nlohmann::json& oJsonContent, Entity* pEntity );
+	void					DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, Entity* pEntity );
 
-	void					DisplayInspector( Entity* pEntity );
+	bool					DisplayInspector( Entity* pEntity );
 	void					DisplayGizmos( const uint64 uSelectedEntityID );
 
 	template < typename ComponentType >
@@ -815,16 +832,15 @@ public:
 	}
 
 private:
-	// TODO #eric I would like to remove this function but it's still needed for Editor and Renderer at the moment
 	template < typename ComponentType >
-	ArrayView< ComponentType > GetComponents()
+	Array< ComponentType* > GetComponents( const bool bDisposed = false )
 	{
 		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
 		if( it == m_mComponentsHolders.end() || it->second == nullptr )
-			return ArrayView< ComponentType >();
+			return Array< ComponentType* >();
 
 		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( it->second );
-		return pComponentsHolder->GetComponents();
+		return pComponentsHolder->GetComponents( bDisposed );
 	}
 
 	template < typename ComponentType >

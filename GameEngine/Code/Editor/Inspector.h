@@ -17,7 +17,9 @@ inline bool DisplayInspector( const char* sName, Type& oValue );
 template <>
 inline bool DisplayInspector( const char* sName, float& fValue )
 {
-	return ImGui::DragFloat( sName, &fValue );
+	ImGui::DragFloat( sName, &fValue );
+
+	return ImGui::IsItemDeactivatedAfterEdit();
 }
 
 template <>

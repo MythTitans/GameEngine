@@ -228,7 +228,12 @@ Entity::Entity( const uint64 uID, const std::string& sName )
 Entity::~Entity()
 {
 	if( g_pGameWorld != nullptr )
+	{
+		for( int i = ( int )m_aChildren.Count() - 1; i >= 0; --i )
+			g_pGameWorld->m_oScene.DetachFromParent( m_aChildren[ i ] );
+
 		g_pGameWorld->m_oScene.DetachFromParent( this );
+	}
 
 	g_pComponentManager->DisposeComponents( this );
 }
@@ -238,19 +243,24 @@ uint64 Entity::GetID() const
 	return m_uID;
 }
 
+void Entity::SetName( const std::string& sName )
+{
+	m_sName = sName;
+}
+
 const std::string& Entity::GetName() const
 {
 	return m_sName;
 }
 
-Entity* Entity::GetParent()
+Entity* Entity::GetParent() const
 {
 	return m_pParent;
 }
 
-const Entity* Entity::GetParent() const
+const Array< Entity* >& Entity::GetChildren() const
 {
-	return m_pParent;
+	return m_aChildren;
 }
 
 void Entity::SetWorldTransform( const Transform& oTransform )

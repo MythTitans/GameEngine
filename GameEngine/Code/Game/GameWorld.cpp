@@ -1,7 +1,5 @@
 #include "GameWorld.h"
 
-#include <nlohmann/json.hpp>
-
 #include "Core/FileUtils.h"
 #include "Core/Logger.h"
 #include "Entity.h"
@@ -21,9 +19,9 @@ GameWorld::~GameWorld()
 	g_pGameWorld = nullptr;
 }
 
-void GameWorld::Load( const std::string& sFilePath )
+void GameWorld::Load( const nlohmann::json& oJsonContent )
 {
-	m_sSceneFilePath = sFilePath;
+	m_oSceneJson = oJsonContent;
 	m_eWorldTrigger = WorldTrigger::LOAD;
 }
 
@@ -46,7 +44,7 @@ void GameWorld::Update( const GameContext& oGameContext )
 	case WorldState::EMPTY:
 		if( m_eWorldTrigger == WorldTrigger::LOAD )
 		{
-			m_oScene.Load( m_sSceneFilePath );
+			m_oScene.Load( m_oSceneJson );
 			g_pComponentManager->InitializeComponents();
 			m_eWorldState = WorldState::LOADING;
 			m_eWorldTrigger = WorldTrigger::NONE;
@@ -62,6 +60,7 @@ void GameWorld::Update( const GameContext& oGameContext )
 	case WorldState::READY:
 		if( m_eWorldTrigger == WorldTrigger::RUN )
 		{
+			g_pResourceLoader->m_bDisableUnusedResourcesDestruction = false;
 			g_pComponentManager->StartComponents();
 			m_eWorldState = WorldState::RUNNING;
 			m_eWorldTrigger = WorldTrigger::NONE;
@@ -70,9 +69,10 @@ void GameWorld::Update( const GameContext& oGameContext )
 	case WorldState::RUNNING:
 		if( m_eWorldTrigger == WorldTrigger::RESET )
 		{
-			g_pComponentManager->StopComponents();
-			m_eWorldState = WorldState::READY;
-			m_eWorldTrigger = WorldTrigger::NONE;
+			g_pResourceLoader->m_bDisableUnusedResourcesDestruction = true;
+			m_oScene.Clear(); 
+			m_eWorldState = WorldState::EMPTY;
+			m_eWorldTrigger = WorldTrigger::LOAD;
 		}
 		else
 		{

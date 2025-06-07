@@ -14,7 +14,7 @@ bool ColorEdit( const char* sLabel, glm::vec3& vColor )
 	if( bEdit )
 		vColor = glm::convertSRGBToLinear( vSRGBColor );
 
-	return bEdit;
+	return ImGui::IsItemDeactivatedAfterEdit();
 }
 
 void TexturePreview( const char* sLabel, const TextureResource* pTexture )
@@ -26,8 +26,8 @@ void TexturePreview( const char* sLabel, const TextureResource* pTexture )
 
 	ImGui::Text( "%s :", sLabel );
 
-	float fWidth = min( oTexture.GetWidth(), 128.f );
-	float fHeight = min( oTexture.GetHeight(), 128.f );
+	float fWidth = glm::min( ( float )oTexture.GetWidth(), 128.f );
+	float fHeight = glm::min( ( float )oTexture.GetHeight(), 128.f );
 
 	const ImVec2 vFrom = ImGui::GetCursorScreenPos();
 	ImGui::Image( oTexture.GetID(), ImVec2( fWidth, fHeight ) );
@@ -37,8 +37,8 @@ void TexturePreview( const char* sLabel, const TextureResource* pTexture )
 	{
 		ImGui::BeginTooltip();
 		ImGui::Text( "%d x %d", oTexture.GetWidth(), oTexture.GetHeight() );
-		fWidth = min( oTexture.GetWidth(), 512.f );
-		fHeight = min( oTexture.GetHeight(), 512.f );
+		fWidth = glm::min( ( float )oTexture.GetWidth(), 512.f );
+		fHeight = glm::min( ( float )oTexture.GetHeight(), 512.f );
 		ImGui::Image( oTexture.GetID(), ImVec2( fWidth, fHeight ) );
 		ImGui::EndTooltip();
 	}

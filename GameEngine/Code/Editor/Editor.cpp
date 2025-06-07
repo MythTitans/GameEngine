@@ -5,7 +5,9 @@
 #include <glm/gtx/norm.hpp>
 #include <nlohmann/json.hpp>
 
+#include "Core/ArrayUtils.h"
 #include "Core/FileUtils.h"
+#include "Core/Logger.h"
 #include "Core/Profiler.h"
 #include "Core/Serialization.h"
 #include "Game/Entity.h"
@@ -14,8 +16,10 @@
 #include "Game/Scene.h"
 #include "Graphics/Renderer.h"
 
-static glm::vec3 EditableVector3( const char* sName, glm::vec3 vVector )
+static bool EditableVector3( const char* sName, glm::vec3& vVector )
 {
+	bool bModified = false;
+
 	ImGui::BeginGroup();
 
 	const float fWidth = ( ImGui::GetContentRegionAvail().x - 100.f ) / 3.f;
@@ -26,6 +30,7 @@ static glm::vec3 EditableVector3( const char* sName, glm::vec3 vVector )
 	ImGui::PushStyleColor( ImGuiCol_FrameBgActive, ImVec4( 0.8f, 0.f, 0.f, 1.f ) );
 	ImGui::PushItemWidth( fWidth );
 	ImGui::DragFloat( std::format( "##{}X", sName ).c_str(), &vVector.x, 0.1f);
+	bModified |= ImGui::IsItemDeactivatedAfterEdit();
 	ImGui::PopItemWidth();
 	ImGui::PopStyleColor( 3 );
 
@@ -36,6 +41,7 @@ static glm::vec3 EditableVector3( const char* sName, glm::vec3 vVector )
 	ImGui::PushStyleColor( ImGuiCol_FrameBgActive, ImVec4( 0.f, 0.8f, 0.f, 1.f ) );
 	ImGui::PushItemWidth( fWidth );
 	ImGui::DragFloat( std::format( "##{}Y", sName ).c_str(), &vVector.y, 0.1f );
+	bModified |= ImGui::IsItemDeactivatedAfterEdit();
 	ImGui::PopItemWidth();
 	ImGui::PopStyleColor( 3 );
 
@@ -46,6 +52,7 @@ static glm::vec3 EditableVector3( const char* sName, glm::vec3 vVector )
 	ImGui::PushStyleColor( ImGuiCol_FrameBgActive, ImVec4( 0.f, 0.f, 0.8f, 1.f ) );
 	ImGui::PushItemWidth( fWidth );
 	ImGui::DragFloat( std::format( "##{}Z", sName ).c_str(), &vVector.z, 0.1f);
+	bModified |= ImGui::IsItemDeactivatedAfterEdit();
 	ImGui::PopItemWidth();
 	ImGui::PopStyleColor( 3 );
 
@@ -55,7 +62,57 @@ static glm::vec3 EditableVector3( const char* sName, glm::vec3 vVector )
 
 	ImGui::EndGroup();
 
-	return vVector;
+	return bModified;
+}
+
+SnapshotStore::SnapshotStore( const uint uCapacity )
+	: m_aSnapshots( uCapacity )
+	, m_uStart( 0 )
+	, m_uEnd( 0 )
+	, m_uCurrentEnd( 0 )
+{
+}
+
+void SnapshotStore::Push( const bool bResetForward /*= true*/ )
+{
+	if( bResetForward == false )
+	{
+		if( m_uCurrentEnd == m_uEnd )
+			m_uEnd = ( m_uEnd + 1 ) % m_aSnapshots.Capacity();
+	}
+
+	m_uCurrentEnd = ( m_uCurrentEnd + 1 ) % m_aSnapshots.Capacity();
+
+	if( bResetForward )
+		m_uEnd = m_uCurrentEnd;
+
+	if( m_uEnd == m_uStart )
+		m_uStart = ( m_uStart + 1 ) % m_aSnapshots.Capacity();
+}
+
+void SnapshotStore::Pop()
+{
+	ASSERT( m_uStart != m_uCurrentEnd );
+
+	m_uCurrentEnd = ( m_uCurrentEnd - 1 + m_aSnapshots.Capacity() ) % m_aSnapshots.Capacity();
+}
+
+nlohmann::json& SnapshotStore::Back()
+{
+	ASSERT( m_uStart != m_uCurrentEnd );
+
+	const uint uLastIndex = ( m_uCurrentEnd + m_aSnapshots.Capacity() - 1 ) % m_aSnapshots.Capacity();
+	return m_aSnapshots[ uLastIndex ];
+}
+
+uint SnapshotStore::BackwardCount() const
+{
+	return ( m_uCurrentEnd + m_aSnapshots.Capacity() - m_uStart - 1) % m_aSnapshots.Capacity();
+}
+
+uint SnapshotStore::ForwardCount() const
+{
+	return ( m_uEnd + m_aSnapshots.Capacity() - m_uCurrentEnd ) % m_aSnapshots.Capacity();
 }
 
 Editor* g_pEditor = nullptr;
@@ -65,7 +122,9 @@ Editor::Editor()
 	, m_uGizmoEntityID( UINT64_MAX )
 	, m_vInitialEntityPosition( 0.f )
 	, m_vMoveStartPosition( 0.f )
+	, m_oSnapshotStore( 256 )
 	, m_bDisplayEditor( false )
+	, m_bStoreSnapshot( true )
 {
 	g_pEditor = this;
 }
@@ -75,7 +134,15 @@ Editor::~Editor()
 	g_pEditor = nullptr;
 }
 
-bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRenderContext )
+void Editor::OnSceneLoaded()
+{
+	if( m_bStoreSnapshot )
+		StoreSnapshot();
+	else
+		m_bStoreSnapshot = true;
+}
+
+void Editor::Update( const InputContext& oInputContext, const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "Editor" );
 
@@ -83,7 +150,11 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		m_bDisplayEditor = !m_bDisplayEditor;
 
 	if( m_bDisplayEditor == false )
-		return false;
+		return;
+
+	Entity* pSelectedEntity = g_pGameWorld->m_oScene.FindEntity( m_uSelectedEntityID );
+	if( pSelectedEntity == nullptr )
+		m_uSelectedEntityID = UINT64_MAX;
 
 // 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 20.f, 0.f, 0.f ), glm::vec3( 1.f, 0.f, 0.f ) );
 // 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 20.f, 0.f ), glm::vec3( 0.f, 1.f, 0.f ) );
@@ -105,7 +176,6 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 			{
 				const Ray oRay = ComputeCursorViewRay( oInputContext, oRenderContext );
 
-				Entity* pSelectedEntity = g_pGameWorld->m_oScene.FindEntity( m_uSelectedEntityID );
 				Entity* pGizmoEntity = g_pGameWorld->m_oScene.FindEntity( uGizmoEntityID );
 				GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pGizmoEntity );
 				if( pGizmoComponent != nullptr )
@@ -184,6 +254,8 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		}	
 	}
 
+	bool bModified = false;
+
 	// TODO #eric handle multiple selection
 	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_RELEASE ) && ImGui::GetIO().WantCaptureMouse == false )
 	{
@@ -193,39 +265,52 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 			GizmoComponent* pGizmoComponent = g_pComponentManager->GetComponent< GizmoComponent >( pEntity );
 
 			pGizmoComponent->SetEditing( false );
+			bModified = true;
 			m_uGizmoEntityID = UINT64_MAX;
 		}
 		else
 		{
 			m_uSelectedEntityID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY(), false );
 
-			ArrayView< GizmoComponent > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
+			Array< GizmoComponent* > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
 
 			if( m_uSelectedEntityID != UINT64_MAX )
 			{
 				Entity* pEntity = g_pGameWorld->m_oScene.FindEntity( m_uSelectedEntityID );
 
-				for( GizmoComponent& oGizmoComponent : aGizmoComponents )
-					oGizmoComponent.SetAnchor( pEntity );
+				for( GizmoComponent* pGizmoComponent : aGizmoComponents )
+					pGizmoComponent->SetAnchor( pEntity );
 			}
 			else
 			{
-				for( GizmoComponent& oGizmoComponent : aGizmoComponents )
-					oGizmoComponent.SetAnchor( nullptr );
+				for( GizmoComponent* pGizmoComponent : aGizmoComponents )
+					pGizmoComponent->SetAnchor( nullptr );
 			}
 		}
 	}
 
-	ImGui::Begin( "Editor" );
+	ImGui::Begin( "Hierarchy" );
 
 	if( ImGui::Button( "Save scene" ) )
-		g_pGameWorld->m_oScene.Save( "Data/Scene/scene.test" );
+	{
+		nlohmann::json oJsonContent;
+		g_pGameWorld->m_oScene.Save( oJsonContent );
+		WriteTextFile( oJsonContent.dump( 4 ), std::filesystem::path( "Data/Scene/test.scene" ) );
+	}
 
-	if( ImGui::Button( "Run" ) )
+	if( g_pGameEngine->m_eGameState == GameEngine::GameState::EDITING && ImGui::Button( "Start running " ) )
+	{
+		g_pGameEngine->m_eGameState = GameEngine::GameState::RUNNING;
+		m_oSceneJson.clear();
+		g_pGameWorld->m_oScene.Save( m_oSceneJson );
 		g_pGameWorld->Run();
-
-	if( ImGui::Button( "Reset" ) )
+	}
+	else if( g_pGameEngine->m_eGameState == GameEngine::GameState::RUNNING && ImGui::Button( "Stop running " ) )
+	{
+		g_pGameEngine->m_eGameState = GameEngine::GameState::EDITING;
+		g_pGameWorld->m_oSceneJson = m_oSceneJson;
 		g_pGameWorld->Reset();
+	}
 
 	if( ImGui::TreeNode( "Root" ) )
 	{
@@ -240,63 +325,20 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		Array< uint64 > aIDs;
 		aIDs.Reserve( ( uint )g_pGameWorld->m_oScene.m_mEntities.size() );
 		for( auto& it : g_pGameWorld->m_oScene.m_mEntities )
-			aIDs.PushBack( it.first );
+		{
+			const uint64 uID = it.first;
+			if( uID >= ENTITIES_START_ID && it.second->GetParent() == nullptr )
+				aIDs.PushBack( uID );
+		}
+
+		Sort( aIDs, []( const uint64 uA, const uint64 uB ) { return uA < uB; } );
 
 		int iImGuiID = 0;
-		for( uint64 uID : aIDs )
+		for( const uint64 uID : aIDs )
 		{
-			ImGui::PushID( iImGuiID++ );
 			auto it = g_pGameWorld->m_oScene.m_mEntities.find( uID );
-			if( it != g_pGameWorld->m_oScene.m_mEntities.end() && ImGui::TreeNode( it->second->GetName().c_str() ) )
-			{
-				StrongPtr< Entity > xEntity = it->second;
-				EulerComponent* pEuler = g_pComponentManager->GetComponent< EulerComponent >( xEntity.GetPtr() );
-
-				if( ImGui::BeginPopupContextItem( "ContextMenu" ) )
-				{
-					if( ImGui::MenuItem( "Remove entity" ) )
-						g_pGameWorld->m_oScene.RemoveEntity( xEntity.GetPtr() );
-
-					const std::unordered_map< std::string, ComponentManager::ComponentFactory >& mComponentsFactory = g_pComponentManager->GetComponentsFactory();
-					if( ImGui::BeginMenu( "Add component" ) )
-					{
-						for( const auto& it : mComponentsFactory )
-						{
-							if( ImGui::MenuItem( it.first.c_str() ) )
-								it.second.m_pCreate( xEntity.GetPtr(), ComponentManagement::INITIALIZE_THEN_START );
-						}
-
-						ImGui::EndMenu();
-					}
-					if( ImGui::BeginMenu( "Remove component" ) )
-					{
-						for( const auto& it : mComponentsFactory )
-						{
-							if( ImGui::MenuItem( it.first.c_str() ) )
-								it.second.m_pDispose( xEntity.GetPtr() );
-						}
-
-						ImGui::EndMenu();
-					}
-					ImGui::EndPopup();
-				}
-
-				xEntity->SetPosition( EditableVector3( "Position", xEntity->GetPosition() ) );
-
-				glm::vec3 vEuler = pEuler->GetRotationEuler();
-				vEuler = glm::vec3( glm::degrees( vEuler.x ), glm::degrees( vEuler.y ), glm::degrees( vEuler.z ) );
-				vEuler = EditableVector3( "Rotation", vEuler );
-				vEuler = glm::vec3( glm::radians( vEuler.x ), glm::radians( vEuler.y ), glm::radians( vEuler.z ) );
-				pEuler->SetRotationEuler( vEuler );
-
-				xEntity->SetScale( EditableVector3( "Scale", xEntity->GetScale() ) );
-
-				g_pComponentManager->DisplayInspector( xEntity.GetPtr() );
-
-				ImGui::TreePop();
-			}
-
-			ImGui::PopID();
+			if( it != g_pGameWorld->m_oScene.m_mEntities.end() && it->second != nullptr )
+				DisplayHierarchy( it->second.GetPtr(), iImGuiID++ );
 		}
 
 		ImGui::TreePop();
@@ -304,7 +346,47 @@ bool Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 	ImGui::End();
 
-	return true;
+	ImGui::Begin( "Inspector" );
+
+	pSelectedEntity = g_pGameWorld->m_oScene.FindEntity( m_uSelectedEntityID );
+	if( pSelectedEntity != nullptr )
+	{
+		std::string sID = std::format( "{}", pSelectedEntity->GetID() );
+		ImGui::InputText( "ID", &sID, ImGuiInputTextFlags_ReadOnly );
+
+		std::string sName = pSelectedEntity->GetName();
+		if( ImGui::InputText( "Name", &sName, ImGuiInputTextFlags_EnterReturnsTrue ) )
+		{
+			pSelectedEntity->SetName( sName );
+			bModified |= ImGui::IsItemDeactivatedAfterEdit();
+		}
+
+		glm::vec3 vPosition = pSelectedEntity->GetPosition();
+		bModified |= EditableVector3( "Position", vPosition );
+		pSelectedEntity->SetPosition( vPosition );
+
+		EulerComponent* pEuler = g_pComponentManager->GetComponent< EulerComponent >( pSelectedEntity );
+		glm::vec3 vEuler = pEuler->GetRotationEuler();
+		vEuler = glm::vec3( glm::degrees( vEuler.x ), glm::degrees( vEuler.y ), glm::degrees( vEuler.z ) );
+		bModified |= EditableVector3( "Rotation", vEuler );
+		vEuler = glm::vec3( glm::radians( vEuler.x ), glm::radians( vEuler.y ), glm::radians( vEuler.z ) );
+		pEuler->SetRotationEuler( vEuler );
+
+		glm::vec3 vScale = pSelectedEntity->GetScale();
+		bModified |= EditableVector3( "Scale", vScale );
+		pSelectedEntity->SetScale( vScale );
+
+		bModified |= g_pComponentManager->DisplayInspector( pSelectedEntity );
+	}
+
+	if( bModified )
+		StoreSnapshot();
+	else if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_REDO ) )
+		RestoreSnapshotForward();
+	else if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_UNDO ) )
+		RestoreSnapshotBackward();
+
+	ImGui::End();
 }
 
 void Editor::Render( const RenderContext& oRenderContext )
@@ -411,4 +493,118 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 	}
 
 	return oTransform.GetO();
+}
+
+void Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
+{
+	ImGui::PushID( iImGuiID++ );
+
+	StrongPtr< Entity > xEntity = pEntity;
+
+	ImGuiTreeNodeFlags oFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+	if( pEntity->GetID() == m_uSelectedEntityID )
+		oFlags |= ImGuiTreeNodeFlags_Selected;
+	if( pEntity->GetChildren().Empty() )
+		oFlags |= ImGuiTreeNodeFlags_Leaf;
+
+	bool bOpened = ImGui::TreeNodeEx( pEntity->GetName().c_str(), oFlags );
+	if( ImGui::IsItemClicked() && ImGui::IsItemToggledOpen() == false )
+	{
+		m_uSelectedEntityID = pEntity->GetID();
+
+		Array< GizmoComponent* > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
+
+		for( GizmoComponent* pGizmoComponent : aGizmoComponents )
+			pGizmoComponent->SetAnchor( pEntity );
+	}
+
+	if( ImGui::BeginPopupContextItem( "ContextMenu" ) )
+	{
+		if( ImGui::MenuItem( "Create entity" ) )
+		{
+			Entity* pChild = g_pGameWorld->m_oScene.CreateEntity( "NewEntity" );
+			g_pGameWorld->m_oScene.AttachToParent( pChild, pEntity );
+		}
+
+		if( ImGui::MenuItem( "Remove entity" ) )
+			g_pGameWorld->m_oScene.RemoveEntity( pEntity );
+
+		const std::unordered_map< std::string, ComponentManager::ComponentFactory >& mComponentsFactory = g_pComponentManager->GetComponentsFactory();
+		if( ImGui::BeginMenu( "Add component" ) )
+		{
+			for( const auto& it : mComponentsFactory )
+			{
+				if( ImGui::MenuItem( it.first.c_str() ) )
+					it.second.m_pCreate( pEntity, ComponentManagement::INITIALIZE_THEN_START );
+			}
+
+			ImGui::EndMenu();
+		}
+		if( ImGui::BeginMenu( "Remove component" ) )
+		{
+			for( const auto& it : mComponentsFactory )
+			{
+				if( ImGui::MenuItem( it.first.c_str() ) )
+					it.second.m_pDispose( pEntity );
+			}
+
+			ImGui::EndMenu();
+		}
+		ImGui::EndPopup();
+	}
+
+	if( bOpened )
+	{
+		Array< uint64 > aIDs;
+		aIDs.Reserve( pEntity->GetChildren().Count() );
+		for( Entity* pChild : pEntity->GetChildren() )
+			aIDs.PushBack( pChild->GetID() );
+
+		Sort( aIDs, []( const uint64 uA, const uint64 uB ) { return uA < uB; } );
+
+		for( const uint64 uID : aIDs )
+		{
+			auto it = g_pGameWorld->m_oScene.m_mEntities.find( uID );
+			if( it != g_pGameWorld->m_oScene.m_mEntities.end() && it->second != nullptr )
+				DisplayHierarchy( it->second.GetPtr(), iImGuiID++ );
+		}
+
+		ImGui::TreePop();
+	}
+
+	ImGui::PopID();
+}
+
+void Editor::StoreSnapshot()
+{
+	m_oSnapshotStore.Push();
+	g_pGameWorld->m_oScene.Save( m_oSnapshotStore.Back() );
+}
+
+void Editor::RestoreSnapshotBackward()
+{
+	if( m_oSnapshotStore.BackwardCount() > 0 )
+	{
+		m_oSnapshotStore.Pop();
+
+		m_oSceneJson = m_oSnapshotStore.Back();
+		g_pGameWorld->m_oSceneJson = m_oSceneJson;
+		g_pGameWorld->Reset();
+
+		m_bStoreSnapshot = false;
+	}
+}
+
+void Editor::RestoreSnapshotForward()
+{
+	if( m_oSnapshotStore.ForwardCount() > 0 )
+	{
+		m_oSnapshotStore.Push( false );
+
+		m_oSceneJson = m_oSnapshotStore.Back();
+		g_pGameWorld->m_oSceneJson = m_oSceneJson;
+		g_pGameWorld->Reset();
+
+		m_bStoreSnapshot = false;
+	}
 }

@@ -24,7 +24,7 @@ void LitMaterialData::ApplyMaterial( Technique& oTechnique )
 	oTechnique.SetParameter( PARAM_DIFFUSE_COLOR, m_vDiffuseColor );
 	oTechnique.SetParameter( PARAM_SPECULAR_COLOR, m_vSpecularColor );
 	oTechnique.SetParameter( PARAM_EMISSIVE_COLOR, m_vEmissiveColor );
-	oTechnique.SetParameter( PARAM_SHININESS, max( m_fShininess, 1.0f)  );
+	oTechnique.SetParameter( PARAM_SHININESS, glm::max( m_fShininess, 1.0f)  );
 
 	if( m_xDiffuseTextureResource != nullptr )
 		oTechnique.SetParameter( PARAM_DIFFUSE_MAP, &m_xDiffuseTextureResource->GetTexture() );

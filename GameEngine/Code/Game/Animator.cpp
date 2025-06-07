@@ -47,6 +47,9 @@ void AnimatorComponent::Stop()
 
 void AnimatorComponent::Update( const GameContext& oGameContext )
 {
+	if( m_xModel->GetAnimations().Empty() )
+		return;
+
 	const Skeleton& oSkeleton = m_xModel->GetSkeleton();
 	const Animation& oAnimation = m_xModel->GetAnimations()[ m_uAnimationIndex ];
 

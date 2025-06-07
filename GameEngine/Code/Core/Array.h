@@ -11,8 +11,8 @@
 enum ArrayFlags
 {
 	STANDARD = 0,
-	FAST_RESIZE = 1 << 1,
-	NO_TRACKING = 1 << 2
+	FAST_RESIZE = 1,
+	NO_TRACKING = 1 << 1
 };
 
 class ArrayBase

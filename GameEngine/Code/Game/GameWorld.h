@@ -1,5 +1,7 @@
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include "Core/Types.h"
 #include "FreeCamera.h"
 #include "Scene.h"
@@ -15,7 +17,7 @@ public:
 	GameWorld();
 	~GameWorld();
 
-	void Load( const std::string& sFilePath );
+	void Load( const nlohmann::json& oJsonContent );
 	void Run();
 	void Reset();
 
@@ -45,8 +47,8 @@ private:
 	WorldState		m_eWorldState;
 	WorldTrigger	m_eWorldTrigger;
 
-	std::string		m_sSceneFilePath;
 	Scene			m_oScene;
+	nlohmann::json	m_oSceneJson;
 
 	FreeCamera		m_oFreeCamera;
 };

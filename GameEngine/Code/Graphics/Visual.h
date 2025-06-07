@@ -30,8 +30,5 @@ private:
 	ModelResPtr			m_xModel;
 	TechniqueResPtr		m_xTechnique;
 
-	using AnimatorHandle = ComponentHandle< AnimatorComponent >;
-	AnimatorHandle		m_hAnimatorComponent;
-
 	VisualNode*			m_pVisualNode;
 };

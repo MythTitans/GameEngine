@@ -6,19 +6,15 @@
 #include "Entity.h"
 #include "GameEngine.h"
 
-inline constexpr uint64 ENTITIES_START_ID = 1024;
-
 Scene::Scene()
 	: m_uNextInternalID( 0 )
 	, m_uNextID( ENTITIES_START_ID )
 {
 }
 
-void Scene::Load( const std::string& sFilePath )
+void Scene::Load( const nlohmann::json& oJsonContent )
 {
 	CreateInternalEntities();
-
-	const nlohmann::json oJsonContent = nlohmann::json::parse( ReadTextFile( std::filesystem::path( sFilePath ) ) );
 
 	for( const auto& oEntityIt : oJsonContent[ "scene" ].items() )
 	{
@@ -55,12 +51,13 @@ void Scene::Load( const std::string& sFilePath )
 			const std::string& sComponentName = oComponent[ "name" ];
 			ComponentManager::GetComponentsFactory()[ sComponentName ].m_pCreate( pEntity, ComponentManagement::NONE );
 
-			g_pComponentManager->DeserializeComponents( oComponent[ "properties" ], pEntity );
+			if( oComponent.contains( "properties" ) )
+				g_pComponentManager->DeserializeComponent( sComponentName, oComponent[ "properties" ], pEntity );
 		}
 	}
 }
 
-void Scene::Save( const std::string& sFilePath )
+void Scene::Save( nlohmann::json& oJsonContent )
 {
 	Array< nlohmann::json > aSerializedEntities;
 	aSerializedEntities.Reserve( ( uint )m_mEntities.size() );
@@ -71,9 +68,7 @@ void Scene::Save( const std::string& sFilePath )
 			aSerializedEntities.PushBack( *it.second.GetPtr() );
 	}
 
-	nlohmann::json oJsonContent;
 	oJsonContent[ "scene" ] = aSerializedEntities;
-	WriteTextFile( oJsonContent.dump( 4 ), std::filesystem::path( sFilePath ) );
 }
 
 Entity* Scene::CreateEntity( const std::string& sName )
@@ -118,6 +113,8 @@ void Scene::RemoveEntity( Entity* pEntity )
 		Entity* pChild = pEntity->m_aChildren[ i ];
 		RemoveEntity( pChild );
 	}
+
+	pEntity->m_aChildren.Clear();
 
 	m_mEntities.erase( pEntity->GetID() );
 }
@@ -167,14 +164,17 @@ void Scene::DetachFromParent( Entity* pChild )
 	Entity* pParent = pChild->m_pParent;
 	if( pParent != nullptr )
 	{
-		for( uint u = 0; u < pParent->m_aChildren.Count(); ++u )
-		{
-			if( pChild == pParent->m_aChildren[ u ] )
-				pParent->m_aChildren.Remove( u );
-		}
+		const int iIndex = Find( pParent->m_aChildren, pChild );
+		if( iIndex != -1 )
+			pParent->m_aChildren.Remove( iIndex );
 	}
 
 	pChild->m_pParent = nullptr;
+}
+
+void Scene::Clear()
+{
+	m_mEntities.clear();
 }
 
 void Scene::CreateInternalEntities()

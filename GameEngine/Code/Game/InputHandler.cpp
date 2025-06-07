@@ -63,23 +63,24 @@ int InputContext::GetCursorY() const
 	return ( int )m_fCursorY;
 }
 
-InputAction::InputAction( const InputActionID uID, const uint16 uKey, const uint8 uButton, const ActionType eActionType, const DeviceType eDeviceType )
+InputAction::InputAction( const InputActionID uID, const uint16 uKey, const uint8 uButton, const ActionType eActionType, const DeviceType eDeviceType, const uint8 uKeyModifierFlags )
 	: m_uID( uID )
 	, m_uKey( uKey )
 	, m_uButton( uButton )
 	, m_eActionType( eActionType )
 	, m_eDeviceType( eDeviceType )
+	, m_uKeyModifierFlags( uKeyModifierFlags )
 {
 }
 
-InputAction InputAction::KeyboardAction( const InputActionID uID, const uint16 uKey, const ActionType eActionType )
+InputAction InputAction::KeyboardAction( const InputActionID uID, const uint16 uKey, const ActionType eActionType, const uint8 uKeyModifierFlags /*= KeyModifier::NONE*/ )
 {
-	return InputAction( uID, uKey, 0xFF, eActionType, DeviceType::KEYBOARD );
+	return InputAction( uID, uKey, 0xFF, eActionType, DeviceType::KEYBOARD, uKeyModifierFlags );
 }
 
 InputAction InputAction::ButtonAction( const InputActionID uID, const uint8 uButton, const ActionType eActionType, const DeviceType eDeviceType )
 {
-	return InputAction( uID, 0xFFFF, uButton, eActionType, eDeviceType );
+	return InputAction( uID, 0xFFFF, uButton, eActionType, eDeviceType, KeyModifier::NONE );
 }
 
 InputActionResult::InputActionResult( const InputActionID uID )
@@ -118,6 +119,8 @@ InputHandler::InputHandler()
 	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_MOUSE_LEFT_PRESS, GLFW_MOUSE_BUTTON_LEFT, ActionType::PRESSED, DeviceType::MOUSE ) );
 	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_MOUSE_LEFT_PRESSING, GLFW_MOUSE_BUTTON_LEFT, ActionType::PRESSING, DeviceType::MOUSE ) );
 	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_MOUSE_LEFT_RELEASE, GLFW_MOUSE_BUTTON_LEFT, ActionType::RELEASED, DeviceType::MOUSE ) );
+	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_REDO, GLFW_KEY_Y, ActionType::PRESSED, KeyModifier::CONTROL ) );
+	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_UNDO, GLFW_KEY_W, ActionType::PRESSED, KeyModifier::CONTROL ) );
 
 	m_aInputActionResults.Reserve( m_aInputActions.Count() );
 	for( const InputAction& oInputAction : m_aInputActions )
@@ -156,7 +159,15 @@ void InputHandler::UpdateInputs( const InputContext& oInputContext )
 		bool bPressed = false;
 
 		if( oInputAction.m_uKey != 0xFFFF )
-			bPressed |= oInputContext.m_aKeyboard[ oInputAction.m_uKey ].m_bPressed;
+		{
+			uint8 uModifierFlags = 0;
+			uModifierFlags |= oInputContext.m_aKeyboard[ oInputAction.m_uKey ].m_bControl ? KeyModifier::CONTROL : 0;
+			uModifierFlags |= oInputContext.m_aKeyboard[ oInputAction.m_uKey ].m_bAlt ? KeyModifier::ALT : 0;
+			uModifierFlags |= oInputContext.m_aKeyboard[ oInputAction.m_uKey ].m_bShift ? KeyModifier::SHIFT : 0;
+
+			const bool bMatchModifiers = oInputAction.m_uKeyModifierFlags == uModifierFlags;
+			bPressed |= oInputContext.m_aKeyboard[ oInputAction.m_uKey ].m_bPressed && bMatchModifiers;
+		}
 
 		if( oInputAction.m_uButton != 0xFF )
 		{

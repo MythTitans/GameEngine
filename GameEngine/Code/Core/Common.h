@@ -1,6 +1,7 @@
 #pragma once
 
-#include <windows.h>
+#define NOMINMAX
+#include <Windows.h>
 
 #include <filesystem>
 #include <format>

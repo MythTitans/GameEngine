@@ -80,37 +80,39 @@ public:
 	Entity( const uint64 uID, const std::string& sName );
 	~Entity();
 
-	uint64				GetID() const;
-	const std::string&	GetName() const;
+	uint64					GetID() const;
 
-	Entity*				GetParent();
-	const Entity*		GetParent() const;
+	void					SetName( const std::string& sName );
+	const std::string&		GetName() const;
 
-	void				SetWorldTransform( const Transform& oTransform );
-	Transform			GetWorldTransform() const;
+	Entity*					GetParent() const;
+	const Array< Entity* >&	GetChildren() const;
+
+	void					SetWorldTransform( const Transform& oTransform );
+	Transform				GetWorldTransform() const;
 	
-	void				SetWorldPosition( const glm::vec3& vPosition );
-	void				SetWorldPosition( const float fX, const float fY, const float fZ );
-	glm::vec3			GetWorldPosition() const;
+	void					SetWorldPosition( const glm::vec3& vPosition );
+	void					SetWorldPosition( const float fX, const float fY, const float fZ );
+	glm::vec3				GetWorldPosition() const;
 
-	void				SetRotation( const glm::quat& qRotation );
-	void				SetRotation( const glm::vec3& vAxis, const float fAngle );
-	void				SetRotationX( const float fAngle );
-	void				SetRotationY( const float fAngle );
-	void				SetRotationZ( const float fAngle );
-	glm::quat			GetRotation() const;
+	void					SetRotation( const glm::quat& qRotation );
+	void					SetRotation( const glm::vec3& vAxis, const float fAngle );
+	void					SetRotationX( const float fAngle );
+	void					SetRotationY( const float fAngle );
+	void					SetRotationZ( const float fAngle );
+	glm::quat				GetRotation() const;
 
-	void				SetTransform( const Transform& oTransform );
-	Transform&			GetTransform();
-	const Transform&	GetTransform() const;
+	void					SetTransform( const Transform& oTransform );
+	Transform&				GetTransform();
+	const Transform&		GetTransform() const;
 
-	glm::vec3			GetPosition() const;
-	void				SetPosition( const glm::vec3& vPosition );
-	void				SetPosition( const float fX, const float fY, const float fZ );
+	glm::vec3				GetPosition() const;
+	void					SetPosition( const glm::vec3& vPosition );
+	void					SetPosition( const float fX, const float fY, const float fZ );
 
-	glm::vec3			GetScale() const;
-	void				SetScale( const glm::vec3& vScale );
-	void				SetScale( const float fX, const float fY, const float fZ );
+	glm::vec3				GetScale() const;
+	void					SetScale( const glm::vec3& vScale );
+	void					SetScale( const float fX, const float fY, const float fZ );
 
 private:
 	uint64				m_uID;

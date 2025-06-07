@@ -157,6 +157,8 @@ public:
 	template < typename LoadCommand >
 	friend uint CheckWaitingDependenciesLoadCommands( Array< LoadCommand >& aLoadCommands );
 
+	friend class GameWorld;
+
 	ResourceLoader();
 	~ResourceLoader();
 
@@ -357,6 +359,7 @@ private:
 
 	Assimp::Importer		m_oModelImporter;
 
+	bool					m_bDisableUnusedResourcesDestruction;
 	bool					m_bDisplayDebug;
 };
 

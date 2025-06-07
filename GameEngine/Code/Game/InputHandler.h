@@ -1,5 +1,6 @@
 #pragma once
 
+#define NOMINMAX
 #include <Windows.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -61,7 +62,9 @@ enum class InputActionID : uint16
 	ACTION_TOGGLE_RESOURCES_DEBUG,
 	ACTION_MOUSE_LEFT_PRESS,
 	ACTION_MOUSE_LEFT_PRESSING,
-	ACTION_MOUSE_LEFT_RELEASE
+	ACTION_MOUSE_LEFT_RELEASE,
+	ACTION_REDO,
+	ACTION_UNDO
 };
 
 enum class DeviceType : uint8
@@ -71,11 +74,19 @@ enum class DeviceType : uint8
 	GAMEPAD
 };
 
+enum KeyModifier : uint8
+{
+	NONE = 0,
+	CONTROL = 1,
+	ALT = 1 << 1,
+	SHIFT = 1 << 2
+};
+
 struct InputAction
 {
-	InputAction( const InputActionID uID, const uint16 uKey, const uint8 uButton, const ActionType eActionType, const DeviceType eDeviceType );
+	InputAction( const InputActionID uID, const uint16 uKey, const uint8 uButton, const ActionType eActionType, const DeviceType eDeviceType, const uint8 uKeyModifierFlags );
 
-	static InputAction KeyboardAction( const InputActionID uID, const uint16 uKey, const ActionType eActionType );
+	static InputAction KeyboardAction( const InputActionID uID, const uint16 uKey, const ActionType eActionType, const uint8 uKeyModifierFlags = KeyModifier::NONE );
 	static InputAction ButtonAction( const InputActionID uID, const uint8 uButton, const ActionType eActionType, const DeviceType eDeviceType );
 
 	InputActionID	m_uID;
@@ -83,6 +94,7 @@ struct InputAction
 	uint8			m_uButton;
 	ActionType		m_eActionType;
 	DeviceType		m_eDeviceType;
+	uint8			m_uKeyModifierFlags;
 };
 
 struct InputActionResult

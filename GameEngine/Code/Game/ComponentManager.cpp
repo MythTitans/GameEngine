@@ -103,21 +103,25 @@ Array< nlohmann::json > ComponentManager::SerializeComponents( const Entity* pEn
 	return aSerializedComponents;
 }
 
-void ComponentManager::DeserializeComponents( const nlohmann::json& oJsonContent, Entity* pEntity )
+void ComponentManager::DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, Entity* pEntity )
 {
 	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->DeserializeComponent( oJsonContent, pEntity );
+		oPair.second->DeserializeComponent( sComponentName, oJsonContent, pEntity );
 }
 
-void ComponentManager::DisplayInspector( Entity* pEntity )
+bool ComponentManager::DisplayInspector( Entity* pEntity )
 {
+	bool bModified = false;
+
 	int iImGuiID = 0;
 	for( const auto& oPair : m_mComponentsHolders )
 	{
 		ImGui::PushID( iImGuiID++ );
-		oPair.second->DisplayInspector( pEntity );
+		bModified |= oPair.second->DisplayInspector( pEntity );
 		ImGui::PopID();
 	}
+
+	return bModified;
 }
 
 void ComponentManager::DisplayGizmos( const uint64 uSelectedEntityID )

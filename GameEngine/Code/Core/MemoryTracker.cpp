@@ -1,5 +1,8 @@
 #include "MemoryTracker.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+
 #include "Array.h"
 #include "Game/ComponentManager.h"
 #include "Game/InputHandler.h"
@@ -8,17 +11,25 @@
 #include "Profiler.h"
 #include "StringUtils.h"
 
+static const std::string JSON_TYPE_NAME = typeid( nlohmann::json ).name();
+static const std::string STRING_TYPE_NAME = typeid( std::string ).name();
+static const std::string VEC3_TYPE_NAME = typeid( glm::vec3 ).name();
+static const std::string QUAT_TYPE_NAME = typeid( glm::quat ).name();
+static const std::string MAT4_TYPE_NAME = typeid( glm::mat4 ).name();
+
 static std::string GetDisplayableTypeName( const std::type_index oTypeIndex )
 {
 	std::string sDisplayableType = oTypeIndex.name();
 
+	Replace( sDisplayableType, JSON_TYPE_NAME, "nlohmann::json" );
+	Replace( sDisplayableType, STRING_TYPE_NAME, "std::string" );
+	Replace( sDisplayableType, VEC3_TYPE_NAME, "glm::vec3" );
+	Replace( sDisplayableType, QUAT_TYPE_NAME, "glm::quat" );
+	Replace( sDisplayableType, MAT4_TYPE_NAME, "glm::mat4" );
+	Replace( sDisplayableType, " * __ptr64", "*" );
 	Replace( sDisplayableType, "struct ", "" );
 	Replace( sDisplayableType, "class ", "" );
-	Replace( sDisplayableType, " * __ptr64", "*" );
-	Replace( sDisplayableType, "std::basic_string<char,std::char_traits<char>,std::allocator<char> >", "std::string" );
-	Replace( sDisplayableType, "glm::vec<3,float,0>", "glm::vec3" );
-	Replace( sDisplayableType, "glm::qua<float,0>", "glm::quat" );
-	Replace( sDisplayableType, "glm::mat<4,4,float,0>", "glm::mat4" );
+	Replace( sDisplayableType, "enum ", "" );
 
 	return sDisplayableType;
 }

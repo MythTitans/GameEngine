@@ -34,6 +34,8 @@ struct GameContext
 class GameEngine
 {
 public:
+	friend class Editor;
+
 	GameEngine( const InputContext& oInputContext, const RenderContext& oRenderContext );
 	~GameEngine();
 
@@ -56,7 +58,6 @@ private:
 		EDITING
 	};
 
-private:
 	MemoryTracker			m_oMemoryTracker;
 	Profiler				m_oProfiler;
 

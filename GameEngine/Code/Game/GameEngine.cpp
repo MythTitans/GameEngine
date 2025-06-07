@@ -1,5 +1,6 @@
 #include "GameEngine.h"
 
+#include "Core/FileUtils.h"
 #include "Core/Logger.h"
 
 GameContext::GameContext()
@@ -103,7 +104,8 @@ void GameEngine::Update()
 	{
 		if( m_oRenderer.OnLoading() )
 		{
-			m_oGameWorld.Load( "Data/Scene/test.scene" );
+			const nlohmann::json oJsonContent = nlohmann::json::parse( ReadTextFile( std::filesystem::path( "Data/Scene/test.scene" ) ) );
+			m_oGameWorld.Load( oJsonContent );
 			m_eGameState = GameState::RUNNING;
 		}
 	}
@@ -116,15 +118,14 @@ void GameEngine::Update()
 		if( m_oGameWorld.IsReady() )
 		{
 			m_oGameWorld.Run();
-			m_eGameState = GameState::RUNNING;
+			m_eGameState = GameState::EDITING;
+
+			m_oEditor.OnSceneLoaded();
 		}
 
 		m_oGameWorld.Update( m_oGameContext );
 		
-		if( m_oEditor.Update( m_oInputContext, m_oRenderContext ) )
-			m_eGameState = GameState::EDITING;
-		else
-			m_eGameState = GameState::RUNNING;
+		m_oEditor.Update( m_oInputContext, m_oRenderContext );
 	}
 }
 
