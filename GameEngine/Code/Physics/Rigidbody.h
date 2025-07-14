@@ -33,6 +33,9 @@ public:
 
 	void Update( const GameContext& oGameContext ) override;
 
+	void DisplayGizmos( const bool bSelected ) override;
+	void OnPropertyChanged( const std::string& sProperty ) override;
+
 private:
 	PROPERTIES( SphereShapeComponent );
 	PROPERTY_DEFAULT( "Radius", m_fRadius, float, 1.f );
@@ -47,6 +50,9 @@ public:
 	explicit BoxShapeComponent( Entity* pEntity );
 
 	void Update( const GameContext& oGameContext ) override;
+
+	void DisplayGizmos( const bool bSelected ) override;
+	void OnPropertyChanged( const std::string& sProperty ) override;
 
 private:
 	PROPERTIES( BoxShapeComponent );

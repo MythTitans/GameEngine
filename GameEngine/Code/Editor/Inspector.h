@@ -12,7 +12,7 @@ bool ColorEdit( const char* sLabel, glm::vec3& vColor );
 void TexturePreview( const char* sLabel, const TextureResource* pTexture );
 
 template < typename Type >
-inline bool DisplayInspector( const char* sName, Type& oValue );
+inline bool DisplayInspector( const char* sName, Type& oValue ) = delete;
 
 template <>
 inline bool DisplayInspector( const char* sName, float& fValue )

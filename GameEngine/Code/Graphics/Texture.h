@@ -4,7 +4,7 @@
 
 #include "Core/Array.h"
 
-enum class TextureFormat
+enum class TextureFormat : uint8
 {
 	RED,
 	RGB,

@@ -125,6 +125,39 @@ void SphereShapeComponent::Update( const GameContext& oGameContext )
 	}
 }
 
+void SphereShapeComponent::DisplayGizmos( const bool bSelected )
+{
+	if( bSelected )
+	{
+		const Transform& oTransform = GetEntity()->GetWorldTransform();
+		const glm::vec3 vPosition = oTransform.GetO();
+
+		g_pDebugDisplay->DisplayWireSphere( vPosition, m_fRadius, glm::vec3( 0.f, 1.f, 0.f ) );
+	}
+}
+
+void SphereShapeComponent::OnPropertyChanged( const std::string& sProperty )
+{
+	if( sProperty == "Radius" )
+	{
+		if( m_hRigidBody.IsValid() )
+		{
+			PxRigidBody* pRigidBody = m_hRigidBody->GetRigidBody();
+
+			PxShape* pShape = nullptr;
+			pRigidBody->getShapes( &pShape, 1 );
+
+			PxSphereGeometry oSphere = PxGeometryHolder( pShape->getGeometry() ).sphere();
+			oSphere.radius = m_fRadius;
+			pShape->setGeometry( oSphere );
+			
+			PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
+
+			pRigidBody->is< PxRigidDynamic >()->wakeUp();
+		}
+	}
+}
+
 REGISTER_COMPONENT( BoxShapeComponent );
 
 BoxShapeComponent::BoxShapeComponent( Entity* pEntity )
@@ -145,6 +178,41 @@ void BoxShapeComponent::Update( const GameContext& oGameContext )
 			PxRigidBody* pRigidBody = m_hRigidBody->GetRigidBody();
 			PxRigidActorExt::createExclusiveShape( *pRigidBody, PxBoxGeometry( m_fHalfWidth, m_fHalfHeight, m_fHalfDepth ), *g_pPhysics->m_pMaterial );
 			PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
+		}
+	}
+}
+
+void BoxShapeComponent::DisplayGizmos( const bool bSelected )
+{
+	if( bSelected )
+	{
+		const Transform& oTransform = GetEntity()->GetWorldTransform();
+		const glm::vec3 vPosition = oTransform.GetO();
+
+		g_pDebugDisplay->DisplayWireBox( vPosition, glm::vec3( m_fHalfWidth, m_fHalfHeight, m_fHalfDepth ), oTransform.GetMatrixTR(), glm::vec3( 0.f, 1.f, 0.f ) );
+	}
+}
+
+void BoxShapeComponent::OnPropertyChanged( const std::string& sProperty )
+{
+	if( sProperty == "HalfWidth" || sProperty == "HalfHeight" || sProperty == "HalfDepth" )
+	{
+		if( m_hRigidBody.IsValid() )
+		{
+			PxRigidBody* pRigidBody = m_hRigidBody->GetRigidBody();
+
+			PxShape* pShape = nullptr;
+			pRigidBody->getShapes( &pShape, 1 );
+
+			PxBoxGeometry oBox = PxGeometryHolder( pShape->getGeometry() ).box();
+			oBox.halfExtents.x = m_fHalfWidth;
+			oBox.halfExtents.y = m_fHalfHeight;
+			oBox.halfExtents.z = m_fHalfDepth;
+			pShape->setGeometry( oBox );
+
+			PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
+
+			pRigidBody->is< PxRigidDynamic >()->wakeUp();
 		}
 	}
 }

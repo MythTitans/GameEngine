@@ -110,6 +110,13 @@ static const Array< GLfloat > SPHERE_VERTICES = []() {
 	return aResult;
 }();
 
+static void PushVertex( Array< GLfloat >& aVertices, const glm::vec3& vVertex )
+{
+	aVertices.PushBack( vVertex.x );
+	aVertices.PushBack( vVertex.y );
+	aVertices.PushBack( vVertex.z );
+}
+
 DebugRenderer::DebugRenderer()
 	: m_xLine( g_pResourceLoader->LoadTechnique( "Shader/line.tech" ) )
 	, m_xSphere( g_pResourceLoader->LoadTechnique( "Shader/sphere.tech" ) )
@@ -144,12 +151,8 @@ void DebugRenderer::RenderLines( const Array< Line >& aLines, const RenderContex
 	aVertices.Reserve( 3 * 2 * aLines.Count() );
 	for( const Line& oLine : aLines )
 	{
-		aVertices.PushBack( oLine.m_vFrom.x );
-		aVertices.PushBack( oLine.m_vFrom.y );
-		aVertices.PushBack( oLine.m_vFrom.z );
-		aVertices.PushBack( oLine.m_vTo.x );
-		aVertices.PushBack( oLine.m_vTo.y );
-		aVertices.PushBack( oLine.m_vTo.z );
+		PushVertex( aVertices, oLine.m_vFrom );
+		PushVertex( aVertices, oLine.m_vTo );
 	}
 
 	glBindVertexArray( m_uVertexArrayID );
@@ -268,12 +271,9 @@ void DebugRenderer::RenderWireCylinders( const Array< Cylinder >& aCylinders, co
 		{
 			const uint uIndex = u * ( CIRCLE_SEGMENT_COUNT / 4 ) * 3;
 
-			aVertices.PushBack( aCircleVertices[ uIndex ] + oCylinder.m_vFrom.x );
-			aVertices.PushBack( aCircleVertices[ uIndex + 1 ] + oCylinder.m_vFrom.y );
-			aVertices.PushBack( aCircleVertices[ uIndex + 2 ] + oCylinder.m_vFrom.z );
-			aVertices.PushBack( aCircleVertices[ uIndex  ] + oCylinder.m_vTo.x );
-			aVertices.PushBack( aCircleVertices[ uIndex + 1 ] + oCylinder.m_vTo.y );
-			aVertices.PushBack( aCircleVertices[ uIndex + 2 ] + oCylinder.m_vTo.z );
+			const glm::vec3 vCircleVertex( aCircleVertices[ uIndex ], aCircleVertices[ uIndex + 1 ] , aCircleVertices[ uIndex + 2 ] );
+			PushVertex( aVertices, vCircleVertex + oCylinder.m_vFrom );
+			PushVertex( aVertices, vCircleVertex + oCylinder.m_vTo );
 		}
 
 		glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
@@ -327,17 +327,69 @@ void DebugRenderer::RenderWireCones( const Array< Cylinder >& aCylinders, const 
 		{
 			const uint uIndex = u * ( CIRCLE_SEGMENT_COUNT / 4 ) * 3;
 
-			aVertices.PushBack( oCylinder.m_vFrom.x );
-			aVertices.PushBack( oCylinder.m_vFrom.y );
-			aVertices.PushBack( oCylinder.m_vFrom.z );
-			aVertices.PushBack( aCircleVertices[ uIndex ] + oCylinder.m_vTo.x );
-			aVertices.PushBack( aCircleVertices[ uIndex + 1 ] + oCylinder.m_vTo.y );
-			aVertices.PushBack( aCircleVertices[ uIndex + 2 ] + oCylinder.m_vTo.z );
+			const glm::vec3 vCircleVertex( aCircleVertices[ uIndex ], aCircleVertices[ uIndex + 1 ], aCircleVertices[ uIndex + 2 ] );
+			PushVertex( aVertices, oCylinder.m_vFrom );
+			PushVertex( aVertices, vCircleVertex + oCylinder.m_vTo );
 		}
 
 		glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
 
 		glDrawArrays( GL_LINES, 0, 8 );
+	}
+
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindVertexArray( 0 );
+
+	glUseProgram( 0 );
+}
+
+void DebugRenderer::RenderWireBoxes( const Array< Box >& aBoxes, const RenderContext& oRenderContext )
+{
+	Technique& oTechnique = m_xLine->GetTechnique();
+	glUseProgram( oTechnique.m_uProgramID );
+
+	oTechnique.SetParameter( PARAM_VIEW_PROJECTION, g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+
+	Array< GLfloat > aVertices;
+	aVertices.Reserve( 3 * 16 * aBoxes.Count() );
+	for( const Box& oBox : aBoxes )
+	{
+		const glm::vec3 vP1 = oBox.m_vCenter - oBox.m_mAxes * oBox.m_vHalfSize;
+		const glm::vec3 vP2 = vP1 + 2.f * oBox.m_vHalfSize.x * oBox.m_mAxes[ 0 ];
+		const glm::vec3 vP3 = vP1 + 2.f * oBox.m_vHalfSize.x * oBox.m_mAxes[ 0 ] + 2.f * oBox.m_vHalfSize.z * oBox.m_mAxes[ 2 ];
+		const glm::vec3 vP4 = vP1 + 2.f * oBox.m_vHalfSize.z * oBox.m_mAxes[ 2 ];
+		const glm::vec3 vVerticalOffset = 2.f * oBox.m_vHalfSize.y * oBox.m_mAxes[ 1 ];
+
+		PushVertex( aVertices, vP1);
+		PushVertex( aVertices, vP2);
+		PushVertex( aVertices, vP3);
+		PushVertex( aVertices, vP4);
+
+		PushVertex( aVertices, vP1 + vVerticalOffset );
+		PushVertex( aVertices, vP2 + vVerticalOffset );
+		PushVertex( aVertices, vP3 + vVerticalOffset );
+		PushVertex( aVertices, vP4 + vVerticalOffset );
+
+		PushVertex( aVertices, vP1 );
+		PushVertex( aVertices, vP1 + vVerticalOffset );
+		PushVertex( aVertices, vP2 );
+		PushVertex( aVertices, vP2 + vVerticalOffset );
+		PushVertex( aVertices, vP3 );
+		PushVertex( aVertices, vP3 + vVerticalOffset );
+		PushVertex( aVertices, vP4 );
+		PushVertex( aVertices, vP4 + vVerticalOffset );
+	}
+
+	glBindVertexArray( m_uVertexArrayID );
+	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
+	glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+
+	for( uint u = 0; u < aBoxes.Count(); ++u )
+	{
+		oTechnique.SetParameter( PARAM_COLOR, aBoxes[ u ].m_vColor );
+		glDrawArrays( GL_LINE_LOOP, 4 * u, 4 );
+ 		glDrawArrays( GL_LINE_LOOP, 4 * u + 4, 4 );
+ 		glDrawArrays( GL_LINES, 4 * u + 8, 8 );
 	}
 
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );

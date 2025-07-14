@@ -24,6 +24,7 @@ void DebugDisplay::NewFrame()
 	m_aWireSpheres.Clear();
 	m_aWireCylinders.Clear();
 	m_aWireCones.Clear();
+	m_aWireBoxes.Clear();
 }
 
 void DebugDisplay::Display( const RenderContext& oRenderContext )
@@ -31,12 +32,13 @@ void DebugDisplay::Display( const RenderContext& oRenderContext )
 	ProfilerBlock oBlock( "DebugDisplay" );
 	GPUBlock oGPUBlock( "DebugDisplay" );
 
-	glEnable( GL_DEPTH_TEST );
+	glDisable( GL_DEPTH_TEST );
 	g_pRenderer->m_oDebugRenderer.RenderLines( m_aLines, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderSpheres( m_aSpheres, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireSpheres( m_aWireSpheres, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireCylinders( m_aWireCylinders, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireCones( m_aWireCones, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireBoxes( m_aWireBoxes, oRenderContext );
 }
 
 void DebugDisplay::DisplayOverlay( const float fDeltaTime, const RenderContext& oRenderContext )
@@ -98,4 +100,9 @@ void DebugDisplay::DisplayWireCylinder( const glm::vec3& vFrom, const glm::vec3&
 void DebugDisplay::DisplayWireCone( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor )
 {
 	m_aWireCones.PushBack( Cylinder( vFrom, vTo, fRadius, vColor ) );
+}
+
+void DebugDisplay::DisplayWireBox( const glm::vec3& vCenter, const glm::vec3& vHalfSize, const glm::mat3& mAxes, const glm::vec3& vColor )
+{
+	m_aWireBoxes.PushBack( Box( vCenter, vHalfSize, mAxes, vColor ) );
 }
