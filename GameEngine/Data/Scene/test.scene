@@ -3,6 +3,43 @@
         {
             "components": [
                 {
+                    "name": "DirectionalLightComponent",
+                    "properties": [
+                        {
+                            "Color": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                            }
+                        },
+                        {
+                            "Intensity": 1.0
+                        }
+                    ]
+                }
+            ],
+            "id": 1027,
+            "name": "Light 3",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 0.70710688829422,
+                "x": 0.7071066498756409,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -145,10 +182,32 @@
         {
             "components": [
                 {
+                    "name": "BoxShapeComponent",
+                    "properties": [
+                        {
+                            "HalfWidth": 5.0
+                        },
+                        {
+                            "HalfHeight": 0.0010000000474974513
+                        },
+                        {
+                            "HalfDepth": 5.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
                             "Model": "plane.obj"
+                        }
+                    ]
+                },
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": true
                         }
                     ]
                 }
@@ -175,14 +234,6 @@
         {
             "components": [
                 {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
-                        }
-                    ]
-                },
-                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -191,7 +242,20 @@
                     ]
                 },
                 {
-                    "name": "RigidbodyComponent"
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
                 }
             ],
             "id": 1030,
@@ -372,42 +436,19 @@
         {
             "components": [
                 {
-                    "name": "DirectionalLightComponent",
+                    "name": "BoxShapeComponent",
                     "properties": [
                         {
-                            "Color": {
-                                "x": 1.0,
-                                "y": 1.0,
-                                "z": 1.0
-                            }
+                            "HalfWidth": 2.0
                         },
                         {
-                            "Intensity": 1.0
+                            "HalfHeight": 0.5
+                        },
+                        {
+                            "HalfDepth": 1.0
                         }
                     ]
-                }
-            ],
-            "id": 1027,
-            "name": "Light 3",
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 0.70710688829422,
-                "x": 0.7071066498756409,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
+                },
                 {
                     "name": "VisualComponent",
                     "properties": [
@@ -417,19 +458,10 @@
                     ]
                 },
                 {
-                    "name": "RigidbodyComponent"
-                },
-                {
-                    "name": "BoxShapeComponent",
+                    "name": "RigidbodyComponent",
                     "properties": [
                         {
-                            "HalfWidth": 1.0
-                        },
-                        {
-                            "HalfHeight": 1.0
-                        },
-                        {
-                            "HalfDepth": 1.0
+                            "Static": false
                         }
                     ]
                 }
@@ -448,8 +480,8 @@
                 "z": 0.06998718529939651
             },
             "scale": {
-                "x": 0.20000000298023224,
-                "y": 0.20000000298023224,
+                "x": 0.4000000059604645,
+                "y": 0.10000000149011612,
                 "z": 0.20000000298023224
             }
         }

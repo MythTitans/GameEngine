@@ -15,6 +15,14 @@ template < typename Type >
 inline bool DisplayInspector( const char* sName, Type& oValue ) = delete;
 
 template <>
+inline bool DisplayInspector( const char* sName, bool& bValue )
+{
+	ImGui::Checkbox( sName, &bValue );
+
+	return ImGui::IsItemDeactivatedAfterEdit();
+}
+
+template <>
 inline bool DisplayInspector( const char* sName, float& fValue )
 {
 	ImGui::DragFloat( sName, &fValue );

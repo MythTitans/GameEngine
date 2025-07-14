@@ -28,9 +28,6 @@ Physics::Physics()
 	pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONTACTS, true );
 	pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true );
 
-	PxRigidStatic* pGround = PxCreatePlane( *m_pPhysics, PxPlane( 0, 1, 0, 0 ), *m_pMaterial );
-	m_pScene->addActor( *pGround );
-
 	g_pPhysics = this;
 }
 

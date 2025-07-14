@@ -14,11 +14,25 @@ public:
 	void						Update( const GameContext& oGameContext ) override;
 	void						Dispose() override;
 
-	physx::PxRigidBody*			GetRigidBody();
-	const physx::PxRigidBody*	GetRigidBody() const;
+	void						OnPropertyChanged( const std::string& sProperty ) override;
+
+	physx::PxRigidActor*		GetRigidActor();
+	const physx::PxRigidActor*	GetRigidActor() const;
 
 private:
-	physx::PxRigidBody* m_pRigidbody;
+	/*
+	* TODO #eric : we have two problems :
+	* - changing from static to dynamic does not notify the shapes, so they don't get reattached (and maybe the existing are not even destroyed ? not sure)
+	* - current implementation can handle adding the rigidbody component after the shape, but this is a hack and should be done better
+	* 
+	* we should probably :
+	* - create a dependency mechanism : if a component requires another, it should be created if not already and removal should be disabled
+	* - dependent components should be notified when a property they depend on is changed (m_bStatic for example) so they can react properly
+	*/
+	PROPERTIES( RigidbodyComponent );
+	PROPERTY_DEFAULT( "Static", m_bStatic, bool, true );
+
+	physx::PxRigidActor* m_pRigidActor;
 
 	physx::PxTransform	m_oLastTransform;
 	physx::PxTransform	m_oTransform;

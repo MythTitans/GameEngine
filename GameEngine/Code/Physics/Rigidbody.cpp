@@ -15,15 +15,19 @@ REGISTER_COMPONENT( RigidbodyComponent );
 
 RigidbodyComponent::RigidbodyComponent( Entity* pEntity )
 	: Component( pEntity )
-	, m_pRigidbody( nullptr )
+	, m_pRigidActor( nullptr )
 	, m_fTime( 0.f )
 {
 }
 
 void RigidbodyComponent::Initialize()
 {
-	m_pRigidbody = g_pPhysics->m_pPhysics->createRigidDynamic( PxTransform( PxIdentity ) );
-	g_pPhysics->m_pScene->addActor( *m_pRigidbody );
+	if( m_bStatic )
+		m_pRigidActor = g_pPhysics->m_pPhysics->createRigidStatic( PxTransform( PxIdentity ) );
+	else
+		m_pRigidActor = g_pPhysics->m_pPhysics->createRigidDynamic( PxTransform( PxIdentity ) );
+
+	g_pPhysics->m_pScene->addActor( *m_pRigidActor );
 }
 
 void RigidbodyComponent::Start()
@@ -38,16 +42,13 @@ void RigidbodyComponent::Start()
 
 	m_fTime = 0.f;
 
-	m_pRigidbody->setGlobalPose( m_oTransform );
-
-	//m_pRigidbody->is< PxRigidDynamic >()->setAngularVelocity( PxVec3( 0.5f, 0.1f, 0.2f ) );
-	//m_pRigidbody->is< PxRigidDynamic >()->setLinearVelocity( PxVec3( 1.f, 0.5f, 0.2f ) );
+	m_pRigidActor->setGlobalPose( m_oTransform );
 }
 
 void RigidbodyComponent::AfterPhysics()
 {
 	m_oLastTransform = m_oTransform;
-	m_oTransform = m_pRigidbody->getGlobalPose();
+	m_oTransform = m_pRigidActor->getGlobalPose();
 
 	m_fTime -= Physics::TICK_STEP;
 }
@@ -64,7 +65,7 @@ void RigidbodyComponent::Update( const GameContext& oGameContext )
 		m_oLastTransform = PxTransform( PxVec3( vPosition.x, vPosition.y, vPosition.z ), PxQuat( qRotation.x, qRotation.y, qRotation.z, qRotation.w ) );
 		m_oTransform = m_oLastTransform;
 
-		m_pRigidbody->setGlobalPose( m_oTransform );
+		m_pRigidActor->setGlobalPose( m_oTransform );
 	}
 
 	m_fTime += oGameContext.m_fLastDeltaTime;
@@ -87,18 +88,36 @@ void RigidbodyComponent::Update( const GameContext& oGameContext )
 
 void RigidbodyComponent::Dispose()
 {
-	g_pPhysics->m_pScene->removeActor( *m_pRigidbody );
-	PX_RELEASE( m_pRigidbody );
+	g_pPhysics->m_pScene->removeActor( *m_pRigidActor );
+	PX_RELEASE( m_pRigidActor );
 }
 
-physx::PxRigidBody* RigidbodyComponent::GetRigidBody()
+void RigidbodyComponent::OnPropertyChanged( const std::string& sProperty )
 {
-	return m_pRigidbody;
+	if( sProperty == "Static" )
+	{
+		g_pPhysics->m_pScene->removeActor( *m_pRigidActor );
+		PX_RELEASE( m_pRigidActor );
+
+		if( m_bStatic )
+			m_pRigidActor = g_pPhysics->m_pPhysics->createRigidStatic( PxTransform( PxIdentity ) );
+		else
+			m_pRigidActor = g_pPhysics->m_pPhysics->createRigidDynamic( PxTransform( PxIdentity ) );
+
+		g_pPhysics->m_pScene->addActor( *m_pRigidActor );
+
+		m_pRigidActor->setGlobalPose( m_oTransform );
+	}
 }
 
-const physx::PxRigidBody* RigidbodyComponent::GetRigidBody() const
+physx::PxRigidActor* RigidbodyComponent::GetRigidActor()
 {
-	return m_pRigidbody;
+	return m_pRigidActor;
+}
+
+const physx::PxRigidActor* RigidbodyComponent::GetRigidActor() const
+{
+	return m_pRigidActor;
 }
 
 REGISTER_COMPONENT( SphereShapeComponent );
@@ -118,9 +137,12 @@ void SphereShapeComponent::Update( const GameContext& oGameContext )
 
 		if( m_hRigidBody.IsValid() )
 		{
-			PxRigidBody* pRigidBody = m_hRigidBody->GetRigidBody();
-			PxRigidActorExt::createExclusiveShape( *pRigidBody, PxSphereGeometry( m_fRadius ), *g_pPhysics->m_pMaterial );
-			PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
+			PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
+			PxRigidActorExt::createExclusiveShape( *pRigidActor, PxSphereGeometry( m_fRadius ), *g_pPhysics->m_pMaterial );
+
+			PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
+			if( pRigidBody != nullptr )
+				PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
 		}
 	}
 }
@@ -142,18 +164,24 @@ void SphereShapeComponent::OnPropertyChanged( const std::string& sProperty )
 	{
 		if( m_hRigidBody.IsValid() )
 		{
-			PxRigidBody* pRigidBody = m_hRigidBody->GetRigidBody();
+			PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
 
 			PxShape* pShape = nullptr;
-			pRigidBody->getShapes( &pShape, 1 );
+			pRigidActor->getShapes( &pShape, 1 );
 
 			PxSphereGeometry oSphere = PxGeometryHolder( pShape->getGeometry() ).sphere();
 			oSphere.radius = m_fRadius;
 			pShape->setGeometry( oSphere );
 			
-			PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
+			PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
+			if( pRigidBody != nullptr )
+			{
+				PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
 
-			pRigidBody->is< PxRigidDynamic >()->wakeUp();
+				PxRigidDynamic* pRigidDynamic = pRigidActor->is< PxRigidDynamic >();
+				if( pRigidDynamic != nullptr )
+					pRigidDynamic->wakeUp();
+			}
 		}
 	}
 }
@@ -175,9 +203,12 @@ void BoxShapeComponent::Update( const GameContext& oGameContext )
 
 		if( m_hRigidBody.IsValid() )
 		{
-			PxRigidBody* pRigidBody = m_hRigidBody->GetRigidBody();
-			PxRigidActorExt::createExclusiveShape( *pRigidBody, PxBoxGeometry( m_fHalfWidth, m_fHalfHeight, m_fHalfDepth ), *g_pPhysics->m_pMaterial );
-			PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
+			PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
+			PxRigidActorExt::createExclusiveShape( *pRigidActor, PxBoxGeometry( m_fHalfWidth, m_fHalfHeight, m_fHalfDepth ), *g_pPhysics->m_pMaterial );
+
+			PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
+			if( pRigidBody != nullptr )
+				PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
 		}
 	}
 }
@@ -199,10 +230,10 @@ void BoxShapeComponent::OnPropertyChanged( const std::string& sProperty )
 	{
 		if( m_hRigidBody.IsValid() )
 		{
-			PxRigidBody* pRigidBody = m_hRigidBody->GetRigidBody();
+			PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
 
 			PxShape* pShape = nullptr;
-			pRigidBody->getShapes( &pShape, 1 );
+			pRigidActor->getShapes( &pShape, 1 );
 
 			PxBoxGeometry oBox = PxGeometryHolder( pShape->getGeometry() ).box();
 			oBox.halfExtents.x = m_fHalfWidth;
@@ -210,9 +241,15 @@ void BoxShapeComponent::OnPropertyChanged( const std::string& sProperty )
 			oBox.halfExtents.z = m_fHalfDepth;
 			pShape->setGeometry( oBox );
 
-			PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
+			PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
+			if( pRigidBody != nullptr )
+			{
+				PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
 
-			pRigidBody->is< PxRigidDynamic >()->wakeUp();
+				PxRigidDynamic* pRigidDynamic = pRigidActor->is< PxRigidDynamic >();
+				if( pRigidDynamic != nullptr )
+					pRigidDynamic->wakeUp();
+			}
 		}
 	}
 }
