@@ -55,12 +55,12 @@ void RenderTarget::Create( const RenderTargetDesc& oDesc )
 
 	m_aTextures.Resize( m_uColorMapCount );
 	for( uint u = 0; u < m_uColorMapCount; ++u )
-		m_aTextures[ u ].Create( TextureDesc( m_iWidth, m_iHeight, oDesc.m_aColorFormats[ u ] ).Multisample( oDesc.m_iSamples ) );
+		m_aTextures[ u ].Create( TextureDesc( m_iWidth, m_iHeight, oDesc.m_aColorFormats[ u ] ).Multisample( oDesc.m_iSamples ).Wrapping( TextureWrapping::CLAMP ) );
 
 	if( m_bDepthMap )
 	{
 		m_aTextures.PushBack();
-		m_aTextures.Back().Create( TextureDesc( m_iWidth, m_iHeight, TextureFormat::DEPTH ).Multisample( oDesc.m_iSamples ) );
+		m_aTextures.Back().Create( TextureDesc( m_iWidth, m_iHeight, TextureFormat::DEPTH ).Multisample( oDesc.m_iSamples ).Wrapping( TextureWrapping::CLAMP ) );
 	}
 
 	glGenFramebuffers( 1, &m_uFrameBufferID );

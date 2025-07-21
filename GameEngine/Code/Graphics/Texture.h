@@ -15,12 +15,24 @@ enum class TextureFormat : uint8
 	ID
 };
 
+enum class TextureWrapping : uint8
+{
+	REPEAT,
+	REPEAT_MIRROR,
+	CLAMP,
+	CLAMP_MIRROR,
+	//BORDER // TODO #eric add support for this
+};
+
 struct TextureDesc
 {
 	TextureDesc( const int iWidth, const int iHeight, const TextureFormat eFormat );
 
 	TextureDesc& Data( const uint8* pData );
 	TextureDesc& Multisample( int8 iSamples );
+	TextureDesc& Wrapping( const TextureWrapping eWrapping );
+	TextureDesc& HorizontalWrapping( const TextureWrapping eWrapping );
+	TextureDesc& VerticalWrapping( const TextureWrapping eWrapping );
 	TextureDesc& SRGB( const bool bSRGB = true );
 	TextureDesc& GenerateMips( const bool bGenerateMips = true );
 
@@ -28,6 +40,8 @@ struct TextureDesc
 	int				m_iHeight;
 	const uint8*	m_pData;
 	TextureFormat	m_eFormat;
+	TextureWrapping	m_eHorizontalWrapping;
+	TextureWrapping	m_eVerticalWrapping;
 	int8			m_iSamples;
 	bool			m_bSRGB;
 	bool			m_bGenerateMips;

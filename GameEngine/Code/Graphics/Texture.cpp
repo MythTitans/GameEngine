@@ -7,6 +7,8 @@ TextureDesc::TextureDesc( const int iWidth, const int iHeight, const TextureForm
 	, m_iHeight( iHeight )
 	, m_pData( nullptr )
 	, m_eFormat( eFormat )
+	, m_eHorizontalWrapping( TextureWrapping::REPEAT )
+	, m_eVerticalWrapping( TextureWrapping::REPEAT )
 	, m_iSamples( 1 )
 	, m_bSRGB( false )
 	, m_bGenerateMips( false )
@@ -22,6 +24,25 @@ TextureDesc& TextureDesc::Data( const uint8* pData )
 TextureDesc& TextureDesc::Multisample( int8 iSamples )
 {
 	m_iSamples = iSamples;
+	return *this;
+}
+
+TextureDesc& TextureDesc::Wrapping( const TextureWrapping eWrapping )
+{
+	m_eHorizontalWrapping = eWrapping;
+	m_eVerticalWrapping = eWrapping;
+	return *this;
+}
+
+TextureDesc& TextureDesc::HorizontalWrapping( const TextureWrapping eWrapping )
+{
+	m_eHorizontalWrapping = eWrapping;
+	return *this;
+}
+
+TextureDesc& TextureDesc::VerticalWrapping( const TextureWrapping eWrapping )
+{
+	m_eVerticalWrapping = eWrapping;
 	return *this;
 }
 
@@ -58,8 +79,24 @@ void Texture::Create( const TextureDesc& oDesc )
 	else
 		glBindTexture( GL_TEXTURE_2D, m_uTextureID );
 
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+	auto GetWrappingMode = []( const TextureWrapping eTextureWrapping ) {
+		switch( eTextureWrapping )
+		{
+		case TextureWrapping::REPEAT:
+			return GL_REPEAT;
+		case TextureWrapping::REPEAT_MIRROR:
+			return GL_MIRRORED_REPEAT;
+		case TextureWrapping::CLAMP:
+			return GL_CLAMP_TO_EDGE;
+		case TextureWrapping::CLAMP_MIRROR:
+			return GL_MIRROR_CLAMP_TO_EDGE;
+		}
+
+		return GL_REPEAT;
+	};
+
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetWrappingMode( oDesc.m_eHorizontalWrapping ) );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetWrappingMode( oDesc.m_eVerticalWrapping ) );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
