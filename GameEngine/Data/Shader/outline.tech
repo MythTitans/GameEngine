@@ -5,5 +5,15 @@
         "modelViewProjection",
         "cameraPosition",
         "displacement"
+    ],
+    "arrays":
+    [
+        {
+            "parameters":
+            [
+                "boneMatrices"
+            ],
+            "count": 128
+        }
     ]
 }

@@ -3,6 +3,17 @@
     "pixelShader": "Shader/picking.ps",
     "parameters": [
         "modelViewProjection",
-        "colorID"
+        "colorID",
+        "useSkinning"
+    ],
+    "arrays":
+    [
+        {
+            "parameters":
+            [
+                "boneMatrices"
+            ],
+            "count": 128
+        }
     ]
 }
