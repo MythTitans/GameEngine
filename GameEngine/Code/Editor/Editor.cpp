@@ -338,7 +338,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		{
 			auto it = g_pGameWorld->m_oScene.m_mEntities.find( uID );
 			if( it != g_pGameWorld->m_oScene.m_mEntities.end() && it->second != nullptr )
-				DisplayHierarchy( it->second.GetPtr(), iImGuiID++ );
+				bModified |= DisplayHierarchy( it->second.GetPtr(), iImGuiID++ );
 		}
 
 		ImGui::TreePop();
@@ -377,6 +377,12 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		pSelectedEntity->SetScale( vScale );
 
 		bModified |= g_pComponentManager->DisplayInspector( pSelectedEntity );
+
+		if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_DELETE ) )
+		{
+			g_pGameWorld->m_oScene.RemoveEntity( pSelectedEntity );
+			bModified = true;
+		}
 	}
 
 	if( bModified )
@@ -495,7 +501,7 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 	return oTransform.GetO();
 }
 
-void Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
+bool Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
 {
 	ImGui::PushID( iImGuiID++ );
 
@@ -518,16 +524,21 @@ void Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
 			pGizmoComponent->SetAnchor( pEntity );
 	}
 
+	bool bModified = false;
 	if( ImGui::BeginPopupContextItem( "ContextMenu" ) )
 	{
 		if( ImGui::MenuItem( "Create entity" ) )
 		{
 			Entity* pChild = g_pGameWorld->m_oScene.CreateEntity( "NewEntity" );
 			g_pGameWorld->m_oScene.AttachToParent( pChild, pEntity );
+			bModified = true;
 		}
 
 		if( ImGui::MenuItem( "Remove entity" ) )
+		{
 			g_pGameWorld->m_oScene.RemoveEntity( pEntity );
+			bModified = true;
+		}
 
 		const std::unordered_map< std::string, ComponentManager::ComponentFactory >& mComponentsFactory = g_pComponentManager->GetComponentsFactory();
 		if( ImGui::BeginMenu( "Add component" ) )
@@ -535,7 +546,10 @@ void Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
 			for( const auto& it : mComponentsFactory )
 			{
 				if( ImGui::MenuItem( it.first.c_str() ) )
+				{
 					it.second.m_pCreate( pEntity, ComponentManagement::INITIALIZE_THEN_START );
+					bModified = true;
+				}
 			}
 
 			ImGui::EndMenu();
@@ -545,7 +559,10 @@ void Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
 			for( const auto& it : mComponentsFactory )
 			{
 				if( ImGui::MenuItem( it.first.c_str() ) )
+				{
 					it.second.m_pDispose( pEntity );
+					bModified = true;
+				}
 			}
 
 			ImGui::EndMenu();
@@ -566,13 +583,15 @@ void Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
 		{
 			auto it = g_pGameWorld->m_oScene.m_mEntities.find( uID );
 			if( it != g_pGameWorld->m_oScene.m_mEntities.end() && it->second != nullptr )
-				DisplayHierarchy( it->second.GetPtr(), iImGuiID++ );
+				bModified |= DisplayHierarchy( it->second.GetPtr(), iImGuiID++ );
 		}
 
 		ImGui::TreePop();
 	}
 
 	ImGui::PopID();
+
+	return bModified;
 }
 
 void Editor::StoreSnapshot()

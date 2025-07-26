@@ -51,7 +51,7 @@ private:
 	Ray			ComputeCursorViewRay( const InputContext& oInputContext, const RenderContext& oRenderContext ) const;
 	glm::vec3	ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo ) const;
 
-	void		DisplayHierarchy( Entity* pEntity, int iImGuiID );
+	bool		DisplayHierarchy( Entity* pEntity, int iImGuiID );
 
 	void		StoreSnapshot();
 	void		RestoreSnapshotBackward();

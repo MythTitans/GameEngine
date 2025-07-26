@@ -121,6 +121,7 @@ InputHandler::InputHandler()
 	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_MOUSE_LEFT_RELEASE, GLFW_MOUSE_BUTTON_LEFT, ActionType::RELEASED, DeviceType::MOUSE ) );
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_REDO, GLFW_KEY_Y, ActionType::PRESSED, KeyModifier::CONTROL ) );
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_UNDO, GLFW_KEY_W, ActionType::PRESSED, KeyModifier::CONTROL ) );
+	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_DELETE, GLFW_KEY_DELETE, ActionType::PRESSED ) );
 
 	m_aInputActionResults.Reserve( m_aInputActions.Count() );
 	for( const InputAction& oInputAction : m_aInputActions )
