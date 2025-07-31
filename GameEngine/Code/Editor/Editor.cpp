@@ -378,6 +378,12 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 		bModified |= g_pComponentManager->DisplayInspector( pSelectedEntity );
 
+		if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_DUPLICATE ) )
+		{
+			DuplicateEntity( pSelectedEntity );
+			bModified = true;
+		}
+
 		if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_DELETE ) )
 		{
 			g_pGameWorld->m_oScene.RemoveEntity( pSelectedEntity );
@@ -501,6 +507,43 @@ glm::vec3 Editor::ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo 
 	return oTransform.GetO();
 }
 
+Entity* Editor::DuplicateEntity( const Entity* pEntity, const std::string& sNameSuffix /*= "_Duplicate"*/, Entity* pForcedParent /*= nullptr*/ )
+{
+	Scene& oScene = g_pGameWorld->m_oScene;
+
+	Entity* pDuplicatedEntity = oScene.CreateEntity( pEntity->GetName() + sNameSuffix, oScene.GenerateID() );
+
+	if( pForcedParent != nullptr )
+		oScene.AttachToParent( pDuplicatedEntity, pForcedParent );
+	else if( pEntity->GetParent() != nullptr )
+		oScene.AttachToParent( pDuplicatedEntity, pEntity->GetParent() );
+
+	nlohmann::json oJsonContent( *pEntity );
+
+	pDuplicatedEntity->SetPosition( oJsonContent[ "position" ] );
+	pDuplicatedEntity->SetRotation( oJsonContent[ "rotation" ] );
+	pDuplicatedEntity->SetScale( oJsonContent[ "scale" ] );
+
+	for( const auto& oComponentIt : oJsonContent[ "components" ].items() )
+	{
+		const nlohmann::json& oComponent = oComponentIt.value();
+
+		const std::string& sComponentName = oComponent[ "name" ];
+		ComponentManager::GetComponentsFactory()[ sComponentName ].m_pCreate( pDuplicatedEntity, ComponentManagement::NONE );
+
+		if( oComponent.contains( "properties" ) )
+			g_pComponentManager->DeserializeComponent( sComponentName, oComponent[ "properties" ], pDuplicatedEntity );
+
+		g_pComponentManager->InitializeComponents( pDuplicatedEntity );
+		g_pComponentManager->StartComponents( pDuplicatedEntity );
+	}
+
+	for( const Entity* pChild : pEntity->GetChildren() )
+		DuplicateEntity( pChild, "", pDuplicatedEntity );
+
+	return pDuplicatedEntity;
+}
+
 bool Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
 {
 	ImGui::PushID( iImGuiID++ );
@@ -531,6 +574,12 @@ bool Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
 		{
 			Entity* pChild = g_pGameWorld->m_oScene.CreateEntity( "NewEntity" );
 			g_pGameWorld->m_oScene.AttachToParent( pChild, pEntity );
+			bModified = true;
+		}
+
+		if( ImGui::MenuItem( "Duplicate entity" ) )
+		{
+			DuplicateEntity( pEntity );
 			bModified = true;
 		}
 

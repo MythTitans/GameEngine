@@ -65,7 +65,8 @@ enum class InputActionID : uint16
 	ACTION_MOUSE_LEFT_RELEASE,
 	ACTION_REDO,
 	ACTION_UNDO,
-	ACTION_DELETE
+	ACTION_DELETE,
+	ACTION_DUPLICATE
 };
 
 enum class DeviceType : uint8

@@ -116,9 +116,11 @@ public:
 	virtual ~ComponentsHolderBase();
 
 	virtual void			InitializeComponents() = 0;
+	virtual void			InitializeComponent( Entity* pEntity ) = 0;
 	virtual bool			AreComponentsInitialized() const = 0;
 	virtual void			StartPendingComponents() = 0;
 	virtual void			StartComponents() = 0;
+	virtual void			StartComponent( Entity* pEntity ) = 0;
 	virtual void			StopComponents() = 0;
 	virtual void			DisposeComponent( Entity* pEntity ) = 0;
 	virtual void			TickComponents() = 0;
@@ -157,6 +159,20 @@ public:
 
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 			InitializeComponentFromIndex( u );
+	}
+
+	void InitializeComponent( Entity* pEntity ) override
+	{
+		ProfilerBlock oBlock( GetComponentName().c_str() );
+
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aComponents[ u ].m_pEntity == pEntity )
+			{
+				InitializeComponentFromIndex( u );
+				break;
+			}
+		}
 	}
 
 	bool AreComponentsInitialized() const override
@@ -204,6 +220,20 @@ public:
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			StartComponentFromIndex( u );
+		}
+	}
+
+	void StartComponent( Entity* pEntity ) override
+	{
+		ProfilerBlock oBlock( GetComponentName().c_str() );
+
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aComponents[ u ].m_pEntity == pEntity )
+			{
+				StartComponentFromIndex( u );
+				break;
+			}
 		}
 	}
 
@@ -421,18 +451,6 @@ public:
 		return &m_aComponents.Back();
 	}
 
-	void InitializeComponent( Entity* pEntity )
-	{
-		for( uint u = 0; u < m_aComponents.Count(); ++u )
-		{
-			if( m_aComponents[ u ].m_pEntity == pEntity )
-			{
-				InitializeComponentFromIndex( u );
-				break;
-			}
-		}
-	}
-
 	void InitializeComponentFromIndex( const int iIndex )
 	{
 		if( iIndex < 0 )
@@ -447,18 +465,6 @@ public:
 		{
 			m_aComponents[ iIndex ].Initialize();
 			m_aStates[ iIndex ] = ComponentState::STOPPED;
-		}
-	}
-
-	void StartComponent( Entity* pEntity )
-	{
-		for( uint u = 0; u < m_aComponents.Count(); ++u )
-		{
-			if( m_aComponents[ u ].m_pEntity == pEntity )
-			{
-				StartComponentFromIndex( u );
-				break;
-			}
 		}
 	}
 
@@ -807,9 +813,11 @@ public:
 	}
 
 	void					InitializeComponents();
+	void					InitializeComponents( Entity* pEntity );
 	bool					AreComponentsInitialized() const;
 	void					StartPendingComponents();
 	void					StartComponents();
+	void					StartComponents( Entity* pEntity );
 	void					StopComponents();
 	void					DisposeComponents( Entity* pEntity );
 	void					TickComponents();

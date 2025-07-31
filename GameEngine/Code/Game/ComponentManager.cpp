@@ -31,6 +31,12 @@ void ComponentManager::InitializeComponents()
 		oPair.second->InitializeComponents();
 }
 
+void ComponentManager::InitializeComponents( Entity* pEntity )
+{
+	for( const auto& oPair : m_mComponentsHolders )
+		oPair.second->InitializeComponent( pEntity );
+}
+
 bool ComponentManager::AreComponentsInitialized() const
 {
 	for( const auto& oPair : m_mComponentsHolders )
@@ -52,6 +58,12 @@ void ComponentManager::StartComponents()
 {
 	for( const auto& oPair : m_mComponentsHolders )
 		oPair.second->StartComponents();
+}
+
+void ComponentManager::StartComponents( Entity* pEntity )
+{
+	for( const auto& oPair : m_mComponentsHolders )
+		oPair.second->StartComponent( pEntity );
 }
 
 void ComponentManager::StopComponents()

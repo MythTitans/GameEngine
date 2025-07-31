@@ -139,6 +139,10 @@ const Entity* Scene::FindEntity( const uint64 uEntityID ) const
 
 void Scene::AttachToParent( Entity* pChild, Entity* pParent )
 {
+	ASSERT( pParent != nullptr );
+	if( pParent == nullptr )
+		return;
+
 	ASSERT( pChild != nullptr );
 	if( pChild == nullptr )
 		return;
