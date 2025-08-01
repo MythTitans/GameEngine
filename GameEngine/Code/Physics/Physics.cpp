@@ -23,10 +23,12 @@ Physics::Physics()
 
 	m_pMaterial = m_pPhysics->createMaterial( 0.5f, 0.5f, 0.75f );
 
+#ifdef _DEBUG
 	PxPvdSceneClient* pPvdClient = m_pScene->getScenePvdClient();
 	pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true );
 	pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONTACTS, true );
 	pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true );
+#endif
 
 	g_pPhysics = this;
 }

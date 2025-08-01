@@ -151,6 +151,8 @@ public:
 #ifdef TRACK_MEMORY
 		g_pMemoryTracker->RegisterComponent< ComponentType >( this );
 #endif
+
+		ComponentsHolder< ComponentType >::s_pHolder = this;
 	}
 
 	void InitializeComponents() override
@@ -631,8 +633,11 @@ public:
 		return sComponentName;
 	}
 
+	// TODO #eric check if this still need to be static since we now have s_pHolder
 	using ComponentProperties = std::unordered_map< std::type_index, PropertiesHolderBase* >;
 	static ComponentProperties	s_mProperties;
+
+	static ComponentsHolder< ComponentType >* s_pHolder;
 
 private:
 	enum class ComponentState : uint8
@@ -651,6 +656,9 @@ private:
 
 template < typename ComponentType >
 ComponentsHolder< ComponentType >::ComponentProperties ComponentsHolder< ComponentType >::s_mProperties;
+
+template < typename ComponentType >
+ComponentsHolder< ComponentType >* ComponentsHolder< ComponentType >::s_pHolder = nullptr;
 
 template < typename PropertyType, typename PropertyClass >
 void RegisterProperty( const char* sName, PropertyType PropertyClass::* pProperty )
@@ -702,7 +710,7 @@ public:
 	template < typename ComponentType >
 	void InitializeComponent( Entity* pEntity )
 	{
-		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
 		if( pComponentsHolder == nullptr )
 			return;
 
@@ -712,7 +720,7 @@ public:
 	template < typename ComponentType >
 	void InitializeComponentFromIndex( const int iIndex )
 	{
-		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
 		if( pComponentsHolder == nullptr )
 			return;
 
@@ -722,7 +730,7 @@ public:
 	template < typename ComponentType >
 	void StartComponent( Entity* pEntity )
 	{
-		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
 		if( pComponentsHolder == nullptr )
 			return;
 
@@ -732,7 +740,7 @@ public:
 	template < typename ComponentType >
 	void StartComponentFromIndex( const int iIndex )
 	{
-		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
 		if( pComponentsHolder == nullptr )
 			return;
 
@@ -742,7 +750,7 @@ public:
 	template < typename ComponentType >
 	void StopComponent( Entity* pEntity )
 	{
-		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
 		if( pComponentsHolder == nullptr )
 			return;
 
@@ -752,7 +760,7 @@ public:
 	template < typename ComponentType >
 	void StopComponentFromIndex( const int iIndex )
 	{
-		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
 		if( pComponentsHolder == nullptr )
 			return;
 
@@ -762,7 +770,7 @@ public:
 	template < typename ComponentType >
 	void DisposeComponent( Entity* pEntity )
 	{
-		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
 		if( pComponentsHolder == nullptr )
 			return;
 
@@ -772,7 +780,7 @@ public:
 	template < typename ComponentType >
 	void DisposeComponentFromIndex( const int iIndex )
 	{
-		ComponentsHolder< ComponentType >* pComponentsHolder = GetComponentsHolder< ComponentType >();
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
 		if( pComponentsHolder == nullptr )
 			return;
 
@@ -782,33 +790,30 @@ public:
 	template < typename ComponentType >
 	ComponentHandle< ComponentType > GetComponent( const Entity* pEntity )
 	{
-		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
-		if( it == m_mComponentsHolders.end() || it->second == nullptr )
-			return nullptr;
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
+		if( pComponentsHolder == nullptr )
+			return ComponentHandle< ComponentType >();
 
-		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( it->second );
 		return pComponentsHolder->GetComponent( pEntity );
 	}
 
 	template < typename ComponentType >
 	ComponentType* GetComponentFromIndex( const int iIndex )
 	{
-		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
-		if( it == m_mComponentsHolders.end() || it->second == nullptr )
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
+		if( pComponentsHolder == nullptr )
 			return nullptr;
 
-		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( it->second );
 		return pComponentsHolder->GetComponentFromIndex( iIndex );
 	}
 
 	template < typename ComponentType >
 	int GetComponentIndexFromEntity( const Entity* pEntity )
 	{
-		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
-		if( it == m_mComponentsHolders.end() || it->second == nullptr )
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
+		if( pComponentsHolder == nullptr )
 			return -1;
 
-		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( it->second );
 		return pComponentsHolder->GetComponentIndexFromEntity( pEntity );
 	}
 
@@ -843,32 +848,21 @@ private:
 	template < typename ComponentType >
 	Array< ComponentType* > GetComponents( const bool bDisposed = false )
 	{
-		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
-		if( it == m_mComponentsHolders.end() || it->second == nullptr )
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
+		if( pComponentsHolder == nullptr )
 			return Array< ComponentType* >();
 
-		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( it->second );
 		return pComponentsHolder->GetComponents( bDisposed );
-	}
-
-	template < typename ComponentType >
-	ComponentsHolder< ComponentType >* GetComponentsHolder()
-	{
-		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
-		if( it == m_mComponentsHolders.end() || it->second == nullptr )
-			return nullptr;
-
-		return static_cast< ComponentsHolder< ComponentType >* >( it->second );
 	}
 
 	template < typename ComponentType >
 	uint GetVersion()
 	{
-		auto it = m_mComponentsHolders.find( typeid( ComponentType ) );
-		if( it == m_mComponentsHolders.end() || it->second == nullptr )
+		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
+		if( pComponentsHolder == nullptr )
 			return UINT_MAX;
 
-		return it->second->m_uVersion;
+		return pComponentsHolder->m_uVersion;
 	}
 
 	struct ComponentFactory
