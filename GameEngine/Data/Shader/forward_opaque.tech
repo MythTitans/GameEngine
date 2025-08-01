@@ -16,7 +16,8 @@
         "emissiveMap",
         "directionalLightCount",
         "pointLightCount",
-        "spotLightCount"
+        "spotLightCount",
+        "useSkinning"
     ],
     "arrays":
     [

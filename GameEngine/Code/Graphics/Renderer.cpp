@@ -100,13 +100,23 @@ static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTe
 {
 	for( const VisualNode* pVisualNode : aVisualNodes )
 	{
-		if( oTechnique.HasArrayParameter( PARAM_BONE_MATRICES ) )
+		const Array< glm::mat4 >& aBoneMatrices = pVisualNode->m_aBoneMatrices;
+		if( aBoneMatrices.Empty() == false )
 		{
-			const Array< glm::mat4 >& aBoneMatrices = pVisualNode->m_aBoneMatrices;
-			for( uint u = 0; u < aBoneMatrices.Count(); ++u )
-				oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, aBoneMatrices[ u ], u );
-			for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
-				oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
+			oTechnique.SetParameter( PARAM_USE_SKINNING, true );
+
+			if( oTechnique.HasArrayParameter( PARAM_BONE_MATRICES ) )
+			{
+				for( uint u = 0; u < aBoneMatrices.Count(); ++u )
+					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, aBoneMatrices[ u ], u );
+				for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
+					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
+			}
+		}
+		else
+		{
+			if( oTechnique.HasParameter( PARAM_USE_SKINNING ) )
+				oTechnique.SetParameter( PARAM_USE_SKINNING, false );
 		}
 
 		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, g_pRenderer->m_oCamera.GetViewProjectionMatrix() * pVisualNode->m_mMatrix );

@@ -17,6 +17,7 @@ uniform mat4 modelViewProjection;
 uniform mat4 model;
 uniform mat4 modelInverseTranspose;
 uniform mat4 boneMatrices[ 128 ];
+uniform bool useSkinning;
 
 void main()
 {
@@ -25,16 +26,26 @@ void main()
     vec4 transformedPosition = vec4( 0.0, 0.0, 0.0, 0.0 );
     vec3 transformedNormal = vec3( 0.0, 0.0, 0.0 );
     vec3 transformedTangent = vec3( 0.0, 0.0, 0.0 );
-    for( int i = 0; i < 4; ++i )
-    {
-        transformedPosition += vertWeights[ i ] * boneMatrices[ vertBones[ i ] ] * vec4( vertPosition, 1.0 );
-        // TODO #eric maybe add support for non-uniform scaling ?
-        transformedNormal += vertWeights[ i ] * mat3( boneMatrices[ vertBones[ i ] ] ) * vertNormal;
-        transformedTangent += vertWeights[ i ] * mat3( boneMatrices[ vertBones[ i ] ] ) * vertTangent;
-    }
 
-    transformedNormal = normalize( transformedNormal );
-    transformedTangent = normalize( transformedTangent );
+    if( useSkinning )
+    {
+        for( int i = 0; i < 4; ++i )
+        {
+            transformedPosition += vertWeights[ i ] * boneMatrices[ vertBones[ i ] ] * vec4( vertPosition, 1.0 );
+            // TODO #eric maybe add support for non-uniform scaling ?
+            transformedNormal += vertWeights[ i ] * mat3( boneMatrices[ vertBones[ i ] ] ) * vertNormal;
+            transformedTangent += vertWeights[ i ] * mat3( boneMatrices[ vertBones[ i ] ] ) * vertTangent;
+        }
+
+        transformedNormal = normalize( transformedNormal );
+        transformedTangent = normalize( transformedTangent );
+    }
+    else
+    {
+        transformedPosition = vec4( vertPosition, 1.0 );
+        transformedNormal = vertNormal;
+        transformedTangent = vertTangent;
+    }
 
     position = ( model * transformedPosition ).xyz;
 
