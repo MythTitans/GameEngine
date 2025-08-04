@@ -23,14 +23,34 @@ Transform::Transform()
 {
 }
 
-Transform::Transform( const glm::mat4x3& mMatrix )	
+Transform::Transform( const glm::mat4x3& mTRSMatrix )	
 	: m_bDirtyRotation( true )
 {
-	m_mMatrix[ 0 ] = glm::normalize( mMatrix[ 0 ] );
-	m_mMatrix[ 1 ] = glm::normalize( mMatrix[ 1 ] );
-	m_mMatrix[ 2 ] = glm::normalize( mMatrix[ 2 ] );
-	m_vPosition = mMatrix[ 3 ];
-	m_vScale = glm::vec3( glm::length( mMatrix[ 0 ] ), glm::length( mMatrix[ 1 ] ), glm::length( mMatrix[ 2 ] ) );
+	m_mMatrix[ 0 ] = glm::normalize( mTRSMatrix[ 0 ] );
+	m_mMatrix[ 1 ] = glm::normalize( mTRSMatrix[ 1 ] );
+	m_mMatrix[ 2 ] = glm::normalize( mTRSMatrix[ 2 ] );
+
+	m_vPosition = mTRSMatrix[ 3 ];
+
+	// Get back original lengths without costly glm::length()
+	const float fLength1 = glm::dot( m_mMatrix[ 0 ], mTRSMatrix[ 0 ] );
+	const float fLength2 = glm::dot( m_mMatrix[ 1 ], mTRSMatrix[ 1 ] );
+	const float fLength3 = glm::dot( m_mMatrix[ 2 ], mTRSMatrix[ 2 ] );
+	m_vScale = glm::vec3( fLength1, fLength2, fLength3 );
+
+	m_bUniformScale = IsUniformScale( m_vScale );
+}
+
+Transform::Transform( const glm::mat4x3& mTRMatrix, const glm::vec3& vScale )
+	: m_bDirtyRotation( true )
+{
+	m_mMatrix[ 0 ] = mTRMatrix[ 0 ];
+	m_mMatrix[ 1 ] = mTRMatrix[ 1 ];
+	m_mMatrix[ 2 ] = mTRMatrix[ 2 ];
+
+	m_vPosition = mTRMatrix[ 3 ];
+
+	m_vScale = vScale;
 
 	m_bUniformScale = IsUniformScale( m_vScale );
 }
@@ -255,19 +275,13 @@ const Array< Entity* >& Entity::GetChildren() const
 void Entity::SetWorldTransform( const Transform& oTransform )
 {
 	const Transform oParentTransform = m_pParent != nullptr ? m_pParent->GetWorldTransform() : Transform();
-
-	m_hTransformComponent->m_oTransform = Transform( glm::inverse( oParentTransform.GetMatrixTR() ) * oTransform.GetMatrixTR() );
-	m_hTransformComponent->m_oTransform.SetScale( oTransform.GetScale() );
+	m_hTransformComponent->m_oTransform = Transform( glm::inverse( oParentTransform.GetMatrixTR() ) * oTransform.GetMatrixTR(), oTransform.GetScale() );
 }
 
 Transform Entity::GetWorldTransform() const
 {
 	const Transform oParentTransform = m_pParent != nullptr ? m_pParent->GetWorldTransform() : Transform();
-
-	Transform oTransform( oParentTransform.GetMatrixTR() * m_hTransformComponent->m_oTransform.GetMatrixTR() );
-	oTransform.SetScale( m_hTransformComponent->m_oTransform.GetScale() );
-
-	return oTransform;
+	return Transform( oParentTransform.GetMatrixTR() * m_hTransformComponent->m_oTransform.GetMatrixTR(), m_hTransformComponent->m_oTransform.GetScale() );
 }
 
 void Entity::SetWorldPosition( const glm::vec3& vPosition )

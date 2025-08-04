@@ -12,7 +12,8 @@
 struct Transform
 {
 	Transform();
-	explicit Transform( const glm::mat4x3& mMatrix );
+	explicit Transform( const glm::mat4x3& mTRSMatrix );
+	Transform( const glm::mat4x3& mTRMatrix, const glm::vec3& vScale );
 
 	glm::vec3&			GetI();
 	const glm::vec3&	GetI() const;
