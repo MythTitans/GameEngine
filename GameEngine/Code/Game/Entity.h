@@ -12,7 +12,7 @@
 struct Transform
 {
 	Transform();
-	explicit Transform( const glm::mat4& mMatrix );
+	explicit Transform( const glm::mat4x3& mMatrix );
 
 	glm::vec3&			GetI();
 	const glm::vec3&	GetI() const;
@@ -35,8 +35,8 @@ struct Transform
 	void				SetRotation( const glm::quat& qRotation );
 	void				SetRotation( const glm::vec3& vAxis, const float fAngle );
 
-	glm::mat4			GetMatrixTR() const;
-	glm::mat4			GetMatrixTRS() const;
+	glm::mat4x3			GetMatrixTR() const;
+	glm::mat4x3			GetMatrixTRS() const;
 
 	glm::mat3	m_mMatrix;
 	glm::vec3	m_vPosition;

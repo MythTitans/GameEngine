@@ -6,6 +6,7 @@
 
 #include "Game/ComponentManager.h"
 #include "Game/GameWorld.h"
+#include "Math/GLMHelpers.h"
 
 static bool IsUniformScale( const glm::vec3& vScale )
 {
@@ -22,13 +23,13 @@ Transform::Transform()
 {
 }
 
-Transform::Transform( const glm::mat4& mMatrix )	
+Transform::Transform( const glm::mat4x3& mMatrix )	
 	: m_bDirtyRotation( true )
 {
-	m_mMatrix[ 0 ] = glm::normalize( glm::vec3( mMatrix[ 0 ] ) );
-	m_mMatrix[ 1 ] = glm::normalize( glm::vec3( mMatrix[ 1 ] ) );
-	m_mMatrix[ 2 ] = glm::normalize( glm::vec3( mMatrix[ 2 ] ) );
-	m_vPosition = glm::vec3( mMatrix[ 3 ] );
+	m_mMatrix[ 0 ] = glm::normalize( mMatrix[ 0 ] );
+	m_mMatrix[ 1 ] = glm::normalize( mMatrix[ 1 ] );
+	m_mMatrix[ 2 ] = glm::normalize( mMatrix[ 2 ] );
+	m_vPosition = mMatrix[ 3 ];
 	m_vScale = glm::vec3( glm::length( mMatrix[ 0 ] ), glm::length( mMatrix[ 1 ] ), glm::length( mMatrix[ 2 ] ) );
 
 	m_bUniformScale = IsUniformScale( m_vScale );
@@ -126,26 +127,14 @@ void Transform::SetRotation( const glm::vec3& vAxis, const float fAngle )
 	SetRotation( glm::rotate( glm::quat( 1.f, 0.f, 0.f, 0.f ), fAngle, vAxis ) );
 }
 
-glm::mat4 Transform::GetMatrixTR() const
+glm::mat4x3 Transform::GetMatrixTR() const
 {
-	glm::mat4 mResult;
-	mResult[ 0 ] = glm::vec4( m_mMatrix[ 0 ], 0.f );
-	mResult[ 1 ] = glm::vec4( m_mMatrix[ 1 ], 0.f );
-	mResult[ 2 ] = glm::vec4( m_mMatrix[ 2 ], 0.f );
-	mResult[ 3 ] = glm::vec4( m_vPosition, 1.f );
-
-	return mResult;
+	return glm::mat4x3( m_mMatrix[ 0 ], m_mMatrix[ 1 ], m_mMatrix[ 2 ], m_vPosition );
 }
 
-glm::mat4 Transform::GetMatrixTRS() const
+glm::mat4x3 Transform::GetMatrixTRS() const
 {
-	glm::mat4 mResult;
-	mResult[ 0 ] = glm::vec4( m_mMatrix[ 0 ] * m_vScale.x, 0.f );
-	mResult[ 1 ] = glm::vec4( m_mMatrix[ 1 ] * m_vScale.y, 0.f );
-	mResult[ 2 ] = glm::vec4( m_mMatrix[ 2 ] * m_vScale.z, 0.f );
-	mResult[ 3 ] = glm::vec4( m_vPosition, 1.f );
-
-	return mResult;
+	return glm::mat4x3( m_mMatrix[ 0 ] * m_vScale.x, m_mMatrix[ 1 ] * m_vScale.y, m_mMatrix[ 2 ] * m_vScale.z, m_vPosition );
 }
 
 TransformComponent::TransformComponent( Entity* pEntity )

@@ -8,7 +8,7 @@ VisualNode::VisualNode( const uint64 uEntityID )
 {
 }
 
-VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4& mMatrix, const Array< Mesh >& aMeshes, const Array< glm::mat4 >& aBoneMatrices )
+VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, const Array< glm::mat4x3 >& aBoneMatrices )
 	: m_uEntityID( uEntityID )
 	, m_mMatrix( mMatrix )
 	, m_aMeshes( aMeshes )
@@ -33,7 +33,7 @@ VisualNode* VisualStructure::AddNode( const Entity* pEntity, Technique& oTechniq
 	return m_aVisualNodes[ iIndex ].Back();
 }
 
-void VisualStructure::AddTemporaryNode( const Entity* pEntity, const glm::mat4& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique )
+void VisualStructure::AddTemporaryNode( const Entity* pEntity, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique )
 {
 	ASSERT( aMeshes.Empty() == false );
 
@@ -47,7 +47,7 @@ void VisualStructure::AddTemporaryNode( const Entity* pEntity, const glm::mat4& 
 			m_aTemporaryVisualNodes.PushBack( Array< VisualNode >() );
 	}
 
-	m_aTemporaryVisualNodes[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, aMeshes, Array< glm::mat4 >() ) );
+	m_aTemporaryVisualNodes[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, aMeshes, Array< glm::mat4x3 >() ) );
 }
 
 void VisualStructure::RemoveNode( VisualNode*& pNode )

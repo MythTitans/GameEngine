@@ -117,12 +117,12 @@ const Skeleton& ModelResource::GetSkeleton() const
 	return m_oSkeleton;
 }
 
-const Array< glm::mat4 >& ModelResource::GetPoseMatrices() const
+const Array< glm::mat4x3 >& ModelResource::GetPoseMatrices() const
 {
 	return m_aPoseMatrices;
 }
 
-const Array< glm::mat4 >& ModelResource::GetSkinMatrices() const
+const Array< glm::mat4x3 >& ModelResource::GetSkinMatrices() const
 {
 	return m_aSkinMatrices;
 }

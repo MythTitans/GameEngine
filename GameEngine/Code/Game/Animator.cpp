@@ -2,6 +2,7 @@
 
 #include "GameEngine.h"
 #include "Entity.h"
+#include "Math/GLMHelpers.h"
 
 REGISTER_COMPONENT( AnimatorComponent );
 
@@ -221,7 +222,7 @@ void AnimatorComponent::PauseAnimation()
 	m_eAnimationState = AnimationState::PAUSED;
 }
 
-const Array< glm::mat4 >& AnimatorComponent::GetBoneMatrices() const
+const Array< glm::mat4x3 >& AnimatorComponent::GetBoneMatrices() const
 {
 	return m_aBoneMatrices;
 }

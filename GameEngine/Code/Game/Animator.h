@@ -39,17 +39,17 @@ public:
 	void						ResumeAnimation();
 	void						PauseAnimation();
 
-	const Array< glm::mat4 >&	GetBoneMatrices() const;
+	const Array< glm::mat4x3 >&	GetBoneMatrices() const;
 
 private:
 	PROPERTIES( AnimatorComponent );
 	PROPERTY( "Model", m_sModelFile, std::string );
 
-	ModelResPtr			m_xModel;
-	Array< glm::mat4 >	m_aBoneMatrices;
-	uint				m_uAnimationIndex;
+	ModelResPtr				m_xModel;
+	Array< glm::mat4x3 >	m_aBoneMatrices;
+	uint					m_uAnimationIndex;
 
-	float				m_fRunningTime;
-	AnimationState		m_eAnimationState;
-	AnimationType		m_eAnimationType;
+	float					m_fRunningTime;
+	AnimationState			m_eAnimationState;
+	AnimationType			m_eAnimationType;
 };

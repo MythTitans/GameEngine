@@ -37,7 +37,7 @@ public:
 	GizmoType		GetType() const;
 	GizmoAxis		GetAxis() const;
 
-	glm::mat4		GetWorldMatrix() const;
+	glm::mat4x3		GetWorldMatrix() const;
 
 private:
 	WeakPtr< Entity >	m_xAnchor;

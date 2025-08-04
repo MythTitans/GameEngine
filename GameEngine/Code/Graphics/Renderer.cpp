@@ -12,6 +12,7 @@
 #include "Core/Logger.h"
 #include "Core/Profiler.h"
 #include "ImGui/imgui.h"
+#include "Math/GLMHelpers.h"
 
 static const std::string PARAM_MODEL_VIEW_PROJECTION( "modelViewProjection" );
 static const std::string PARAM_MODEL_INVERSE_TRANSPOSE( "modelInverseTranspose" );
@@ -100,7 +101,7 @@ static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTe
 {
 	for( const VisualNode* pVisualNode : aVisualNodes )
 	{
-		const Array< glm::mat4 >& aBoneMatrices = pVisualNode->m_aBoneMatrices;
+		const Array< glm::mat4x3 >& aBoneMatrices = pVisualNode->m_aBoneMatrices;
 		if( aBoneMatrices.Empty() == false )
 		{
 			oTechnique.SetParameter( PARAM_USE_SKINNING, true );
@@ -108,7 +109,7 @@ static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTe
 			if( oTechnique.HasArrayParameter( PARAM_BONE_MATRICES ) )
 			{
 				for( uint u = 0; u < aBoneMatrices.Count(); ++u )
-					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, aBoneMatrices[ u ], u );
+					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, ToMat4( aBoneMatrices[ u ] ), u );
 				for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
 					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
 			}
@@ -119,13 +120,15 @@ static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTe
 				oTechnique.SetParameter( PARAM_USE_SKINNING, false );
 		}
 
-		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, g_pRenderer->m_oCamera.GetViewProjectionMatrix() * pVisualNode->m_mMatrix );
+		const glm::mat4 mMatrix = ToMat4( pVisualNode->m_mMatrix );
+
+		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, g_pRenderer->m_oCamera.GetViewProjectionMatrix() * mMatrix );
 
 		if( oTechnique.HasParameter( PARAM_MODEL_INVERSE_TRANSPOSE ) )
-			oTechnique.SetParameter( PARAM_MODEL_INVERSE_TRANSPOSE, glm::inverseTranspose( pVisualNode->m_mMatrix ) );
+			oTechnique.SetParameter( PARAM_MODEL_INVERSE_TRANSPOSE, glm::inverseTranspose( mMatrix ) );
 
 		if( oTechnique.HasParameter( PARAM_MODEL ) )
-			oTechnique.SetParameter( PARAM_MODEL, pVisualNode->m_mMatrix );
+			oTechnique.SetParameter( PARAM_MODEL, mMatrix );
 
 		const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
 		for( const Mesh& oMesh : aMeshes )
@@ -625,13 +628,13 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 		{
 			oTechnique.SetParameter( PARAM_USE_SKINNING, true );
 
-			const Array< glm::mat4 >& aBoneMatrices = pVisualNode->m_aBoneMatrices;
+			const Array< glm::mat4x3 >& aBoneMatrices = pVisualNode->m_aBoneMatrices;
 			for( uint u = 0; u < aBoneMatrices.Count(); ++u )
-				oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, aBoneMatrices[ u ], u );
+				oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, ToMat4( aBoneMatrices[ u ] ), u );
 			for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
 				oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
 
-			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * pVisualNode->m_mMatrix );
+			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * ToMat4( pVisualNode->m_mMatrix ) );
 			oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( pVisualNode->m_uEntityID ) );
 
 			const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
@@ -646,7 +649,7 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 		{
 			oTechnique.SetParameter( PARAM_USE_SKINNING, false );
 
-			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
 			oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( oVisualNode.m_uEntityID ) );
 
 			const Array< Mesh >& aMeshes = oVisualNode.m_aMeshes;
@@ -664,7 +667,7 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 		{
 			oTechnique.SetParameter( PARAM_USE_SKINNING, false );
 
-			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * pComponent->GetWorldMatrix() );
+			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * ToMat4( pComponent->GetWorldMatrix() ) );
 			oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( pComponent->GetEntity()->GetID() ) );
 
 			m_oGizmoRenderer.RenderGizmo( pComponent->GetType(), pComponent->GetAxis(), oRenderContext );
@@ -706,13 +709,13 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	Technique& oTechnique = m_xOutline->GetTechnique();
 	SetTechnique( oTechnique );
 
-	const Array< glm::mat4 >& aBoneMatrices = oVisualNode.m_aBoneMatrices;
+	const Array< glm::mat4x3 >& aBoneMatrices = oVisualNode.m_aBoneMatrices;
 	for( uint u = 0; u < aBoneMatrices.Count(); ++u )
-		oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, aBoneMatrices[ u ], u );
+		oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, ToMat4( aBoneMatrices[ u ] ), u );
 	for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
 		oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
 
-	oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+	oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
 	oTechnique.SetParameter( PARAM_DISPLACEMENT, 0.f );
 
 	const Array< Mesh >& aMeshes = oVisualNode.m_aMeshes;
@@ -726,7 +729,7 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
 	glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
 
-	oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
+	oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
 	oTechnique.SetParameter( PARAM_CAMERA_POSITION, glm::vec3( m_oCamera.GetPosition() ) );
 	oTechnique.SetParameter( PARAM_DISPLACEMENT, 0.004f );
 
@@ -753,7 +756,7 @@ void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 	Array< GizmoComponent* > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
 	for( const GizmoComponent* pGizmoComponent : aGizmoComponents )
 	{
-		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * pGizmoComponent->GetWorldMatrix() );
+		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * ToMat4( pGizmoComponent->GetWorldMatrix() ) );
 		oTechnique.SetParameter( PARAM_COLOR, pGizmoComponent->GetColor() );
 
 		m_oGizmoRenderer.RenderGizmo( pGizmoComponent->GetType(), pGizmoComponent->GetAxis(), oRenderContext );

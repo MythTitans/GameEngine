@@ -16,6 +16,7 @@ static const std::string STRING_TYPE_NAME = typeid( std::string ).name();
 static const std::string VEC3_TYPE_NAME = typeid( glm::vec3 ).name();
 static const std::string QUAT_TYPE_NAME = typeid( glm::quat ).name();
 static const std::string MAT4_TYPE_NAME = typeid( glm::mat4 ).name();
+static const std::string MAT4X3_TYPE_NAME = typeid( glm::mat4x3 ).name();
 
 static std::string GetDisplayableTypeName( const std::type_index oTypeIndex )
 {
@@ -26,6 +27,7 @@ static std::string GetDisplayableTypeName( const std::type_index oTypeIndex )
 	Replace( sDisplayableType, VEC3_TYPE_NAME, "glm::vec3" );
 	Replace( sDisplayableType, QUAT_TYPE_NAME, "glm::quat" );
 	Replace( sDisplayableType, MAT4_TYPE_NAME, "glm::mat4" );
+	Replace( sDisplayableType, MAT4X3_TYPE_NAME, "glm::mat4x3" );
 	Replace( sDisplayableType, " * __ptr64", "*" );
 	Replace( sDisplayableType, "struct ", "" );
 	Replace( sDisplayableType, "class ", "" );

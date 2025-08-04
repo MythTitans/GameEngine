@@ -1,6 +1,7 @@
 #include "Animation.h"
 
 #include "Entity.h"
+#include "Math/GLMHelpers.h"
 
 NodeAnimation::NodeAnimation()
 	: m_uMatrixIndex( 0 )
@@ -17,7 +18,7 @@ Skeleton::Skeleton()
 {
 }
 
-void Skeleton::Update( const glm::mat4& mParentMatrix, ArrayView< glm::mat4 > aAnimationMatrices ) const
+void Skeleton::Update( const glm::mat4x3& mParentMatrix, ArrayView< glm::mat4x3 > aAnimationMatrices ) const
 {
 	aAnimationMatrices[ m_uMatrixIndex ] = mParentMatrix * aAnimationMatrices[ m_uMatrixIndex ];
 

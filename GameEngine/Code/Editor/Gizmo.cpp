@@ -97,7 +97,7 @@ GizmoAxis GizmoComponent::GetAxis() const
 	return m_eGizmoAxis;
 }
 
-glm::mat4 GizmoComponent::GetWorldMatrix() const
+glm::mat4x3 GizmoComponent::GetWorldMatrix() const
 {
 	return GetEntity()->GetWorldTransform().GetMatrixTRS();
 }

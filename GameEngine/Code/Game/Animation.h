@@ -84,7 +84,7 @@ struct Skeleton
 {
 	Skeleton();
 
-	void Update( const glm::mat4& mParentMatrix, const ArrayView< glm::mat4 > aAnimationMatrices ) const;
+	void Update( const glm::mat4x3& mParentMatrix, const ArrayView< glm::mat4x3 > aAnimationMatrices ) const;
 
 	Array< Skeleton >	m_aChildren;
 	uint				m_uMatrixIndex;

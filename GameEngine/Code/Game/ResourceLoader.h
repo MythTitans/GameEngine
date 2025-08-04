@@ -132,15 +132,15 @@ public:
 	const Array< Animation >&	GetAnimations() const;
 	const Skeleton&				GetSkeleton() const;
 
-	const Array< glm::mat4 >&	GetPoseMatrices() const;
-	const Array< glm::mat4 >&	GetSkinMatrices() const;
+	const Array< glm::mat4x3 >&	GetPoseMatrices() const;
+	const Array< glm::mat4x3 >&	GetSkinMatrices() const;
 
 private:
 	Array< Mesh >			m_aMeshes;
 	Array< Animation >		m_aAnimations;
 	Skeleton				m_oSkeleton;
-	Array < glm::mat4 >		m_aPoseMatrices;
-	Array < glm::mat4 >		m_aSkinMatrices;
+	Array < glm::mat4x3 >	m_aPoseMatrices;
+	Array < glm::mat4x3 >	m_aSkinMatrices;
 };
 
 using ModelResPtr = StrongPtr< ModelResource >;

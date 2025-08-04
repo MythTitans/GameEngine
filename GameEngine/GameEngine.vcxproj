@@ -222,6 +222,7 @@
     <ClCompile Include="Code\Main.cpp" />
     <ClCompile Include="Code\Math\MathUtils.cpp" />
     <ClCompile Include="Code\Physics\Physics.cpp" />
+    <ClCompile Include="Code\Math\GLMHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\Core\Array.h" />
@@ -284,6 +285,7 @@
     <ClInclude Include="Code\ImGui\imstb_truetype.h" />
     <ClInclude Include="Code\Math\MathUtils.h" />
     <ClInclude Include="Code\Physics\Physics.h" />
+    <ClInclude Include="Code\Math\GLMHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Array.natvis" />
