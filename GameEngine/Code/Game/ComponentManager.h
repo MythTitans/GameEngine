@@ -48,7 +48,7 @@ struct PropertiesHolderBase
 	virtual void					Deserialize( const nlohmann::json& oJsonContent, void* pClass ) = 0;
 	virtual Array< std::string >	DisplayInspector( void* pClass ) = 0;
 
-	Array< std::string, ArrayFlags::NO_TRACKING > m_aNames;
+	Array< std::string > m_aNames;
 };
 
 template < typename PropertyType, typename PropertyClass >
@@ -99,7 +99,7 @@ struct PropertiesHolder : PropertiesHolderBase
 		return aPropertiesChanged;
 	}
 
-	Array< PropertyType PropertyClass::*, ArrayFlags::NO_TRACKING > m_aProperties;
+	Array< PropertyType PropertyClass::* > m_aProperties;
 };
 
 enum class ComponentManagement : uint8
@@ -648,10 +648,10 @@ private:
 		DISPOSED
 	};
 
-	Array< ComponentType, ArrayFlags::NO_TRACKING >		m_aComponents;
-	Array< ComponentState, ArrayFlags::NO_TRACKING >	m_aStates;
+	Array< ComponentType >	m_aComponents;
+	Array< ComponentState >	m_aStates;
 
-	Array< uint >										m_aPendingComponents;
+	Array< uint >			m_aPendingComponents;
 };
 
 template < typename ComponentType >
