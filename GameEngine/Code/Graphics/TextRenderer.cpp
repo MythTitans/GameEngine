@@ -3,13 +3,6 @@
 #include "Core/Profiler.h"
 #include "Renderer.h"
 
-static const std::string PARAM_POSITION( "position" );
-static const std::string PARAM_SIZE( "size" );
-static const std::string PARAM_GLYPH_OFFSET( "glyphOffset" );
-static const std::string PARAM_GLYPH_SIZE( "glyphSize" );
-static const std::string PARAM_GLYPH_COLOR( "glyphColor" );
-static const std::string PARAM_ATLAS_TEXTURE( "atlasTexture" );
-
 glm::vec2 PositionOnScreen( const glm::vec2& vPosition, const RenderContext& oRenderContext )
 {
 	const float fX = ( 2.f * vPosition.x / ( float )oRenderContext.GetRenderRect().m_uWidth ) - 1.f;
@@ -88,6 +81,18 @@ bool TextRenderer::OnLoading()
 	return m_xFont->IsLoaded() && m_xTextTechnique->IsLoaded();
 }
 
+void TextRenderer::OnLoaded()
+{
+	m_oTextSheet.Init( m_xTextTechnique->GetTechnique() );
+
+	m_oTextSheet.BindParameter( TextParam::POSITION, "position" );
+	m_oTextSheet.BindParameter( TextParam::SIZE, "size" );
+	m_oTextSheet.BindParameter( TextParam::GLYPH_OFFSET, "glyphOffset" );
+	m_oTextSheet.BindParameter( TextParam::GLYPH_SIZE, "glyphSize" );
+	m_oTextSheet.BindParameter( TextParam::GLYPH_COLOR, "glyphColor" );
+	m_oTextSheet.BindParameter( TextParam::ATLAS_TEXTURE, "atlasTexture" );
+}
+
 void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderContext )
 {
 	GPUBlock oGPUBlock( "Text" );
@@ -98,10 +103,8 @@ void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderCont
 	float fX = oText.m_vPosition.x;
 	float fY = oText.m_vPosition.y + FontResource::FONT_HEIGHT;
 
-	Technique& oTechnique = m_xTextTechnique->GetTechnique();
-
-	oTechnique.SetParameter( PARAM_GLYPH_COLOR, oText.m_vColor );
-	oTechnique.SetParameter( PARAM_ATLAS_TEXTURE, 0 );
+	m_oTextSheet.GetParameter( TextParam::GLYPH_COLOR ).SetValue( oText.m_vColor );
+	m_oTextSheet.GetParameter( TextParam::ATLAS_TEXTURE ).SetValue( 0 );
 
 	for( const char cCharacter : oText.m_sText )
 	{
@@ -114,10 +117,10 @@ void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderCont
 		const glm::vec2 vOffsetInAtlas( oQuad.s0, oQuad.t0 );
 		const glm::vec2 vSizeInAtlas( oQuad.s1 - oQuad.s0, oQuad.t1 - oQuad.t0 );
 
-		oTechnique.SetParameter( PARAM_POSITION, PositionOnScreen( glm::vec2( oQuad.x0, oQuad.y1 ), oRenderContext ) );
-		oTechnique.SetParameter( PARAM_SIZE, SizeOnScreen( vGlyphSize, oRenderContext ) );
-		oTechnique.SetParameter( PARAM_GLYPH_OFFSET, vOffsetInAtlas );
-		oTechnique.SetParameter( PARAM_GLYPH_SIZE, vSizeInAtlas );
+		m_oTextSheet.GetParameter( TextParam::POSITION ).SetValue( PositionOnScreen( glm::vec2( oQuad.x0, oQuad.y1 ), oRenderContext ) );
+		m_oTextSheet.GetParameter( TextParam::SIZE ).SetValue( SizeOnScreen( vGlyphSize, oRenderContext ) );
+		m_oTextSheet.GetParameter( TextParam::GLYPH_OFFSET ).SetValue( vOffsetInAtlas );
+		m_oTextSheet.GetParameter( TextParam::GLYPH_SIZE ).SetValue( vSizeInAtlas );
 
 		glBindVertexArray( m_oTextQuad.m_uVertexArrayID );
 		glDrawElements( GL_TRIANGLES, m_oTextQuad.m_iIndexCount, GL_UNSIGNED_INT, nullptr );

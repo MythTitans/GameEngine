@@ -104,6 +104,8 @@ void GameEngine::Update()
 	{
 		if( m_oRenderer.OnLoading() )
 		{
+			m_oRenderer.OnLoaded();
+
 			const nlohmann::json oJsonContent = nlohmann::json::parse( ReadTextFile( std::filesystem::path( "Data/Scene/test.scene" ) ) );
 			m_oGameWorld.Load( oJsonContent );
 			m_eGameState = GameState::RUNNING;

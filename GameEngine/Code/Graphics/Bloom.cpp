@@ -2,11 +2,6 @@
 
 #include "Renderer.h"
 
-static const std::string PARAM_KERNEL( "kernel" );
-static const std::string PARAM_DELTA( "delta" );
-static const std::string PARAM_VERTICAL( "vertical" );
-static const std::string PARAM_INPUT_TEXTURE( "inputTexture" );
-
 Array< float > ComputeBlurKernel( const uint uRadius )
 {
 	Array< float > aKernel( 2 * uRadius + 1 );
@@ -58,9 +53,11 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 	Technique& oBlurTechnique = m_xBlur->GetTechnique();
 	g_pRenderer->SetTechnique( oBlurTechnique );
 
+	TechniqueArrayParameter& oParamKernel = m_oBlurSheet.GetArrayParameter( BlurParam::KERNEL );
+
 	const Array< float > aKernel = ComputeBlurKernel( 16 );
 	for( uint u = 0; u < aKernel.Count(); ++u )
-		oBlurTechnique.SetArrayParameter( PARAM_KERNEL, aKernel[ u ], u );
+		oParamKernel.SetValue( aKernel[ u ], u );
 
 	bool bVertical = false;
 
@@ -72,11 +69,11 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 
 			glClear( GL_COLOR_BUFFER_BIT );
 
-			oBlurTechnique.SetParameter( PARAM_VERTICAL, true );
-			oBlurTechnique.SetParameter( PARAM_DELTA, 1.f / m_oBloomRT[ 0 ].GetHeight() );
+			m_oBlurSheet.GetParameter( BlurParam::VERTICAL ).SetValue( true );
+			m_oBlurSheet.GetParameter( BlurParam::DELTA ).SetValue( 1.f / m_oBloomRT[ 0 ].GetHeight() );
 
 			g_pRenderer->SetTextureSlot( m_oBloomRT[ 1 ].GetColorMap( 0 ), 0 );
-			oBlurTechnique.SetParameter( PARAM_INPUT_TEXTURE, 0 );
+			m_oBlurSheet.GetParameter( BlurParam::INPUT_TEXTURE ).SetValue( 0 );
 		}
 		else
 		{
@@ -84,11 +81,11 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 
 			glClear( GL_COLOR_BUFFER_BIT );
 
-			oBlurTechnique.SetParameter( PARAM_VERTICAL, false );
-			oBlurTechnique.SetParameter( PARAM_DELTA, 1.f / m_oBloomRT[ 0 ].GetWidth() );
+			m_oBlurSheet.GetParameter( BlurParam::VERTICAL ).SetValue( false );
+			m_oBlurSheet.GetParameter( BlurParam::DELTA ).SetValue( 1.f / m_oBloomRT[ 0 ].GetWidth() );
 
 			g_pRenderer->SetTextureSlot( m_oBloomRT[ 0 ].GetColorMap( 0 ), 0 );
-			oBlurTechnique.SetParameter( PARAM_INPUT_TEXTURE, 0 );
+			m_oBlurSheet.GetParameter( BlurParam::INPUT_TEXTURE ).SetValue( 0 );
 		}
 
 		g_pRenderer->RenderQuad();
@@ -110,4 +107,14 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 bool Bloom::OnLoading()
 {
 	return m_xBlur->IsLoaded();
+}
+
+void Bloom::OnLoaded()
+{
+	m_oBlurSheet.Init( m_xBlur->GetTechnique() );
+
+	m_oBlurSheet.BindArrayParameter( BlurParam::KERNEL, "kernel" );
+	m_oBlurSheet.BindParameter( BlurParam::VERTICAL, "vertical" );
+	m_oBlurSheet.BindParameter( BlurParam::DELTA, "delta" );
+	m_oBlurSheet.BindParameter( BlurParam::INPUT_TEXTURE, "inputTexture" );
 }

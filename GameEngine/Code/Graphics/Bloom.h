@@ -16,11 +16,22 @@ public:
 	void Render( const RenderTarget& oInput, const RenderTarget& oOutput, const RenderContext& oRenderContext );
 
 	bool OnLoading();
+	void OnLoaded();
 
 private:
-	RenderTarget	m_oBloomRT[ 2 ];
+	enum class BlurParam
+	{
+		KERNEL,
+		VERTICAL,
+		DELTA,
+		INPUT_TEXTURE,
+		_COUNT
+	};
 
-	TechniqueResPtr	m_xBlur;
+	RenderTarget					m_oBloomRT[ 2 ];
 
-	int				m_iIterations;
+	TechniqueResPtr					m_xBlur;
+	TECHNIQUE_SHEET( BlurParam )	m_oBlurSheet;
+
+	int								m_iIterations;
 };

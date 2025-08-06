@@ -57,6 +57,7 @@ public:
 	void			Clear();
 
 	bool			OnLoading();
+	void			OnLoaded();
 
 	void			DisplayDebug();
 
@@ -113,33 +114,80 @@ public:
 	VisualStructure	m_oVisualStructure;
 
 private:
-	RenderTarget	m_oFramebuffer;
-	RenderTarget	m_oForwardMSAATarget;
-	RenderTarget	m_oForwardTarget;
-	RenderTarget	m_oPostProcessTarget;
-	RenderTarget	m_oDeferredTarget;
-	RenderTarget	m_oPickingTarget;
+	enum class DeferredComposeParam : uint8
+	{
+		COLOR,
+		NORMAL,
+		DEPTH,
+		INVERSE_VIEW_PROJECTION,
+		_COUNT
+	};
 
-	Mesh			m_oRenderMesh;
+	enum class BlendParam : uint8
+	{
+		TEXTURE_A,
+		TEXTURE_B,
+		_COUNT
+	};
 
-	TextureResPtr	m_xDefaultDiffuseMap;
-	TextureResPtr	m_xDefaultNormalMap;
-	TechniqueResPtr	m_xDeferredMaps;
-	TechniqueResPtr	m_xDeferredCompose;
-	TechniqueResPtr	m_xBlend;
-	TechniqueResPtr	m_xPicking;
-	TechniqueResPtr	m_xOutline;
-	TechniqueResPtr	m_xGizmo;
+	enum class PickingParam : uint8
+	{
+		USE_SKINNING,
+		BONE_MATRICES,
+		MODEL_VIEW_PROJECTION,
+		COLOR_ID,
+		_COUNT
+	};
 
-	Bloom			m_oBloom;
+	enum class OutlineParam : uint8
+	{
+		BONE_MATRICES,
+		MODEL_VIEW_PROJECTION,
+		DISPLACEMENT,
+		CAMERA_POSITION,
+		_COUNT
+	};
 
-	RenderingMode	m_eRenderingMode;
-	MSAALevel		m_eMSAALevel;
-	bool			m_bSRGB;
+	enum class GizmoParam : uint8
+	{
+		MODEL_VIEW_PROJECTION,
+		COLOR,
+		_COUNT
+	};
 
-	bool			m_bUpdateRenderPipeline;
+	RenderTarget							m_oFramebuffer;
+	RenderTarget							m_oForwardMSAATarget;
+	RenderTarget							m_oForwardTarget;
+	RenderTarget							m_oPostProcessTarget;
+	RenderTarget							m_oDeferredTarget;
+	RenderTarget							m_oPickingTarget;
 
-	bool			m_bDisplayDebug;
+	Mesh									m_oRenderMesh;
+
+	TextureResPtr							m_xDefaultDiffuseMap;
+	TextureResPtr							m_xDefaultNormalMap;
+
+	TechniqueResPtr							m_xDeferredMaps;
+	TechniqueResPtr							m_xDeferredCompose;
+	TECHNIQUE_SHEET( DeferredComposeParam )	m_oDeferredComposeSheet;
+	TechniqueResPtr							m_xBlend;
+	TECHNIQUE_SHEET( BlendParam )			m_oBlendSheet;
+	TechniqueResPtr							m_xPicking;
+	TECHNIQUE_SHEET( PickingParam )			m_oPickingSheet;
+	TechniqueResPtr							m_xOutline;
+	TECHNIQUE_SHEET( OutlineParam )			m_oOutlineSheet;
+	TechniqueResPtr							m_xGizmo;
+	TECHNIQUE_SHEET( GizmoParam )			m_oGizmoSheet;
+
+	Bloom									m_oBloom;
+
+	RenderingMode							m_eRenderingMode;
+	MSAALevel								m_eMSAALevel;
+	bool									m_bSRGB;
+
+	bool									m_bUpdateRenderPipeline;
+
+	bool									m_bDisplayDebug;
 };
 
 extern Renderer* g_pRenderer;

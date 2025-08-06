@@ -17,18 +17,10 @@
 static const std::string PARAM_MODEL_VIEW_PROJECTION( "modelViewProjection" );
 static const std::string PARAM_MODEL_INVERSE_TRANSPOSE( "modelInverseTranspose" );
 static const std::string PARAM_MODEL( "model" );
-static const std::string PARAM_INVERSE_VIEW_PROJECTION( "inverseViewProjection" );
 static const std::string PARAM_VIEW_POSITION( "viewPosition" );
 
 static const std::string PARAM_DIFFUSE_MAP( "diffuseMap" );
 static const std::string PARAM_NORMAL_MAP( "normalMap" );
-static const std::string PARAM_COLOR_MAP( "colorMap" );
-static const std::string PARAM_DEPTH_MAP( "depthMap" );
-
-static const std::string PARAM_COLOR( "color" );
-static const std::string PARAM_COLOR_ID( "colorID" );
-static const std::string PARAM_DISPLACEMENT( "displacement" );
-static const std::string PARAM_CAMERA_POSITION( "cameraPosition" );
 
 static const std::string PARAM_DIRECTIONAL_LIGHT_COUNT( "directionalLightCount" );
 static const std::string PARAM_POINT_LIGHT_COUNT( "pointLightCount" );
@@ -53,9 +45,6 @@ static const std::string PARAM_SPOT_LIGHT_RANGES( "spotLightRanges" );
 static const std::string PARAM_SPOT_LIGHT_FALLOFF_MIN_DISTANCES( "spotLightFalloffMinDistances" );
 static const std::string PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES( "spotLightFalloffMaxDistances" );
 
-static const std::string PARAM_TEXTURE_A( "textureA" );
-static const std::string PARAM_TEXTURE_B( "textureB" );
-
 static const std::string PARAM_BONE_MATRICES( "boneMatrices" );
 
 static const std::string PARAM_USE_SKINNING( "useSkinning" );
@@ -63,72 +52,104 @@ static const std::string PARAM_USE_SKINNING( "useSkinning" );
 template < typename Technique >
 static void SetupLighting( Technique& oTechnique, const Array< DirectionalLight* >& aDirectionalLights, const Array< PointLight* >& aPointLights, const Array< SpotLight* >& aSpotLights )
 {
-	oTechnique.SetParameter( PARAM_DIRECTIONAL_LIGHT_COUNT, ( int )aDirectionalLights.Count() );
-	oTechnique.SetParameter( PARAM_POINT_LIGHT_COUNT, ( int )aPointLights.Count() );
-	oTechnique.SetParameter( PARAM_SPOT_LIGHT_COUNT, ( int )aSpotLights.Count() );
+	TechniqueParameter oParamDirectionalLightCount = oTechnique.GetParameter( PARAM_DIRECTIONAL_LIGHT_COUNT );
+	TechniqueParameter oParamPointLightCount = oTechnique.GetParameter( PARAM_POINT_LIGHT_COUNT );
+	TechniqueParameter oParamSpotLightCount = oTechnique.GetParameter( PARAM_SPOT_LIGHT_COUNT );
+
+	if( oParamDirectionalLightCount.IsValid() == false || oParamPointLightCount.IsValid() == false || oParamSpotLightCount.IsValid() == false )
+		return;
+
+	TechniqueArrayParameter oParamDirectionalLightDirections = oTechnique.GetArrayParameter( PARAM_DIRECTIONAL_LIGHT_DIRECTIONS );
+	TechniqueArrayParameter oParamDirectionalLightColors = oTechnique.GetArrayParameter( PARAM_DIRECTIONAL_LIGHT_COLORS );
+	TechniqueArrayParameter oParamDirectionalLightIntensities = oTechnique.GetArrayParameter( PARAM_DIRECTIONAL_LIGHT_INTENSITIES );
+
+	TechniqueArrayParameter oParamPointLightPositions = oTechnique.GetArrayParameter( PARAM_POINT_LIGHT_POSITIONS );
+	TechniqueArrayParameter oParamPointLightColors = oTechnique.GetArrayParameter( PARAM_POINT_LIGHT_COLORS );
+	TechniqueArrayParameter oParamPointLightIntensities = oTechnique.GetArrayParameter( PARAM_POINT_LIGHT_INTENSITIES );
+	TechniqueArrayParameter oParamPointLightFalloffMinDistances = oTechnique.GetArrayParameter( PARAM_POINT_LIGHT_FALLOFF_MIN_DISTANCES );
+	TechniqueArrayParameter oParamPointLightFallofMaxDistances = oTechnique.GetArrayParameter( PARAM_POINT_LIGHT_FALLOFF_MAX_DISTANCES );
+
+	TechniqueArrayParameter oParamSpotLightPositions = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_POSITIONS );
+	TechniqueArrayParameter oParamSpotLightDirections = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_DIRECTIONS );
+	TechniqueArrayParameter oParamSpotLightColors = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_COLORS );
+	TechniqueArrayParameter oParamSpotLightIntensities = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_INTENSITIES );
+	TechniqueArrayParameter oParamSpotLightOuterRanges = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_OUTERRANGES );
+	TechniqueArrayParameter oParamSpotLightRanges = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_RANGES );
+	TechniqueArrayParameter oParamSpotLightFalloffMinDistances = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_FALLOFF_MIN_DISTANCES );
+	TechniqueArrayParameter oParamSpotLightFalloffMaxDistances = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES );
+
+	oParamDirectionalLightCount.SetValue( ( int )aDirectionalLights.Count() );
+	oParamPointLightCount.SetValue( ( int )aPointLights.Count() );
+	oParamSpotLightCount.SetValue( ( int )aSpotLights.Count() );
 
 	for( uint u = 0; u < aDirectionalLights.Count(); ++u )
 	{
-		oTechnique.SetArrayParameter( PARAM_DIRECTIONAL_LIGHT_DIRECTIONS, aDirectionalLights[ u ]->m_vDirection, u );
-		oTechnique.SetArrayParameter( PARAM_DIRECTIONAL_LIGHT_COLORS, aDirectionalLights[ u ]->m_vColor, u );
-		oTechnique.SetArrayParameter( PARAM_DIRECTIONAL_LIGHT_INTENSITIES, aDirectionalLights[ u ]->m_fIntensity, u );
+		oParamDirectionalLightDirections.SetValue( aDirectionalLights[ u ]->m_vDirection, u );
+		oParamDirectionalLightColors.SetValue( aDirectionalLights[ u ]->m_vColor, u );
+		oParamDirectionalLightIntensities.SetValue( aDirectionalLights[ u ]->m_fIntensity, u );
 	}
 
 	for( uint u = 0; u < aPointLights.Count(); ++u )
 	{
-		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_POSITIONS, aPointLights[ u ]->m_vPosition, u );
-		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_COLORS, aPointLights[ u ]->m_vColor, u );
-		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_INTENSITIES, aPointLights[ u ]->m_fIntensity, u );
-		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_FALLOFF_MIN_DISTANCES, aPointLights[ u ]->m_fFalloffMinDistance, u );
-		oTechnique.SetArrayParameter( PARAM_POINT_LIGHT_FALLOFF_MAX_DISTANCES, aPointLights[ u ]->m_fFalloffMaxDistance, u );
+		oParamPointLightPositions.SetValue( aPointLights[ u ]->m_vPosition, u );
+		oParamPointLightColors.SetValue( aPointLights[ u ]->m_vColor, u );
+		oParamPointLightIntensities.SetValue( aPointLights[ u ]->m_fIntensity, u );
+		oParamPointLightFalloffMinDistances.SetValue( aPointLights[ u ]->m_fFalloffMinDistance, u );
+		oParamPointLightFallofMaxDistances.SetValue( aPointLights[ u ]->m_fFalloffMaxDistance, u );
 	}
 
 	for( uint u = 0; u < aSpotLights.Count(); ++u )
 	{
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_POSITIONS, aSpotLights[ u ]->m_vPosition, u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_DIRECTIONS, aSpotLights[ u ]->m_vDirection, u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_COLORS, aSpotLights[ u ]->m_vColor, u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_INTENSITIES, aSpotLights[ u ]->m_fIntensity, u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_OUTERRANGES, glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) ), u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_RANGES, glm::cos( glm::radians( aSpotLights[ u ]->m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) ), u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_FALLOFF_MIN_DISTANCES, aSpotLights[ u ]->m_fFalloffMinDistance, u );
-		oTechnique.SetArrayParameter( PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES, aSpotLights[ u ]->m_fFalloffMaxDistance, u );
+		oParamSpotLightPositions.SetValue( aSpotLights[ u ]->m_vPosition, u );
+		oParamSpotLightDirections.SetValue( aSpotLights[ u ]->m_vDirection, u );
+		oParamSpotLightColors.SetValue( aSpotLights[ u ]->m_vColor, u );
+		oParamSpotLightIntensities.SetValue( aSpotLights[ u ]->m_fIntensity, u );
+		oParamSpotLightOuterRanges.SetValue( glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) ), u );
+		oParamSpotLightRanges.SetValue( glm::cos( glm::radians( aSpotLights[ u ]->m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) ), u );
+		oParamSpotLightFalloffMinDistances.SetValue( aSpotLights[ u ]->m_fFalloffMinDistance, u );
+		oParamSpotLightFalloffMaxDistances.SetValue( aSpotLights[ u ]->m_fFalloffMaxDistance, u );
 	}
 }
 
 template < typename Technique >
 static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique )
 {
+	TechniqueParameter oParamUseSkinning = oTechnique.GetParameter( PARAM_USE_SKINNING );
+	TechniqueArrayParameter oParamBoneMatrices = oTechnique.GetArrayParameter( PARAM_BONE_MATRICES );
+	TechniqueParameter oParamModelViewProjection = oTechnique.GetParameter( PARAM_MODEL_VIEW_PROJECTION );
+	TechniqueParameter oParamModelInverseTranspose = oTechnique.GetParameter( PARAM_MODEL_INVERSE_TRANSPOSE );
+	TechniqueParameter oParamModel = oTechnique.GetParameter( PARAM_MODEL );
+
 	for( const VisualNode* pVisualNode : aVisualNodes )
 	{
 		const Array< glm::mat4x3 >& aBoneMatrices = pVisualNode->m_aBoneMatrices;
 		if( aBoneMatrices.Empty() == false )
 		{
-			oTechnique.SetParameter( PARAM_USE_SKINNING, true );
+			oParamUseSkinning.SetValue( true );
 
-			if( oTechnique.HasArrayParameter( PARAM_BONE_MATRICES ) )
+			if( oParamBoneMatrices.IsValid() )
 			{
 				for( uint u = 0; u < aBoneMatrices.Count(); ++u )
-					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, ToMat4( aBoneMatrices[ u ] ), u );
+					oParamBoneMatrices.SetValue( ToMat4( aBoneMatrices[ u ] ), u );
 				for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
-					oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
+					oParamBoneMatrices.SetValue( glm::mat4( 1.f ), u );
 			}
 		}
 		else
 		{
-			if( oTechnique.HasParameter( PARAM_USE_SKINNING ) )
-				oTechnique.SetParameter( PARAM_USE_SKINNING, false );
+			if( oParamUseSkinning.IsValid() )
+				oParamUseSkinning.SetValue( false );
 		}
 
 		const glm::mat4 mMatrix = ToMat4( pVisualNode->m_mMatrix );
 
-		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, g_pRenderer->m_oCamera.GetViewProjectionMatrix() * mMatrix );
+		oParamModelViewProjection.SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * mMatrix );
 
-		if( oTechnique.HasParameter( PARAM_MODEL_INVERSE_TRANSPOSE ) )
-			oTechnique.SetParameter( PARAM_MODEL_INVERSE_TRANSPOSE, glm::inverseTranspose( mMatrix ) );
+		if( oParamModelInverseTranspose.IsValid() )
+			oParamModelInverseTranspose.SetValue( glm::inverseTranspose( mMatrix ) );
 
-		if( oTechnique.HasParameter( PARAM_MODEL ) )
-			oTechnique.SetParameter( PARAM_MODEL, mMatrix );
+		if( oParamModel.IsValid() )
+			oParamModel.SetValue( mMatrix );
 
 		const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
 		for( const Mesh& oMesh : aMeshes )
@@ -284,6 +305,40 @@ bool Renderer::OnLoading()
 	return bLoaded;
 }
 
+void Renderer::OnLoaded()
+{
+	m_oTextRenderer.OnLoaded();
+	m_oDebugRenderer.OnLoaded();
+
+	m_oDeferredComposeSheet.Init( m_xDeferredCompose->GetTechnique() );
+	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::INVERSE_VIEW_PROJECTION, "inverseViewProjection" );
+	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::COLOR, "colorMap" );
+	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::NORMAL, "normalMap" );
+	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::DEPTH, "depthMap" );
+
+	m_oBlendSheet.Init( m_xBlend->GetTechnique() );
+	m_oBlendSheet.BindParameter( BlendParam::TEXTURE_A, "textureA" );
+	m_oBlendSheet.BindParameter( BlendParam::TEXTURE_B, "textureB" );
+
+	m_oPickingSheet.Init( m_xPicking->GetTechnique() );
+	m_oPickingSheet.BindParameter( PickingParam::USE_SKINNING, "useSkinning" );
+	m_oPickingSheet.BindArrayParameter( PickingParam::BONE_MATRICES, "boneMatrices" );
+	m_oPickingSheet.BindParameter( PickingParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
+	m_oPickingSheet.BindParameter( PickingParam::COLOR_ID, "colorID" );
+
+	m_oOutlineSheet.Init( m_xOutline->GetTechnique() );
+	m_oOutlineSheet.BindParameter( OutlineParam::BONE_MATRICES, "boneMatrices" );
+	m_oOutlineSheet.BindArrayParameter( OutlineParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
+	m_oOutlineSheet.BindParameter( OutlineParam::DISPLACEMENT, "displacement" );
+	m_oOutlineSheet.BindParameter( OutlineParam::CAMERA_POSITION, "cameraPosition" );
+
+	m_oGizmoSheet.Init( m_xGizmo->GetTechnique() );
+	m_oGizmoSheet.BindParameter( GizmoParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
+	m_oGizmoSheet.BindParameter( GizmoParam::COLOR, "color" );
+
+	m_oBloom.OnLoaded();
+}
+
 void Renderer::DisplayDebug()
 {
 	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_TOGGLE_RENDERER_DEBUG ) )
@@ -422,9 +477,9 @@ void Renderer::BlendTextures( const Texture& oTextureA, const Texture& oTextureB
 	g_pRenderer->SetTechnique( oBlendTechnique );
 
 	g_pRenderer->SetTextureSlot( oTextureA, 0 );
-	oBlendTechnique.SetParameter( PARAM_TEXTURE_A, 0 );
+	m_oBlendSheet.GetParameter( BlendParam::TEXTURE_A ).SetValue( 0 );
 	g_pRenderer->SetTextureSlot( oTextureB, 1 );
-	oBlendTechnique.SetParameter( PARAM_TEXTURE_B, 1 );
+	m_oBlendSheet.GetParameter( BlendParam::TEXTURE_B ).SetValue( 1 );
 
 	RenderQuad();
 
@@ -507,11 +562,12 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 		Technique& oTechnique = *m_oVisualStructure.m_aTechniques[ u ];
 		SetTechnique( oTechnique );
 
-		if( oTechnique.HasParameter( PARAM_DIRECTIONAL_LIGHT_COUNT ) )
-			SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+		TechniqueParameter oParamViewPosition = oTechnique.GetParameter( PARAM_VIEW_POSITION );
 
-		if( oTechnique.HasParameter( PARAM_VIEW_POSITION ) )
-			oTechnique.SetParameter( PARAM_VIEW_POSITION, m_oCamera.m_vPosition );
+		SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+
+		if( oParamViewPosition.IsValid() )
+			oParamViewPosition.SetValue( m_oCamera.m_vPosition );
 
 		DrawMeshes( m_oVisualStructure.m_aVisualNodes[ u ], oTechnique );
 	}
@@ -521,11 +577,12 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 		Technique& oTechnique = *m_oVisualStructure.m_aTemporaryTechniques[ u ];
 		SetTechnique( oTechnique );
 
-		if( oTechnique.HasParameter( PARAM_DIRECTIONAL_LIGHT_COUNT ) )
-			SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+		TechniqueParameter oParamViewPosition = oTechnique.GetParameter( PARAM_VIEW_POSITION );
 
-		if( oTechnique.HasParameter( PARAM_VIEW_POSITION ) )
-			oTechnique.SetParameter( PARAM_VIEW_POSITION, m_oCamera.m_vPosition );
+		SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+
+		if( oParamViewPosition.IsValid() )
+			oParamViewPosition.SetValue( m_oCamera.m_vPosition );
 
 		const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( m_oVisualStructure.m_aTemporaryVisualNodes[ u ] );
 		DrawMeshes( aTemporaryVisualNodes, oTechnique );
@@ -572,12 +629,13 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	SetTechnique( oComposeTechnique );
 
 	SetTextureSlot( m_oDeferredTarget.GetColorMap( 0 ), 0 );
-	oComposeTechnique.SetParameter( PARAM_COLOR_MAP, 0 );
+	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::COLOR ).SetValue( 0 );
 	SetTextureSlot( m_oDeferredTarget.GetColorMap( 1 ), 1 );
-	oComposeTechnique.SetParameter( PARAM_NORMAL_MAP, 1 );
+	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::NORMAL ).SetValue( 1 );
 	SetTextureSlot( m_oDeferredTarget.GetDepthMap(), 2 );
-	oComposeTechnique.SetParameter( PARAM_DEPTH_MAP, 2 );
-	oComposeTechnique.SetParameter( PARAM_INVERSE_VIEW_PROJECTION, m_oCamera.GetInverseViewProjectionMatrix() );
+	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::DEPTH ).SetValue( 2 );
+
+	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::INVERSE_VIEW_PROJECTION ).SetValue( m_oCamera.GetInverseViewProjectionMatrix() );
 
 	SetupLighting( oComposeTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 
@@ -626,16 +684,18 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 	{
 		for( const VisualNode* pVisualNode : aVisualNodes )
 		{
-			oTechnique.SetParameter( PARAM_USE_SKINNING, true );
+			m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( true );
+
+			TechniqueArrayParameter& oParamBoneMatrices = m_oPickingSheet.GetArrayParameter( PickingParam::BONE_MATRICES );
 
 			const Array< glm::mat4x3 >& aBoneMatrices = pVisualNode->m_aBoneMatrices;
 			for( uint u = 0; u < aBoneMatrices.Count(); ++u )
-				oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, ToMat4( aBoneMatrices[ u ] ), u );
+				oParamBoneMatrices.SetValue( ToMat4( aBoneMatrices[ u ] ), u );
 			for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
-				oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
+				oParamBoneMatrices.SetValue( glm::mat4( 1.f ), u );
 
-			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * ToMat4( pVisualNode->m_mMatrix ) );
-			oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( pVisualNode->m_uEntityID ) );
+			m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( pVisualNode->m_mMatrix ) );
+			m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( pVisualNode->m_uEntityID ) );
 
 			const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
 			for( const Mesh& oMesh : aMeshes )
@@ -647,10 +707,10 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 	{
 		for( const VisualNode& oVisualNode : aVisualNodes )
 		{
-			oTechnique.SetParameter( PARAM_USE_SKINNING, false );
+			m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( false );
 
-			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
-			oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( oVisualNode.m_uEntityID ) );
+			m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
+			m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( oVisualNode.m_uEntityID ) );
 
 			const Array< Mesh >& aMeshes = oVisualNode.m_aMeshes;
 			for( const Mesh& oMesh : aMeshes )
@@ -665,10 +725,10 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 		Array< GizmoComponent* > aComponents = g_pComponentManager->GetComponents< GizmoComponent >();
 		for( const GizmoComponent* pComponent : aComponents )
 		{
-			oTechnique.SetParameter( PARAM_USE_SKINNING, false );
+			m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( false );
 
-			oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * ToMat4( pComponent->GetWorldMatrix() ) );
-			oTechnique.SetParameter( PARAM_COLOR_ID, BuildColorID( pComponent->GetEntity()->GetID() ) );
+			m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( pComponent->GetWorldMatrix() ) );
+			m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( pComponent->GetEntity()->GetID() ) );
 
 			m_oGizmoRenderer.RenderGizmo( pComponent->GetType(), pComponent->GetAxis(), oRenderContext );
 		}
@@ -709,14 +769,16 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	Technique& oTechnique = m_xOutline->GetTechnique();
 	SetTechnique( oTechnique );
 
+	TechniqueArrayParameter& oParamBoneMatrices = m_oOutlineSheet.GetArrayParameter( OutlineParam::BONE_MATRICES );
+
 	const Array< glm::mat4x3 >& aBoneMatrices = oVisualNode.m_aBoneMatrices;
 	for( uint u = 0; u < aBoneMatrices.Count(); ++u )
-		oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, ToMat4( aBoneMatrices[ u ] ), u );
+		oParamBoneMatrices.SetValue( ToMat4( aBoneMatrices[ u ] ), u );
 	for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
-		oTechnique.SetArrayParameter( PARAM_BONE_MATRICES, glm::mat4( 1.f ), u );
+		oParamBoneMatrices.SetValue( glm::mat4( 1.f ), u );
 
-	oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
-	oTechnique.SetParameter( PARAM_DISPLACEMENT, 0.f );
+	m_oOutlineSheet.GetParameter( OutlineParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
+	m_oOutlineSheet.GetParameter( OutlineParam::DISPLACEMENT ).SetValue( 0.f );
 
 	const Array< Mesh >& aMeshes = oVisualNode.m_aMeshes;
 	for( const Mesh& oMesh : aMeshes )
@@ -729,9 +791,9 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
 	glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
 
-	oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
-	oTechnique.SetParameter( PARAM_CAMERA_POSITION, glm::vec3( m_oCamera.GetPosition() ) );
-	oTechnique.SetParameter( PARAM_DISPLACEMENT, 0.004f );
+	m_oOutlineSheet.GetParameter( OutlineParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
+	m_oOutlineSheet.GetParameter( OutlineParam::CAMERA_POSITION ).SetValue( glm::vec3( m_oCamera.GetPosition() ) );
+	m_oOutlineSheet.GetParameter( OutlineParam::DISPLACEMENT ).SetValue( 0.004f );
 
 	for( const Mesh& oMesh : aMeshes )
 		DrawMesh( oMesh );
@@ -756,8 +818,8 @@ void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 	Array< GizmoComponent* > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
 	for( const GizmoComponent* pGizmoComponent : aGizmoComponents )
 	{
-		oTechnique.SetParameter( PARAM_MODEL_VIEW_PROJECTION, m_oCamera.GetViewProjectionMatrix() * ToMat4( pGizmoComponent->GetWorldMatrix() ) );
-		oTechnique.SetParameter( PARAM_COLOR, pGizmoComponent->GetColor() );
+		m_oGizmoSheet.GetParameter( GizmoParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( pGizmoComponent->GetWorldMatrix() ) );
+		m_oGizmoSheet.GetParameter( GizmoParam::COLOR ).SetValue( pGizmoComponent->GetColor() );
 
 		m_oGizmoRenderer.RenderGizmo( pGizmoComponent->GetType(), pGizmoComponent->GetAxis(), oRenderContext );
 	}

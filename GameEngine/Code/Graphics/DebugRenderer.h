@@ -78,14 +78,33 @@ public:
 	void RenderWireBoxes( const Array< Box >& aBoxes, const RenderContext& oRenderContext );
 
 	bool OnLoading();
+	void OnLoaded();
 
 private:
+	enum class LineParam : uint8
+	{
+		VIEW_PROJECTION,
+		COLOR,
+		_COUNT
+	};
+
+	enum class SphereParam : uint8
+	{
+		VIEW_PROJECTION,
+		COLOR,
+		POSITION,
+		RADIUS,
+		_COUNT
+	};
+
 	Array< GLfloat > GenerateSphereEquator();
 	Array< GLfloat > GenerateSphereMeridians();
 	Array< GLfloat > GenerateCylinderEquator( const glm::vec3& vNormal, const float fRadius );
 
-	TechniqueResPtr	m_xLine;
-	TechniqueResPtr	m_xSphere;
+	TechniqueResPtr					m_xLine;
+	TECHNIQUE_SHEET( LineParam )	m_oLineSheet;
+	TechniqueResPtr					m_xSphere;
+	TECHNIQUE_SHEET( SphereParam )	m_oSphereSheet;
 
 	GLuint			m_uVertexArrayID;
 	GLuint			m_uVertexBufferID;
