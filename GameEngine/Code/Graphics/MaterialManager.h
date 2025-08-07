@@ -13,12 +13,18 @@ struct MaterialsHolderBase
 	MaterialsHolderBase();
 	virtual ~MaterialsHolderBase();
 
+	virtual void PrepareMaterials( Technique& oTechnique ) = 0;
 	virtual void ApplyMaterial( const uint uMaterialID, Technique& oTechnique ) = 0;
 };
 
 template < typename MaterialData >
 struct MaterialsHolder : MaterialsHolderBase
 {
+	void PrepareMaterials( Technique& oTechnique ) override
+	{
+		MaterialData::PrepareMaterial( oTechnique );
+	}
+
 	void ApplyMaterial( const uint uMaterialID, Technique& oTechnique ) override
 	{
 		m_aMaterialData[ uMaterialID ].ApplyMaterial( oTechnique );
@@ -104,6 +110,7 @@ public:
 		return oMaterialReference.m_oTypeIndex == typeid( MaterialData );
 	}
 
+	void PrepareMaterials( Technique& oTechnique );
 	void ApplyMaterial( const MaterialReference& oMaterialReference, Technique& oTechnique );
 
 private:

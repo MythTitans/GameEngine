@@ -43,8 +43,8 @@ private:
 
 	void DrawText( const Text& oText, const RenderContext& oRenderContext );
 
-	FontResPtr						m_xFont;
-	TechniqueResPtr					m_xTextTechnique;
-	TECHNIQUE_SHEET( TextParam )	m_oTextSheet;
-	Mesh							m_oTextQuad;
+	FontResPtr					m_xFont;
+	TechniqueResPtr				m_xTextTechnique;
+	PARAM_SHEET( TextParam )	m_oTextSheet;
+	Mesh						m_oTextQuad;
 };

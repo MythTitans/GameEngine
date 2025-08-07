@@ -327,8 +327,8 @@ void Renderer::OnLoaded()
 	m_oPickingSheet.BindParameter( PickingParam::COLOR_ID, "colorID" );
 
 	m_oOutlineSheet.Init( m_xOutline->GetTechnique() );
-	m_oOutlineSheet.BindParameter( OutlineParam::BONE_MATRICES, "boneMatrices" );
-	m_oOutlineSheet.BindArrayParameter( OutlineParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
+	m_oOutlineSheet.BindArrayParameter( OutlineParam::BONE_MATRICES, "boneMatrices" );
+	m_oOutlineSheet.BindParameter( OutlineParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
 	m_oOutlineSheet.BindParameter( OutlineParam::DISPLACEMENT, "displacement" );
 	m_oOutlineSheet.BindParameter( OutlineParam::CAMERA_POSITION, "cameraPosition" );
 
@@ -562,6 +562,8 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 		Technique& oTechnique = *m_oVisualStructure.m_aTechniques[ u ];
 		SetTechnique( oTechnique );
 
+		g_pMaterialManager->PrepareMaterials( oTechnique );
+
 		TechniqueParameter oParamViewPosition = oTechnique.GetParameter( PARAM_VIEW_POSITION );
 
 		SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
@@ -576,6 +578,8 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	{
 		Technique& oTechnique = *m_oVisualStructure.m_aTemporaryTechniques[ u ];
 		SetTechnique( oTechnique );
+
+		g_pMaterialManager->PrepareMaterials( oTechnique );
 
 		TechniqueParameter oParamViewPosition = oTechnique.GetParameter( PARAM_VIEW_POSITION );
 
@@ -610,6 +614,8 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 
 	Technique& oMapsTechnique = m_xDeferredMaps->GetTechnique();
 	SetTechnique( oMapsTechnique );
+
+	g_pMaterialManager->PrepareMaterials( oMapsTechnique );
 
 	for( const Array< VisualNode* >& aVisualNodes : m_oVisualStructure.m_aVisualNodes )
 		DrawMeshes( aVisualNodes, oMapsTechnique );

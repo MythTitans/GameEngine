@@ -101,11 +101,11 @@ private:
 	Array< GLfloat > GenerateSphereMeridians();
 	Array< GLfloat > GenerateCylinderEquator( const glm::vec3& vNormal, const float fRadius );
 
-	TechniqueResPtr					m_xLine;
-	TECHNIQUE_SHEET( LineParam )	m_oLineSheet;
-	TechniqueResPtr					m_xSphere;
-	TECHNIQUE_SHEET( SphereParam )	m_oSphereSheet;
+	TechniqueResPtr				m_xLine;
+	PARAM_SHEET( LineParam )	m_oLineSheet;
+	TechniqueResPtr				m_xSphere;
+	PARAM_SHEET( SphereParam )	m_oSphereSheet;
 
-	GLuint			m_uVertexArrayID;
-	GLuint			m_uVertexBufferID;
+	GLuint						m_uVertexArrayID;
+	GLuint						m_uVertexBufferID;
 };

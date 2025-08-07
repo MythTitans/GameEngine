@@ -93,12 +93,20 @@ void GameWorld::UpdateWorld( const GameContext& oGameContext )
 
 	for( uint u = 0; u < oGameContext.m_uLastTicks; ++u )
 	{
+		ProfilerBlock oBlock( "Tick" );
 		g_pComponentManager->TickComponents();
 		g_pComponentManager->NotifyBeforePhysicsOnComponents();
 		g_pPhysics->Tick();
 		g_pComponentManager->NotifyAfterPhysicsOnComponents();
 	}
 
-	m_oFreeCamera.Update( oGameContext.m_fLastRealDeltaTime );
-	g_pComponentManager->UpdateComponents( oGameContext );
+	{
+		ProfilerBlock oBlock( "Camera" );
+		m_oFreeCamera.Update( oGameContext.m_fLastRealDeltaTime );
+	}
+
+	{
+		ProfilerBlock oBlock( "Update" );
+		g_pComponentManager->UpdateComponents( oGameContext );
+	}
 }

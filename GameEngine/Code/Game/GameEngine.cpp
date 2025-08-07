@@ -98,8 +98,6 @@ void GameEngine::EndFrame()
 
 void GameEngine::Update()
 {
-	ProfilerBlock oBlock( "Update" );
-
 	if( m_eGameState == GameState::INITIALIZING )
 	{
 		if( m_oRenderer.OnLoading() )
@@ -133,8 +131,6 @@ void GameEngine::Update()
 
 void GameEngine::Render()
 {
-	ProfilerBlock oBlock( "Render" );
-
 	if( m_eGameState != GameState::INITIALIZING )
 	{
 		m_oRenderer.DisplayDebug();

@@ -155,39 +155,39 @@ private:
 		_COUNT
 	};
 
-	RenderTarget							m_oFramebuffer;
-	RenderTarget							m_oForwardMSAATarget;
-	RenderTarget							m_oForwardTarget;
-	RenderTarget							m_oPostProcessTarget;
-	RenderTarget							m_oDeferredTarget;
-	RenderTarget							m_oPickingTarget;
+	RenderTarget						m_oFramebuffer;
+	RenderTarget						m_oForwardMSAATarget;
+	RenderTarget						m_oForwardTarget;
+	RenderTarget						m_oPostProcessTarget;
+	RenderTarget						m_oDeferredTarget;
+	RenderTarget						m_oPickingTarget;
 
-	Mesh									m_oRenderMesh;
+	Mesh								m_oRenderMesh;
 
-	TextureResPtr							m_xDefaultDiffuseMap;
-	TextureResPtr							m_xDefaultNormalMap;
+	TextureResPtr						m_xDefaultDiffuseMap;
+	TextureResPtr						m_xDefaultNormalMap;
 
-	TechniqueResPtr							m_xDeferredMaps;
-	TechniqueResPtr							m_xDeferredCompose;
-	TECHNIQUE_SHEET( DeferredComposeParam )	m_oDeferredComposeSheet;
-	TechniqueResPtr							m_xBlend;
-	TECHNIQUE_SHEET( BlendParam )			m_oBlendSheet;
-	TechniqueResPtr							m_xPicking;
-	TECHNIQUE_SHEET( PickingParam )			m_oPickingSheet;
-	TechniqueResPtr							m_xOutline;
-	TECHNIQUE_SHEET( OutlineParam )			m_oOutlineSheet;
-	TechniqueResPtr							m_xGizmo;
-	TECHNIQUE_SHEET( GizmoParam )			m_oGizmoSheet;
+	TechniqueResPtr						m_xDeferredMaps;
+	TechniqueResPtr						m_xDeferredCompose;
+	PARAM_SHEET( DeferredComposeParam )	m_oDeferredComposeSheet;
+	TechniqueResPtr						m_xBlend;
+	PARAM_SHEET( BlendParam )			m_oBlendSheet;
+	TechniqueResPtr						m_xPicking;
+	PARAM_SHEET( PickingParam )			m_oPickingSheet;
+	TechniqueResPtr						m_xOutline;
+	PARAM_SHEET( OutlineParam )			m_oOutlineSheet;
+	TechniqueResPtr						m_xGizmo;
+	PARAM_SHEET( GizmoParam )			m_oGizmoSheet;
 
-	Bloom									m_oBloom;
+	Bloom								m_oBloom;
 
-	RenderingMode							m_eRenderingMode;
-	MSAALevel								m_eMSAALevel;
-	bool									m_bSRGB;
+	RenderingMode						m_eRenderingMode;
+	MSAALevel							m_eMSAALevel;
+	bool								m_bSRGB;
 
-	bool									m_bUpdateRenderPipeline;
+	bool								m_bUpdateRenderPipeline;
 
-	bool									m_bDisplayDebug;
+	bool								m_bDisplayDebug;
 };
 
 extern Renderer* g_pRenderer;

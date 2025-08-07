@@ -28,10 +28,10 @@ private:
 		_COUNT
 	};
 
-	RenderTarget					m_oBloomRT[ 2 ];
+	RenderTarget				m_oBloomRT[ 2 ];
 
-	TechniqueResPtr					m_xBlur;
-	TECHNIQUE_SHEET( BlurParam )	m_oBlurSheet;
+	TechniqueResPtr				m_xBlur;
+	PARAM_SHEET( BlurParam )	m_oBlurSheet;
 
-	int								m_iIterations;
+	int							m_iIterations;
 };

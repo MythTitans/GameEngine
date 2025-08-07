@@ -19,45 +19,69 @@ LitMaterialData::LitMaterialData()
 {
 }
 
+void LitMaterialData::PrepareMaterial( Technique& oTechnique )
+{
+	s_oMaterialSheet.Init( oTechnique );
+	s_oMaterialSheet.BindParameter( LitMaterialParam::DIFFUSE_COLOR, "diffuseColor" );
+	s_oMaterialSheet.BindParameter( LitMaterialParam::SPECULAR_COLOR, "specularColor" );
+	s_oMaterialSheet.BindParameter( LitMaterialParam::EMISSIVE_COLOR, "emissiveColor" );
+	s_oMaterialSheet.BindParameter( LitMaterialParam::SHININESS, "shininess" );
+	s_oMaterialSheet.BindParameter( LitMaterialParam::DIFFUSE_MAP, "diffuseMap" );
+	s_oMaterialSheet.BindParameter( LitMaterialParam::NORMAL_MAP, "normalMap" );
+	s_oMaterialSheet.BindParameter( LitMaterialParam::SPECULAR_MAP, "specularMap" );
+	s_oMaterialSheet.BindParameter( LitMaterialParam::EMISSIVE_MAP, "emissiveMap" );
+}
+
 void LitMaterialData::ApplyMaterial( Technique& oTechnique )
 {
-	oTechnique.SetParameter( PARAM_DIFFUSE_COLOR, m_vDiffuseColor );
-	oTechnique.SetParameter( PARAM_SPECULAR_COLOR, m_vSpecularColor );
-	oTechnique.SetParameter( PARAM_EMISSIVE_COLOR, m_vEmissiveColor );
-	oTechnique.SetParameter( PARAM_SHININESS, glm::max( m_fShininess, 1.0f)  );
+	s_oMaterialSheet.GetParameter( LitMaterialParam::DIFFUSE_COLOR ).SetValue( m_vDiffuseColor );
+	s_oMaterialSheet.GetParameter( LitMaterialParam::SPECULAR_COLOR ).SetValue( m_vSpecularColor );
+	s_oMaterialSheet.GetParameter( LitMaterialParam::EMISSIVE_COLOR ).SetValue( m_vEmissiveColor );
+	s_oMaterialSheet.GetParameter( LitMaterialParam::SHININESS ).SetValue( glm::max( m_fShininess, 1.0f ) );
 
 	if( m_xDiffuseTextureResource != nullptr )
-		oTechnique.SetParameter( PARAM_DIFFUSE_MAP, &m_xDiffuseTextureResource->GetTexture() );
+		s_oMaterialSheet.GetParameter( LitMaterialParam::DIFFUSE_MAP ).SetValue( &m_xDiffuseTextureResource->GetTexture(), oTechnique );
 	else
-		oTechnique.SetParameter( PARAM_DIFFUSE_MAP, g_pRenderer->GetDefaultDiffuseMap() );
+		s_oMaterialSheet.GetParameter( LitMaterialParam::DIFFUSE_MAP ).SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
 
 	if( m_xNormalTextureResource != nullptr )
-		oTechnique.SetParameter( PARAM_NORMAL_MAP, &m_xNormalTextureResource->GetTexture() );
+		s_oMaterialSheet.GetParameter( LitMaterialParam::NORMAL_MAP ).SetValue( &m_xNormalTextureResource->GetTexture(), oTechnique );
 	else
-		oTechnique.SetParameter( PARAM_NORMAL_MAP, g_pRenderer->GetDefaultNormalMap() );
+		s_oMaterialSheet.GetParameter( LitMaterialParam::NORMAL_MAP ).SetValue( g_pRenderer->GetDefaultNormalMap(), oTechnique );
 
 	if( m_xSpecularTextureResource != nullptr )
-		oTechnique.SetParameter( PARAM_SPECULAR_MAP, &m_xSpecularTextureResource->GetTexture() );
+		s_oMaterialSheet.GetParameter( LitMaterialParam::SPECULAR_MAP ).SetValue( &m_xSpecularTextureResource->GetTexture(), oTechnique );
 	else
-		oTechnique.SetParameter( PARAM_SPECULAR_MAP, g_pRenderer->GetDefaultDiffuseMap() );
+		s_oMaterialSheet.GetParameter( LitMaterialParam::SPECULAR_MAP ).SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
 
 	if( m_xEmissiveTextureResource != nullptr )
-		oTechnique.SetParameter( PARAM_EMISSIVE_MAP, &m_xEmissiveTextureResource->GetTexture() );
+		s_oMaterialSheet.GetParameter( LitMaterialParam::EMISSIVE_MAP ).SetValue( &m_xEmissiveTextureResource->GetTexture(), oTechnique );
 	else
-		oTechnique.SetParameter( PARAM_EMISSIVE_MAP, g_pRenderer->GetDefaultDiffuseMap() );
+		s_oMaterialSheet.GetParameter( LitMaterialParam::EMISSIVE_MAP ).SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
 }
+
+PARAM_SHEET( LitMaterialData::LitMaterialParam ) LitMaterialData::s_oMaterialSheet;
 
 UnlitMaterialData::UnlitMaterialData()
 	: m_vDiffuseColor( 1.f, 1.f, 1.f )
 {
 }
 
+void UnlitMaterialData::PrepareMaterial( Technique& oTechnique )
+{
+	s_oMaterialSheet.Init( oTechnique );
+	s_oMaterialSheet.BindParameter( UnlitMaterialParam::DIFFUSE_COLOR, "diffuseColor" );
+	s_oMaterialSheet.BindParameter( UnlitMaterialParam::DIFFUSE_MAP, "diffuseMap" );
+}
+
 void UnlitMaterialData::ApplyMaterial( Technique& oTechnique )
 {
-	oTechnique.SetParameter( PARAM_DIFFUSE_COLOR, m_vDiffuseColor );
-
+	s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_COLOR ).SetValue( m_vDiffuseColor );
+	
 	if( m_xDiffuseTextureResource != nullptr )
-		oTechnique.SetParameter( PARAM_DIFFUSE_MAP, &m_xDiffuseTextureResource->GetTexture() );
+		s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_MAP ).SetValue( &m_xDiffuseTextureResource->GetTexture(), oTechnique );
 	else
-		oTechnique.SetParameter( PARAM_DIFFUSE_MAP, g_pRenderer->GetDefaultDiffuseMap() );
+		s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_MAP ).SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
 }
+
+PARAM_SHEET( UnlitMaterialData::UnlitMaterialParam ) UnlitMaterialData::s_oMaterialSheet;

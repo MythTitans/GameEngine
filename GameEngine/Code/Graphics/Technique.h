@@ -167,4 +167,4 @@ private:
 	TechniqueArrayParameter*	m_aArrayParameters[ uCount ];
 };
 
-#define TECHNIQUE_SHEET( Binding ) TechniqueSheet< Binding, ( uint ) Binding::_COUNT >
+#define PARAM_SHEET( Binding ) TechniqueSheet< Binding, ( uint ) Binding::_COUNT >

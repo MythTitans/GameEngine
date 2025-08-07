@@ -26,6 +26,12 @@ MaterialManager::~MaterialManager()
 	g_pMaterialManager = nullptr;
 }
 
+void MaterialManager::PrepareMaterials( Technique& oTechnique )
+{
+	for( const auto& oPair : m_mMaterialsHolders )
+		oPair.second->PrepareMaterials( oTechnique );
+}
+
 void MaterialManager::ApplyMaterial( const MaterialReference& oMaterialReference, Technique& oTechnique )
 {
 	auto it = m_mMaterialsHolders.find( oMaterialReference.m_oTypeIndex );

@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "Core/Intrusive.h"
+#include "Graphics/Technique.h"
 #include "Graphics/Texture.h"
 
 class Technique;
@@ -14,26 +15,54 @@ struct LitMaterialData
 {
 	LitMaterialData();
 
-	void ApplyMaterial( Technique& oTechnique );
+	static void PrepareMaterial( Technique& oTechnique );
 
-	glm::vec3		m_vDiffuseColor;
-	glm::vec3		m_vSpecularColor;
-	glm::vec3		m_vEmissiveColor;
-	float			m_fShininess;
+	void		ApplyMaterial( Technique& oTechnique );
 
-	TextureResPtr	m_xDiffuseTextureResource;
-	TextureResPtr	m_xNormalTextureResource;
-	TextureResPtr	m_xSpecularTextureResource;
-	TextureResPtr	m_xEmissiveTextureResource;
+	enum class LitMaterialParam
+	{
+		DIFFUSE_COLOR,
+		SPECULAR_COLOR,
+		EMISSIVE_COLOR,
+		SHININESS,
+		DIFFUSE_MAP,
+		NORMAL_MAP,
+		SPECULAR_MAP,
+		EMISSIVE_MAP,
+		_COUNT
+	};
+
+	glm::vec3								m_vDiffuseColor;
+	glm::vec3								m_vSpecularColor;
+	glm::vec3								m_vEmissiveColor;
+	float									m_fShininess;
+
+	TextureResPtr							m_xDiffuseTextureResource;
+	TextureResPtr							m_xNormalTextureResource;
+	TextureResPtr							m_xSpecularTextureResource;
+	TextureResPtr							m_xEmissiveTextureResource;
+
+	static PARAM_SHEET( LitMaterialParam )	s_oMaterialSheet;
 };
 
 struct UnlitMaterialData
 {
 	UnlitMaterialData();
 
-	void ApplyMaterial( Technique& oTechnique );
+	static void PrepareMaterial( Technique& oTechnique );
 
-	glm::vec3		m_vDiffuseColor;
+	void		ApplyMaterial( Technique& oTechnique );
 
-	TextureResPtr	m_xDiffuseTextureResource;
+	enum class UnlitMaterialParam
+	{
+		DIFFUSE_COLOR,
+		DIFFUSE_MAP,
+		_COUNT
+	};
+
+	glm::vec3									m_vDiffuseColor;
+
+	TextureResPtr								m_xDiffuseTextureResource;
+
+	static PARAM_SHEET( UnlitMaterialParam )	s_oMaterialSheet;
 };
