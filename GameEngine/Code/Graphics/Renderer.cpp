@@ -300,7 +300,7 @@ bool Renderer::OnLoading()
 {
 	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
 	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xBlend->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
-	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading() && m_oBloom.OnLoading();
+	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading() && m_oSkybox.OnLoading() && m_oBloom.OnLoading();
 
 	return bLoaded;
 }
@@ -449,6 +449,18 @@ void Renderer::ClearTextureSlot( const uint uTextureUnit )
 	glBindTexture( GL_TEXTURE_2D, 0 );
 }
 
+void Renderer::SetCubeMapSlot( const CubeMap& oCubeMap, const uint uTextureUnit )
+{
+	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
+	glBindTexture( GL_TEXTURE_CUBE_MAP, oCubeMap.m_uTextureID );
+}
+
+void Renderer::ClearCubeMapSlot( const uint uTextureUnit )
+{
+	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
+	glBindTexture( GL_TEXTURE_CUBE_MAP, 0 );
+}
+
 void Renderer::SetRenderTarget( const RenderTarget& oRenderTarget )
 {
 	glBindFramebuffer( GL_FRAMEBUFFER, oRenderTarget.m_uFrameBufferID );
@@ -556,6 +568,10 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
+
+	const Sky* pActiveSky = g_pRenderer->m_oVisualStructure.GetActiveSky();
+	if( pActiveSky != nullptr )
+		m_oSkybox.Render( pActiveSky, oRenderContext );
 
 	for( uint u = 0; u < m_oVisualStructure.m_aTechniques.Count(); ++u )
 	{

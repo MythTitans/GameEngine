@@ -4,6 +4,7 @@
 
 #include "Core/Array.h"
 #include "Mesh.h"
+#include "Texture.h"
 
 class Entity;
 
@@ -35,6 +36,11 @@ struct SpotLight
 	float		m_fFalloffMaxDistance;
 };
 
+struct Sky
+{
+	CubeMap m_oCubeMap;
+};
+
 struct VisualNode
 {
 	explicit VisualNode( const uint64 uEntityID );
@@ -50,6 +56,8 @@ class VisualStructure
 {
 public:
 	friend class Renderer;
+
+	VisualStructure();
 
 	VisualNode*				AddNode( const Entity* pEntity, Technique& oTechnique );
 	void					AddTemporaryNode( const Entity* pEntity, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique );
@@ -67,6 +75,11 @@ public:
 	void					RemovePointLight( PointLight*& pPointLight );
 	void					RemoveSpotLight( SpotLight*& pSpotLight );
 
+	Sky*					AddSky();
+	void					RemoveSky( Sky*& pSky );
+	void					SetActiveSky( const Sky* pSky );
+	const Sky*				GetActiveSky() const;
+
 private:
 	void					Clear();
 
@@ -79,4 +92,7 @@ private:
 	Array< DirectionalLight* >		m_aDirectionalLights;
 	Array< PointLight* >			m_aPointLights;
 	Array< SpotLight* >				m_aSpotLights;
+
+	Array< Sky* >					m_aSkies;
+	int								m_iActiveSkyIndex;
 };

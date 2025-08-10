@@ -1,0 +1,8 @@
+{
+    "vertexShader": "Shader/skybox.vs",
+    "pixelShader": "Shader/skybox.ps",
+    "parameters": [
+        "viewProjection",
+        "cubeMap"
+    ]
+}

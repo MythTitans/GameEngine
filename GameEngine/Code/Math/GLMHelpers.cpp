@@ -30,6 +30,11 @@ namespace glm
 	}
 }
 
+glm::mat4 ToMat4( const glm::mat3& mM )
+{
+	return glm::mat4( glm::vec4( mM[ 0 ], 0.f ), glm::vec4( mM[ 1 ], 0.f ), glm::vec4( mM[ 2 ], 0.f ), glm::vec4( 0.f, 0.f, 0.f, 1.f ) );
+}
+
 glm::mat4 ToMat4( const glm::mat4x3& mM )
 {
 	return glm::mat4( glm::vec4( mM[ 0 ], 0.f ), glm::vec4( mM[ 1 ], 0.f ), glm::vec4( mM[ 2 ], 0.f ), glm::vec4( mM[ 3 ], 1.f ) );

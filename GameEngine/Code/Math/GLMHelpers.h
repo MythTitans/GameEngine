@@ -8,4 +8,5 @@ namespace glm
 	glm::mat4x3 inverse( const glm::mat4x3& mM );
 }
 
+glm::mat4 ToMat4( const glm::mat3& mM );
 glm::mat4 ToMat4( const glm::mat4x3& mM );

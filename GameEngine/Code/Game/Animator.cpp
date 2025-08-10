@@ -27,7 +27,7 @@ void AnimatorComponent::Initialize()
 
 bool AnimatorComponent::IsInitialized() const
 {
-	return m_xModel->IsLoaded();
+	return m_xModel->IsLoading() == false;
 }
 
 void AnimatorComponent::Start()
@@ -197,7 +197,10 @@ void AnimatorComponent::DisplayInspector()
 void AnimatorComponent::OnPropertyChanged( const std::string& sProperty )
 {
 	if( sProperty == "Model" )
+	{
 		m_xModel = g_pResourceLoader->LoadModel( m_sModelFile.c_str() );
+		m_aBoneMatrices.Resize( m_xModel->GetSkinMatrices().Count(), glm::mat4( 1.f ) );
+	}
 }
 
 void AnimatorComponent::PlayAnimation()

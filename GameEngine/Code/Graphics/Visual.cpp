@@ -27,7 +27,7 @@ void VisualComponent::Initialize()
 
 bool VisualComponent::IsInitialized() const
 {
-	return m_xModel->IsLoaded() && m_xTechnique->IsLoaded();
+	return m_xModel->IsLoading() == false && m_xTechnique->IsLoaded();
 }
 
 void VisualComponent::Start()

@@ -34,6 +34,7 @@ public:
 
 	Entity*								GetEntity();
 	const Entity*						GetEntity() const;
+	uint64								GetEntityID() const;
 	
 	template < typename ComponentType >
 	ComponentHandle< ComponentType >	GetComponent()

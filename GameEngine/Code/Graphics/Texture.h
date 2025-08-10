@@ -24,6 +24,8 @@ enum class TextureWrapping : uint8
 	//BORDER // TODO #eric add support for this
 };
 
+constexpr uint GetFormatBytes( const TextureFormat eFormat );
+
 struct TextureDesc
 {
 	TextureDesc( const int iWidth, const int iHeight, const TextureFormat eFormat );
@@ -57,6 +59,64 @@ public:
 	Texture();
 
 	void			Create( const TextureDesc& oDesc );
+	void			Destroy();
+
+	GLuint			GetID() const;
+	int				GetWidth() const;
+	int				GetHeight() const;
+	TextureFormat	GetFormat() const;
+
+	Array< uint8 >	FetchData( const bool bSRGB = false ) const;
+
+private:
+	GLuint			m_uTextureID;
+	int				m_iWidth;
+	int				m_iHeight;
+	TextureFormat	m_eFormat;
+};
+
+struct CubeMapDesc
+{
+	enum Side
+	{
+		POSITIVE_X,
+		NEGATIVE_X,
+		POSITIVE_Y,
+		NEGATIVE_Y,
+		POSITIVE_Z,
+		NEGATIVE_Z,
+		_COUNT
+	};
+
+	CubeMapDesc( const int iWidth, const int iHeight, const TextureFormat eFormat );
+
+	CubeMapDesc& Data( const uint8* pData, const Side eSide );
+	CubeMapDesc& Wrapping( const TextureWrapping eWrapping );
+	CubeMapDesc& HorizontalWrapping( const TextureWrapping eWrapping );
+	CubeMapDesc& VerticalWrapping( const TextureWrapping eWrapping );
+	CubeMapDesc& DepthWrapping( const TextureWrapping eWrapping );
+	CubeMapDesc& SRGB( const bool bSRGB = true );
+	CubeMapDesc& GenerateMips( const bool bGenerateMips = true );
+
+	int				m_iWidth;
+	int				m_iHeight;
+	const uint8*	m_pData[ Side::_COUNT ];
+	TextureFormat	m_eFormat;
+	TextureWrapping	m_eHorizontalWrapping;
+	TextureWrapping	m_eVerticalWrapping;
+	TextureWrapping	m_eDepthWrapping;
+	bool			m_bSRGB;
+	bool			m_bGenerateMips;
+};
+
+class CubeMap
+{
+public:
+	friend class Renderer;
+
+	CubeMap();
+
+	void			Create( const CubeMapDesc& oDesc );
 	void			Destroy();
 
 	GLuint			GetID() const;

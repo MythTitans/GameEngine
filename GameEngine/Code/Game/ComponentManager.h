@@ -418,7 +418,7 @@ public:
 				continue;
 
 			ComponentType& oComponent = m_aComponents[ u ];
-			oComponent.DisplayGizmos( oComponent.GetEntity()->GetID() == uSelectedEntityID );
+			oComponent.DisplayGizmos( oComponent.GetEntityID() == uSelectedEntityID );
 		}
 	}
 

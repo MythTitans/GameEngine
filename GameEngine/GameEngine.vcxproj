@@ -196,6 +196,7 @@
     <ClCompile Include="Code\Graphics\Material.cpp" />
     <ClCompile Include="Code\Graphics\MaterialManager.cpp" />
     <ClCompile Include="Code\Game\ResourceLoader.cpp" />
+    <ClCompile Include="Code\Graphics\Skybox.cpp" />
     <ClCompile Include="Code\Physics\Rigidbody.cpp" />
     <ClCompile Include="Code\Game\Scene.cpp" />
     <ClCompile Include="Code\Graphics\Visual.cpp" />
@@ -258,6 +259,7 @@
     <ClInclude Include="Code\Graphics\Material.h" />
     <ClInclude Include="Code\Graphics\MaterialManager.h" />
     <ClInclude Include="Code\Game\ResourceLoader.h" />
+    <ClInclude Include="Code\Graphics\Skybox.h" />
     <ClInclude Include="Code\Physics\Rigidbody.h" />
     <ClInclude Include="Code\Game\Scene.h" />
     <ClInclude Include="Code\Graphics\Visual.h" />

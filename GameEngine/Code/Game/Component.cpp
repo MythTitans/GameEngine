@@ -67,3 +67,8 @@ const Entity* Component::GetEntity() const
 {
 	return m_pEntity;
 }
+
+uint64 Component::GetEntityID() const
+{
+	return m_pEntity->GetID();
+}

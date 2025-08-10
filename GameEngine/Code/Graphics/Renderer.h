@@ -7,6 +7,7 @@
 #include "Game/ResourceLoader.h"
 #include "GizmoRenderer.h"
 #include "RenderTarget.h"
+#include "Skybox.h"
 #include "TextRenderer.h"
 #include "VisualStructure.h"
 
@@ -68,6 +69,8 @@ public:
 	void			ClearTechnique();
 	void			SetTextureSlot( const Texture& oTexture, const uint uTextureUnit );
 	void			ClearTextureSlot( const uint uTextureUnit );
+	void			SetCubeMapSlot( const CubeMap& oCubeMap, const uint uTextureUnit );
+	void			ClearCubeMapSlot( const uint uTextureUnit );
 	void			SetRenderTarget( const RenderTarget& oRenderTarget );
 	void			ClearRenderTarget();
 	void			DrawMesh( const Mesh& oMesh );
@@ -179,6 +182,7 @@ private:
 	TechniqueResPtr						m_xGizmo;
 	PARAM_SHEET( GizmoParam )			m_oGizmoSheet;
 
+	Skybox								m_oSkybox;
 	Bloom								m_oBloom;
 
 	RenderingMode						m_eRenderingMode;

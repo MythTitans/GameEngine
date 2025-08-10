@@ -11,6 +11,748 @@
                     ]
                 }
             ],
+            "id": 1052,
+            "name": "Sphere2",
+            "parentId": 1051,
+            "position": {
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1053,
+            "name": "Sphere3",
+            "parentId": 1051,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1054,
+            "name": "Sphere4",
+            "parentId": 1051,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1079,
+            "name": "Sphere4",
+            "parentId": 1076,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1064,
+            "name": "Sphere4",
+            "parentId": 1061,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1065,
+            "name": "Sphere1",
+            "parentId": 1061,
+            "position": {
+                "x": 1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                },
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                }
+            ],
+            "id": 1066,
+            "name": "Sphere_Duplicate",
+            "position": {
+                "x": -0.29563474655151367,
+                "y": 7.300000190734863,
+                "z": -5.224391460418701
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1043,
+            "name": "Sphere3",
+            "parentId": 1041,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1124,
+            "name": "Sphere4",
+            "parentId": 1121,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1125,
+            "name": "Sphere1",
+            "parentId": 1121,
+            "position": {
+                "x": 1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                },
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                }
+            ],
+            "id": 1061,
+            "name": "Sphere_Duplicate",
+            "position": {
+                "x": 2.151228904724121,
+                "y": 7.300000190734863,
+                "z": -5.220338821411133
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                },
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                }
+            ],
+            "id": 1126,
+            "name": "Sphere_Duplicate_Duplicate",
+            "position": {
+                "x": 6.5643110275268555,
+                "y": 7.300000190734863,
+                "z": -2.4008874893188477
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1062,
+            "name": "Sphere2",
+            "parentId": 1061,
+            "position": {
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1087,
+            "name": "Sphere2",
+            "parentId": 1086,
+            "position": {
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1072,
+            "name": "Sphere2",
+            "parentId": 1071,
+            "position": {
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1073,
+            "name": "Sphere3",
+            "parentId": 1071,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1074,
+            "name": "Sphere4",
+            "parentId": 1071,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                },
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                }
+            ],
+            "id": 1051,
+            "name": "Sphere_Duplicate",
+            "position": {
+                "x": 4.354128837585449,
+                "y": 7.300000190734863,
+                "z": -3.660555362701416
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1132,
+            "name": "Sphere2",
+            "parentId": 1131,
+            "position": {
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1068,
+            "name": "Sphere3",
+            "parentId": 1066,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1133,
+            "name": "Sphere3",
+            "parentId": 1131,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1069,
+            "name": "Sphere4",
+            "parentId": 1066,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
             "id": 1039,
             "name": "Sphere4",
             "parentId": 1036,
@@ -159,6 +901,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -171,14 +921,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -267,6 +1009,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -279,14 +1029,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -406,6 +1148,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -418,14 +1168,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -545,6 +1287,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -557,14 +1307,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -622,454 +1364,6 @@
         {
             "components": [
                 {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
-                        }
-                    ]
-                }
-            ],
-            "id": 1061,
-            "name": "Sphere_Duplicate",
-            "position": {
-                "x": 2.151228904724121,
-                "y": 7.300000190734863,
-                "z": -5.220338821411133
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1125,
-            "name": "Sphere1",
-            "parentId": 1121,
-            "position": {
-                "x": 1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1062,
-            "name": "Sphere2",
-            "parentId": 1061,
-            "position": {
-                "x": -1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
-                        }
-                    ]
-                }
-            ],
-            "id": 1126,
-            "name": "Sphere_Duplicate_Duplicate",
-            "position": {
-                "x": 6.5643110275268555,
-                "y": 7.300000190734863,
-                "z": -2.4008874893188477
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1087,
-            "name": "Sphere2",
-            "parentId": 1086,
-            "position": {
-                "x": -1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1072,
-            "name": "Sphere2",
-            "parentId": 1071,
-            "position": {
-                "x": -1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1073,
-            "name": "Sphere3",
-            "parentId": 1071,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1074,
-            "name": "Sphere4",
-            "parentId": 1071,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": -1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
-                        }
-                    ]
-                }
-            ],
-            "id": 1051,
-            "name": "Sphere_Duplicate",
-            "position": {
-                "x": 4.354128837585449,
-                "y": 7.300000190734863,
-                "z": -3.660555362701416
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1068,
-            "name": "Sphere3",
-            "parentId": 1066,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1132,
-            "name": "Sphere2",
-            "parentId": 1131,
-            "position": {
-                "x": -1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1069,
-            "name": "Sphere4",
-            "parentId": 1066,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": -1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1133,
-            "name": "Sphere3",
-            "parentId": 1131,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
                     "name": "DirectionalLightComponent",
                     "properties": [
                         {
@@ -1093,8 +1387,8 @@
                 "z": 0.0
             },
             "rotation": {
-                "w": 0.70710688829422,
-                "x": 0.7071066498756409,
+                "w": 0.7071080207824707,
+                "x": 0.7071054577827454,
                 "y": 0.0,
                 "z": 0.0
             },
@@ -1235,8 +1529,8 @@
                 "z": 0.0
             },
             "rotation": {
-                "w": 0.70710688829422,
-                "x": 0.7071066498756409,
+                "w": 0.7071080207824707,
+                "x": 0.7071054577827454,
                 "y": 0.0,
                 "z": 0.0
             },
@@ -1248,6 +1542,22 @@
         },
         {
             "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "plane.obj"
+                        }
+                    ]
+                },
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": true
+                        }
+                    ]
+                },
                 {
                     "name": "BoxShapeComponent",
                     "properties": [
@@ -1263,18 +1573,28 @@
                     ]
                 },
                 {
-                    "name": "VisualComponent",
+                    "name": "SkyboxComponent",
                     "properties": [
                         {
-                            "Model": "plane.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
+                            "Left": "Skybox/Left.png"
+                        },
                         {
-                            "Static": true
+                            "Right": "Skybox/Right.png"
+                        },
+                        {
+                            "Top": "Skybox/Top.png"
+                        },
+                        {
+                            "Bottom": "Skybox/Bottom.png"
+                        },
+                        {
+                            "Front": "Skybox/Front.png"
+                        },
+                        {
+                            "Back": "Skybox/Back.png"
+                        },
+                        {
+                            "Active": true
                         }
                     ]
                 }
@@ -1301,6 +1621,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -1313,14 +1641,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -1347,20 +1667,6 @@
         {
             "components": [
                 {
-                    "name": "BoxShapeComponent",
-                    "properties": [
-                        {
-                            "HalfWidth": 2.0
-                        },
-                        {
-                            "HalfHeight": 0.5
-                        },
-                        {
-                            "HalfDepth": 1.0
-                        }
-                    ]
-                },
-                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -1373,6 +1679,20 @@
                     "properties": [
                         {
                             "Static": false
+                        }
+                    ]
+                },
+                {
+                    "name": "BoxShapeComponent",
+                    "properties": [
+                        {
+                            "HalfWidth": 2.0
+                        },
+                        {
+                            "HalfHeight": 0.5
+                        },
+                        {
+                            "HalfDepth": 1.0
                         }
                     ]
                 }
@@ -1399,6 +1719,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -1411,14 +1739,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -1538,6 +1858,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -1550,14 +1878,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -1599,37 +1919,6 @@
                 "x": -1.0,
                 "y": 0.0,
                 "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1043,
-            "name": "Sphere3",
-            "parentId": 1041,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
             },
             "rotation": {
                 "w": 1.0,
@@ -1708,6 +1997,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -1720,14 +2017,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -1886,99 +2175,6 @@
                     ]
                 }
             ],
-            "id": 1052,
-            "name": "Sphere2",
-            "parentId": 1051,
-            "position": {
-                "x": -1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1053,
-            "name": "Sphere3",
-            "parentId": 1051,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1054,
-            "name": "Sphere4",
-            "parentId": 1051,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": -1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
             "id": 1055,
             "name": "Sphere1",
             "parentId": 1051,
@@ -2002,6 +2198,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -2014,14 +2218,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -2211,114 +2407,6 @@
                     ]
                 }
             ],
-            "id": 1064,
-            "name": "Sphere4",
-            "parentId": 1061,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": -1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1065,
-            "name": "Sphere1",
-            "parentId": 1061,
-            "position": {
-                "x": 1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
-                        }
-                    ]
-                }
-            ],
-            "id": 1066,
-            "name": "Sphere_Duplicate",
-            "position": {
-                "x": -0.29563474655151367,
-                "y": 7.300000190734863,
-                "z": -5.224391460418701
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
             "id": 1067,
             "name": "Sphere2",
             "parentId": 1066,
@@ -2373,6 +2461,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -2385,14 +2481,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -2450,6 +2538,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -2462,14 +2558,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -2542,37 +2630,6 @@
                 "x": 0.0,
                 "y": 0.0,
                 "z": 1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1079,
-            "name": "Sphere4",
-            "parentId": 1076,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": -1.0
             },
             "rotation": {
                 "w": 1.0,
@@ -2713,6 +2770,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -2725,14 +2790,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -2883,6 +2940,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -2895,14 +2960,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -3053,6 +3110,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -3065,14 +3130,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -3223,6 +3280,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -3235,14 +3300,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -3393,6 +3450,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -3405,14 +3470,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -3563,6 +3620,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -3575,14 +3640,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -3733,6 +3790,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -3745,14 +3810,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -3794,37 +3851,6 @@
                 "x": -1.0,
                 "y": 0.0,
                 "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 1124,
-            "name": "Sphere4",
-            "parentId": 1121,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": -1.0
             },
             "rotation": {
                 "w": 1.0,
@@ -3996,6 +4022,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -4008,14 +4042,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -4228,6 +4254,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -4240,14 +4274,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -4398,6 +4424,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -4410,14 +4444,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -4568,6 +4594,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -4580,14 +4614,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -4738,6 +4764,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -4750,14 +4784,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -4908,6 +4934,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -4920,14 +4954,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -5078,6 +5104,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -5090,14 +5124,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -5248,6 +5274,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -5260,14 +5294,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -5418,6 +5444,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -5430,14 +5464,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -5588,6 +5614,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -5600,14 +5634,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -5758,6 +5784,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -5770,14 +5804,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -5928,6 +5954,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -5940,14 +5974,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -6098,6 +6124,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -6110,14 +6144,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -6268,6 +6294,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -6280,14 +6314,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -6438,6 +6464,14 @@
         {
             "components": [
                 {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -6450,14 +6484,6 @@
                     "properties": [
                         {
                             "Static": false
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
                         }
                     ]
                 }
@@ -6603,6 +6629,55 @@
                 "x": 0.25,
                 "y": 0.25,
                 "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "SkyboxComponent",
+                    "properties": [
+                        {
+                            "Left": "Skybox/xpos.png"
+                        },
+                        {
+                            "Right": "Skybox/xneg.png"
+                        },
+                        {
+                            "Top": "Skybox/ypos.png"
+                        },
+                        {
+                            "Bottom": "Skybox/yneg.png"
+                        },
+                        {
+                            "Front": "Skybox/zpos.png"
+                        },
+                        {
+                            "Back": "Skybox/zneg.png"
+                        },
+                        {
+                            "Active": false
+                        }
+                    ]
+                }
+            ],
+            "id": 1216,
+            "name": "NewEntity",
+            "parentId": 1029,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
             }
         }
     ]

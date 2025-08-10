@@ -16,6 +16,11 @@ VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, cons
 {
 }
 
+VisualStructure::VisualStructure()
+	: m_iActiveSkyIndex( -1 )
+{
+}
+
 VisualNode* VisualStructure::AddNode( const Entity* pEntity, Technique& oTechnique )
 {
 	int iIndex = Find( m_aTechniques, &oTechnique );
@@ -161,6 +166,51 @@ void VisualStructure::RemoveSpotLight( SpotLight*& pSpotLight )
 		delete pSpotLight;
 		pSpotLight = nullptr;
 	}
+}
+
+Sky* VisualStructure::AddSky()
+{
+	m_aSkies.PushBack( new Sky );
+
+	return m_aSkies.Back();
+}
+
+void VisualStructure::RemoveSky( Sky*& pSky )
+{
+	const int iIndex = Find( m_aSkies, pSky );
+	if( iIndex != -1 )
+	{
+		m_aSkies.Remove( iIndex );
+		delete pSky;
+		pSky = nullptr;
+
+		if( iIndex == m_iActiveSkyIndex )
+			m_iActiveSkyIndex = -1;
+		else if( iIndex < m_iActiveSkyIndex )
+			--m_iActiveSkyIndex;
+	}
+}
+
+void VisualStructure::SetActiveSky( const Sky* pSky )
+{
+	m_iActiveSkyIndex = -1;
+
+	for( uint u = 0; u < m_aSkies.Count(); ++u )
+	{
+		if( m_aSkies[ u ] == pSky )
+		{
+			m_iActiveSkyIndex = ( int )u;
+			break;
+		}
+	}
+}
+
+const Sky* VisualStructure::GetActiveSky() const
+{
+	if( m_iActiveSkyIndex == -1 )
+		return nullptr;
+
+	return m_aSkies[ m_iActiveSkyIndex ];
 }
 
 void VisualStructure::Clear()
