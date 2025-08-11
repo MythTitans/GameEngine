@@ -16,10 +16,20 @@ public:
 	void Render( const Sky* pSky, const RenderContext& oRenderContext );
 
 	bool OnLoading();
+	void OnLoaded();
 
 private:
-	TechniqueResPtr m_xTechnique;
-	Mesh			m_oMesh;
+	enum class SkyboxParam
+	{
+		VIEW_PROJECTION,
+		CUBE_MAP,
+		_COUNT
+	};
+
+	TechniqueResPtr				m_xTechnique;
+	PARAM_SHEET( SkyboxParam )	m_oSkyboxSheet;
+
+	Mesh						m_oMesh;
 };
 
 // TODO #eric maybe we could load the cube map only when the skybox is active

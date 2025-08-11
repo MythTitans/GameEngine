@@ -336,6 +336,7 @@ void Renderer::OnLoaded()
 	m_oGizmoSheet.BindParameter( GizmoParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
 	m_oGizmoSheet.BindParameter( GizmoParam::COLOR, "color" );
 
+	m_oSkybox.OnLoaded();
 	m_oBloom.OnLoaded();
 }
 

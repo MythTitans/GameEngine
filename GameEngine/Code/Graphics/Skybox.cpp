@@ -36,7 +36,6 @@ Skybox::Skybox()
 	m_oMesh = MeshBuilder( std::move( aVertices ), std::move( aIndices ) ).Build();
 }
 
-// TODO #eric use a param sheet
 void Skybox::Render( const Sky* pSky, const RenderContext& /*oRenderContext*/ )
 {
 	glDepthMask( GL_FALSE );
@@ -45,10 +44,10 @@ void Skybox::Render( const Sky* pSky, const RenderContext& /*oRenderContext*/ )
 	g_pRenderer->SetTechnique( oTechnique );
 
 	const glm::mat4 mViewProjection = g_pRenderer->m_oCamera.GetProjectionMatrix() * ToMat4( glm::mat3( g_pRenderer->m_oCamera.GetViewMatrix() ) );
-	oTechnique.GetParameter( "viewProjection" ).SetValue( mViewProjection );
+	m_oSkyboxSheet.GetParameter( SkyboxParam::VIEW_PROJECTION ).SetValue( mViewProjection );
 
 	g_pRenderer->SetCubeMapSlot( pSky->m_oCubeMap, 0 );
-	oTechnique.GetParameter( "cubeMap" ).SetValue( 0 );
+	m_oSkyboxSheet.GetParameter( SkyboxParam::CUBE_MAP ).SetValue( 0 );
 
 	g_pRenderer->DrawMesh( m_oMesh );
 
@@ -60,6 +59,13 @@ void Skybox::Render( const Sky* pSky, const RenderContext& /*oRenderContext*/ )
 bool Skybox::OnLoading()
 {
 	return m_xTechnique->IsLoaded();
+}
+
+void Skybox::OnLoaded()
+{
+	m_oSkyboxSheet.Init( m_xTechnique->GetTechnique() );
+	m_oSkyboxSheet.BindParameter( SkyboxParam::VIEW_PROJECTION, "viewProjection" );
+	m_oSkyboxSheet.BindParameter( SkyboxParam::CUBE_MAP, "cubeMap" );
 }
 
 REGISTER_COMPONENT( SkyboxComponent );
