@@ -300,7 +300,7 @@ bool Renderer::OnLoading()
 {
 	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
 	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xBlend->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
-	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading() && m_oSkybox.OnLoading() && m_oBloom.OnLoading();
+	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading() && m_oSkybox.OnLoading() && m_oTerrain.OnLoading() && m_oBloom.OnLoading();
 
 	return bLoaded;
 }
@@ -573,6 +573,10 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	const Sky* pActiveSky = g_pRenderer->m_oVisualStructure.GetActiveSky();
 	if( pActiveSky != nullptr )
 		m_oSkybox.Render( pActiveSky, oRenderContext );
+
+	const TerrainNode* pTerrain = g_pRenderer->m_oVisualStructure.GetTerrain();
+	if( pTerrain != nullptr )
+		m_oTerrain.Render( pTerrain, oRenderContext );
 
 	for( uint u = 0; u < m_oVisualStructure.m_aTechniques.Count(); ++u )
 	{
