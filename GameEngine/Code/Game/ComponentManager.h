@@ -10,10 +10,10 @@
 #include "Editor/Inspector.h"
 #include "Scene.h"
 
-#define REGISTER_COMPONENT( COMPONENT )					\
-static bool b##COMPONENT##Registered = []() {			\
-	ComponentManager::RegisterComponent< COMPONENT >();	\
-	return true;										\
+#define REGISTER_COMPONENT( COMPONENT, ... )							\
+static bool b##COMPONENT##Registered = []() {							\
+	ComponentManager::RegisterComponent< COMPONENT, ##__VA_ARGS__ >();	\
+	return true;														\
 }()
 
 #define PROPERTIES( CLASS ) using PropertyClass = CLASS
@@ -38,6 +38,7 @@ TYPE FIELD = []() {																\
 	return DEFAULT;																\
 }()
 
+class Component;
 struct GameContext;
 
 struct PropertiesHolderBase
@@ -115,27 +116,30 @@ public:
 	ComponentsHolderBase();
 	virtual ~ComponentsHolderBase();
 
-	virtual void			InitializeComponents() = 0;
-	virtual void			InitializeComponent( Entity* pEntity ) = 0;
-	virtual bool			AreComponentsInitialized() const = 0;
-	virtual void			StartPendingComponents() = 0;
-	virtual void			StartComponents() = 0;
-	virtual void			StartComponent( Entity* pEntity ) = 0;
-	virtual void			StopComponents() = 0;
-	virtual void			DisposeComponent( Entity* pEntity ) = 0;
-	virtual void			TickComponents() = 0;
-	virtual void			NotifyBeforePhysicsOnComponents() = 0;
-	virtual void			NotifyAfterPhysicsOnComponents() = 0;
-	virtual void			UpdateComponents( const GameContext& oGameContext ) = 0;
+	virtual void				InitializeComponents() = 0;
+	virtual void				InitializeComponent( Entity* pEntity ) = 0;
+	virtual bool				AreComponentsInitialized() const = 0;
+	virtual void				StartPendingComponents() = 0;
+	virtual void				StartComponents() = 0;
+	virtual void				StartComponent( Entity* pEntity ) = 0;
+	virtual void				StopComponents() = 0;
+	virtual void				DisposeComponent( Entity* pEntity ) = 0;
+	virtual void				TickComponents() = 0;
+	virtual void				NotifyBeforePhysicsOnComponents() = 0;
+	virtual void				NotifyAfterPhysicsOnComponents() = 0;
+	virtual void				UpdateComponents( const GameContext& oGameContext ) = 0;
 
-	virtual nlohmann::json	SerializeComponent( const Entity* pEntity ) const = 0;
-	virtual void			DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, const Entity* pEntity ) = 0;
+	virtual nlohmann::json		SerializeComponent( const Entity* pEntity ) const = 0;
+	virtual void				DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, const Entity* pEntity ) = 0;
 
-	virtual bool			DisplayInspector( const Entity* pEntity ) = 0;
-	virtual void			DisplayGizmos( const uint64 uSelectedEntityID ) = 0;
+	virtual bool				DisplayInspector( const Entity* pEntity ) = 0;
+	virtual void				DisplayGizmos( const uint64 uSelectedEntityID ) = 0;
 
-	virtual uint			GetCount() const = 0;
-	virtual uint			GetDisposedCount() const = 0;
+	virtual uint				GetCount() const = 0;
+	virtual uint				GetDisposedCount() const = 0;
+
+	virtual bool				HasConcreteComponent( const Entity* pEntity ) const = 0;
+	virtual const std::string&	GetConcreteComponentName() const = 0;
 
 	uint m_uVersion;
 };
@@ -424,21 +428,33 @@ public:
 
 	ComponentType* CreateComponent( Entity* pEntity, const ComponentManagement eComponentManagement )
 	{
+		int iDisposedIndex = -1;
+
 		for( uint u = 0; u < m_aStates.Count(); ++u )
 		{
-			if( m_aStates[ u ] == ComponentState::DISPOSED )
+			if( m_aStates[ u ] != ComponentState::DISPOSED )
 			{
-				m_aComponents[ u ] = ComponentType( pEntity );
-				m_aStates[ u ] = ComponentState::UNINITIALIZED;
-
-				if( eComponentManagement != ComponentManagement::NONE )
-					InitializeComponentFromIndex( u );
-
-				if( eComponentManagement == ComponentManagement::INITIALIZE_THEN_START )
-					m_aPendingComponents.PushBack( u );
-
-				return &m_aComponents[ u ];
+				if( m_aComponents[ u ].GetEntity() == pEntity )
+					return &m_aComponents[ u ];
 			}
+			else if( iDisposedIndex == -1 )
+			{
+				iDisposedIndex = u;
+			}
+		}
+
+		if( iDisposedIndex != -1 )
+		{
+			m_aComponents[ iDisposedIndex ] = ComponentType( pEntity );
+			m_aStates[ iDisposedIndex ] = ComponentState::UNINITIALIZED;
+
+			if( eComponentManagement != ComponentManagement::NONE )
+				InitializeComponentFromIndex( iDisposedIndex );
+
+			if( eComponentManagement == ComponentManagement::INITIALIZE_THEN_START )
+				m_aPendingComponents.PushBack( iDisposedIndex );
+
+			return &m_aComponents[ iDisposedIndex ];
 		}
 
 		m_aComponents.PushBack( ComponentType( pEntity ) );
@@ -549,6 +565,7 @@ public:
 		++m_uVersion;
 	}
 
+	// TODO #eric maybe we should check that the component is not disposed ?
 	ComponentType* GetComponent( const Entity* pEntity )
 	{
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
@@ -621,6 +638,22 @@ public:
 		}
 
 		return iCount;
+	}
+
+	bool ComponentsHolderBase::HasConcreteComponent( const Entity* pEntity ) const
+	{
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aStates[ u ] != ComponentState::DISPOSED && m_aComponents[ u ].GetEntity() == pEntity )
+				return true;
+		}
+
+		return false;
+	}
+
+	const std::string& GetConcreteComponentName() const override
+	{
+		return GetComponentName();
 	}
 
 	static const std::string& GetComponentName()
@@ -774,7 +807,9 @@ public:
 		if( pComponentsHolder == nullptr )
 			return;
 
-		pComponentsHolder->DisposeComponent( pEntity );
+		int iIndex = GetComponentIndexFromEntity< ComponentType >( pEntity );
+		if( iIndex != -1 )
+			DisposeComponentFromIndex< ComponentType >( iIndex );
 	}
 
 	template < typename ComponentType >
@@ -784,7 +819,28 @@ public:
 		if( pComponentsHolder == nullptr )
 			return;
 
-		pComponentsHolder->DisposeComponentFromIndex( iIndex );
+		const ComponentType* pComponent = pComponentsHolder->GetComponentFromIndex( iIndex );
+
+		bool bIsDependency = false;
+		for( const auto& oPair : m_mComponentsHolders )
+		{
+			if( oPair.second->HasConcreteComponent( pComponent->GetEntity() ) )
+			{
+				auto it = GetComponentsFactory().find( oPair.second->GetConcreteComponentName() );
+				if( it != GetComponentsFactory().end() )
+				{
+					ComponentFactory& oComponentFactory = it->second;
+					if( oComponentFactory.m_pHasDependency( pComponent ) )
+					{
+						bIsDependency = true;
+						break;
+					}
+				}
+			}
+		}
+
+		if( bIsDependency == false )
+			pComponentsHolder->DisposeComponentFromIndex( iIndex );
 	}
 
 	template < typename ComponentType >
@@ -836,12 +892,16 @@ public:
 	bool					DisplayInspector( Entity* pEntity );
 	void					DisplayGizmos( const uint64 uSelectedEntityID );
 
-	template < typename ComponentType >
+	template < typename ComponentType, typename... Dependencies >
 	static void RegisterComponent()
 	{
 		ComponentFactory& oFactory = GetComponentsFactory()[ ComponentsHolder< ComponentType >::GetComponentName() ];
-		oFactory.m_pCreate = []( Entity* pEntity, const ComponentManagement eComponentManagement ) { g_pComponentManager->CreateComponent< ComponentType >( pEntity, eComponentManagement ); };
+		oFactory.m_pCreate = []( Entity* pEntity, const ComponentManagement eComponentManagement ) {
+			( g_pComponentManager->CreateComponent< Dependencies >( pEntity, eComponentManagement ), ... );
+			g_pComponentManager->CreateComponent< ComponentType >( pEntity, eComponentManagement );
+		};
 		oFactory.m_pDispose = []( Entity* pEntity ) { g_pComponentManager->DisposeComponent< ComponentType >( pEntity ); };
+		oFactory.m_pHasDependency = []( const Component* pComponent ) { return ( ( typeid( *pComponent ) == typeid( Dependencies ) ) || ... ); };
 	}
 
 private:
@@ -867,8 +927,13 @@ private:
 
 	struct ComponentFactory
 	{
-		std::function< void( Entity*, const ComponentManagement ) > m_pCreate;
-		std::function< void( Entity* ) > m_pDispose;
+		using CreateFunc = void ( * )( Entity*, const ComponentManagement );
+		using DisposeFunc = void ( * )( Entity* );
+		using HasDependencyFunc = bool ( * )( const Component* );
+
+		CreateFunc			m_pCreate;
+		DisposeFunc			m_pDispose;
+		HasDependencyFunc	m_pHasDependency;
 	};
 
 	static std::unordered_map< std::string, ComponentFactory >& GetComponentsFactory()

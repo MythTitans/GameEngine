@@ -120,7 +120,7 @@ const physx::PxRigidActor* RigidbodyComponent::GetRigidActor() const
 	return m_pRigidActor;
 }
 
-REGISTER_COMPONENT( SphereShapeComponent );
+REGISTER_COMPONENT( SphereShapeComponent, RigidbodyComponent );
 
 SphereShapeComponent::SphereShapeComponent( Entity* pEntity )
 	: Component( pEntity )
@@ -186,7 +186,7 @@ void SphereShapeComponent::OnPropertyChanged( const std::string& sProperty )
 	}
 }
 
-REGISTER_COMPONENT( BoxShapeComponent );
+REGISTER_COMPONENT( BoxShapeComponent, RigidbodyComponent );
 
 BoxShapeComponent::BoxShapeComponent( Entity* pEntity )
 	: Component( pEntity )
