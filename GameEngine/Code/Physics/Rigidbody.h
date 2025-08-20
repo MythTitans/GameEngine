@@ -10,6 +10,7 @@ public:
 
 	void						Initialize() override;
 	void						Start() override;
+	void						Stop() override;
 	void						AfterPhysics() override;
 	void						Update( const GameContext& oGameContext ) override;
 	void						Dispose() override;
@@ -45,7 +46,8 @@ class SphereShapeComponent : public Component
 public:
 	explicit SphereShapeComponent( Entity* pEntity );
 
-	void Update( const GameContext& oGameContext ) override;
+	void Initialize() override;
+	void Start() override;
 
 	void DisplayGizmos( const bool bSelected ) override;
 	void OnPropertyChanged( const std::string& sProperty ) override;
@@ -63,7 +65,8 @@ class BoxShapeComponent : public Component
 public:
 	explicit BoxShapeComponent( Entity* pEntity );
 
-	void Update( const GameContext& oGameContext ) override;
+	void Initialize() override;
+	void Start() override;
 
 	void DisplayGizmos( const bool bSelected ) override;
 	void OnPropertyChanged( const std::string& sProperty ) override;
