@@ -244,6 +244,7 @@ Entity::~Entity()
 		g_pGameWorld->m_oScene.DetachFromParent( this );
 	}
 
+	g_pComponentManager->StopComponents( this );
 	g_pComponentManager->DisposeComponents( this );
 }
 

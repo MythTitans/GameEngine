@@ -26,12 +26,12 @@ void RigidbodyComponent::Initialize()
 		m_pRigidActor = g_pPhysics->m_pPhysics->createRigidStatic( PxTransform( PxIdentity ) );
 	else
 		m_pRigidActor = g_pPhysics->m_pPhysics->createRigidDynamic( PxTransform( PxIdentity ) );
-
-	g_pPhysics->m_pScene->addActor( *m_pRigidActor );
 }
 
 void RigidbodyComponent::Start()
 {
+	g_pPhysics->m_pScene->addActor( *m_pRigidActor );
+
 	Entity* pEntity = GetEntity();
 
 	const glm::vec3 vPosition = pEntity->GetWorldPosition();
@@ -43,6 +43,11 @@ void RigidbodyComponent::Start()
 	m_fTime = 0.f;
 
 	m_pRigidActor->setGlobalPose( m_oTransform );
+}
+
+void RigidbodyComponent::Stop()
+{
+	g_pPhysics->m_pScene->removeActor( *m_pRigidActor );
 }
 
 void RigidbodyComponent::AfterPhysics()
@@ -88,7 +93,6 @@ void RigidbodyComponent::Update( const GameContext& oGameContext )
 
 void RigidbodyComponent::Dispose()
 {
-	g_pPhysics->m_pScene->removeActor( *m_pRigidActor );
 	PX_RELEASE( m_pRigidActor );
 }
 
@@ -120,31 +124,83 @@ const physx::PxRigidActor* RigidbodyComponent::GetRigidActor() const
 	return m_pRigidActor;
 }
 
-REGISTER_COMPONENT( SphereShapeComponent );
-
-SphereShapeComponent::SphereShapeComponent( Entity* pEntity )
+ShapeComponentBase::ShapeComponentBase( Entity* pEntity )
 	: Component( pEntity )
+	, m_pShape( nullptr )
 {
 }
 
-void SphereShapeComponent::Update( const GameContext& oGameContext )
+void ShapeComponentBase::Initialize()
 {
-	// TODO #eric this should only be done in editing, but it would require an initialization priority
-	// TODO #eric handle shape removal
-	if( m_hRigidBody.IsValid() == false )
+	m_hRigidBody = GetComponent< RigidbodyComponent >();
+	m_pShape = CreateShape();
+}
+
+void ShapeComponentBase::Start()
+{
+	PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
+	pRigidActor->attachShape( *m_pShape );
+
+	PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
+	if( pRigidBody != nullptr )
+		PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
+}
+
+void ShapeComponentBase::Update( const GameContext& oGameContext )
+{
+	if( oGameContext.m_bEditing )
 	{
-		m_hRigidBody = GetComponent< RigidbodyComponent >();
+		PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
+		Array< PxShape* > aShapes( pRigidActor->getNbShapes() );
+		pRigidActor->getShapes( aShapes.Data(), aShapes.Count() );
 
-		if( m_hRigidBody.IsValid() )
+		bool bFound = false;
+		for( const PxShape* pShape : aShapes )
 		{
-			PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
-			PxRigidActorExt::createExclusiveShape( *pRigidActor, PxSphereGeometry( m_fRadius ), *g_pPhysics->m_pMaterial );
-
-			PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
-			if( pRigidBody != nullptr )
-				PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
+			if( pShape == m_pShape )
+			{
+				bFound = true;
+				break;
+			}
 		}
+
+		if( bFound == false )
+			pRigidActor->attachShape( *m_pShape );
 	}
+}
+
+void ShapeComponentBase::Stop()
+{
+	PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
+	pRigidActor->detachShape( *m_pShape );
+}
+
+void ShapeComponentBase::Dispose()
+{
+	PX_RELEASE( m_pShape );
+}
+
+void ShapeComponentBase::UpdateShape()
+{
+	PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
+
+	pRigidActor->detachShape( *m_pShape );
+	PX_RELEASE( m_pShape );
+
+	m_pShape = CreateShape();
+
+	pRigidActor->attachShape( *m_pShape );
+
+	PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
+	if( pRigidBody != nullptr )
+		PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
+}
+
+REGISTER_COMPONENT( SphereShapeComponent, RigidbodyComponent );
+
+SphereShapeComponent::SphereShapeComponent( Entity* pEntity )
+	: ShapeComponentBase( pEntity )
+{
 }
 
 void SphereShapeComponent::DisplayGizmos( const bool bSelected )
@@ -161,56 +217,19 @@ void SphereShapeComponent::DisplayGizmos( const bool bSelected )
 void SphereShapeComponent::OnPropertyChanged( const std::string& sProperty )
 {
 	if( sProperty == "Radius" )
-	{
-		if( m_hRigidBody.IsValid() )
-		{
-			PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
-
-			PxShape* pShape = nullptr;
-			pRigidActor->getShapes( &pShape, 1 );
-
-			PxSphereGeometry oSphere = PxGeometryHolder( pShape->getGeometry() ).sphere();
-			oSphere.radius = m_fRadius;
-			pShape->setGeometry( oSphere );
-			
-			PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
-			if( pRigidBody != nullptr )
-			{
-				PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
-
-				PxRigidDynamic* pRigidDynamic = pRigidActor->is< PxRigidDynamic >();
-				if( pRigidDynamic != nullptr )
-					pRigidDynamic->wakeUp();
-			}
-		}
-	}
+		UpdateShape();
 }
 
-REGISTER_COMPONENT( BoxShapeComponent );
+physx::PxShape* SphereShapeComponent::CreateShape()
+{
+	return g_pPhysics->m_pPhysics->createShape( PxSphereGeometry( m_fRadius ), *g_pPhysics->m_pMaterial );
+}
+
+REGISTER_COMPONENT( BoxShapeComponent, RigidbodyComponent );
 
 BoxShapeComponent::BoxShapeComponent( Entity* pEntity )
-	: Component( pEntity )
+	: ShapeComponentBase( pEntity )
 {
-}
-
-void BoxShapeComponent::Update( const GameContext& oGameContext )
-{
-	// TODO #eric this should only be done in editing, but it would require an initialization priority
-	// TODO #eric handle shape removal
-	if( m_hRigidBody.IsValid() == false )
-	{
-		m_hRigidBody = GetComponent< RigidbodyComponent >();
-
-		if( m_hRigidBody.IsValid() )
-		{
-			PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
-			PxRigidActorExt::createExclusiveShape( *pRigidActor, PxBoxGeometry( m_fHalfWidth, m_fHalfHeight, m_fHalfDepth ), *g_pPhysics->m_pMaterial );
-
-			PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
-			if( pRigidBody != nullptr )
-				PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
-		}
-	}
 }
 
 void BoxShapeComponent::DisplayGizmos( const bool bSelected )
@@ -227,29 +246,10 @@ void BoxShapeComponent::DisplayGizmos( const bool bSelected )
 void BoxShapeComponent::OnPropertyChanged( const std::string& sProperty )
 {
 	if( sProperty == "HalfWidth" || sProperty == "HalfHeight" || sProperty == "HalfDepth" )
-	{
-		if( m_hRigidBody.IsValid() )
-		{
-			PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
+		UpdateShape();
+}
 
-			PxShape* pShape = nullptr;
-			pRigidActor->getShapes( &pShape, 1 );
-
-			PxBoxGeometry oBox = PxGeometryHolder( pShape->getGeometry() ).box();
-			oBox.halfExtents.x = m_fHalfWidth;
-			oBox.halfExtents.y = m_fHalfHeight;
-			oBox.halfExtents.z = m_fHalfDepth;
-			pShape->setGeometry( oBox );
-
-			PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
-			if( pRigidBody != nullptr )
-			{
-				PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
-
-				PxRigidDynamic* pRigidDynamic = pRigidActor->is< PxRigidDynamic >();
-				if( pRigidDynamic != nullptr )
-					pRigidDynamic->wakeUp();
-			}
-		}
-	}
+physx::PxShape* BoxShapeComponent::CreateShape()
+{
+	return g_pPhysics->m_pPhysics->createShape( PxBoxGeometry( m_fHalfWidth, m_fHalfHeight, m_fHalfDepth ), *g_pPhysics->m_pMaterial );
 }

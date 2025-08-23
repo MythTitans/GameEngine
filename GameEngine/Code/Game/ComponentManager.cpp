@@ -72,6 +72,12 @@ void ComponentManager::StopComponents()
 		oPair.second->StopComponents();
 }
 
+void ComponentManager::StopComponents( Entity* pEntity )
+{
+	for( const auto& oPair : m_mComponentsHolders )
+		oPair.second->StopComponent( pEntity );
+}
+
 void ComponentManager::DisposeComponents( Entity* pEntity )
 {
 	for( const auto& oPair : m_mComponentsHolders )
