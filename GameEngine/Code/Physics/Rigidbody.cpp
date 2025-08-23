@@ -124,26 +124,83 @@ const physx::PxRigidActor* RigidbodyComponent::GetRigidActor() const
 	return m_pRigidActor;
 }
 
-REGISTER_COMPONENT( SphereShapeComponent, RigidbodyComponent );
-
-SphereShapeComponent::SphereShapeComponent( Entity* pEntity )
+ShapeComponentBase::ShapeComponentBase( Entity* pEntity )
 	: Component( pEntity )
+	, m_pShape( nullptr )
 {
 }
 
-void SphereShapeComponent::Initialize()
+void ShapeComponentBase::Initialize()
 {
 	m_hRigidBody = GetComponent< RigidbodyComponent >();
+	m_pShape = CreateShape();
 }
 
-void SphereShapeComponent::Start()
+void ShapeComponentBase::Start()
 {
 	PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
-	PxRigidActorExt::createExclusiveShape( *pRigidActor, PxSphereGeometry( m_fRadius ), *g_pPhysics->m_pMaterial );
+	pRigidActor->attachShape( *m_pShape );
 
 	PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
 	if( pRigidBody != nullptr )
 		PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
+}
+
+void ShapeComponentBase::Update( const GameContext& oGameContext )
+{
+	if( oGameContext.m_bEditing )
+	{
+		PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
+		Array< PxShape* > aShapes( pRigidActor->getNbShapes() );
+		pRigidActor->getShapes( aShapes.Data(), aShapes.Count() );
+
+		bool bFound = false;
+		for( const PxShape* pShape : aShapes )
+		{
+			if( pShape == m_pShape )
+			{
+				bFound = true;
+				break;
+			}
+		}
+
+		if( bFound == false )
+			pRigidActor->attachShape( *m_pShape );
+	}
+}
+
+void ShapeComponentBase::Stop()
+{
+	PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
+	pRigidActor->detachShape( *m_pShape );
+}
+
+void ShapeComponentBase::Dispose()
+{
+	PX_RELEASE( m_pShape );
+}
+
+void ShapeComponentBase::UpdateShape()
+{
+	PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
+
+	pRigidActor->detachShape( *m_pShape );
+	PX_RELEASE( m_pShape );
+
+	m_pShape = CreateShape();
+
+	pRigidActor->attachShape( *m_pShape );
+
+	PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
+	if( pRigidBody != nullptr )
+		PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
+}
+
+REGISTER_COMPONENT( SphereShapeComponent, RigidbodyComponent );
+
+SphereShapeComponent::SphereShapeComponent( Entity* pEntity )
+	: ShapeComponentBase( pEntity )
+{
 }
 
 void SphereShapeComponent::DisplayGizmos( const bool bSelected )
@@ -160,48 +217,19 @@ void SphereShapeComponent::DisplayGizmos( const bool bSelected )
 void SphereShapeComponent::OnPropertyChanged( const std::string& sProperty )
 {
 	if( sProperty == "Radius" )
-	{
-		PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
+		UpdateShape();
+}
 
-		PxShape* pShape = nullptr;
-		pRigidActor->getShapes( &pShape, 1 );
-
-		PxSphereGeometry oSphere = PxGeometryHolder( pShape->getGeometry() ).sphere();
-		oSphere.radius = m_fRadius;
-		pShape->setGeometry( oSphere );
-		
-		PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
-		if( pRigidBody != nullptr )
-		{
-			PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
-
-			PxRigidDynamic* pRigidDynamic = pRigidActor->is< PxRigidDynamic >();
-			if( pRigidDynamic != nullptr )
-				pRigidDynamic->wakeUp();
-		}
-	}
+physx::PxShape* SphereShapeComponent::CreateShape()
+{
+	return g_pPhysics->m_pPhysics->createShape( PxSphereGeometry( m_fRadius ), *g_pPhysics->m_pMaterial );
 }
 
 REGISTER_COMPONENT( BoxShapeComponent, RigidbodyComponent );
 
 BoxShapeComponent::BoxShapeComponent( Entity* pEntity )
-	: Component( pEntity )
+	: ShapeComponentBase( pEntity )
 {
-}
-
-void BoxShapeComponent::Initialize()
-{
-	m_hRigidBody = GetComponent< RigidbodyComponent >();
-}
-
-void BoxShapeComponent::Start()
-{
-	PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
-	PxRigidActorExt::createExclusiveShape( *pRigidActor, PxBoxGeometry( m_fHalfWidth, m_fHalfHeight, m_fHalfDepth ), *g_pPhysics->m_pMaterial );
-
-	PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
-	if( pRigidBody != nullptr )
-		PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
 }
 
 void BoxShapeComponent::DisplayGizmos( const bool bSelected )
@@ -218,26 +246,10 @@ void BoxShapeComponent::DisplayGizmos( const bool bSelected )
 void BoxShapeComponent::OnPropertyChanged( const std::string& sProperty )
 {
 	if( sProperty == "HalfWidth" || sProperty == "HalfHeight" || sProperty == "HalfDepth" )
-	{
-		PxRigidActor* pRigidActor = m_hRigidBody->GetRigidActor();
+		UpdateShape();
+}
 
-		PxShape* pShape = nullptr;
-		pRigidActor->getShapes( &pShape, 1 );
-
-		PxBoxGeometry oBox = PxGeometryHolder( pShape->getGeometry() ).box();
-		oBox.halfExtents.x = m_fHalfWidth;
-		oBox.halfExtents.y = m_fHalfHeight;
-		oBox.halfExtents.z = m_fHalfDepth;
-		pShape->setGeometry( oBox );
-
-		PxRigidBody* pRigidBody = pRigidActor->is< PxRigidBody >();
-		if( pRigidBody != nullptr )
-		{
-			PxRigidBodyExt::updateMassAndInertia( *pRigidBody, 1.f );
-
-			PxRigidDynamic* pRigidDynamic = pRigidActor->is< PxRigidDynamic >();
-			if( pRigidDynamic != nullptr )
-				pRigidDynamic->wakeUp();
-		}
-	}
+physx::PxShape* BoxShapeComponent::CreateShape()
+{
+	return g_pPhysics->m_pPhysics->createShape( PxBoxGeometry( m_fHalfWidth, m_fHalfHeight, m_fHalfDepth ), *g_pPhysics->m_pMaterial );
 }

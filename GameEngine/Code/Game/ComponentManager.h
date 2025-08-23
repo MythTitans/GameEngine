@@ -123,6 +123,7 @@ public:
 	virtual void				StartComponents() = 0;
 	virtual void				StartComponent( Entity* pEntity ) = 0;
 	virtual void				StopComponents() = 0;
+	virtual void				StopComponent( Entity* pEntity ) = 0;
 	virtual void				DisposeComponent( Entity* pEntity ) = 0;
 	virtual void				TickComponents() = 0;
 	virtual void				NotifyBeforePhysicsOnComponents() = 0;
@@ -250,6 +251,20 @@ public:
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			StopComponentFromIndex( u );
+		}
+	}
+
+	void StopComponent( Entity* pEntity ) override
+	{
+		ProfilerBlock oBlock( GetComponentName().c_str() );
+
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aComponents[ u ].m_pEntity == pEntity )
+			{
+				StopComponentFromIndex( u );
+				break;
+			}
 		}
 	}
 
@@ -500,18 +515,6 @@ public:
 		{
 			m_aComponents[ iIndex ].Start();
 			m_aStates[ iIndex ] = ComponentState::STARTED;
-		}
-	}
-
-	void StopComponent( Entity* pEntity )
-	{
-		for( uint u = 0; u < m_aComponents.Count(); ++u )
-		{
-			if( m_aComponents[ u ].m_pEntity == pEntity )
-			{
-				StopComponentFromIndex( u );
-				break;
-			}
 		}
 	}
 
@@ -880,6 +883,7 @@ public:
 	void					StartComponents();
 	void					StartComponents( Entity* pEntity );
 	void					StopComponents();
+	void					StopComponents( Entity* pEntity );
 	void					DisposeComponents( Entity* pEntity );
 	void					TickComponents();
 	void					NotifyBeforePhysicsOnComponents();
