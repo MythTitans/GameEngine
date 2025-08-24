@@ -60,10 +60,10 @@ void RigidbodyComponent::AfterPhysics()
 
 void RigidbodyComponent::Update( const GameContext& oGameContext )
 {
+	Entity* pEntity = GetEntity();
+
 	if( oGameContext.m_bEditing )
 	{
-		Entity* pEntity = GetEntity();
-
 		const glm::vec3 vPosition = pEntity->GetWorldPosition();
 		const glm::quat qRotation = pEntity->GetRotation();
 
@@ -74,8 +74,6 @@ void RigidbodyComponent::Update( const GameContext& oGameContext )
 	}
 
 	m_fTime += oGameContext.m_fLastDeltaTime;
-
-	Entity* pEntity = GetEntity();
 
 	const float fInterpolationRatio = ( m_fTime + Physics::TICK_STEP ) / Physics::TICK_STEP;
 	const glm::vec3 vLastPosition = glm::vec3( m_oLastTransform.p.x, m_oLastTransform.p.y, m_oLastTransform.p.z );

@@ -30,14 +30,16 @@ public:
 	bool IsInitialized() const override;
 	void Start() override;
 	void Update( const GameContext& oGameContext ) override;
+	void Stop() override;
+	void Dispose() override;
 
 private:
 	void GenerateTerrain();
-
-	physx::PxRigidStatic*	m_pRigidStatic;
+	void GenerateShape( const Array< glm::vec3 >& aVertices, const Array< uint >& aIndices );
 
 	TextureResPtr			m_xHeightMap;
 	Mesh					m_oMesh;
 
 	TerrainNode*			m_pTerrain;
+	physx::PxRigidStatic*	m_pRigidStatic;
 };

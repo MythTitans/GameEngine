@@ -1,6 +1,7 @@
 #include "Terrain.h"
 
 #include "Game/Entity.h"
+#include "Game/GameEngine.h"
 #include "Math/GLMHelpers.h"
 #include "Physics/Physics.h"
 #include "Renderer.h"
@@ -41,13 +42,13 @@ TerrainComponent::TerrainComponent( Entity* pEntity )
 	: Component( pEntity )
 	, m_xHeightMap( g_pResourceLoader->LoadTexture( "heightmap-test.png" ) )
 	, m_pTerrain( nullptr )
+	, m_pRigidStatic( nullptr )
 {
 }
 
 void TerrainComponent::Initialize()
 {
 	m_pRigidStatic = g_pPhysics->m_pPhysics->createRigidStatic( PxTransform( PxIdentity ) );
-	g_pPhysics->m_pScene->addActor( *m_pRigidStatic );
 }
 
 bool TerrainComponent::IsInitialized() const
@@ -57,6 +58,15 @@ bool TerrainComponent::IsInitialized() const
 
 void TerrainComponent::Start()
 {
+	g_pPhysics->m_pScene->addActor( *m_pRigidStatic );
+
+	Entity* pEntity = GetEntity();
+
+	const glm::vec3 vPosition = pEntity->GetWorldPosition();
+	const glm::quat qRotation = pEntity->GetRotation();
+
+	m_pRigidStatic->setGlobalPose( PxTransform( PxVec3( vPosition.x, vPosition.y, vPosition.z ), PxQuat( qRotation.x, qRotation.y, qRotation.z, qRotation.w ) ) );
+
 	GenerateTerrain();
 
 	m_pTerrain = g_pRenderer->m_oVisualStructure.AddTerrain();
@@ -65,7 +75,32 @@ void TerrainComponent::Start()
 
 void TerrainComponent::Update( const GameContext& oGameContext )
 {
-	m_pTerrain->m_mMatrix = GetEntity()->GetWorldTransform().GetMatrixTRS();
+	Entity* pEntity = GetEntity();
+
+	if( oGameContext.m_bEditing )
+	{
+		const glm::vec3 vPosition = pEntity->GetWorldPosition();
+		const glm::quat qRotation = pEntity->GetRotation();
+
+		m_pRigidStatic->setGlobalPose( PxTransform( PxVec3( vPosition.x, vPosition.y, vPosition.z ), PxQuat( qRotation.x, qRotation.y, qRotation.z, qRotation.w ) ) );
+	}
+
+	m_pTerrain->m_mMatrix = GetEntity()->GetWorldTransform().GetMatrixTR();
+}
+
+void TerrainComponent::Stop()
+{
+	g_pPhysics->m_pScene->removeActor( *m_pRigidStatic );
+
+	g_pRenderer->m_oVisualStructure.RemoveTerrain( m_pTerrain );
+}
+
+void TerrainComponent::Dispose()
+{
+	PX_RELEASE( m_pRigidStatic );
+
+	m_xHeightMap = nullptr;
+	m_oMesh.Destroy();
 }
 
 void TerrainComponent::GenerateTerrain()
@@ -143,5 +178,30 @@ void TerrainComponent::GenerateTerrain()
 		}
 	}
 
+	GenerateShape( aVertices, aIndices );
+
 	m_oMesh = MeshBuilder( std::move( aVertices ), std::move( aIndices ) ).WithUVs( std::move( aUVs ) ).Build();
+}
+
+void TerrainComponent::GenerateShape( const Array< glm::vec3 >& aVertices, const Array< uint >& aIndices )
+{
+	PxTriangleMeshDesc oMeshDesc;
+	oMeshDesc.points.count = aVertices.Count();
+	oMeshDesc.points.stride = sizeof( glm::vec3 );
+	oMeshDesc.points.data = aVertices.Data();
+
+	oMeshDesc.triangles.count = aIndices.Count() / 3;
+	oMeshDesc.triangles.stride = 3 * sizeof( uint );
+	oMeshDesc.triangles.data = aIndices.Data();
+
+	const PxCookingParams oParams( g_pPhysics->m_pPhysics->getTolerancesScale() );
+
+	PxDefaultMemoryOutputStream oWriteBuffer;
+	PxTriangleMeshCookingResult::Enum oResult;
+	PxCookTriangleMesh( oParams, oMeshDesc, oWriteBuffer, &oResult );
+
+	PxDefaultMemoryInputData oReadBuffer( oWriteBuffer.getData(), oWriteBuffer.getSize() );
+	PxTriangleMesh* pTriangleMesh = g_pPhysics->m_pPhysics->createTriangleMesh( oReadBuffer );
+
+	PxRigidActorExt::createExclusiveShape( *m_pRigidStatic, PxTriangleMeshGeometry( pTriangleMesh ), *g_pPhysics->m_pMaterial );
 }
