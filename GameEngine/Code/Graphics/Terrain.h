@@ -33,10 +33,20 @@ public:
 	void Stop() override;
 	void Dispose() override;
 
+	void OnPropertyChanged( const std::string& sProperty ) override;
+
 private:
 	void GenerateTerrain();
 	void GenerateShape( const Array< glm::vec3 >& aVertices, const Array< uint >& aIndices );
 
+	PROPERTIES( TerrainComponent );
+	PROPERTY_DEFAULT( "Width", m_fWidth, float, 100.f );
+	PROPERTY_DEFAULT( "Height", m_fHeight, float, 100.f );
+	PROPERTY_DEFAULT( "Width resolution", m_uWidthResolution, uint, 100 );
+	PROPERTY_DEFAULT( "Height resolution", m_uHeightResolution, uint, 100 );
+	PROPERTY_DEFAULT( "Intensity", m_fIntensity, float, 10.f );
+
+	TextureResPtr			m_xDiffuseMap;
 	TextureResPtr			m_xHeightMap;
 	Mesh					m_oMesh;
 

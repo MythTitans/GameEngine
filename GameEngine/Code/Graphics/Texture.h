@@ -6,7 +6,8 @@
 
 enum class TextureFormat : uint8
 {
-	RED,
+	R,
+	R16,
 	RGB,
 	RGBA,
 	RGB16,

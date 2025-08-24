@@ -3,6 +3,7 @@
     "pixelShader": "Shader/terrain.ps",
     "parameters": [
         "modelViewProjection",
-        "diffuseColor"
+        "diffuseColor",
+        "diffuseMap"
     ]
 }

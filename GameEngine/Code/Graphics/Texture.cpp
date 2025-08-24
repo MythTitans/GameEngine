@@ -10,9 +10,14 @@ static void GetFormatDetails( const TextureFormat eFormat, const bool bSRGB, GLi
 
 	switch( eFormat )
 	{
-	case TextureFormat::RED:
+	case TextureFormat::R:
 		iFormat = GL_RED;
 		iInternalFormat = GL_R8;
+		break;
+	case TextureFormat::R16:
+		iFormat = GL_RED;
+		iInternalFormat = GL_R16;
+		eType = GL_UNSIGNED_SHORT;
 		break;
 	case TextureFormat::RGB:
 		iFormat = GL_RGB;
@@ -46,8 +51,10 @@ constexpr uint GetFormatBytes( const TextureFormat eFormat )
 {
 	switch( eFormat )
 	{
-	case TextureFormat::RED:
+	case TextureFormat::R:
 		return 1 * sizeof( uint8 );
+	case TextureFormat::R16:
+		return 1 * sizeof( uint16 );
 	case TextureFormat::RGB:
 		return 3 * sizeof( uint8 );
 	case TextureFormat::RGBA:

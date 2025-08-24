@@ -19,9 +19,15 @@ void Terrain::Render( const TerrainNode* pTerrain, const RenderContext& oRenderC
 	g_pRenderer->SetTechnique( oTechnique );
 
 	oTechnique.GetParameter( "modelViewProjection" ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * ToMat4( pTerrain->m_mMatrix ) );
-	oTechnique.GetParameter( "diffuseColor" ).SetValue( glm::vec3( 1.f, 0.5f, 0.25f ) );
+	oTechnique.GetParameter( "diffuseColor" ).SetValue( glm::vec3( 1.f, 1.f, 1.f ) );
+
+	g_pRenderer->SetTextureSlot( pTerrain->m_oDiffuse, 0 );
+	oTechnique.GetParameter( "diffuseMap" ).SetValue( 0 );
 
 	g_pRenderer->DrawMesh( pTerrain->m_oMesh );
+
+	g_pRenderer->SetTextureSlot( *g_pRenderer->GetDefaultDiffuseMap(), 0 );
+	oTechnique.GetParameter( "diffuseMap" ).SetValue( 0 );
 
 	oTechnique.GetParameter( "diffuseColor" ).SetValue( glm::vec3( 0.f, 0.5f, 0.75f ) );
 	//glDisable( GL_DEPTH_TEST );
@@ -29,6 +35,8 @@ void Terrain::Render( const TerrainNode* pTerrain, const RenderContext& oRenderC
 	g_pRenderer->DrawMesh( pTerrain->m_oMesh );
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	//glEnable( GL_DEPTH_TEST );
+
+	g_pRenderer->ClearTextureSlot( 0 );
 }
 
 bool Terrain::OnLoading()
@@ -40,7 +48,8 @@ REGISTER_COMPONENT( TerrainComponent );
 
 TerrainComponent::TerrainComponent( Entity* pEntity )
 	: Component( pEntity )
-	, m_xHeightMap( g_pResourceLoader->LoadTexture( "heightmap-test.png" ) )
+	, m_xDiffuseMap( g_pResourceLoader->LoadTexture( "Liege-Diffuse.png" ) )
+	, m_xHeightMap( g_pResourceLoader->LoadTexture( "Liege-Heightmap.png", false, true ) )
 	, m_pTerrain( nullptr )
 	, m_pRigidStatic( nullptr )
 {
@@ -70,6 +79,7 @@ void TerrainComponent::Start()
 	GenerateTerrain();
 
 	m_pTerrain = g_pRenderer->m_oVisualStructure.AddTerrain();
+	m_pTerrain->m_oDiffuse = m_xDiffuseMap->GetTexture();
 	m_pTerrain->m_oMesh = m_oMesh;
 }
 
@@ -103,16 +113,31 @@ void TerrainComponent::Dispose()
 	m_oMesh.Destroy();
 }
 
+void TerrainComponent::OnPropertyChanged( const std::string& sProperty )
+{
+	if( sProperty == "Width" || sProperty == "Height" || sProperty == "Width resolution" || sProperty == "Height resolution" || sProperty == "Intensity" )
+	{
+		PxShape* pShape;
+		m_pRigidStatic->getShapes( &pShape, 1 );
+		m_pRigidStatic->detachShape( *pShape );
+
+		m_oMesh.Destroy();
+
+		GenerateTerrain();
+
+		m_pTerrain->m_oMesh = m_oMesh;
+	}
+}
+
 void TerrainComponent::GenerateTerrain()
 {
-	const uint uXQuads = 100;
-	const uint uYQuads = 100;
-
-	const float fHalfXQuads = 0.5f * uXQuads;
-	const float fHalfYQuads = 0.5f * uYQuads;
+	const uint uXQuads = m_uWidthResolution;
+	const uint uYQuads = m_uHeightResolution;
 
 	const Texture& oTexture = m_xHeightMap->GetTexture();
-	Array< uint8 > aData = oTexture.FetchData();
+	const Array< uint8 > aRawData = oTexture.FetchData();
+
+	const uint16* aData = ( uint16* )aRawData.Data();
 
 	Array< glm::vec2 > aUVs( ( uXQuads + 1 ) * ( uYQuads + 1 ) );
 	for( uint uYQuad = 0; uYQuad <= uYQuads; ++uYQuad )
@@ -141,10 +166,10 @@ void TerrainComponent::GenerateTerrain()
 		iY0 = glm::clamp( iY0, 0, iHeight - 1 );
 		iY1 = glm::clamp( iY1, 0, iHeight - 1 );
 
-		const uint8 uValue00 = aData[ 3 * ( iY0 * iWidth + iX0 ) ];
-		const uint8 uValue10 = aData[ 3 * ( iY0 * iWidth + iX1 ) ];
-		const uint8 uValue01 = aData[ 3 * ( iY1 * iWidth + iX0 ) ];
-		const uint8 uValue11 = aData[ 3 * ( iY1 * iWidth + iX1 ) ];
+		const uint16 uValue00 = aData[ iY0 * iWidth + iX0 ];
+		const uint16 uValue10 = aData[ iY0 * iWidth + iX1 ];
+		const uint16 uValue01 = aData[ iY1 * iWidth + iX0 ];
+		const uint16 uValue11 = aData[ iY1 * iWidth + iX1 ];
 
 		const float uValue0 = uValue00 * ( 1.f - fXRatio ) + uValue10 * fXRatio;
 		const float uValue1 = uValue01 * ( 1.f - fXRatio ) + uValue11 * fXRatio;
@@ -152,14 +177,20 @@ void TerrainComponent::GenerateTerrain()
 		return uValue0 * ( 1 - fYRatio ) + uValue1 * fYRatio;
 	};
 
+	const float fXOffset = m_fWidth / uXQuads;
+	const float fYOffset = m_fHeight / uYQuads;
+	const float fHalfWidth = m_fWidth / 2.f;
+	const float fHalfHeight = m_fHeight / 2.f;
+	const float fNormalizeFactor = 1.f / ( float )( glm::pow( 2, 16 ) - 1 );
+
 	Array< glm::vec3 > aVertices( ( uXQuads + 1 ) * ( uYQuads + 1 ) );
 	for( uint uYQuad = 0; uYQuad <= uYQuads; ++uYQuad )
 	{
 		for( uint uXQuad = 0; uXQuad <= uXQuads; ++uXQuad )
 		{
 			const uint uVerticeIndex = uXQuad + ( uXQuads + 1 ) * uYQuad;
-			const float fHeight = 10.f * ( 255 - SampleHeightMap( aUVs[ uVerticeIndex ] ) ) / 255.f;
-			aVertices[ uVerticeIndex ] = glm::vec3( uXQuad - fHalfXQuads, fHeight, uYQuad - fHalfYQuads );
+			const float fHeight = m_fIntensity * SampleHeightMap( aUVs[ uVerticeIndex ] ) * fNormalizeFactor;
+			aVertices[ uVerticeIndex ] = glm::vec3( uXQuad * fXOffset - fHalfWidth, fHeight, uYQuad * fYOffset - fHalfHeight );
 		}
 	}
 
