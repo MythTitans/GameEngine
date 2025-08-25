@@ -87,6 +87,20 @@ bool GameWorld::IsReady() const
 	return m_eWorldState == WorldState::READY;
 }
 
+Entity* GameWorld::CreateEntity( const std::string& sName, Entity* pParent /*= nullptr */ )
+{
+	Entity* pEntity = m_oScene.CreateEntity( sName );
+	if( pParent != nullptr )
+		m_oScene.AttachToParent( pEntity, pParent );
+
+	return pEntity;
+}
+
+void GameWorld::RemoveEntity( Entity* pEntity )
+{
+	m_oScene.RemoveEntity( pEntity );
+}
+
 void GameWorld::UpdateWorld( const GameContext& oGameContext )
 {
 	g_pComponentManager->StartPendingComponents();

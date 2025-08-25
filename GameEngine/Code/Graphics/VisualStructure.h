@@ -43,9 +43,9 @@ struct Sky
 
 struct TerrainNode
 {
-	Texture		m_oDiffuse;
-	Mesh		m_oMesh;
-	glm::mat4x3	m_mMatrix;
+	Texture			m_oDiffuse;
+	Array< Mesh >	m_aMeshes;
+	glm::mat4x3		m_mMatrix;
 };
 
 struct VisualNode

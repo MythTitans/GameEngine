@@ -10,6 +10,7 @@ public:
 	friend class SphereShapeComponent;
 	friend class BoxShapeComponent;
 	friend class TerrainComponent;
+	friend class TerrainChunkComponent;
 
 	Physics();
 	~Physics();

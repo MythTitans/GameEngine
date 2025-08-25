@@ -17,16 +17,19 @@ public:
 	GameWorld();
 	~GameWorld();
 
-	void Load( const nlohmann::json& oJsonContent );
-	void Run();
-	void Reset();
+	void	Load( const nlohmann::json& oJsonContent );
+	void	Run();
+	void	Reset();
 
-	void Update( const GameContext& oGameContext );
+	void	Update( const GameContext& oGameContext );
 
-	bool IsReady() const;
+	bool	IsReady() const;
+
+	Entity*	CreateEntity( const std::string& sName, Entity* pParent = nullptr );
+	void	RemoveEntity( Entity* pEntity );
 
 private:
-	void UpdateWorld( const GameContext& oGameContext );
+	void	UpdateWorld( const GameContext& oGameContext );
 
 	enum class WorldState : uint8
 	{
