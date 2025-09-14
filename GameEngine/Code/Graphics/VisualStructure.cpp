@@ -18,6 +18,7 @@ VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, cons
 
 VisualStructure::VisualStructure()
 	: m_iActiveSkyIndex( -1 )
+	, m_pTerrain( nullptr )
 {
 }
 
@@ -211,6 +212,24 @@ const Sky* VisualStructure::GetActiveSky() const
 		return nullptr;
 
 	return m_aSkies[ m_iActiveSkyIndex ];
+}
+
+TerrainNode* VisualStructure::AddTerrain()
+{
+	m_pTerrain = new TerrainNode;
+	return m_pTerrain;
+}
+
+void VisualStructure::RemoveTerrain( TerrainNode*& pTerrain )
+{
+	delete m_pTerrain;
+	m_pTerrain = nullptr;
+	pTerrain = nullptr;
+}
+
+TerrainNode* VisualStructure::GetTerrain() const
+{
+	return m_pTerrain;
 }
 
 void VisualStructure::Clear()

@@ -1,10 +1,12 @@
 #include "Animator.h"
 
-#include "GameEngine.h"
 #include "Entity.h"
+#include "GameEngine.h"
+#include "Graphics/Visual.h"
 #include "Math/GLMHelpers.h"
 
 REGISTER_COMPONENT( AnimatorComponent );
+SET_COMPONENT_PRIORITY_AFTER( AnimatorComponent, VisualComponent );
 
 AnimatorComponent::AnimatorComponent( Entity* pEntity )
 	: Component( pEntity )

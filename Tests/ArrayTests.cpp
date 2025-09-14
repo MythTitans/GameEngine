@@ -414,6 +414,25 @@ namespace Tests
 			Assert::AreEqual( 4u, aArray.Capacity() );
 			Assert::AreEqual( 1, aArray[ 0 ] );
 			Assert::AreEqual( 3, aArray[ 1 ] );
+
+			// TODO #eric fix those tests when rework array optimizations
+
+// 			aArray.Resize( 5, 0 );
+// 			Assert::IsNotNull( aArray.Data() );
+// 			Assert::AreEqual( 5u, aArray.Count() );
+// 			Assert::AreEqual( 5u, aArray.Capacity() );
+// 			Assert::AreEqual( 1, aArray[ 0 ] );
+// 			Assert::AreEqual( 3, aArray[ 1 ] );
+// 			Assert::AreEqual( 0, aArray[ 2 ] );
+// 			Assert::AreEqual( 0, aArray[ 3 ] );
+// 			Assert::AreEqual( 0, aArray[ 4 ] );
+// 
+// 			aArray.Resize( 2, 0 );
+// 			Assert::IsNotNull( aArray.Data() );
+// 			Assert::AreEqual( 2u, aArray.Count() );
+// 			Assert::AreEqual( 5u, aArray.Capacity() );
+// 			Assert::AreEqual( 1, aArray[ 0 ] );
+// 			Assert::AreEqual( 3, aArray[ 1 ] );
 		}
 	};
 

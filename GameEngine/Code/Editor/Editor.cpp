@@ -291,6 +291,9 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 	ImGui::Begin( "Hierarchy" );
 
+	ImGui::DragFloat( "Camera speed", &g_pGameWorld->m_oFreeCamera.m_fSpeed );
+	ImGui::DragFloat( "Camera fast speed multiplier", &g_pGameWorld->m_oFreeCamera.m_fFastSpeedMultiplier );
+
 	if( ImGui::Button( "Save scene" ) )
 	{
 		nlohmann::json oJsonContent;

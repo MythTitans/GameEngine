@@ -1,0 +1,5 @@
+https://manticorp.github.io/unrealheightmap/#latitude/50.65229034614583/longitude/5.617103576660156/zoom/13/outputzoom/15/width/2048/height/2048
+
+2048 x 2048
+6.2km x 6.2km
+55m to 229m

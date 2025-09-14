@@ -33,6 +33,7 @@ public:
 	void DisplayWireCylinder( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor );
 	void DisplayWireCone( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor );
 	void DisplayWireBox( const glm::vec3& vCenter, const glm::vec3& vHalfSize, const glm::mat3& mAxes, const glm::vec3& vColor );
+	void DisplayWireMesh( const Mesh& oMesh, const glm::mat4x3& mMatrix, const glm::vec3& vColor );
 
 private:
 	Array< Text >		m_aTexts;
@@ -45,6 +46,7 @@ private:
 	Array< Cylinder >	m_aWireCylinders;
 	Array< Cylinder >	m_aWireCones;
 	Array< Box >		m_aWireBoxes;
+	Array< WireMesh >	m_aWireMeshes;
 };
 
 extern DebugDisplay* g_pDebugDisplay;

@@ -9,6 +9,8 @@ public:
 	// TODO #eric this is temporary
 	friend class SphereShapeComponent;
 	friend class BoxShapeComponent;
+	friend class TerrainComponent;
+	friend class TerrainChunkComponent;
 
 	Physics();
 	~Physics();

@@ -7,7 +7,7 @@
 #include "Technique.h"
 
 Skybox::Skybox()
-	: m_xTechnique( g_pResourceLoader->LoadTechnique( "Shader/skybox.tech" ) )
+	: m_xSkybox( g_pResourceLoader->LoadTechnique( "Shader/skybox.tech" ) )
 {
 	Array< glm::vec3 > aVertices( 8 );
 	aVertices[ 0 ] = glm::vec3( 1.f, 1.f, 1.f );
@@ -40,7 +40,7 @@ void Skybox::Render( const Sky* pSky, const RenderContext& /*oRenderContext*/ )
 {
 	glDepthMask( GL_FALSE );
 
-	Technique& oTechnique = m_xTechnique->GetTechnique();
+	Technique& oTechnique = m_xSkybox->GetTechnique();
 	g_pRenderer->SetTechnique( oTechnique );
 
 	const glm::mat4 mViewProjection = g_pRenderer->m_oCamera.GetProjectionMatrix() * ToMat4( glm::mat3( g_pRenderer->m_oCamera.GetViewMatrix() ) );
@@ -58,12 +58,12 @@ void Skybox::Render( const Sky* pSky, const RenderContext& /*oRenderContext*/ )
 
 bool Skybox::OnLoading()
 {
-	return m_xTechnique->IsLoaded();
+	return m_xSkybox->IsLoaded();
 }
 
 void Skybox::OnLoaded()
 {
-	m_oSkyboxSheet.Init( m_xTechnique->GetTechnique() );
+	m_oSkyboxSheet.Init( m_xSkybox->GetTechnique() );
 	m_oSkyboxSheet.BindParameter( SkyboxParam::VIEW_PROJECTION, "viewProjection" );
 	m_oSkyboxSheet.BindParameter( SkyboxParam::CUBE_MAP, "cubeMap" );
 }
@@ -191,7 +191,7 @@ void SkyboxComponent::CreateCubeMap()
 		}
 	}
 
-	Array< uint8 > aData[ CubeMapDesc::_COUNT ];
+	Array< uint8, ArrayFlags::FAST_RESIZE > aData[ CubeMapDesc::_COUNT ];
 
 	CubeMapDesc oDesc = CubeMapDesc( iWidth, iHeight, eFormat ).Wrapping( TextureWrapping::CLAMP ).SRGB();
 	for( uint u = 0; u < CubeMapDesc::_COUNT; ++u )

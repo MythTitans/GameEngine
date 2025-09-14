@@ -27,21 +27,21 @@ ComponentManager::~ComponentManager()
 
 void ComponentManager::InitializeComponents()
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->InitializeComponents();
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->InitializeComponents();
 }
 
 void ComponentManager::InitializeComponents( Entity* pEntity )
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->InitializeComponent( pEntity );
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->InitializeComponent( pEntity );
 }
 
 bool ComponentManager::AreComponentsInitialized() const
 {
-	for( const auto& oPair : m_mComponentsHolders )
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
 	{
-		if( oPair.second->AreComponentsInitialized() == false )
+		if( pHolder->AreComponentsInitialized() == false )
 			return false;
 	}
 
@@ -50,70 +50,70 @@ bool ComponentManager::AreComponentsInitialized() const
 
 void ComponentManager::StartPendingComponents()
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->StartPendingComponents();
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->StartPendingComponents();
 }
 
 void ComponentManager::StartComponents()
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->StartComponents();
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->StartComponents();
 }
 
 void ComponentManager::StartComponents( Entity* pEntity )
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->StartComponent( pEntity );
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->StartComponent( pEntity );
 }
 
 void ComponentManager::StopComponents()
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->StopComponents();
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->StopComponents();
 }
 
 void ComponentManager::StopComponents( Entity* pEntity )
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->StopComponent( pEntity );
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->StopComponent( pEntity );
 }
 
 void ComponentManager::DisposeComponents( Entity* pEntity )
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->DisposeComponent( pEntity );
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->DisposeComponent( pEntity );
 }
 
 void ComponentManager::TickComponents()
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->TickComponents();
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->TickComponents();
 }
 
 void ComponentManager::NotifyBeforePhysicsOnComponents()
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->NotifyBeforePhysicsOnComponents();
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->NotifyBeforePhysicsOnComponents();
 }
 
 void ComponentManager::NotifyAfterPhysicsOnComponents()
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->NotifyAfterPhysicsOnComponents();
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->NotifyAfterPhysicsOnComponents();
 }
 
 void ComponentManager::UpdateComponents( const GameContext& oGameContext )
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->UpdateComponents( oGameContext );
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->UpdateComponents( oGameContext );
 }
 
 Array< nlohmann::json > ComponentManager::SerializeComponents( const Entity* pEntity )
 {
 	Array< nlohmann::json > aSerializedComponents;
-	for( const auto& oPair : m_mComponentsHolders )
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
 	{
-		const nlohmann::json oSerializedComponent = oPair.second->SerializeComponent( pEntity );
+		const nlohmann::json oSerializedComponent = pHolder->SerializeComponent( pEntity );
 		if( oSerializedComponent.is_null() == false )
 			aSerializedComponents.PushBack( oSerializedComponent );
 	}
@@ -123,8 +123,8 @@ Array< nlohmann::json > ComponentManager::SerializeComponents( const Entity* pEn
 
 void ComponentManager::DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, Entity* pEntity )
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->DeserializeComponent( sComponentName, oJsonContent, pEntity );
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->DeserializeComponent( sComponentName, oJsonContent, pEntity );
 }
 
 bool ComponentManager::DisplayInspector( Entity* pEntity )
@@ -132,10 +132,10 @@ bool ComponentManager::DisplayInspector( Entity* pEntity )
 	bool bModified = false;
 
 	int iImGuiID = 0;
-	for( const auto& oPair : m_mComponentsHolders )
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
 	{
 		ImGui::PushID( iImGuiID++ );
-		bModified |= oPair.second->DisplayInspector( pEntity );
+		bModified |= pHolder->DisplayInspector( pEntity );
 		ImGui::PopID();
 	}
 
@@ -144,6 +144,6 @@ bool ComponentManager::DisplayInspector( Entity* pEntity )
 
 void ComponentManager::DisplayGizmos( const uint64 uSelectedEntityID )
 {
-	for( const auto& oPair : m_mComponentsHolders )
-		oPair.second->DisplayGizmos( uSelectedEntityID );
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+		pHolder->DisplayGizmos( uSelectedEntityID );
 }

@@ -64,6 +64,20 @@ struct Box
 	glm::vec3 m_vColor;
 };
 
+struct WireMesh
+{
+	WireMesh( const Mesh& oMesh, const glm::mat4x3& mMatrix, const glm::vec3& vColor )
+		: m_oMesh( oMesh )
+		, m_mMatrix( mMatrix )
+		, m_vColor( vColor )
+	{
+	}
+
+	Mesh		m_oMesh;
+	glm::mat4x3	m_mMatrix;
+	glm::vec3	m_vColor;
+};
+
 class DebugRenderer
 {
 public:
@@ -76,6 +90,7 @@ public:
 	void RenderWireCylinders( const Array< Cylinder >& aCylinders, const RenderContext& oRenderContext );
 	void RenderWireCones( const Array< Cylinder >& aCylinders, const RenderContext& oRenderContext );
 	void RenderWireBoxes( const Array< Box >& aBoxes, const RenderContext& oRenderContext );
+	void RenderWireMeshes( const Array< WireMesh >& aMeshes, const RenderContext& oRenderContext );
 
 	bool OnLoading();
 	void OnLoaded();
@@ -97,6 +112,14 @@ private:
 		_COUNT
 	};
 
+	enum class UnlitParam : uint
+	{
+		MODEL_VIEW_PROJECTION,
+		DIFFUSE_COLOR,
+		DIFFUSE_MAP,
+		_COUNT
+	};
+
 	Array< GLfloat > GenerateSphereEquator();
 	Array< GLfloat > GenerateSphereMeridians();
 	Array< GLfloat > GenerateCylinderEquator( const glm::vec3& vNormal, const float fRadius );
@@ -105,6 +128,8 @@ private:
 	PARAM_SHEET( LineParam )	m_oLineSheet;
 	TechniqueResPtr				m_xSphere;
 	PARAM_SHEET( SphereParam )	m_oSphereSheet;
+	TechniqueResPtr				m_xUnlit;
+	PARAM_SHEET( UnlitParam )	m_oUnlitSheet;
 
 	GLuint						m_uVertexArrayID;
 	GLuint						m_uVertexBufferID;

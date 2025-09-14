@@ -1,0 +1,16 @@
+#version 330
+
+in vec2 texCoords;
+
+layout(location = 0) out vec4 finalColor;
+layout(location = 1) out vec4 finalEmissive;
+
+uniform vec3 diffuseColor;
+uniform sampler2D diffuseMap;
+
+void main()
+{
+    vec3 color = clamp( diffuseColor * texture( diffuseMap, texCoords ).rgb, 0.0, 1.0 );
+    finalColor = vec4( color, 1.0 );
+    finalEmissive = vec4( 0.0, 0.0, 0.0, 1.0 );
+}

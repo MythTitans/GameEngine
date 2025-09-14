@@ -4,6 +4,7 @@
 #include <typeindex>
 #include <unordered_map>
 
+#include "Core/ArrayUtils.h"
 #include "Core/MemoryTracker.h"
 #include "Core/Profiler.h"
 #include "Core/Serialization.h"
@@ -14,6 +15,18 @@
 static bool b##COMPONENT##Registered = []() {							\
 	ComponentManager::RegisterComponent< COMPONENT, ##__VA_ARGS__ >();	\
 	return true;														\
+}()
+
+#define SET_COMPONENT_PRIORITY_BEFORE( COMPONENT, ... )							\
+static bool b##COMPONENT##PrioritySetBefore = []() {							\
+	ComponentManager::SetComponentPriorityBefore< COMPONENT, ##__VA_ARGS__ >();	\
+	return true;																\
+}()
+
+#define SET_COMPONENT_PRIORITY_AFTER( COMPONENT, ... )							\
+static bool b##COMPONENT##PrioritySetAfter = []() {								\
+	ComponentManager::SetComponentPriorityAfter< COMPONENT, ##__VA_ARGS__ >();	\
+	return true;																\
 }()
 
 #define PROPERTIES( CLASS ) using PropertyClass = CLASS
@@ -38,6 +51,26 @@ TYPE FIELD = []() {																\
 	return DEFAULT;																\
 }()
 
+#define HIDDEN_PROPERTY( NAME, FIELD, TYPE )											\
+TYPE FIELD = []() {																		\
+	static bool bRegistered = []() {													\
+		RegisterProperty< TYPE, PropertyClass >( NAME, &PropertyClass::FIELD, true );	\
+		return true;																	\
+	}();																				\
+																						\
+	return TYPE();																		\
+}()
+
+#define HIDDEN_PROPERTY_DEFAULT( NAME, FIELD, TYPE, DEFAULT )							\
+TYPE FIELD = []() {																		\
+	static bool bRegistered = []() {													\
+		RegisterProperty< TYPE, PropertyClass >( NAME, &PropertyClass::FIELD, true );	\
+		return true;																	\
+	}();																				\
+																						\
+	return DEFAULT;																		\
+}()
+
 class Component;
 struct GameContext;
 
@@ -49,7 +82,8 @@ struct PropertiesHolderBase
 	virtual void					Deserialize( const nlohmann::json& oJsonContent, void* pClass ) = 0;
 	virtual Array< std::string >	DisplayInspector( void* pClass ) = 0;
 
-	Array< std::string > m_aNames;
+	Array< std::string >	m_aNames;
+	Array< bool >			m_aHidden;
 };
 
 template < typename PropertyType, typename PropertyClass >
@@ -93,7 +127,7 @@ struct PropertiesHolder : PropertiesHolderBase
 		Array< std::string > aPropertiesChanged;
 		for( uint u = 0; u < m_aNames.Count(); ++u )
 		{
-			if( ::DisplayInspector( m_aNames[ u ].c_str(), pTypedClass->*m_aProperties[ u ] ) )
+			if( m_aHidden[ u ] == false && ::DisplayInspector(m_aNames[u].c_str(), pTypedClass->*m_aProperties[u]) )
 				aPropertiesChanged.PushBack( m_aNames[ u ] );
 		}
 
@@ -117,7 +151,7 @@ public:
 	virtual ~ComponentsHolderBase();
 
 	virtual void				InitializeComponents() = 0;
-	virtual void				InitializeComponent( Entity* pEntity ) = 0;
+	virtual void				InitializeComponent( Entity* pEntity, const bool bThenStart = false ) = 0;
 	virtual bool				AreComponentsInitialized() const = 0;
 	virtual void				StartPendingComponents() = 0;
 	virtual void				StartComponents() = 0;
@@ -141,6 +175,7 @@ public:
 
 	virtual bool				HasConcreteComponent( const Entity* pEntity ) const = 0;
 	virtual const std::string&	GetConcreteComponentName() const = 0;
+	virtual int					GetConcreteComponentPriority() const = 0;
 
 	uint m_uVersion;
 };
@@ -168,7 +203,7 @@ public:
 			InitializeComponentFromIndex( u );
 	}
 
-	void InitializeComponent( Entity* pEntity ) override
+	void InitializeComponent( Entity* pEntity, const bool bThenStart /*= false*/ ) override
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
@@ -177,6 +212,7 @@ public:
 			if( m_aComponents[ u ].m_pEntity == pEntity )
 			{
 				InitializeComponentFromIndex( u );
+				m_aPendingComponents.PushBack( u );
 				break;
 			}
 		}
@@ -659,6 +695,15 @@ public:
 		return GetComponentName();
 	}
 
+	int GetConcreteComponentPriority() const override
+	{
+		auto it = ComponentManager::GetComponentsFactory().find( GetComponentName() );
+		if( it != ComponentManager::GetComponentsFactory().end() )
+			return it->second.m_pComputePriority();
+
+		return 0;
+	}
+
 	static const std::string& GetComponentName()
 	{
 		static const std::string sComponentName = []() {
@@ -697,7 +742,7 @@ template < typename ComponentType >
 ComponentsHolder< ComponentType >* ComponentsHolder< ComponentType >::s_pHolder = nullptr;
 
 template < typename PropertyType, typename PropertyClass >
-void RegisterProperty( const char* sName, PropertyType PropertyClass::* pProperty )
+void RegisterProperty( const char* sName, PropertyType PropertyClass::* pProperty, const bool bHidden = false )
 {
 	PropertiesHolderBase*& pPropertiesHolderBase = ComponentsHolder< PropertyClass >::s_mProperties[ typeid( PropertyType ) ];
 	if( pPropertiesHolderBase == nullptr )
@@ -705,6 +750,7 @@ void RegisterProperty( const char* sName, PropertyType PropertyClass::* pPropert
 
 	PropertiesHolder< PropertyType, PropertyClass >* pPropertiesHolder = static_cast< PropertiesHolder< PropertyType, PropertyClass >* >( pPropertiesHolderBase );
 	pPropertiesHolder->m_aNames.PushBack( sName );
+	pPropertiesHolder->m_aHidden.PushBack( bHidden );
 	pPropertiesHolder->m_aProperties.PushBack( pProperty );
 }
 
@@ -737,20 +783,24 @@ public:
 	{
 		ComponentsHolderBase*& pComponentsHolderBase = m_mComponentsHolders[ typeid( ComponentType ) ];
 		if( pComponentsHolderBase == nullptr )
+		{
 			pComponentsHolderBase = new ComponentsHolder< ComponentType >;
+			m_aPriorityComponentsHolder.PushBack( pComponentsHolderBase );
+			Sort( m_aPriorityComponentsHolder, []( const ComponentsHolderBase* pHolderA, const ComponentsHolderBase* pHolderB ) { return pHolderA->GetConcreteComponentPriority() < pHolderB->GetConcreteComponentPriority(); } );
+		}
 
 		ComponentsHolder< ComponentType >* pComponentsHolder = static_cast< ComponentsHolder< ComponentType >* >( pComponentsHolderBase );
 		return pComponentsHolder->CreateComponent( pEntity, eComponentManagement );
 	}
 
 	template < typename ComponentType >
-	void InitializeComponent( Entity* pEntity )
+	void InitializeComponent( Entity* pEntity, const bool bStartWhenInitialized = false )
 	{
 		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
 		if( pComponentsHolder == nullptr )
 			return;
 
-		pComponentsHolder->InitializeComponent( pEntity );
+		pComponentsHolder->InitializeComponent( pEntity, bStartWhenInitialized );
 	}
 
 	template < typename ComponentType >
@@ -906,6 +956,43 @@ public:
 		};
 		oFactory.m_pDispose = []( Entity* pEntity ) { g_pComponentManager->DisposeComponent< ComponentType >( pEntity ); };
 		oFactory.m_pHasDependency = []( const Component* pComponent ) { return ( ( typeid( *pComponent ) == typeid( Dependencies ) ) || ... ); };
+		oFactory.m_pComputePriority = []() { return 0u; };
+	}
+
+	template < typename ComponentType, typename... Components >
+	static void SetComponentPriorityBefore()
+	{
+		ComponentFactory& oFactory = GetComponentsFactory()[ ComponentsHolder< ComponentType >::GetComponentName() ];
+		oFactory.m_pComputePriority = []() {
+			const std::array< uint, sizeof...( Components ) > aPriorities( { GetComponentsFactory()[ ComponentsHolder< Components >::GetComponentName() ].m_pComputePriority()... } );
+
+			uint uMin = UINT_MAX;
+			for( uint uPriority : aPriorities )
+			{
+				if( uPriority < uMin )
+					uMin = uPriority;
+			}
+
+			return uMin - 1;
+		};
+	}
+
+	template < typename ComponentType, typename... Components >
+	static void SetComponentPriorityAfter()
+	{
+		ComponentFactory& oFactory = GetComponentsFactory()[ ComponentsHolder< ComponentType >::GetComponentName() ];
+		oFactory.m_pComputePriority = []() {
+			const std::array< uint, sizeof...( Components ) > aPriorities( { GetComponentsFactory()[ ComponentsHolder< Components >::GetComponentName() ].m_pComputePriority()... } );
+
+			uint uMax = 0;
+			for( uint uPriority : aPriorities )
+			{
+				if( uPriority > uMax )
+					uMax = uPriority;
+			}
+
+			return uMax + 1;
+		};
 	}
 
 private:
@@ -934,10 +1021,12 @@ private:
 		using CreateFunc = void ( * )( Entity*, const ComponentManagement );
 		using DisposeFunc = void ( * )( Entity* );
 		using HasDependencyFunc = bool ( * )( const Component* );
+		using ComputePriorityFunc = uint ( * )();
 
 		CreateFunc			m_pCreate;
 		DisposeFunc			m_pDispose;
 		HasDependencyFunc	m_pHasDependency;
+		ComputePriorityFunc m_pComputePriority;
 	};
 
 	static std::unordered_map< std::string, ComponentFactory >& GetComponentsFactory()
@@ -946,5 +1035,6 @@ private:
 		return s_mComponentsFactory;
 	}
 
-	std::unordered_map< std::type_index, ComponentsHolderBase* > m_mComponentsHolders;
+	std::unordered_map< std::type_index, ComponentsHolderBase* >	m_mComponentsHolders;
+	Array< ComponentsHolderBase* >									m_aPriorityComponentsHolder;
 };

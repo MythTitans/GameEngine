@@ -66,7 +66,8 @@ enum class InputActionID : uint16
 	ACTION_REDO,
 	ACTION_UNDO,
 	ACTION_DELETE,
-	ACTION_DUPLICATE
+	ACTION_DUPLICATE,
+	ACTION_FAST_FREECAM
 };
 
 enum class DeviceType : uint8

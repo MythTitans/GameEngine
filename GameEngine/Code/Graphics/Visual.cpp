@@ -2,11 +2,13 @@
 
 #include "Editor/Inspector.h"
 #include "Game/Animator.h"
-#include "Game/GameEngine.h"
 #include "Game/Entity.h"
+#include "Game/GameEngine.h"
 #include "Graphics/Renderer.h"
+#include "Physics/Rigidbody.h"
 
 REGISTER_COMPONENT( VisualComponent );
+SET_COMPONENT_PRIORITY_AFTER( VisualComponent, RigidbodyComponent );
 
 VisualComponent::VisualComponent( Entity* pEntity )
 	: Component( pEntity )

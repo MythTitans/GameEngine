@@ -41,6 +41,14 @@ struct Sky
 	CubeMap m_oCubeMap;
 };
 
+struct TerrainNode
+{
+	Texture			m_oDiffuse;
+	Array< Mesh >	m_aMeshes;
+	glm::mat4x3		m_mMatrix;
+	Array< uint64 >	m_aEntitiesIDs;
+};
+
 struct VisualNode
 {
 	explicit VisualNode( const uint64 uEntityID );
@@ -80,6 +88,10 @@ public:
 	void					SetActiveSky( const Sky* pSky );
 	const Sky*				GetActiveSky() const;
 
+	TerrainNode*			AddTerrain();
+	void					RemoveTerrain( TerrainNode*& pTerrain );
+	TerrainNode*			GetTerrain() const;
+
 private:
 	void					Clear();
 
@@ -95,4 +107,6 @@ private:
 
 	Array< Sky* >					m_aSkies;
 	int								m_iActiveSkyIndex;
+
+	TerrainNode*					m_pTerrain; // TODO #eric temporary
 };

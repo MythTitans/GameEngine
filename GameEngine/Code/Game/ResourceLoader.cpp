@@ -190,7 +190,7 @@ FontResPtr ResourceLoader::LoadFont( const char* sFilePath )
 	return xFontPtr;
 }
 
-TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath, const bool bSRGB /*= false*/ )
+TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath, const bool bSRGB /*= false*/, const bool bUse16Bits /*= false*/ )
 {
 	TextureResPtr& xTexturePtr = m_mTextureResources[ sFilePath ];
 	if( xTexturePtr != nullptr )
@@ -199,12 +199,12 @@ TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath, const bool bSR
 	xTexturePtr = new TextureResource();
 
 	LOG_INFO( "Loading {}", sFilePath );
-	m_oPendingLoadCommands.m_aTextureLoadCommands.PushBack( TextureLoadCommand( sFilePath, xTexturePtr, bSRGB ) );
+	m_oPendingLoadCommands.m_aTextureLoadCommands.PushBack( TextureLoadCommand( sFilePath, xTexturePtr, bSRGB, bUse16Bits ) );
 
 	return xTexturePtr;
 }
 
-TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath, const uint8* pData, const uint uDataSize, const bool bSRGB /*= false */ )
+TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath, const uint8* pData, const uint uDataSize, const bool bSRGB /*= false */, const bool bUse16Bits /*= false*/ )
 {
 	TextureResPtr& xTexturePtr = m_mTextureResources[ sFilePath ];
 	if( xTexturePtr != nullptr )
@@ -219,7 +219,7 @@ TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath, const uint8* p
 	int iDepth;
 	uint8* pImageData = stbi_load_from_memory( pData, uDataSize, &iWidth, &iHeight, &iDepth, 0 );
 
-	TextureLoadCommand oLoadCommand( sFilePath, xTexturePtr, bSRGB );
+	TextureLoadCommand oLoadCommand( sFilePath, xTexturePtr, bSRGB, bUse16Bits );
 	oLoadCommand.m_eStatus = pImageData != nullptr ? LoadCommandStatus::LOADED : LoadCommandStatus::ERROR_READING;
 	oLoadCommand.m_iWidth = iWidth;
 	oLoadCommand.m_iHeight = iHeight;
@@ -316,8 +316,10 @@ void ResourceLoader::DisplayDebug()
 			auto TextureFormatToString = []( const TextureFormat eFormat ) {
 				switch( eFormat )
 				{
-				case TextureFormat::RED:
-					return "RED";
+				case TextureFormat::R:
+					return "R";
+				case TextureFormat::R16:
+					return "R16";
 				case TextureFormat::RGB:
 					return "RGB";
 				case TextureFormat::RGBA:
@@ -598,7 +600,7 @@ void ResourceLoader::FontLoadCommand::OnFinished()
 	switch( m_eStatus )
 	{
 	case ResourceLoader::LoadCommandStatus::FINISHED:
-		m_xResource->m_oAtlas.Create( TextureDesc( FontResource::ATLAS_WIDTH, FontResource::ATLAS_HEIGHT, TextureFormat::RED ).Data( m_aAtlasData.Data() ).GenerateMips() );
+		m_xResource->m_oAtlas.Create( TextureDesc( FontResource::ATLAS_WIDTH, FontResource::ATLAS_HEIGHT, TextureFormat::R ).Data( m_aAtlasData.Data() ).GenerateMips() );
 		m_xResource->m_aPackedCharacters = std::move( m_aPackedCharacters );
 		m_xResource->m_eStatus = Resource::Status::LOADED;
 		break;
@@ -615,12 +617,13 @@ void ResourceLoader::FontLoadCommand::OnDependenciesReady()
 {
 }
 
-ResourceLoader::TextureLoadCommand::TextureLoadCommand( const char* sFilePath, const TextureResPtr& xResource, const bool bSRGB )
+ResourceLoader::TextureLoadCommand::TextureLoadCommand( const char* sFilePath, const TextureResPtr& xResource, const bool bSRGB, const bool bUse16Bits )
 	: LoadCommand( sFilePath, xResource )
 	, m_iWidth( 0 )
 	, m_iHeight( 0 )
 	, m_iDepth( 0 )
 	, m_bSRGB( bSRGB )
+	, m_bUse16Bits( bUse16Bits )
 	, m_pData( nullptr )
 {
 }
@@ -630,7 +633,7 @@ void ResourceLoader::TextureLoadCommand::Load( std::unique_lock< std::mutex >& o
 	int iWidth;
 	int iHeight;
 	int iDepth;
-	uint8* pData = stbi_load( GetFilePath().string().c_str(), &iWidth, &iHeight, &iDepth, 0 );
+	uint8* pData = m_bUse16Bits ? ( uint8* )stbi_load_16( GetFilePath().string().c_str(), &iWidth, &iHeight, &iDepth, 0 ) : stbi_load( GetFilePath().string().c_str(), &iWidth, &iHeight, &iDepth, 0 );
 
 	oLock.lock();
 	m_eStatus = pData != nullptr ? LoadCommandStatus::LOADED : LoadCommandStatus::ERROR_READING;
@@ -643,10 +646,22 @@ void ResourceLoader::TextureLoadCommand::Load( std::unique_lock< std::mutex >& o
 
 void ResourceLoader::TextureLoadCommand::OnFinished()
 {
+	TextureFormat eFormat = TextureFormat::RGBA;
+
+	switch( m_iDepth )
+	{
+	case 1:
+		eFormat = m_bUse16Bits ? TextureFormat::R16 : TextureFormat::R;
+		break;
+	case 3:
+		eFormat = TextureFormat::RGB;
+		break;
+	}
+
 	switch( m_eStatus )
 	{
 	case ResourceLoader::LoadCommandStatus::FINISHED:
-		m_xResource->m_oTexture.Create( TextureDesc( m_iWidth, m_iHeight, m_iDepth == 3 ? TextureFormat::RGB : TextureFormat::RGBA ).Data( m_pData ).SRGB( m_bSRGB ).GenerateMips() );
+		m_xResource->m_oTexture.Create( TextureDesc( m_iWidth, m_iHeight, eFormat ).Data( m_pData ).SRGB( m_bSRGB ).GenerateMips() );
 		stbi_image_free( m_pData );
 		m_xResource->m_eStatus = Resource::Status::LOADED;
 		break;

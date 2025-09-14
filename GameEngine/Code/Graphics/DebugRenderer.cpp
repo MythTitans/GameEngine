@@ -5,6 +5,7 @@
 #include <glm/gtx/vector_query.hpp>
 
 #include "Core/Array.h"
+#include "Math/GLMHelpers.h"
 #include "Renderer.h"
 
 static constexpr uint SPHERE_SEGMENT_COUNT = 32;
@@ -115,6 +116,7 @@ static void PushVertex( Array< GLfloat >& aVertices, const glm::vec3& vVertex )
 DebugRenderer::DebugRenderer()
 	: m_xLine( g_pResourceLoader->LoadTechnique( "Shader/line.tech" ) )
 	, m_xSphere( g_pResourceLoader->LoadTechnique( "Shader/sphere.tech" ) )
+	, m_xUnlit( g_pResourceLoader->LoadTechnique( "Shader/unlit.tech" ) )
 {
 	glGenVertexArrays( 1, &m_uVertexArrayID );
 	glGenBuffers( 1, &m_uVertexBufferID );
@@ -395,9 +397,34 @@ void DebugRenderer::RenderWireBoxes( const Array< Box >& aBoxes, const RenderCon
 	glUseProgram( 0 );
 }
 
+void DebugRenderer::RenderWireMeshes( const Array< WireMesh >& aMeshes, const RenderContext& oRenderContext )
+{
+	Technique& oTechnique = m_xUnlit->GetTechnique();
+	glUseProgram( oTechnique.m_uProgramID );
+
+	g_pRenderer->SetTextureSlot( *g_pRenderer->GetDefaultDiffuseMap(), 0 );
+	m_oUnlitSheet.GetParameter( UnlitParam::DIFFUSE_MAP ).SetValue( 0 );
+
+	for( const WireMesh& oMesh : aMeshes )
+	{
+		m_oUnlitSheet.GetParameter( UnlitParam::MODEL_VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * ToMat4( oMesh.m_mMatrix ) );
+		m_oUnlitSheet.GetParameter( UnlitParam::DIFFUSE_COLOR ).SetValue( oMesh.m_vColor );
+
+		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
+		g_pRenderer->DrawMesh( oMesh.m_oMesh );
+
+		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+	}
+
+	g_pRenderer->ClearTextureSlot( 0 );
+
+	glUseProgram( 0 );
+}
+
 bool DebugRenderer::OnLoading()
 {
-	return m_xLine->IsLoaded() && m_xSphere->IsLoaded();
+	return m_xLine->IsLoaded() && m_xSphere->IsLoaded() && m_xUnlit->IsLoaded();
 }
 
 void DebugRenderer::OnLoaded()
@@ -413,6 +440,12 @@ void DebugRenderer::OnLoaded()
 	m_oSphereSheet.BindParameter( SphereParam::COLOR, "color" );
 	m_oSphereSheet.BindParameter( SphereParam::POSITION, "position" );
 	m_oSphereSheet.BindParameter( SphereParam::RADIUS, "radius" );
+
+	m_oUnlitSheet.Init( m_xUnlit->GetTechnique() );
+
+	m_oUnlitSheet.BindParameter( UnlitParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
+	m_oUnlitSheet.BindParameter( UnlitParam::DIFFUSE_COLOR, "diffuseColor" );
+	m_oUnlitSheet.BindParameter( UnlitParam::DIFFUSE_MAP, "diffuseMap" );
 }
 
 Array< GLfloat > DebugRenderer::GenerateSphereEquator()

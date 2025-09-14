@@ -8,6 +8,7 @@
 #include "GizmoRenderer.h"
 #include "RenderTarget.h"
 #include "Skybox.h"
+#include "Terrain.h"
 #include "TextRenderer.h"
 #include "VisualStructure.h"
 
@@ -183,6 +184,7 @@ private:
 	PARAM_SHEET( GizmoParam )			m_oGizmoSheet;
 
 	Skybox								m_oSkybox;
+	Terrain								m_oTerrain;
 	Bloom								m_oBloom;
 
 	RenderingMode						m_eRenderingMode;

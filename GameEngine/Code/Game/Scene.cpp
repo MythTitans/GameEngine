@@ -44,15 +44,18 @@ void Scene::Load( const nlohmann::json& oJsonContent )
 			AttachToParent( pEntity, pParent );
 		}
 
-		for( const auto& oComponentIt : oEntityIt.value()[ "components" ].items() )
+		if( oEntityIt.value().contains( "components" ) )
 		{
-			const nlohmann::json& oComponent = oComponentIt.value();
+			for( const auto& oComponentIt : oEntityIt.value()[ "components" ].items() )
+			{
+				const nlohmann::json& oComponent = oComponentIt.value();
 
-			const std::string& sComponentName = oComponent[ "name" ];
-			ComponentManager::GetComponentsFactory()[ sComponentName ].m_pCreate( pEntity, ComponentManagement::NONE );
+				const std::string& sComponentName = oComponent[ "name" ];
+				ComponentManager::GetComponentsFactory()[ sComponentName ].m_pCreate( pEntity, ComponentManagement::NONE );
 
-			if( oComponent.contains( "properties" ) )
-				g_pComponentManager->DeserializeComponent( sComponentName, oComponent[ "properties" ], pEntity );
+				if( oComponent.contains( "properties" ) )
+					g_pComponentManager->DeserializeComponent( sComponentName, oComponent[ "properties" ], pEntity );
+			}
 		}
 	}
 }

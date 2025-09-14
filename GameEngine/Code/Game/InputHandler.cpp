@@ -123,6 +123,7 @@ InputHandler::InputHandler()
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_UNDO, GLFW_KEY_W, ActionType::PRESSED, KeyModifier::CONTROL ) );
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_DELETE, GLFW_KEY_DELETE, ActionType::PRESSED ) );
 	m_aInputActions.PushBack( InputAction::KeyboardAction( InputActionID::ACTION_DUPLICATE, GLFW_KEY_D, ActionType::PRESSED, KeyModifier::CONTROL ) );
+	m_aInputActions.PushBack( InputAction::ButtonAction( InputActionID::ACTION_FAST_FREECAM, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER, ActionType::PRESSING, DeviceType::GAMEPAD ) );
 
 	m_aInputActionResults.Reserve( m_aInputActions.Count() );
 	for( const InputAction& oInputAction : m_aInputActions )

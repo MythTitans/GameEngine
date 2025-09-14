@@ -1,8 +1,9 @@
 #pragma once
 
-#include <glm/fwd.hpp>
+#include <glm/glm.hpp>
 #include <string>
 
+#include "Core/Types.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
 
@@ -18,6 +19,24 @@ template <>
 inline bool DisplayInspector( const char* sName, bool& bValue )
 {
 	ImGui::Checkbox( sName, &bValue );
+
+	return ImGui::IsItemDeactivatedAfterEdit();
+}
+
+template <>
+inline bool DisplayInspector( const char* sName, int& iValue )
+{
+	ImGui::DragInt( sName, &iValue );
+
+	return ImGui::IsItemDeactivatedAfterEdit();
+}
+
+template <>
+inline bool DisplayInspector( const char* sName, uint& uValue )
+{
+	int iTempValue = ( int )uValue;
+	ImGui::DragInt( sName, &iTempValue );
+	uValue = glm::max( iTempValue, 0 );
 
 	return ImGui::IsItemDeactivatedAfterEdit();
 }

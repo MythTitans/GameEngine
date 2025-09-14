@@ -300,7 +300,7 @@ bool Renderer::OnLoading()
 {
 	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
 	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xBlend->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
-	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading() && m_oSkybox.OnLoading() && m_oBloom.OnLoading();
+	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading() && m_oSkybox.OnLoading() && m_oTerrain.OnLoading() && m_oBloom.OnLoading();
 
 	return bLoaded;
 }
@@ -574,6 +574,10 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	if( pActiveSky != nullptr )
 		m_oSkybox.Render( pActiveSky, oRenderContext );
 
+	const TerrainNode* pTerrain = g_pRenderer->m_oVisualStructure.GetTerrain();
+	if( pTerrain != nullptr )
+		m_oTerrain.Render( pTerrain, oRenderContext );
+
 	for( uint u = 0; u < m_oVisualStructure.m_aTechniques.Count(); ++u )
 	{
 		Technique& oTechnique = *m_oVisualStructure.m_aTechniques[ u ];
@@ -739,6 +743,19 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 			for( const Mesh& oMesh : aMeshes )
 				DrawMesh( oMesh );
 		}
+	}
+
+	TerrainNode* pTerrain = g_pRenderer->m_oVisualStructure.m_pTerrain;
+	m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( false );
+
+	m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( pTerrain->m_mMatrix ) );
+
+	const Array< Mesh >& aMeshes = pTerrain->m_aMeshes;
+	for( uint u = 0; u < aMeshes.Count(); ++u )
+	{
+		const Mesh& oMesh = aMeshes[ u ];
+		m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( pTerrain->m_aEntitiesIDs[ u ] ) );
+		DrawMesh( oMesh );
 	}
 
 	if( bAllowGizmos )

@@ -26,13 +26,13 @@ private:
 		_COUNT
 	};
 
-	TechniqueResPtr				m_xTechnique;
+	TechniqueResPtr				m_xSkybox;
 	PARAM_SHEET( SkyboxParam )	m_oSkyboxSheet;
 
 	Mesh						m_oMesh;
 };
 
-// TODO #eric maybe we could load the cube map only when the skybox is active
+// TODO #eric maybe we could load the cube map only when the skybox is active (in fact the component should give all the textures to the skybox and it should generate the cube map itself)
 class SkyboxComponent : public Component
 {
 public:

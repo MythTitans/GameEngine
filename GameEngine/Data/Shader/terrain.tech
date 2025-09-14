@@ -1,0 +1,9 @@
+{
+    "vertexShader": "Shader/terrain.vs",
+    "pixelShader": "Shader/terrain.ps",
+    "parameters": [
+        "modelViewProjection",
+        "diffuseColor",
+        "diffuseMap"
+    ]
+}

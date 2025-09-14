@@ -25,6 +25,7 @@ void DebugDisplay::NewFrame()
 	m_aWireCylinders.Clear();
 	m_aWireCones.Clear();
 	m_aWireBoxes.Clear();
+	m_aWireMeshes.Clear();
 }
 
 void DebugDisplay::Display( const RenderContext& oRenderContext )
@@ -39,6 +40,7 @@ void DebugDisplay::Display( const RenderContext& oRenderContext )
 	g_pRenderer->m_oDebugRenderer.RenderWireCylinders( m_aWireCylinders, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireCones( m_aWireCones, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireBoxes( m_aWireBoxes, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireMeshes( m_aWireMeshes, oRenderContext );
 }
 
 void DebugDisplay::DisplayOverlay( const float fDeltaTime, const RenderContext& oRenderContext )
@@ -105,4 +107,9 @@ void DebugDisplay::DisplayWireCone( const glm::vec3& vFrom, const glm::vec3& vTo
 void DebugDisplay::DisplayWireBox( const glm::vec3& vCenter, const glm::vec3& vHalfSize, const glm::mat3& mAxes, const glm::vec3& vColor )
 {
 	m_aWireBoxes.PushBack( Box( vCenter, vHalfSize, mAxes, vColor ) );
+}
+
+void DebugDisplay::DisplayWireMesh( const Mesh& oMesh, const glm::mat4x3& mMatrix, const glm::vec3& vColor )
+{
+	m_aWireMeshes.PushBack( WireMesh( oMesh, mMatrix, vColor ) );
 }

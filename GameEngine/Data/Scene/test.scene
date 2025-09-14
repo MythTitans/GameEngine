@@ -3,6 +3,46 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 13
+                        }
+                    ]
+                }
+            ],
+            "id": 1435,
+            "name": "Chunk_5_1",
+            "parentId": 1429,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -127,6 +167,46 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 38
+                        }
+                    ]
+                }
+            ],
+            "id": 1463,
+            "name": "Chunk_6_4",
+            "parentId": 1456,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -189,6 +269,54 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 32
+                        }
+                    ]
+                }
+            ],
+            "id": 1457,
+            "name": "Chunk_0_4",
+            "parentId": 1456,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -201,14 +329,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -297,6 +417,52 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1061,
+            "name": "Sphere_Duplicate",
+            "position": {
+                "x": 2.151228904724121,
+                "y": 7.300000190734863,
+                "z": -5.220338821411133
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -328,82 +494,30 @@
         {
             "components": [
                 {
-                    "name": "SphereShapeComponent",
+                    "name": "TerrainChunkComponent",
                     "properties": [
                         {
-                            "Radius": 1.0
-                        }
-                    ]
-                },
-                {
-                    "name": "VisualComponent",
-                    "properties": [
+                            "Width resolution": 16
+                        },
                         {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
+                            "Height resolution": 16
+                        },
                         {
-                            "Static": false
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 29
                         }
                     ]
                 }
             ],
-            "id": 1061,
-            "name": "Sphere_Duplicate",
+            "id": 1453,
+            "name": "Chunk_5_3",
+            "parentId": 1447,
             "position": {
-                "x": 2.151228904724121,
-                "y": 7.300000190734863,
-                "z": -5.220338821411133
-            },
-            "rotation": {
-                "w": 1.0,
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
-                        }
-                    ]
-                },
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
-                        }
-                    ]
-                }
-            ],
-            "id": 1126,
-            "name": "Sphere_Duplicate_Duplicate",
-            "position": {
-                "x": 6.5643110275268555,
-                "y": 7.300000190734863,
-                "z": -2.4008874893188477
             },
             "rotation": {
                 "w": 1.0,
@@ -451,6 +565,52 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 1126,
+            "name": "Sphere_Duplicate_Duplicate",
+            "position": {
+                "x": 6.5643110275268555,
+                "y": 7.300000190734863,
+                "z": -2.4008874893188477
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -477,6 +637,46 @@
                 "x": 0.25,
                 "y": 0.25,
                 "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 45
+                        }
+                    ]
+                }
+            ],
+            "id": 1471,
+            "name": "Chunk_5_5",
+            "parentId": 1465,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
             }
         },
         {
@@ -542,6 +742,27 @@
             }
         },
         {
+            "id": 1465,
+            "name": "Row_5",
+            "parentId": 1029,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
             "components": [
                 {
                     "name": "VisualComponent",
@@ -575,6 +796,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -587,14 +816,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -621,19 +842,28 @@
         {
             "components": [
                 {
-                    "name": "VisualComponent",
+                    "name": "TerrainChunkComponent",
                     "properties": [
                         {
-                            "Model": "Sphere.obj"
+                            "Width resolution": 256
+                        },
+                        {
+                            "Height resolution": 256
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 27
                         }
                     ]
                 }
             ],
-            "id": 1132,
-            "name": "Sphere2",
-            "parentId": 1131,
+            "id": 1451,
+            "name": "Chunk_3_3",
+            "parentId": 1447,
             "position": {
-                "x": -1.0,
+                "x": 0.0,
                 "y": 0.0,
                 "z": 0.0
             },
@@ -644,9 +874,9 @@
                 "z": 0.0
             },
             "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
             }
         },
         {
@@ -691,13 +921,13 @@
                     ]
                 }
             ],
-            "id": 1133,
-            "name": "Sphere3",
+            "id": 1132,
+            "name": "Sphere2",
             "parentId": 1131,
             "position": {
-                "x": 0.0,
+                "x": -1.0,
                 "y": 0.0,
-                "z": 1.0
+                "z": 0.0
             },
             "rotation": {
                 "w": 1.0,
@@ -753,6 +983,37 @@
                     ]
                 }
             ],
+            "id": 1133,
+            "name": "Sphere3",
+            "parentId": 1131,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
             "id": 1039,
             "name": "Sphere4",
             "parentId": 1036,
@@ -776,7 +1037,47 @@
         {
             "components": [
                 {
-                    "name": "VisualComponent",
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 2
+                        }
+                    ]
+                }
+            ],
+            "id": 1423,
+            "name": "Chunk_2_0",
+            "parentId": 1420,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "AnimatorComponent",
                     "properties": [
                         {
                             "Model": "TestAnim.fbx"
@@ -784,7 +1085,7 @@
                     ]
                 },
                 {
-                    "name": "AnimatorComponent",
+                    "name": "VisualComponent",
                     "properties": [
                         {
                             "Model": "TestAnim.fbx"
@@ -901,6 +1202,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -915,14 +1224,6 @@
                             "Model": "Sphere.obj"
                         }
                     ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
-                        }
-                    ]
                 }
             ],
             "id": 1131,
@@ -931,6 +1232,46 @@
                 "x": 8.411277770996094,
                 "y": 7.300000190734863,
                 "z": -0.44045448303222656
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 41
+                        }
+                    ]
+                }
+            ],
+            "id": 1467,
+            "name": "Chunk_1_5",
+            "parentId": 1465,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
             },
             "rotation": {
                 "w": 1.0,
@@ -1009,6 +1350,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -1021,14 +1370,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -1148,6 +1489,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -1160,14 +1509,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -1287,6 +1628,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -1299,14 +1648,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -1387,8 +1728,48 @@
                 "z": 0.0
             },
             "rotation": {
-                "w": 0.7071080207824707,
-                "x": 0.7071054577827454,
+                "w": 0.7071097493171692,
+                "x": 0.7071037292480469,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 32
+                        },
+                        {
+                            "Height resolution": 32
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 9
+                        }
+                    ]
+                }
+            ],
+            "id": 1431,
+            "name": "Chunk_1_1",
+            "parentId": 1429,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
                 "y": 0.0,
                 "z": 0.0
             },
@@ -1463,6 +1844,46 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 4
+                        }
+                    ]
+                }
+            ],
+            "id": 1425,
+            "name": "Chunk_4_0",
+            "parentId": 1420,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -1529,8 +1950,8 @@
                 "z": 0.0
             },
             "rotation": {
-                "w": 0.7071080207824707,
-                "x": 0.7071054577827454,
+                "w": 0.7071097493171692,
+                "x": 0.7071037292480469,
                 "y": 0.0,
                 "z": 0.0
             },
@@ -1543,18 +1964,22 @@
         {
             "components": [
                 {
-                    "name": "VisualComponent",
+                    "name": "TerrainComponent",
                     "properties": [
                         {
-                            "Model": "plane.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
+                            "Width": 6200.0
+                        },
                         {
-                            "Static": true
+                            "Height": 6200.0
+                        },
+                        {
+                            "Intensity": 175.0
+                        },
+                        {
+                            "Width chunks": 8
+                        },
+                        {
+                            "Height chunks": 8
                         }
                     ]
                 },
@@ -1569,6 +1994,14 @@
                         },
                         {
                             "HalfDepth": 10.0
+                        }
+                    ]
+                },
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": true
                         }
                     ]
                 },
@@ -1597,13 +2030,21 @@
                             "Active": true
                         }
                     ]
+                },
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "plane.obj"
+                        }
+                    ]
                 }
             ],
             "id": 1029,
             "name": "Env",
             "position": {
                 "x": 0.0,
-                "y": 0.0,
+                "y": -12.683284759521484,
                 "z": 0.0
             },
             "rotation": {
@@ -1621,6 +2062,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -1633,14 +2082,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -1667,10 +2108,56 @@
         {
             "components": [
                 {
-                    "name": "VisualComponent",
+                    "name": "TerrainChunkComponent",
                     "properties": [
                         {
-                            "Model": "cube.obj"
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 0
+                        }
+                    ]
+                }
+            ],
+            "id": 1421,
+            "name": "Chunk_0_0",
+            "parentId": 1420,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "BoxShapeComponent",
+                    "properties": [
+                        {
+                            "HalfWidth": 2.0
+                        },
+                        {
+                            "HalfHeight": 0.5
+                        },
+                        {
+                            "HalfDepth": 1.0
                         }
                     ]
                 },
@@ -1683,16 +2170,10 @@
                     ]
                 },
                 {
-                    "name": "BoxShapeComponent",
+                    "name": "VisualComponent",
                     "properties": [
                         {
-                            "HalfWidth": 2.0
-                        },
-                        {
-                            "HalfHeight": 0.5
-                        },
-                        {
-                            "HalfDepth": 1.0
+                            "Model": "cube.obj"
                         }
                     ]
                 }
@@ -1719,6 +2200,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -1731,14 +2220,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -1825,6 +2306,27 @@
             }
         },
         {
+            "id": 1429,
+            "name": "Row_1",
+            "parentId": 1029,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
             "components": [
                 {
                     "name": "VisualComponent",
@@ -1858,6 +2360,54 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 16
+                        }
+                    ]
+                }
+            ],
+            "id": 1439,
+            "name": "Chunk_0_2",
+            "parentId": 1438,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -1870,14 +2420,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -1935,6 +2477,46 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 32
+                        },
+                        {
+                            "Height resolution": 32
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 11
+                        }
+                    ]
+                }
+            ],
+            "id": 1433,
+            "name": "Chunk_3_1",
+            "parentId": 1429,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -1961,6 +2543,46 @@
                 "x": 0.25,
                 "y": 0.25,
                 "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 6
+                        }
+                    ]
+                }
+            ],
+            "id": 1427,
+            "name": "Chunk_6_0",
+            "parentId": 1420,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
             }
         },
         {
@@ -1997,6 +2619,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -2011,14 +2641,6 @@
                             "Model": "Sphere.obj"
                         }
                     ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
-                        }
-                    ]
                 }
             ],
             "id": 1046,
@@ -2027,6 +2649,46 @@
                 "x": 4.133312225341797,
                 "y": 7.300000190734863,
                 "z": -0.9493741989135742
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 15
+                        }
+                    ]
+                }
+            ],
+            "id": 1437,
+            "name": "Chunk_7_1",
+            "parentId": 1429,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
             },
             "rotation": {
                 "w": 1.0,
@@ -2198,6 +2860,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -2212,14 +2882,6 @@
                             "Model": "Sphere.obj"
                         }
                     ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
-                        }
-                    ]
                 }
             ],
             "id": 1056,
@@ -2228,6 +2890,46 @@
                 "x": 1.9237570762634277,
                 "y": 7.300000190734863,
                 "z": -2.844968318939209
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 31
+                        }
+                    ]
+                }
+            ],
+            "id": 1455,
+            "name": "Chunk_7_3",
+            "parentId": 1447,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
             },
             "rotation": {
                 "w": 1.0,
@@ -2306,6 +3008,46 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 32
+                        },
+                        {
+                            "Height resolution": 32
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 25
+                        }
+                    ]
+                }
+            ],
+            "id": 1449,
+            "name": "Chunk_1_3",
+            "parentId": 1447,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -2363,6 +3105,46 @@
                 "x": 0.25,
                 "y": 0.25,
                 "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 32
+                        },
+                        {
+                            "Height resolution": 32
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 20
+                        }
+                    ]
+                }
+            ],
+            "id": 1443,
+            "name": "Chunk_4_2",
+            "parentId": 1438,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
             }
         },
         {
@@ -2461,6 +3243,54 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 32
+                        },
+                        {
+                            "Height resolution": 32
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 36
+                        }
+                    ]
+                }
+            ],
+            "id": 1461,
+            "name": "Chunk_4_4",
+            "parentId": 1456,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -2473,14 +3303,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -2538,6 +3360,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -2552,14 +3382,6 @@
                             "Model": "Sphere.obj"
                         }
                     ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
-                        }
-                    ]
                 }
             ],
             "id": 1076,
@@ -2568,6 +3390,46 @@
                 "x": -4.231508255004883,
                 "y": 7.300000190734863,
                 "z": 1.1665468215942383
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 32
+                        },
+                        {
+                            "Height resolution": 32
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 34
+                        }
+                    ]
+                }
+            ],
+            "id": 1459,
+            "name": "Chunk_2_4",
+            "parentId": 1456,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
             },
             "rotation": {
                 "w": 1.0,
@@ -2646,6 +3508,46 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 43
+                        }
+                    ]
+                }
+            ],
+            "id": 1469,
+            "name": "Chunk_3_5",
+            "parentId": 1465,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -2703,6 +3605,46 @@
                 "x": 0.25,
                 "y": 0.25,
                 "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 59
+                        }
+                    ]
+                }
+            ],
+            "id": 1487,
+            "name": "Chunk_3_7",
+            "parentId": 1483,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
             }
         },
         {
@@ -2770,6 +3712,54 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 54
+                        }
+                    ]
+                }
+            ],
+            "id": 1481,
+            "name": "Chunk_6_6",
+            "parentId": 1474,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -2782,14 +3772,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -2842,6 +3824,46 @@
                 "x": 0.25,
                 "y": 0.25,
                 "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 48
+                        }
+                    ]
+                }
+            ],
+            "id": 1475,
+            "name": "Chunk_0_6",
+            "parentId": 1474,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
             }
         },
         {
@@ -2909,6 +3931,46 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 57
+                        }
+                    ]
+                }
+            ],
+            "id": 1485,
+            "name": "Chunk_1_7",
+            "parentId": 1483,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -2940,6 +4002,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -2952,14 +4022,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -3048,6 +4110,46 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 61
+                        }
+                    ]
+                }
+            ],
+            "id": 1489,
+            "name": "Chunk_5_7",
+            "parentId": 1483,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -3108,7 +4210,36 @@
             }
         },
         {
+            "id": 1483,
+            "name": "Row_7",
+            "parentId": 1029,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
             "components": [
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
                 {
                     "name": "SphereShapeComponent",
                     "properties": [
@@ -3122,14 +4253,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -3280,6 +4403,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -3292,14 +4423,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -3388,6 +4511,46 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 63
+                        }
+                    ]
+                }
+            ],
+            "id": 1491,
+            "name": "Chunk_7_7",
+            "parentId": 1483,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -3450,6 +4613,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -3462,14 +4633,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -3620,6 +4783,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -3632,14 +4803,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -3790,6 +4953,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -3802,14 +4973,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -4022,6 +5185,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -4034,14 +5205,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -4223,6 +5386,46 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 52
+                        }
+                    ]
+                }
+            ],
+            "id": 1479,
+            "name": "Chunk_4_6",
+            "parentId": 1474,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -4254,6 +5457,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -4268,14 +5479,6 @@
                             "Model": "Sphere.obj"
                         }
                     ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
-                        }
-                    ]
                 }
             ],
             "id": 1146,
@@ -4284,6 +5487,46 @@
                 "x": 4.752845764160156,
                 "y": 7.300000190734863,
                 "z": 4.197866439819336
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 47
+                        }
+                    ]
+                }
+            ],
+            "id": 1473,
+            "name": "Chunk_7_5",
+            "parentId": 1465,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
             },
             "rotation": {
                 "w": 1.0,
@@ -4424,6 +5667,54 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 50
+                        }
+                    ]
+                }
+            ],
+            "id": 1477,
+            "name": "Chunk_2_6",
+            "parentId": 1474,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -4436,14 +5727,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -4594,6 +5877,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -4606,14 +5897,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -4764,6 +6047,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -4776,14 +6067,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -4934,6 +6217,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -4946,14 +6237,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -5104,6 +6387,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -5116,14 +6407,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -5274,6 +6557,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -5286,14 +6577,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -5444,6 +6727,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -5456,14 +6747,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -5614,6 +6897,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -5626,14 +6917,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -5784,6 +7067,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -5796,14 +7087,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -5954,6 +7237,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -5966,14 +7257,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -6124,6 +7407,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -6136,14 +7427,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -6294,6 +7577,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -6306,14 +7597,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -6464,6 +7747,14 @@
         {
             "components": [
                 {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        }
+                    ]
+                },
+                {
                     "name": "SphereShapeComponent",
                     "properties": [
                         {
@@ -6476,14 +7767,6 @@
                     "properties": [
                         {
                             "Model": "Sphere.obj"
-                        }
-                    ]
-                },
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
                         }
                     ]
                 }
@@ -6663,6 +7946,1471 @@
             "id": 1216,
             "name": "NewEntity",
             "parentId": 1029,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "id": 1420,
+            "name": "Row_0",
+            "parentId": 1029,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 1
+                        }
+                    ]
+                }
+            ],
+            "id": 1422,
+            "name": "Chunk_1_0",
+            "parentId": 1420,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 3
+                        }
+                    ]
+                }
+            ],
+            "id": 1424,
+            "name": "Chunk_3_0",
+            "parentId": 1420,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 5
+                        }
+                    ]
+                }
+            ],
+            "id": 1426,
+            "name": "Chunk_5_0",
+            "parentId": 1420,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 7
+                        }
+                    ]
+                }
+            ],
+            "id": 1428,
+            "name": "Chunk_7_0",
+            "parentId": 1420,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 8
+                        }
+                    ]
+                }
+            ],
+            "id": 1430,
+            "name": "Chunk_0_1",
+            "parentId": 1429,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 32
+                        },
+                        {
+                            "Height resolution": 32
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 10
+                        }
+                    ]
+                }
+            ],
+            "id": 1432,
+            "name": "Chunk_2_1",
+            "parentId": 1429,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 12
+                        }
+                    ]
+                }
+            ],
+            "id": 1434,
+            "name": "Chunk_4_1",
+            "parentId": 1429,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 14
+                        }
+                    ]
+                }
+            ],
+            "id": 1436,
+            "name": "Chunk_6_1",
+            "parentId": 1429,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "id": 1438,
+            "name": "Row_2",
+            "parentId": 1029,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 32
+                        },
+                        {
+                            "Height resolution": 32
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 17
+                        }
+                    ]
+                }
+            ],
+            "id": 1440,
+            "name": "Chunk_1_2",
+            "parentId": 1438,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 256
+                        },
+                        {
+                            "Height resolution": 256
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 18
+                        }
+                    ]
+                }
+            ],
+            "id": 1441,
+            "name": "Chunk_2_2",
+            "parentId": 1438,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 32
+                        },
+                        {
+                            "Height resolution": 32
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 19
+                        }
+                    ]
+                }
+            ],
+            "id": 1442,
+            "name": "Chunk_3_2",
+            "parentId": 1438,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 21
+                        }
+                    ]
+                }
+            ],
+            "id": 1444,
+            "name": "Chunk_5_2",
+            "parentId": 1438,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 22
+                        }
+                    ]
+                }
+            ],
+            "id": 1445,
+            "name": "Chunk_6_2",
+            "parentId": 1438,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 23
+                        }
+                    ]
+                }
+            ],
+            "id": 1446,
+            "name": "Chunk_7_2",
+            "parentId": 1438,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "id": 1447,
+            "name": "Row_3",
+            "parentId": 1029,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 24
+                        }
+                    ]
+                }
+            ],
+            "id": 1448,
+            "name": "Chunk_0_3",
+            "parentId": 1447,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 256
+                        },
+                        {
+                            "Height resolution": 256
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 26
+                        }
+                    ]
+                }
+            ],
+            "id": 1450,
+            "name": "Chunk_2_3",
+            "parentId": 1447,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 32
+                        },
+                        {
+                            "Height resolution": 32
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 28
+                        }
+                    ]
+                }
+            ],
+            "id": 1452,
+            "name": "Chunk_4_3",
+            "parentId": 1447,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 30
+                        }
+                    ]
+                }
+            ],
+            "id": 1454,
+            "name": "Chunk_6_3",
+            "parentId": 1447,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "id": 1456,
+            "name": "Row_4",
+            "parentId": 1029,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 32
+                        },
+                        {
+                            "Height resolution": 32
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 33
+                        }
+                    ]
+                }
+            ],
+            "id": 1458,
+            "name": "Chunk_1_4",
+            "parentId": 1456,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 32
+                        },
+                        {
+                            "Height resolution": 32
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 35
+                        }
+                    ]
+                }
+            ],
+            "id": 1460,
+            "name": "Chunk_3_4",
+            "parentId": 1456,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 37
+                        }
+                    ]
+                }
+            ],
+            "id": 1462,
+            "name": "Chunk_5_4",
+            "parentId": 1456,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 39
+                        }
+                    ]
+                }
+            ],
+            "id": 1464,
+            "name": "Chunk_7_4",
+            "parentId": 1456,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 40
+                        }
+                    ]
+                }
+            ],
+            "id": 1466,
+            "name": "Chunk_0_5",
+            "parentId": 1465,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 42
+                        }
+                    ]
+                }
+            ],
+            "id": 1468,
+            "name": "Chunk_2_5",
+            "parentId": 1465,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 44
+                        }
+                    ]
+                }
+            ],
+            "id": 1470,
+            "name": "Chunk_4_5",
+            "parentId": 1465,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 46
+                        }
+                    ]
+                }
+            ],
+            "id": 1472,
+            "name": "Chunk_6_5",
+            "parentId": 1465,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "id": 1474,
+            "name": "Row_6",
+            "parentId": 1029,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 49
+                        }
+                    ]
+                }
+            ],
+            "id": 1476,
+            "name": "Chunk_1_6",
+            "parentId": 1474,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 51
+                        }
+                    ]
+                }
+            ],
+            "id": 1478,
+            "name": "Chunk_3_6",
+            "parentId": 1474,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 53
+                        }
+                    ]
+                }
+            ],
+            "id": 1480,
+            "name": "Chunk_5_6",
+            "parentId": 1474,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 55
+                        }
+                    ]
+                }
+            ],
+            "id": 1482,
+            "name": "Chunk_7_6",
+            "parentId": 1474,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 56
+                        }
+                    ]
+                }
+            ],
+            "id": 1484,
+            "name": "Chunk_0_7",
+            "parentId": 1483,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 58
+                        }
+                    ]
+                }
+            ],
+            "id": 1486,
+            "name": "Chunk_2_7",
+            "parentId": 1483,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 60
+                        }
+                    ]
+                }
+            ],
+            "id": 1488,
+            "name": "Chunk_4_7",
+            "parentId": 1483,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 62
+                        }
+                    ]
+                }
+            ],
+            "id": 1490,
+            "name": "Chunk_6_7",
+            "parentId": 1483,
             "position": {
                 "x": 0.0,
                 "y": 0.0,

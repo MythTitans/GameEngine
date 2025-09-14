@@ -8,6 +8,7 @@
 #include "MemoryTracker.h"
 #endif
 
+// TODO #eric remove ArrayFlags and optimize based on type traits directly
 enum ArrayFlags
 {
 	STANDARD = 0,
@@ -269,15 +270,32 @@ public:
 			const uint uExpansion = uCount - m_uCount;
 			Reserve( uCount );
 
-			for( uint u = 0; u < uExpansion; ++u )
-				PushBack();
+			if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+			{
+				static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
+				static_assert( sizeof( T ) == sizeof( uint8 ), "Memset only valid for elements of the size of a byte." );
+				memset( &m_pData[ m_uCount ], T(), uExpansion * sizeof( T ) );
+				m_uCount = uCount;
+			}
+			else
+			{
+				for( uint u = 0; u < uExpansion; ++u )
+					PushBack();
+			}
 		}
 		else if( m_uCount > uCount )
 		{
 			const uint uShrink = m_uCount - uCount;
 
-			for( uint u = 0; u < uShrink; ++u )
-				PopBack();
+			if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+			{
+				m_uCount = uCount;
+			}
+			else
+			{
+				for( uint u = 0; u < uShrink; ++u )
+					PopBack();
+			}
 		}
 	}
 
@@ -288,15 +306,32 @@ public:
 			const uint uExpansion = uCount - m_uCount;
 			Reserve( uCount );
 
-			for( uint u = 0; u < uExpansion; ++u )
-				PushBack( oValue );
+			if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+			{
+				static_assert( std::is_trivially_constructible_v< T >, "Fast resize can only be set for trivially constructible elements." );
+				static_assert( sizeof( T ) == sizeof( uint8 ), "Memset only valid for elements of the size of a byte." );
+				memset( &m_pData[ m_uCount ], oValue, uExpansion * sizeof( T ) );
+				m_uCount = uCount;
+			}
+			else
+			{
+				for( uint u = 0; u < uExpansion; ++u )
+					PushBack( oValue );
+			}
 		}
 		else if( m_uCount > uCount )
 		{
 			const uint uShrink = m_uCount - uCount;
 
-			for( uint u = 0; u < uShrink; ++u )
-				PopBack();
+			if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+			{
+				m_uCount = uCount;
+			}
+			else
+			{
+				for( uint u = 0; u < uShrink; ++u )
+					PopBack();
+			}
 		}
 	}
 
@@ -425,10 +460,19 @@ public:
 private:
 	void Destroy()
 	{
-		for( uint u = 0; u < m_uCount; ++u )
-			m_pData[ u ].~T();
+		if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+		{
+			static_assert( std::is_trivially_destructible_v< T >, "Fast resize can only be set for trivially destructible elements." );
 
-		free( m_pData );
+			free( m_pData );
+		}
+		else
+		{
+			for( uint u = 0; u < m_uCount; ++u )
+				m_pData[ u ].~T();
+
+			free( m_pData );
+		}
 	}
 
 	void TrackMemory()

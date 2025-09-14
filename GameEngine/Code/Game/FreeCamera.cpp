@@ -11,6 +11,7 @@ FreeCamera::FreeCamera()
 	, m_fHorizontalAngle( glm::radians( 45.f ) )
 	, m_fVerticalAngle( glm::radians( -37.5f ) )
 	, m_fSpeed( 10.f )
+	, m_fFastSpeedMultiplier( 10.f )
 	, m_fHorizontalAngleSpeed( glm::radians( 90.f ) )
 	, m_fVerticalAngleSpeed( glm::radians( 90.f ) )
 {
@@ -22,6 +23,7 @@ void FreeCamera::Update( const float fDeltaTime )
 	const float fMoveForward = -g_pInputHandler->GetAxisActionValue( AxisActionID::ACTION_MOVE_BACKWARD ) + g_pInputHandler->GetAxisActionValue( AxisActionID::ACTION_MOVE_FORWARD );
 	const float fLookRight = -g_pInputHandler->GetAxisActionValue( AxisActionID::ACTION_LOOK_LEFT ) + g_pInputHandler->GetAxisActionValue( AxisActionID::ACTION_LOOK_RIGHT );
 	const float fLookUp = -g_pInputHandler->GetAxisActionValue( AxisActionID::ACTION_LOOK_DOWN ) + g_pInputHandler->GetAxisActionValue( AxisActionID::ACTION_LOOK_UP );
+	const bool bFastCamera = g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_FAST_FREECAM );
 
 	m_fHorizontalAngle += fLookRight * m_fHorizontalAngleSpeed * fDeltaTime;
 	m_fVerticalAngle += fLookUp * m_fVerticalAngleSpeed * fDeltaTime;
@@ -32,7 +34,7 @@ void FreeCamera::Update( const float fDeltaTime )
 	vForward = vForward * glm::cos( m_fVerticalAngle ) + vUp * glm::sin( m_fVerticalAngle );
 	vUp = glm::cross( vRight, vForward );
 
-	m_vPosition += ( vRight * fMoveRight + vForward * fMoveForward ) *m_fSpeed * fDeltaTime;
+	m_vPosition += ( vRight * fMoveRight + vForward * fMoveForward ) * m_fSpeed * ( bFastCamera ? m_fFastSpeedMultiplier : 1.f ) * fDeltaTime;
 
 	Camera& oCamera = g_pRenderer->m_oCamera;
 	oCamera.SetPosition( m_vPosition );
