@@ -12,7 +12,7 @@ class GameWorld
 {
 public:
 	friend class Editor;
-	friend class Entity;
+	friend class EntityHolder;
 
 	GameWorld();
 	~GameWorld();
@@ -20,13 +20,17 @@ public:
 	void	Load( const nlohmann::json& oJsonContent );
 	void	Run();
 	void	Reset();
-
+			
 	void	Update( const GameContext& oGameContext );
-
+			
 	bool	IsReady() const;
-
+			
 	Entity*	CreateEntity( const std::string& sName, Entity* pParent = nullptr );
+	Entity*	FindEntity( const uint64 uEntityID );
 	void	RemoveEntity( Entity* pEntity );
+
+	void	AttachToParent( Entity* pChild, Entity* pParent );
+	void	DetachFromParent( Entity* pChild );
 
 private:
 	void	UpdateWorld( const GameContext& oGameContext );
@@ -52,8 +56,6 @@ private:
 
 	Scene			m_oScene;
 	nlohmann::json	m_oSceneJson;
-
-	FreeCamera		m_oFreeCamera;
 };
 
 extern GameWorld* g_pGameWorld;

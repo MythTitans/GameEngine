@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CameraManager.h"
 #include "ComponentManager.h"
 #include "Core/Common.h"
 #include "Core/MemoryTracker.h"
@@ -68,6 +69,7 @@ private:
 	ComponentManager		m_oComponentManager;
 	Physics					m_oPhysics;
 	GameWorld				m_oGameWorld;
+	CameraManager			m_oCameraManager;
 
 	DebugDisplay			m_oDebugDisplay;
 	Editor					m_oEditor;

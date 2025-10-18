@@ -156,14 +156,6 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	if( pSelectedEntity == nullptr )
 		m_uSelectedEntityID = UINT64_MAX;
 
-// 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 20.f, 0.f, 0.f ), glm::vec3( 1.f, 0.f, 0.f ) );
-// 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 20.f, 0.f ), glm::vec3( 0.f, 1.f, 0.f ) );
-// 	g_pDebugDisplay->DisplayLine( glm::vec3( 0.f, 0.f, 0.f ), glm::vec3( 0.f, 0.f, 20.f ), glm::vec3( 0.f, 0.f, 1.f ) );
-// 
-// 	g_pDebugDisplay->DisplaySphere( glm::vec3( 20.f, 0.f, 0.f ), 0.3f, glm::vec3( 1.f, 0.f, 0.f ) );
-// 	g_pDebugDisplay->DisplaySphere( glm::vec3( 0.f, 20.f, 0.f ), 0.3f, glm::vec3( 0.f, 1.f, 0.f ) );
-// 	g_pDebugDisplay->DisplaySphere( glm::vec3( 0.f, 0.f, 20.f ), 0.3f, glm::vec3( 0.f, 0.f, 1.f ) );
-
 	g_pComponentManager->DisplayGizmos( m_uSelectedEntityID );
 
 	if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_MOUSE_LEFT_PRESS ) && ImGui::GetIO().WantCaptureMouse == false )
@@ -238,7 +230,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 				if( fAngle > 0.f )
 				{
-					const glm::vec3 vAxis = glm::cross( vCenterToStart, vCenterToPoint );
+					const glm::vec3 vAxis = glm::normalize( glm::cross( vCenterToStart, vCenterToPoint ) );
 					const float fSign = glm::sign( glm::dot( vAxis, m_vRotationAxis ) );
 
 					const glm::quat qRotation = glm::rotate( glm::quat( 1.f, 0.f, 0.f, 0.f ), fSign * fAngle, m_vRotationAxis );
@@ -291,8 +283,8 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 	ImGui::Begin( "Hierarchy" );
 
-	ImGui::DragFloat( "Camera speed", &g_pGameWorld->m_oFreeCamera.m_fSpeed );
-	ImGui::DragFloat( "Camera fast speed multiplier", &g_pGameWorld->m_oFreeCamera.m_fFastSpeedMultiplier );
+	ImGui::DragFloat( "Camera speed", &g_pCameraManager->m_oFreeCamera.m_fSpeed );
+	ImGui::DragFloat( "Camera fast speed multiplier", &g_pCameraManager->m_oFreeCamera.m_fFastSpeedMultiplier );
 
 	if( ImGui::Button( "Save scene" ) )
 	{
@@ -326,8 +318,8 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		}
 
 		Array< uint64 > aIDs;
-		aIDs.Reserve( ( uint )g_pGameWorld->m_oScene.m_mEntities.size() );
-		for( auto& it : g_pGameWorld->m_oScene.m_mEntities )
+		aIDs.Reserve( ( uint )g_pGameWorld->m_oScene.GetEntities().size() );
+		for( const auto& it : g_pGameWorld->m_oScene.GetEntities() )
 		{
 			const uint64 uID = it.first;
 			if( uID >= ENTITIES_START_ID && it.second->GetParent() == nullptr )
@@ -339,9 +331,9 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		int iImGuiID = 0;
 		for( const uint64 uID : aIDs )
 		{
-			auto it = g_pGameWorld->m_oScene.m_mEntities.find( uID );
-			if( it != g_pGameWorld->m_oScene.m_mEntities.end() && it->second != nullptr )
-				bModified |= DisplayHierarchy( it->second.GetPtr(), iImGuiID++ );
+			Entity* pEntity = g_pGameWorld->FindEntity( uID );
+			if( pEntity != nullptr )
+				bModified |= DisplayHierarchy( pEntity, iImGuiID++ );
 		}
 
 		ImGui::TreePop();
@@ -394,7 +386,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		}
 	}
 
-	if( bModified )
+	if( bModified && g_pGameEngine->m_eGameState != GameEngine::GameState::RUNNING )
 		StoreSnapshot();
 	else if( g_pInputHandler->IsInputActionTriggered( InputActionID::ACTION_REDO ) )
 		RestoreSnapshotForward();
@@ -514,7 +506,7 @@ Entity* Editor::DuplicateEntity( const Entity* pEntity, const std::string& sName
 {
 	Scene& oScene = g_pGameWorld->m_oScene;
 
-	Entity* pDuplicatedEntity = oScene.CreateEntity( pEntity->GetName() + sNameSuffix, oScene.GenerateID() );
+	Entity* pDuplicatedEntity = oScene.CreateEntity( pEntity->GetName() + sNameSuffix );
 
 	if( pForcedParent != nullptr )
 		oScene.AttachToParent( pDuplicatedEntity, pForcedParent );
@@ -560,7 +552,7 @@ bool Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
 		oFlags |= ImGuiTreeNodeFlags_Leaf;
 
 	bool bOpened = ImGui::TreeNodeEx( pEntity->GetName().c_str(), oFlags );
-	if( ImGui::IsItemClicked() && ImGui::IsItemToggledOpen() == false )
+	if( ImGui::IsItemHovered() && ImGui::IsMouseReleased( ImGuiMouseButton_Left ) && ImGui::IsItemToggledOpen() == false )
 	{
 		m_uSelectedEntityID = pEntity->GetID();
 
@@ -568,6 +560,15 @@ bool Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
 
 		for( GizmoComponent* pGizmoComponent : aGizmoComponents )
 			pGizmoComponent->SetAnchor( pEntity );
+	}
+
+	if( ImGui::BeginDragDropSource( ImGuiDragDropFlags_None ) )
+	{
+		const uint64 uEntityID = pEntity->GetID();
+		ImGui::SetDragDropPayload( "ENTITY", &uEntityID, sizeof( uEntityID ) );
+
+		ImGui::Text( "%s", pEntity->GetName().c_str() );
+		ImGui::EndDragDropSource();
 	}
 
 	bool bModified = false;
@@ -633,9 +634,9 @@ bool Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
 
 		for( const uint64 uID : aIDs )
 		{
-			auto it = g_pGameWorld->m_oScene.m_mEntities.find( uID );
-			if( it != g_pGameWorld->m_oScene.m_mEntities.end() && it->second != nullptr )
-				bModified |= DisplayHierarchy( it->second.GetPtr(), iImGuiID++ );
+			Entity* pEntity = g_pGameWorld->FindEntity( uID );
+			if( pEntity != nullptr )
+				bModified |= DisplayHierarchy( pEntity, iImGuiID++ );
 		}
 
 		ImGui::TreePop();
@@ -648,6 +649,8 @@ bool Editor::DisplayHierarchy( Entity* pEntity, int iImGuiID )
 
 void Editor::StoreSnapshot()
 {
+	ProfilerBlock oBlock( "Snapshot" );
+
 	m_oSnapshotStore.Push();
 	g_pGameWorld->m_oScene.Save( m_oSnapshotStore.Back() );
 }

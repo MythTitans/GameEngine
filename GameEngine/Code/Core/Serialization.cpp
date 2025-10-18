@@ -6,14 +6,29 @@
 
 #include "Game/ComponentManager.h"
 #include "Game/Entity.h"
+#include "Editor/Inspector.h"
 
 namespace glm
 {
-	void to_json( nlohmann::json& oJsonContent, const glm::vec3& qQuaternion )
+	void to_json( nlohmann::json& oJsonContent, const bvec3& vVector )
 	{
-		oJsonContent[ "x" ] = qQuaternion.x;
-		oJsonContent[ "y" ] = qQuaternion.y;
-		oJsonContent[ "z" ] = qQuaternion.z;
+		oJsonContent[ "x" ] = vVector.x;
+		oJsonContent[ "y" ] = vVector.y;
+		oJsonContent[ "z" ] = vVector.z;
+	}
+
+	void from_json( const nlohmann::json& oJsonContent, bvec3& vVector )
+	{
+		vVector.x = oJsonContent[ "x" ];
+		vVector.y = oJsonContent[ "y" ];
+		vVector.z = oJsonContent[ "z" ];
+	}
+
+	void to_json( nlohmann::json& oJsonContent, const glm::vec3& vVector )
+	{
+		oJsonContent[ "x" ] = vVector.x;
+		oJsonContent[ "y" ] = vVector.y;
+		oJsonContent[ "z" ] = vVector.z;
 	}
 
 	void from_json( const nlohmann::json& oJsonContent, vec3& vVector )
@@ -54,4 +69,14 @@ void to_json( nlohmann::json& oJsonContent, const Entity& oEntity )
 	const Array< nlohmann::json > aSerializedComponents = g_pComponentManager->SerializeComponents( &oEntity );
 	if( aSerializedComponents.Empty() == false )
 		oJsonContent[ "components" ] = aSerializedComponents;
+}
+
+void to_json( nlohmann::json& oJsonContent, const EntityHolder& oEntityHolder )
+{
+	oJsonContent[ "entityID" ] = oEntityHolder.GetEntityID();
+}
+
+void from_json( const nlohmann::json& oJsonContent, EntityHolder& oEntityHolder )
+{
+	oEntityHolder.SetEntity( oJsonContent[ "entityID" ] );
 }

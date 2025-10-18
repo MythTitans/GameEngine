@@ -13,37 +13,39 @@ class Entity;
 class Scene
 {
 public:
-	friend class Editor;
+	using EntityMap = std::unordered_map< uint64, StrongPtr< Entity > >;
 
 	Scene();
 
-	void			Load( const nlohmann::json& oJsonContent );
-	void			Save( nlohmann::json& oJsonContent );
+	void				Load( const nlohmann::json& oJsonContent );
+	void				Save( nlohmann::json& oJsonContent );
 
-	Entity*			CreateEntity( const std::string& sName );
-	Entity*			CreateEntity( const std::string& sName, const uint64 uID );
+	const EntityMap&	GetEntities() const;
 
-	void			RemoveEntity( const uint64 uEntityID );
-	void			RemoveEntity( Entity* pEntity );
+	Entity*				CreateEntity( const std::string& sName );
+	Entity*				CreateEntity( const std::string& sName, const uint64 uID );
 
-	Entity*			FindEntity( const uint64 uEntityID );
-	const Entity*	FindEntity( const uint64 uEntityID ) const;
+	void				RemoveEntity( const uint64 uEntityID );
+	void				RemoveEntity( Entity* pEntity );
 
-	void			AttachToParent( Entity* pChild, Entity* pParent );
-	void			DetachFromParent( Entity* pChild );
+	Entity*				FindEntity( const uint64 uEntityID );
+	const Entity*		FindEntity( const uint64 uEntityID ) const;
 
-	void			Clear();
+	void				AttachToParent( Entity* pChild, Entity* pParent );
+	void				DetachFromParent( Entity* pChild );
+
+	void				Clear();
 
 private:
-	void			CreateInternalEntities();
-	Entity*			CreateInternalEntity( const std::string& sName );
+	void				CreateInternalEntities();
+	Entity*				CreateInternalEntity( const std::string& sName );
 
-	uint64			GenerateInternalID();
-	uint64			GenerateID();
-	void			UpdateID( const uint64 uID );
+	uint64				GenerateInternalID();
+	uint64				GenerateID();
+	void				UpdateID( const uint64 uID );
 
-	uint64			m_uNextInternalID;
-	uint64			m_uNextID;
+	uint64		m_uNextInternalID;
+	uint64		m_uNextID;
 
-	std::unordered_map< uint64, StrongPtr< Entity > > m_mEntities;
+	EntityMap	m_mEntities;
 };

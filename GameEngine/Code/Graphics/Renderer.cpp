@@ -207,6 +207,9 @@ void RenderContext::OnFrameBufferResized( int iWidth, int iHeight )
 
 float RenderContext::ComputeAspectRatio() const
 {
+	if( m_oRenderRect.m_uHeight == 0 )
+		return 1.f;
+
 	return ( float )m_oRenderRect.m_uWidth / ( float )m_oRenderRect.m_uHeight;
 }
 

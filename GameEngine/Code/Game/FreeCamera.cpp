@@ -30,9 +30,9 @@ void FreeCamera::Update( const float fDeltaTime )
 
 	glm::vec3 vUp( 0.f, 1.f, 0.f );
 	glm::vec3 vForward = -glm::vec3( glm::cos( m_fHorizontalAngle - glm::half_pi< float >() ), 0.f, glm::sin( m_fHorizontalAngle - glm::half_pi< float >() ) );
-	glm::vec3 vRight = glm::cross( vForward, glm::vec3( 0.f, 1.f, 0.f ) );
+	glm::vec3 vRight = glm::normalize( glm::cross( vForward, glm::vec3( 0.f, 1.f, 0.f ) ) );
 	vForward = vForward * glm::cos( m_fVerticalAngle ) + vUp * glm::sin( m_fVerticalAngle );
-	vUp = glm::cross( vRight, vForward );
+	vUp = glm::normalize( glm::cross( vRight, vForward ) );
 
 	m_vPosition += ( vRight * fMoveRight + vForward * fMoveForward ) * m_fSpeed * ( bFastCamera ? m_fFastSpeedMultiplier : 1.f ) * fDeltaTime;
 

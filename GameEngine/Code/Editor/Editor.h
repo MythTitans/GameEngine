@@ -13,6 +13,7 @@ class GizmoComponent;
 class InputContext;
 class RenderContext;
 class TextureResource;
+struct GameContext;
 
 class SnapshotStore
 {

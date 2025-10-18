@@ -11,6 +11,25 @@
 
 using namespace physx;
 
+static PxRigidDynamicLockFlags BuildLockFlags( const glm::bvec3& vAxis, const glm::bvec3& vRotation )
+{
+	PxRigidDynamicLockFlags eFlags;
+	if( vAxis.x )
+		eFlags |= PxRigidDynamicLockFlag::eLOCK_LINEAR_X;
+	if( vAxis.y )
+		eFlags |= PxRigidDynamicLockFlag::eLOCK_LINEAR_Y;
+	if( vAxis.z )
+		eFlags |= PxRigidDynamicLockFlag::eLOCK_LINEAR_Z;
+	if( vRotation.x )
+		eFlags |= PxRigidDynamicLockFlag::eLOCK_ANGULAR_X;
+	if( vRotation.y )
+		eFlags |= PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y;
+	if( vRotation.z )
+		eFlags |= PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z;
+
+	return eFlags;
+}
+
 REGISTER_COMPONENT( RigidbodyComponent );
 
 RigidbodyComponent::RigidbodyComponent( Entity* pEntity )
@@ -23,9 +42,14 @@ RigidbodyComponent::RigidbodyComponent( Entity* pEntity )
 void RigidbodyComponent::Initialize()
 {
 	if( m_bStatic )
+	{
 		m_pRigidActor = g_pPhysics->m_pPhysics->createRigidStatic( PxTransform( PxIdentity ) );
+	}
 	else
+	{
 		m_pRigidActor = g_pPhysics->m_pPhysics->createRigidDynamic( PxTransform( PxIdentity ) );
+		m_pRigidActor->is< PxRigidDynamic >()->setRigidDynamicLockFlags( BuildLockFlags( m_vLockAxis, m_vLockRotation ) );
+	}
 }
 
 void RigidbodyComponent::Start()
@@ -102,13 +126,23 @@ void RigidbodyComponent::OnPropertyChanged( const std::string& sProperty )
 		PX_RELEASE( m_pRigidActor );
 
 		if( m_bStatic )
+		{
 			m_pRigidActor = g_pPhysics->m_pPhysics->createRigidStatic( PxTransform( PxIdentity ) );
+		}
 		else
+		{
 			m_pRigidActor = g_pPhysics->m_pPhysics->createRigidDynamic( PxTransform( PxIdentity ) );
+			m_pRigidActor->is< PxRigidDynamic >()->setRigidDynamicLockFlags( BuildLockFlags( m_vLockAxis, m_vLockRotation ) );
+		}
 
 		g_pPhysics->m_pScene->addActor( *m_pRigidActor );
 
 		m_pRigidActor->setGlobalPose( m_oTransform );
+	}
+	else if( sProperty == "Lock axis" || sProperty == "Lock rotation" )
+	{
+		if( m_bStatic == false )
+			m_pRigidActor->is< PxRigidDynamic >()->setRigidDynamicLockFlags( BuildLockFlags( m_vLockAxis, m_vLockRotation ) );
 	}
 }
 
@@ -120,6 +154,11 @@ physx::PxRigidActor* RigidbodyComponent::GetRigidActor()
 const physx::PxRigidActor* RigidbodyComponent::GetRigidActor() const
 {
 	return m_pRigidActor;
+}
+
+bool RigidbodyComponent::IsStatic() const
+{
+	return m_bStatic;
 }
 
 ShapeComponentBase::ShapeComponentBase( Entity* pEntity )

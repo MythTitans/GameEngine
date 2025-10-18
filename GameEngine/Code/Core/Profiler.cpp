@@ -163,6 +163,22 @@ void Profiler::Display()
 
 		ImGui::Checkbox( "Pause", &m_bPauseProfiler );
 
+		static bool bPauseOnLongFrame = false;
+		static int iLongFrameMs = 60;
+		ImGui::Checkbox( "Pause on long frame", &bPauseOnLongFrame );
+		ImGui::InputInt( "Long frame (ms)", &iLongFrameMs );
+
+		int iCurrentFrameIndex = ( int )m_uCurrentFrameIndex - 1;
+		if( iCurrentFrameIndex < 0 )
+			iCurrentFrameIndex += FRAME_HISTORY_COUNT;
+
+		const uint64 uLengthMilliSeconds = std::chrono::duration_cast< std::chrono::milliseconds >( m_aFrames[ iCurrentFrameIndex ].m_oFrameEnd - m_aFrames[ iCurrentFrameIndex ].m_oFrameStart ).count();
+
+		if( bPauseOnLongFrame && m_bPauseProfiler == false && uLengthMilliSeconds >= ( uint64 )iLongFrameMs )
+			m_bPauseProfiler = true;
+
+		ImGui::Separator();
+
 		float fMinFrameLength = FLT_MAX;
 		float fMaxFrameLength = 0.f;
 		float fAvgFrameLength = 0.f;

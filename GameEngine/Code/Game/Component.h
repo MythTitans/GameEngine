@@ -16,6 +16,9 @@ public:
 	template < typename ComponentType >
 	friend class ComponentHandle;
 
+	template < typename ComponentType >
+	friend class ComponentSubTypeHandle;
+
 	explicit Component( Entity* pEntity );
 
 	virtual void						Initialize();
@@ -53,6 +56,36 @@ private:
 };
 
 template < typename ComponentType >
+class ComponentHandleImplBase
+{
+public:
+	virtual void			Refresh( const Entity* pEntity, uint& uVersion, int& iIndex ) const = 0;
+	virtual ComponentType*	GetComponentFromIndex( const int iIndex ) const = 0;
+};
+
+template < typename ComponentType, typename RealComponentType >
+class ComponentHandleImpl : public ComponentHandleImplBase< ComponentType >
+{
+public:
+	void Refresh( const Entity* pEntity, uint& uVersion, int& iIndex ) const override
+	{
+		const uint uCurrentVersion = g_pComponentManager->GetVersion< RealComponentType >();
+		if( uVersion != uCurrentVersion )
+		{
+			iIndex = -1;
+			uVersion = uCurrentVersion;
+
+			iIndex = g_pComponentManager->GetComponentIndexFromEntity< RealComponentType >( pEntity );
+		}
+	}
+
+	ComponentType* GetComponentFromIndex( const int iIndex ) const override
+	{
+		return g_pComponentManager->GetComponentFromIndex< RealComponentType >( iIndex );
+	}
+};
+
+template < typename ComponentType >
 class ComponentHandle
 {
 public:
@@ -75,28 +108,28 @@ public:
 	{
 		Refresh();
 
-		return g_pComponentManager->GetComponentFromIndex< ComponentType >( m_iIndex );
+		return GetComponentFromIndex( m_iIndex );
 	}
 
 	const ComponentType* operator->() const
 	{
 		Refresh();
 
-		return g_pComponentManager->GetComponentFromIndex< ComponentType >( m_iIndex );
+		return GetComponentFromIndex( m_iIndex );
 	}
 
 	ComponentType& operator*()
 	{
 		Refresh();
 
-		return *g_pComponentManager->GetComponentFromIndex< ComponentType >( m_iIndex );
+		return *GetComponentFromIndex( m_iIndex );
 	}
 
 	const ComponentType& operator*() const
 	{
 		Refresh();
 
-		return *g_pComponentManager->GetComponentFromIndex< ComponentType >( m_iIndex );
+		return *GetComponentFromIndex( m_iIndex );
 	}
 
 	operator ComponentType*()
@@ -106,7 +139,7 @@ public:
 		if( m_iIndex == -1 )
 			return nullptr;
 
-		return g_pComponentManager->GetComponentFromIndex< ComponentType >( m_iIndex );
+		return GetComponentFromIndex( m_iIndex );
 	}
 
 	operator const ComponentType*() const
@@ -116,7 +149,116 @@ public:
 		if( m_iIndex == -1 )
 			return nullptr;
 
-		return g_pComponentManager->GetComponentFromIndex< ComponentType >( m_iIndex );
+		return GetComponentFromIndex( m_iIndex );
+	}
+
+	bool IsValid() const
+	{
+		Refresh();
+
+		return m_iIndex != -1;
+	}
+
+	int GetIndex() const
+	{
+		Refresh();
+
+		return m_iIndex;
+	}
+
+private:
+	static ComponentHandleImpl< ComponentType, ComponentType > s_oComponentHandleImpl;
+
+	void Refresh() const
+	{
+		s_oComponentHandleImpl.Refresh( m_pEntity, m_uVersion, m_iIndex );
+	}
+
+	ComponentType* GetComponentFromIndex( const int iIndex ) const
+	{
+		return s_oComponentHandleImpl.GetComponentFromIndex( m_iIndex );
+	}
+
+	Entity*			m_pEntity;
+	mutable uint	m_uVersion;
+	mutable int		m_iIndex;
+};
+
+template < typename ComponentType >
+ComponentHandleImpl< ComponentType, ComponentType > ComponentHandle< ComponentType >::s_oComponentHandleImpl;
+
+template < typename ComponentType >
+class ComponentSubTypeHandle
+{
+public:
+	ComponentSubTypeHandle()
+		: m_pEntity( nullptr )
+		, m_uVersion( UINT_MAX )
+		, m_iIndex( -1 )
+	{
+	}
+
+	ComponentSubTypeHandle( ComponentType* pComponent )
+		: m_pComponentSubTypeHandleImpl( nullptr )
+		, m_pEntity( pComponent != nullptr ? pComponent->m_pEntity : nullptr )
+		, m_uVersion( UINT_MAX )
+		, m_iIndex( -1 )
+	{
+		Refresh();
+	}
+
+	template < typename RealComponentType >
+	void SetComponentSubType()
+	{
+		m_pComponentSubTypeHandleImpl.reset( new ComponentHandleImpl< ComponentType, RealComponentType > );
+	}
+
+	ComponentType* operator->()
+	{
+		Refresh();
+
+		return GetComponentFromIndex( m_iIndex );
+	}
+
+	const ComponentType* operator->() const
+	{
+		Refresh();
+
+		return GetComponentFromIndex( m_iIndex );
+	}
+
+	ComponentType& operator*()
+	{
+		Refresh();
+
+		return *GetComponentFromIndex( m_iIndex );
+	}
+
+	const ComponentType& operator*() const
+	{
+		Refresh();
+
+		return *GetComponentFromIndex( m_iIndex );
+	}
+
+	operator ComponentType* ( )
+	{
+		Refresh();
+
+		if( m_iIndex == -1 )
+			return nullptr;
+
+		return GetComponentFromIndex( m_iIndex );
+	}
+
+	operator const ComponentType* ( ) const
+	{
+		Refresh();
+
+		if( m_iIndex == -1 )
+			return nullptr;
+
+		return GetComponentFromIndex( m_iIndex );
 	}
 
 	bool IsValid() const
@@ -136,17 +278,23 @@ public:
 private:
 	void Refresh() const
 	{
-		const uint uVersion = g_pComponentManager->GetVersion< ComponentType >();
-		if( m_uVersion != uVersion )
-		{
+		if( m_pComponentSubTypeHandleImpl != nullptr )
+			m_pComponentSubTypeHandleImpl->Refresh( m_pEntity, m_uVersion, m_iIndex );
+		else
 			m_iIndex = -1;
-			m_uVersion = uVersion;
-
-			m_iIndex = g_pComponentManager->GetComponentIndexFromEntity< ComponentType >( m_pEntity );
-		}
 	}
 
-	Entity*			m_pEntity;
-	mutable uint	m_uVersion;
-	mutable int		m_iIndex;
+	ComponentType* GetComponentFromIndex( const int iIndex ) const
+	{
+		if( m_pComponentSubTypeHandleImpl != nullptr )
+			return m_pComponentSubTypeHandleImpl->GetComponentFromIndex( iIndex );
+
+		return nullptr;
+	}
+
+	using ComponentHandleImplPtr = std::unique_ptr< ComponentHandleImplBase< ComponentType > >;
+	ComponentHandleImplPtr	m_pComponentSubTypeHandleImpl;
+	Entity*					m_pEntity;
+	mutable uint			m_uVersion;
+	mutable int				m_iIndex;
 };

@@ -239,9 +239,9 @@ Entity::~Entity()
 	if( g_pGameWorld != nullptr )
 	{
 		for( int i = ( int )m_aChildren.Count() - 1; i >= 0; --i )
-			g_pGameWorld->m_oScene.DetachFromParent( m_aChildren[ i ] );
+			g_pGameWorld->DetachFromParent( m_aChildren[ i ] );
 
-		g_pGameWorld->m_oScene.DetachFromParent( this );
+		g_pGameWorld->DetachFromParent( this );
 	}
 
 	g_pComponentManager->StopComponents( this );

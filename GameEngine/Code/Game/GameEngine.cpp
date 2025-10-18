@@ -38,7 +38,7 @@ void GameEngine::NewFrame()
 	if( m_oGameContext.m_uFrameIndex != 0 )
 	{
 		const uint64 uMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oNow - m_oGameContext.m_oFrameStart ).count();
-		m_oGameContext.m_fLastRealDeltaTime = uMicroSeconds / 1000000.f;
+		m_oGameContext.m_fLastRealDeltaTime = glm::min( uMicroSeconds / 1000000.f, 1.f / 30.f );
 	}
 	m_oGameContext.m_oFrameStart = oNow;
 
@@ -98,6 +98,8 @@ void GameEngine::EndFrame()
 
 void GameEngine::Update()
 {
+	ProfilerBlock oBlock( "Update" );
+
 	if( m_eGameState == GameState::INITIALIZING )
 	{
 		if( m_oRenderer.OnLoading() )
@@ -124,6 +126,8 @@ void GameEngine::Update()
 		}
 
 		m_oGameWorld.Update( m_oGameContext );
+
+		m_oCameraManager.Update( m_oGameContext );
 		
 		m_oEditor.Update( m_oInputContext, m_oRenderContext );
 	}
@@ -131,6 +135,8 @@ void GameEngine::Update()
 
 void GameEngine::Render()
 {
+	ProfilerBlock oBlock( "Render" );
+
 	if( m_eGameState != GameState::INITIALIZING )
 	{
 		m_oRenderer.DisplayDebug();

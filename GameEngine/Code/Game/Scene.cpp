@@ -74,6 +74,11 @@ void Scene::Save( nlohmann::json& oJsonContent )
 	oJsonContent[ "scene" ] = aSerializedEntities;
 }
 
+const Scene::EntityMap& Scene::GetEntities() const
+{
+	return m_mEntities;
+}
+
 Entity* Scene::CreateEntity( const std::string& sName )
 {
 	return CreateEntity( sName, GenerateID() );

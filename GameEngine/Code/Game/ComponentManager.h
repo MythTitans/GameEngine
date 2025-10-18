@@ -127,7 +127,7 @@ struct PropertiesHolder : PropertiesHolderBase
 		Array< std::string > aPropertiesChanged;
 		for( uint u = 0; u < m_aNames.Count(); ++u )
 		{
-			if( m_aHidden[ u ] == false && ::DisplayInspector(m_aNames[u].c_str(), pTypedClass->*m_aProperties[u]) )
+			if( m_aHidden[ u ] == false && ::DisplayInspector( m_aNames[ u ].c_str(), pTypedClass->*m_aProperties[ u ] ) )
 				aPropertiesChanged.PushBack( m_aNames[ u ] );
 		}
 
@@ -362,6 +362,8 @@ public:
 
 	nlohmann::json SerializeComponent( const Entity* pEntity ) const override
 	{
+		ProfilerBlock oBlock( GetComponentName().c_str() );
+
 		nlohmann::json oJsonContent;
 
 		if( ComponentManager::GetComponentsFactory().find( GetComponentName() ) == ComponentManager::GetComponentsFactory().end() )
@@ -418,6 +420,8 @@ public:
 
 	bool DisplayInspector( const Entity* pEntity ) override
 	{
+		ProfilerBlock oBlock( GetComponentName().c_str() );
+
 		if( ComponentManager::GetComponentsFactory().find( GetComponentName() ) == ComponentManager::GetComponentsFactory().end() )
 			return false;
 
@@ -762,6 +766,9 @@ extern ComponentManager* g_pComponentManager;
 class ComponentManager
 {
 public:
+	template < typename ComponentType, typename RealComponentType >
+	friend class ComponentHandleImpl;
+
 	template < typename ComponentType >
 	friend class ComponentHandle;
 

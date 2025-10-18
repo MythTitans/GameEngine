@@ -96,9 +96,24 @@ Entity* GameWorld::CreateEntity( const std::string& sName, Entity* pParent /*= n
 	return pEntity;
 }
 
+Entity* GameWorld::FindEntity( const uint64 uEntityID )
+{
+	return m_oScene.FindEntity( uEntityID );
+}
+
 void GameWorld::RemoveEntity( Entity* pEntity )
 {
 	m_oScene.RemoveEntity( pEntity );
+}
+
+void GameWorld::AttachToParent( Entity* pChild, Entity* pParent )
+{
+	m_oScene.AttachToParent( pChild, pParent );
+}
+
+void GameWorld::DetachFromParent( Entity* pChild )
+{
+	m_oScene.DetachFromParent( pChild );
 }
 
 void GameWorld::UpdateWorld( const GameContext& oGameContext )
@@ -115,12 +130,7 @@ void GameWorld::UpdateWorld( const GameContext& oGameContext )
 	}
 
 	{
-		ProfilerBlock oBlock( "Camera" );
-		m_oFreeCamera.Update( oGameContext.m_fLastRealDeltaTime );
-	}
-
-	{
-		ProfilerBlock oBlock( "Update" );
+		ProfilerBlock oBlock( "Logic" );
 		g_pComponentManager->UpdateComponents( oGameContext );
 	}
 }

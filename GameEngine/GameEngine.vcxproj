@@ -137,6 +137,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,6 +160,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename).obj</ObjectFileName>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -184,6 +186,8 @@
     <ClCompile Include="Code\Editor\Inspector.cpp" />
     <ClCompile Include="Code\Game\Animation.cpp" />
     <ClCompile Include="Code\Game\Animator.cpp" />
+    <ClCompile Include="Code\Game\Camera.cpp" />
+    <ClCompile Include="Code\Game\CameraManager.cpp" />
     <ClCompile Include="Code\Game\Component.cpp" />
     <ClCompile Include="Code\Game\ComponentManager.cpp" />
     <ClCompile Include="Code\Game\GameWorld.cpp" />
@@ -248,6 +252,8 @@
     <ClInclude Include="Code\Editor\Inspector.h" />
     <ClInclude Include="Code\Game\Animation.h" />
     <ClInclude Include="Code\Game\Animator.h" />
+    <ClInclude Include="Code\Game\Camera.h" />
+    <ClInclude Include="Code\Game\CameraManager.h" />
     <ClInclude Include="Code\Game\Component.h" />
     <ClInclude Include="Code\Game\ComponentManager.h" />
     <ClInclude Include="Code\Game\GameWorld.h" />

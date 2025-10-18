@@ -1,5 +1,7 @@
 #include "Physics.h"
 
+#include "Core/Profiler.h"
+
 using namespace physx;
 
 Physics* g_pPhysics = nullptr;
@@ -48,6 +50,8 @@ Physics::~Physics()
 
 void Physics::Tick()
 {
+	ProfilerBlock oBlock( "Physics" );
+
 	m_pScene->simulate( TICK_STEP );
 	m_pScene->fetchResults( true );
 }
