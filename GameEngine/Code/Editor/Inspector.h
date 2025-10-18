@@ -1,32 +1,16 @@
 #pragma once
 
+#ifdef EDITOR
+
 #include <glm/glm.hpp>
 #include <string>
 
-#include "Core/Types.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
 
-#include "Core/Intrusive.h"
+#include "Game/EntityHolder.h"
 
-class Entity;
 class TextureResource;
-
-class EntityHolder
-{
-public:
-	EntityHolder();
-
-	bool	DisplayInspector( const char* sName );
-
-	void	SetEntity( const uint uEntityID );
-	Entity*	GetEntity();
-	uint64	GetEntityID() const;
-
-private:
-	uint64				m_uEntityID;
-	WeakPtr< Entity >	m_xEntity;
-};
 
 bool ColorEdit( const char* sLabel, glm::vec3& vColor );
 void TexturePreview( const char* sLabel, const TextureResource* pTexture );
@@ -110,3 +94,5 @@ inline bool DisplayInspector( const char* sName, EntityHolder& oEntityHolder )
 {
 	return oEntityHolder.DisplayInspector( sName );
 }
+
+#endif

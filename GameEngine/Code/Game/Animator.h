@@ -31,8 +31,10 @@ public:
 	void						Update( const GameContext& oGameContext ) override;
 	void						Dispose() override;
 
+#ifdef EDITOR
 	void						DisplayInspector() override;
 	void						OnPropertyChanged( const std::string& sProperty ) override;
+#endif
 
 	void						PlayAnimation();
 	void						StopAnimation();

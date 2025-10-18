@@ -6,6 +6,7 @@
 
 #include "Game/ComponentManager.h"
 #include "Game/Entity.h"
+#include "Game/EntityHolder.h"
 #include "Editor/Inspector.h"
 
 namespace glm

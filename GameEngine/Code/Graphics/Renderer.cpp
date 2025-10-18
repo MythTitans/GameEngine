@@ -676,6 +676,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	ClearTechnique();
 }
 
+#ifdef EDITOR
 uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos )
 {
 	GPUBlock oGPUBlock( "Picking" );
@@ -869,6 +870,7 @@ void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 
 	ClearTechnique();
 }
+#endif
 
 void Renderer::UpdateRenderPipeline( const RenderContext& oRenderContext )
 {

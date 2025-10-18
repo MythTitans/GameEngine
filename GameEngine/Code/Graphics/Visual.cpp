@@ -61,6 +61,7 @@ void VisualComponent::Dispose()
 	m_xTechnique = nullptr;
 }
 
+#ifdef EDITOR
 void VisualComponent::DisplayInspector()
 {
 	if( ImGui::CollapsingHeader( "Material" ) )
@@ -89,6 +90,7 @@ void VisualComponent::OnPropertyChanged( const std::string& sProperty )
 	if( sProperty == "Model" )
 		m_xModel = g_pResourceLoader->LoadModel( m_sModelFile.c_str() );
 }
+#endif
 
 const Array< Mesh >& VisualComponent::GetMeshes() const
 {

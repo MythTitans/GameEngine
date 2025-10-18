@@ -50,6 +50,7 @@ void Component::DisplayGizmos( const bool bSelected )
 {
 }
 
+#ifdef EDITOR
 void Component::DisplayInspector()
 {
 }
@@ -57,6 +58,7 @@ void Component::DisplayInspector()
 void Component::OnPropertyChanged( const std::string& sProperty )
 {
 }
+#endif
 
 Entity* Component::GetEntity()
 {

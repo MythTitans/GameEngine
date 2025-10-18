@@ -5,7 +5,7 @@
 #include "Core/Common.h"
 #include "DebugRenderer.h"
 #include "Game/ResourceLoader.h"
-#include "GizmoRenderer.h"
+#include "Editor/GizmoRenderer.h"
 #include "RenderTarget.h"
 #include "Skybox.h"
 #include "Terrain.h"
@@ -102,16 +102,20 @@ private:
 
 	void			RenderForward( const RenderContext& oRenderContext );
 	void			RenderDeferred( const RenderContext& oRenderContext );
+#ifdef EDITOR
 	uint64			RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos );
 	void			RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode );
 	void			RenderGizmos( const RenderContext& oRenderContext );
+#endif
 
 	void			UpdateRenderPipeline( const RenderContext& oRenderContext );
 
 public:
 	TextRenderer	m_oTextRenderer;
 	DebugRenderer	m_oDebugRenderer;
+#ifdef EDITOR
 	GizmoRenderer	m_oGizmoRenderer;
+#endif
 
 	Camera			m_oCamera;
 

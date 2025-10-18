@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include "Game/Component.h"
 #include "PxPhysicsAPI.h"
 
@@ -15,7 +17,9 @@ public:
 	void						Update( const GameContext& oGameContext ) override;
 	void						Dispose() override;
 
+#ifdef EDITOR
 	void						OnPropertyChanged( const std::string& sProperty ) override;
+#endif
 
 	physx::PxRigidActor*		GetRigidActor();
 	const physx::PxRigidActor*	GetRigidActor() const;
@@ -64,7 +68,9 @@ public:
 	explicit SphereShapeComponent( Entity* pEntity );
 
 	void			DisplayGizmos( const bool bSelected ) override;
+#ifdef EDITOR
 	void			OnPropertyChanged( const std::string& sProperty ) override;
+#endif
 
 private:
 	physx::PxShape* CreateShape() override;
@@ -79,7 +85,9 @@ public:
 	explicit BoxShapeComponent( Entity* pEntity );
 
 	void			DisplayGizmos( const bool bSelected ) override;
+#ifdef EDITOR
 	void			OnPropertyChanged( const std::string& sProperty ) override;
+#endif
 
 private:
 	physx::PxShape* CreateShape() override;

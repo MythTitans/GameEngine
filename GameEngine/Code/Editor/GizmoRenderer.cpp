@@ -1,6 +1,8 @@
 #include "GizmoRenderer.h"
 
-#include "Renderer.h"
+#ifdef EDITOR
+
+#include "Graphics/Renderer.h"
 
 static constexpr uint CIRCLE_SEGMENT_COUNT = 32;
 static constexpr uint ARROW_VERTEX_COUNT = 4 * ( 2 * CIRCLE_SEGMENT_COUNT + 2 ) + 3 * 2;
@@ -298,3 +300,5 @@ Array< GLfloat > GizmoRenderer::GenerateGiro( const GizmoAxis eGizmoAxis )
 
 	return aVertices;
 }
+
+#endif

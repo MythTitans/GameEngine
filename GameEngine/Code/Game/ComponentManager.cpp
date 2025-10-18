@@ -127,6 +127,7 @@ void ComponentManager::DeserializeComponent( const std::string& sComponentName, 
 		pHolder->DeserializeComponent( sComponentName, oJsonContent, pEntity );
 }
 
+#ifdef EDITOR
 bool ComponentManager::DisplayInspector( Entity* pEntity )
 {
 	bool bModified = false;
@@ -141,6 +142,7 @@ bool ComponentManager::DisplayInspector( Entity* pEntity )
 
 	return bModified;
 }
+#endif
 
 void ComponentManager::DisplayGizmos( const uint64 uSelectedEntityID )
 {

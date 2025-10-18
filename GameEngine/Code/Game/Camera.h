@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component.h"
+#include "EntityHolder.h"
 
 class Camera;
 

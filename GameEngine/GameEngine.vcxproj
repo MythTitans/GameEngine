@@ -128,7 +128,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;LOG_LEVEL=4;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;LOG_LEVEL=4;EDITOR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -151,7 +151,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;LOG_LEVEL=3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;LOG_LEVEL=3;EDITOR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -190,6 +190,7 @@
     <ClCompile Include="Code\Game\CameraManager.cpp" />
     <ClCompile Include="Code\Game\Component.cpp" />
     <ClCompile Include="Code\Game\ComponentManager.cpp" />
+    <ClCompile Include="Code\Game\EntityHolder.cpp" />
     <ClCompile Include="Code\Game\GameWorld.cpp" />
     <ClCompile Include="Code\Graphics\DebugDisplay.cpp" />
     <ClCompile Include="Code\Game\Entity.cpp" />
@@ -208,7 +209,7 @@
     <ClCompile Include="Code\Graphics\Bloom.cpp" />
     <ClCompile Include="Code\Graphics\Camera.cpp" />
     <ClCompile Include="Code\Graphics\DebugRenderer.cpp" />
-    <ClCompile Include="Code\Graphics\GizmoRenderer.cpp" />
+    <ClCompile Include="Code\Editor\GizmoRenderer.cpp" />
     <ClCompile Include="Code\Graphics\Mesh.cpp" />
     <ClCompile Include="Code\Graphics\Renderer.cpp" />
     <ClCompile Include="Code\Graphics\RenderTarget.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="Code\Game\CameraManager.h" />
     <ClInclude Include="Code\Game\Component.h" />
     <ClInclude Include="Code\Game\ComponentManager.h" />
+    <ClInclude Include="Code\Game\EntityHolder.h" />
     <ClInclude Include="Code\Game\GameWorld.h" />
     <ClInclude Include="Code\Graphics\DebugDisplay.h" />
     <ClInclude Include="Code\Game\Entity.h" />
@@ -274,7 +276,7 @@
     <ClInclude Include="Code\Graphics\Bloom.h" />
     <ClInclude Include="Code\Graphics\Camera.h" />
     <ClInclude Include="Code\Graphics\DebugRenderer.h" />
-    <ClInclude Include="Code\Graphics\GizmoRenderer.h" />
+    <ClInclude Include="Code\Editor\GizmoRenderer.h" />
     <ClInclude Include="Code\Graphics\Mesh.h" />
     <ClInclude Include="Code\Graphics\Renderer.h" />
     <ClInclude Include="Code\Graphics\RenderTarget.h" />

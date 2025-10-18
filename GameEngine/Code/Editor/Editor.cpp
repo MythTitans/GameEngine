@@ -1,5 +1,7 @@
 #include "Editor.h"
 
+#ifdef EDITOR
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/color_space.hpp>
 #include <glm/gtx/norm.hpp>
@@ -682,3 +684,5 @@ void Editor::RestoreSnapshotForward()
 		m_bStoreSnapshot = false;
 	}
 }
+
+#endif

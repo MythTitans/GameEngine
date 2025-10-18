@@ -118,6 +118,7 @@ void RigidbodyComponent::Dispose()
 	PX_RELEASE( m_pRigidActor );
 }
 
+#ifdef EDITOR
 void RigidbodyComponent::OnPropertyChanged( const std::string& sProperty )
 {
 	if( sProperty == "Static" )
@@ -145,6 +146,7 @@ void RigidbodyComponent::OnPropertyChanged( const std::string& sProperty )
 			m_pRigidActor->is< PxRigidDynamic >()->setRigidDynamicLockFlags( BuildLockFlags( m_vLockAxis, m_vLockRotation ) );
 	}
 }
+#endif
 
 physx::PxRigidActor* RigidbodyComponent::GetRigidActor()
 {
@@ -251,11 +253,13 @@ void SphereShapeComponent::DisplayGizmos( const bool bSelected )
 	}
 }
 
+#ifdef EDITOR
 void SphereShapeComponent::OnPropertyChanged( const std::string& sProperty )
 {
 	if( sProperty == "Radius" )
 		UpdateShape();
 }
+#endif
 
 physx::PxShape* SphereShapeComponent::CreateShape()
 {
@@ -280,11 +284,13 @@ void BoxShapeComponent::DisplayGizmos( const bool bSelected )
 	}
 }
 
+#ifdef EDITOR
 void BoxShapeComponent::OnPropertyChanged( const std::string& sProperty )
 {
 	if( sProperty == "HalfWidth" || sProperty == "HalfHeight" || sProperty == "HalfDepth" )
 		UpdateShape();
 }
+#endif
 
 physx::PxShape* BoxShapeComponent::CreateShape()
 {

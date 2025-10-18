@@ -174,6 +174,7 @@ void TerrainComponent::DisplayGizmos( const bool bSelected )
 	}
 }
 
+#ifdef EDITOR
 void TerrainComponent::DisplayInspector()
 {
 	if( ImGui::Button( "Update chunks" ) )
@@ -243,6 +244,7 @@ void TerrainComponent::DisplayInspector()
 		}
 	}
 }
+#endif
 
 void TerrainComponent::RegisterChunk( TerrainChunkComponent* pChunk )
 {
@@ -328,11 +330,13 @@ void TerrainChunkComponent::DisplayGizmos( const bool bSelected )
 		DisplayWireMesh( glm::vec3( 1.f, 0.8f, 0.f ) );
 }
 
+#ifdef EDITOR
 void TerrainChunkComponent::OnPropertyChanged( const std::string& sProperty )
 {
 	if( sProperty == "Width resolution" || sProperty == "Height resolution" || sProperty == "Has collisions" )
 		UpdateChunk();
 }
+#endif
 
 void TerrainChunkComponent::UpdateChunk()
 {

@@ -72,7 +72,9 @@ private:
 	CameraManager			m_oCameraManager;
 
 	DebugDisplay			m_oDebugDisplay;
+#ifdef EDITOR
 	Editor					m_oEditor;
+#endif
 
 	const InputContext&		m_oInputContext;
 	const RenderContext&	m_oRenderContext;

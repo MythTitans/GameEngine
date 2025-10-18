@@ -128,6 +128,7 @@ void SkyboxComponent::Dispose()
 		m_aTextures[ u ] = nullptr;
 }
 
+#ifdef EDITOR
 void SkyboxComponent::OnPropertyChanged( const std::string& sProperty )
 {
 	if( sProperty == "Active" )
@@ -142,6 +143,7 @@ void SkyboxComponent::OnPropertyChanged( const std::string& sProperty )
 		LoadCubeMapTextures();
 	}
 }
+#endif
 
 void SkyboxComponent::LoadCubeMapTextures()
 {

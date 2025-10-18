@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef EDITOR
+
 #include "Game/Component.h"
 #include "Game/ResourceLoader.h"
 #include "Editor/Gizmo.h"
@@ -25,3 +27,5 @@ private:
 	GLuint m_uVertexArrayID;
 	GLuint m_uVertexBufferID;
 };
+
+#endif

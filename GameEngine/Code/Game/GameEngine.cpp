@@ -120,16 +120,22 @@ void GameEngine::Update()
 		if( m_oGameWorld.IsReady() )
 		{
 			m_oGameWorld.Run();
+#ifdef EDITOR
 			m_eGameState = GameState::EDITING;
 
 			m_oEditor.OnSceneLoaded();
+#else
+			m_eGameState = GameState::RUNNING;
+#endif
 		}
 
 		m_oGameWorld.Update( m_oGameContext );
 
 		m_oCameraManager.Update( m_oGameContext );
-		
+
+#ifdef EDITOR
 		m_oEditor.Update( m_oInputContext, m_oRenderContext );
+#endif
 	}
 }
 
@@ -144,7 +150,9 @@ void GameEngine::Render()
 		m_oRenderer.Render( m_oRenderContext );
 		m_oDebugDisplay.Display( m_oRenderContext );
 		m_oMemoryTracker.Display();
+#ifdef EDITOR
 		m_oEditor.Render( m_oRenderContext );
+#endif
 
 		glDisable( GL_FRAMEBUFFER_SRGB );
 		m_oDebugDisplay.DisplayOverlay( m_oGameContext.m_fLastDeltaTime, m_oRenderContext );

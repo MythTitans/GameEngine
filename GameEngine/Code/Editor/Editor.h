@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef EDITOR
+
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <nlohmann/json.hpp>
@@ -77,3 +79,5 @@ private:
 };
 
 extern Editor* g_pEditor;
+
+#endif

@@ -112,6 +112,7 @@ void AnimatorComponent::Dispose()
 	m_xModel = nullptr;
 }
 
+#ifdef EDITOR
 void AnimatorComponent::DisplayInspector()
 {
 	auto GetAnimationTypeName = []( const AnimationType eAnimationType ) {
@@ -204,6 +205,7 @@ void AnimatorComponent::OnPropertyChanged( const std::string& sProperty )
 		m_aBoneMatrices.Resize( m_xModel->GetSkinMatrices().Count(), glm::mat4( 1.f ) );
 	}
 }
+#endif
 
 void AnimatorComponent::PlayAnimation()
 {

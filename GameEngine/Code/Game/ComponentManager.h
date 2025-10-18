@@ -80,7 +80,9 @@ struct PropertiesHolderBase
 
 	virtual Array< nlohmann::json > Serialize( const void* pClass ) const = 0;
 	virtual void					Deserialize( const nlohmann::json& oJsonContent, void* pClass ) = 0;
+#ifdef EDITOR
 	virtual Array< std::string >	DisplayInspector( void* pClass ) = 0;
+#endif
 
 	Array< std::string >	m_aNames;
 	Array< bool >			m_aHidden;
@@ -120,6 +122,7 @@ struct PropertiesHolder : PropertiesHolderBase
 		}
 	}
 
+#ifdef EDITOR
 	Array< std::string > DisplayInspector( void* pClass ) override
 	{
 		PropertyClass* pTypedClass = static_cast< PropertyClass* >( pClass );
@@ -133,6 +136,7 @@ struct PropertiesHolder : PropertiesHolderBase
 
 		return aPropertiesChanged;
 	}
+#endif
 
 	Array< PropertyType PropertyClass::* > m_aProperties;
 };
@@ -167,7 +171,9 @@ public:
 	virtual nlohmann::json		SerializeComponent( const Entity* pEntity ) const = 0;
 	virtual void				DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, const Entity* pEntity ) = 0;
 
+#ifdef EDITOR
 	virtual bool				DisplayInspector( const Entity* pEntity ) = 0;
+#endif
 	virtual void				DisplayGizmos( const uint64 uSelectedEntityID ) = 0;
 
 	virtual uint				GetCount() const = 0;
@@ -418,6 +424,7 @@ public:
 		}
 	}
 
+#ifdef EDITOR
 	bool DisplayInspector( const Entity* pEntity ) override
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
@@ -466,6 +473,7 @@ public:
 
 		return bModified;
 	}
+#endif
 
 	void DisplayGizmos( const uint64 uSelectedEntityID ) override
 	{

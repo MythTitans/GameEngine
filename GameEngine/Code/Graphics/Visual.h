@@ -18,8 +18,10 @@ public:
 	void					Stop() override;
 	void					Dispose() override;
 
+#ifdef EDITOR
 	void					DisplayInspector() override;
 	void					OnPropertyChanged( const std::string& sProperty ) override;
+#endif
 
 	const Array< Mesh >&	GetMeshes() const;
 

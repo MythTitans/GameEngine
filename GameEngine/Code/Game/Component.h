@@ -32,8 +32,10 @@ public:
 	virtual void						Dispose();
 
 	virtual void						DisplayGizmos( const bool bSelected );
+#ifdef EDITOR
 	virtual void						DisplayInspector();
 	virtual void						OnPropertyChanged( const std::string& sProperty );
+#endif
 
 	Entity*								GetEntity();
 	const Entity*						GetEntity() const;

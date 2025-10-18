@@ -45,7 +45,9 @@ public:
 	void Stop() override;
 	void Dispose() override;
 
+#ifdef EDITOR
 	void OnPropertyChanged( const std::string& sProperty ) override;
+#endif
 
 private:
 	void LoadCubeMapTextures();

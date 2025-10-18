@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef EDITOR
+
 #include <glm/glm.hpp>
 
 #include "Game/Component.h"
@@ -47,3 +49,5 @@ private:
 
 	bool				m_bEditing;
 };
+
+#endif

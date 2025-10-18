@@ -1,5 +1,7 @@
 #include "Gizmo.h"
 
+#ifdef EDITOR
+
 #include "Game/Entity.h"
 #include "Graphics/Renderer.h"
 
@@ -101,3 +103,5 @@ glm::mat4x3 GizmoComponent::GetWorldMatrix() const
 {
 	return GetEntity()->GetWorldTransform().GetMatrixTRS();
 }
+
+#endif

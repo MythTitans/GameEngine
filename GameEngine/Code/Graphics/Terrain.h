@@ -37,7 +37,9 @@ public:
 	void Dispose() override;
 
 	void DisplayGizmos( const bool bSelected ) override;
+#ifdef EDITOR
 	void DisplayInspector() override;
+#endif
 
 private:
 	void RegisterChunk( TerrainChunkComponent* pChunk );
@@ -74,7 +76,9 @@ public:
 	void			Dispose() override;
 
 	void			DisplayGizmos( const bool bSelected ) override;
+#ifdef EDITOR
 	void			OnPropertyChanged( const std::string& sProperty ) override;
+#endif
 
 private:
 	enum class Border
