@@ -461,7 +461,7 @@ public:
 					ImGui::PopID();
 
 					ImGui::PushID( iImGuiID++ );
-					oComponent.DisplayInspector();
+					bModified |= oComponent.DisplayInspector();
 					ImGui::PopID();
 
 					ImGui::Unindent();
@@ -794,6 +794,18 @@ public:
 	~ComponentManager();
 
 	template < typename ComponentType >
+	void SetupComponent()
+	{
+		ComponentsHolderBase*& pComponentsHolderBase = m_mComponentsHolders[ typeid( ComponentType ) ];
+		if( pComponentsHolderBase == nullptr )
+		{
+			pComponentsHolderBase = new ComponentsHolder< ComponentType >;
+			m_aPriorityComponentsHolder.PushBack( pComponentsHolderBase );
+			Sort( m_aPriorityComponentsHolder, []( const ComponentsHolderBase* pHolderA, const ComponentsHolderBase* pHolderB ) { return pHolderA->GetConcreteComponentPriority() < pHolderB->GetConcreteComponentPriority(); } );
+		}
+	}
+
+	template < typename ComponentType >
 	ComponentHandle< ComponentType > CreateComponent( Entity* pEntity, const ComponentManagement eComponentManagement = ComponentManagement::INITIALIZE_THEN_START )
 	{
 		ComponentsHolderBase*& pComponentsHolderBase = m_mComponentsHolders[ typeid( ComponentType ) ];
@@ -965,6 +977,9 @@ public:
 	static void RegisterComponent()
 	{
 		ComponentFactory& oFactory = GetComponentsFactory()[ ComponentsHolder< ComponentType >::GetComponentName() ];
+		oFactory.m_pSetup = []() {
+			g_pComponentManager->SetupComponent< ComponentType >();
+		};
 		oFactory.m_pCreate = []( Entity* pEntity, const ComponentManagement eComponentManagement ) {
 			( g_pComponentManager->CreateComponent< Dependencies >( pEntity, eComponentManagement ), ... );
 			g_pComponentManager->CreateComponent< ComponentType >( pEntity, eComponentManagement );
@@ -1033,11 +1048,13 @@ private:
 
 	struct ComponentFactory
 	{
+		using SetupFunc = void( * )();
 		using CreateFunc = void ( * )( Entity*, const ComponentManagement );
 		using DisposeFunc = void ( * )( Entity* );
 		using HasDependencyFunc = bool ( * )( const Component* );
 		using ComputePriorityFunc = uint ( * )();
 
+		SetupFunc			m_pSetup;
 		CreateFunc			m_pCreate;
 		DisposeFunc			m_pDispose;
 		HasDependencyFunc	m_pHasDependency;

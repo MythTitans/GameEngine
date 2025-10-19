@@ -38,7 +38,7 @@ public:
 
 	void DisplayGizmos( const bool bSelected ) override;
 #ifdef EDITOR
-	void DisplayInspector() override;
+	bool DisplayInspector() override;
 #endif
 
 private:

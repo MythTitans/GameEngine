@@ -62,7 +62,7 @@ void VisualComponent::Dispose()
 }
 
 #ifdef EDITOR
-void VisualComponent::DisplayInspector()
+bool VisualComponent::DisplayInspector()
 {
 	if( ImGui::CollapsingHeader( "Material" ) )
 	{
@@ -83,6 +83,8 @@ void VisualComponent::DisplayInspector()
 			}
 		}
 	}
+
+	return false;
 }
 
 void VisualComponent::OnPropertyChanged( const std::string& sProperty )

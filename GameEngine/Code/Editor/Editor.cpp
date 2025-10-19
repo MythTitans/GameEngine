@@ -314,7 +314,10 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		if( ImGui::BeginPopupContextItem( "ContextMenu" ) )
 		{
 			if( ImGui::MenuItem( "Create entity" ) )
+			{
 				g_pGameWorld->m_oScene.CreateEntity( "NewEntity" );
+				bModified = true;
+			}
 
 			ImGui::EndPopup();
 		}

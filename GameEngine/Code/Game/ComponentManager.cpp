@@ -18,6 +18,9 @@ ComponentManager* g_pComponentManager = nullptr;
 ComponentManager::ComponentManager()
 {
 	g_pComponentManager = this;
+
+	for( const auto& oPair : GetComponentsFactory() )
+		oPair.second.m_pSetup();
 }
 
 ComponentManager::~ComponentManager()

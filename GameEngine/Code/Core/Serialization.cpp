@@ -81,3 +81,21 @@ void from_json( const nlohmann::json& oJsonContent, EntityHolder& oEntityHolder 
 {
 	oEntityHolder.SetEntity( oJsonContent[ "entityID" ] );
 }
+
+void to_json( nlohmann::json& oJsonContent, const Array< glm::vec3 >& aVectors )
+{
+	Array< nlohmann::json > aJsonVectors( aVectors.Count() );
+	for( uint u = 0; u < aJsonVectors.Count(); ++u )
+		aJsonVectors[ u ] = aVectors[ u ];
+
+	oJsonContent = aJsonVectors;
+}
+
+void from_json( const nlohmann::json& oJsonContent, Array< glm::vec3 >& aVectors )
+{
+	for( const auto& oVectorIt : oJsonContent.items() )
+	{
+		const nlohmann::json& oVector = oVectorIt.value();
+		aVectors.PushBack( oVector );
+	}
+}

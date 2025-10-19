@@ -33,7 +33,7 @@ public:
 
 	virtual void						DisplayGizmos( const bool bSelected );
 #ifdef EDITOR
-	virtual void						DisplayInspector();
+	virtual bool						DisplayInspector();
 	virtual void						OnPropertyChanged( const std::string& sProperty );
 #endif
 

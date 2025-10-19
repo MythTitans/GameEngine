@@ -96,6 +96,15 @@ Entity* GameWorld::CreateEntity( const std::string& sName, Entity* pParent /*= n
 	return pEntity;
 }
 
+Entity* GameWorld::CreateInternalEntity( const std::string& sName, Entity* pParent /*= nullptr */ )
+{
+	Entity* pEntity = m_oScene.CreateInternalEntity( sName );
+	if( pParent != nullptr )
+		m_oScene.AttachToParent( pEntity, pParent );
+
+	return pEntity;
+}
+
 Entity* GameWorld::FindEntity( const uint64 uEntityID )
 {
 	return m_oScene.FindEntity( uEntityID );

@@ -51,8 +51,9 @@ void Component::DisplayGizmos( const bool bSelected )
 }
 
 #ifdef EDITOR
-void Component::DisplayInspector()
+bool Component::DisplayInspector()
 {
+	return false;
 }
 
 void Component::OnPropertyChanged( const std::string& sProperty )

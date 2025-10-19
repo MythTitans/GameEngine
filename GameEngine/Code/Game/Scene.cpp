@@ -105,6 +105,11 @@ Entity* Scene::CreateEntity( const std::string& sName, const uint64 uID )
 	return xEntity.GetPtr();
 }
 
+Entity* Scene::CreateInternalEntity( const std::string& sName )
+{
+	return CreateEntity( sName, GenerateInternalID() );
+}
+
 void Scene::RemoveEntity( const uint64 uEntityID )
 {
 	Entity* pEntity = FindEntity( uEntityID );
@@ -228,11 +233,6 @@ void Scene::CreateInternalEntities()
 	GizmoComponent* oGiroGizmoXZ = g_pComponentManager->CreateComponent< GizmoComponent >( pEntity, ComponentManagement::NONE );
 	oGiroGizmoXZ->Setup( GizmoType::ROTATE, GizmoAxis::XZ );
 #endif
-}
-
-Entity* Scene::CreateInternalEntity( const std::string& sName )
-{
-	return CreateEntity( sName, GenerateInternalID() );
 }
 
 uint64 Scene::GenerateInternalID()

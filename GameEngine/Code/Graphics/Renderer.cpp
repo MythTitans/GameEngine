@@ -273,9 +273,6 @@ void Renderer::Render( const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "Renderer" );
 
-	if( m_bSRGB )
-		glEnable( GL_FRAMEBUFFER_SRGB );
-
 	glClearColor( 0.f, 0.f, 0.f, 0.f );
 
 	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
@@ -622,7 +619,10 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 
 	m_oBloom.Render( m_oForwardTarget, m_oPostProcessTarget, oRenderContext );
 
+	if( m_bSRGB )
+		glEnable( GL_FRAMEBUFFER_SRGB );
 	CopyRenderTargetColor( m_oPostProcessTarget, 0, m_oFramebuffer, 0 );
+	glDisable( GL_FRAMEBUFFER_SRGB );
 	CopyRenderTargetDepth( m_oForwardTarget, m_oFramebuffer );
 
 	ClearTextureSlot( 0 );
@@ -669,7 +669,10 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 
 	SetupLighting( oComposeTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 
+	if( m_bSRGB )
+		glEnable( GL_FRAMEBUFFER_SRGB );
 	RenderQuad();
+	glDisable( GL_FRAMEBUFFER_SRGB );
 	CopyRenderTargetDepth( m_oDeferredTarget, m_oFramebuffer );
 
 	ClearTextureSlot( 0 );

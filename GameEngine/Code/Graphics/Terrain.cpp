@@ -175,7 +175,7 @@ void TerrainComponent::DisplayGizmos( const bool bSelected )
 }
 
 #ifdef EDITOR
-void TerrainComponent::DisplayInspector()
+bool TerrainComponent::DisplayInspector()
 {
 	if( ImGui::Button( "Update chunks" ) )
 	{
@@ -243,6 +243,8 @@ void TerrainComponent::DisplayInspector()
 			bAllowOverwriteExistingChunks = false;
 		}
 	}
+
+	return false;
 }
 #endif
 

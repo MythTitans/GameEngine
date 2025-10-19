@@ -33,7 +33,7 @@ void DebugDisplay::Display( const RenderContext& oRenderContext )
 	ProfilerBlock oBlock( "DebugDisplay" );
 	GPUBlock oGPUBlock( "DebugDisplay" );
 
-	glDisable( GL_DEPTH_TEST );
+	glEnable( GL_DEPTH_TEST );
 	g_pRenderer->m_oDebugRenderer.RenderLines( m_aLines, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderSpheres( m_aSpheres, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireSpheres( m_aWireSpheres, oRenderContext );

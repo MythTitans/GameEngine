@@ -3,6 +3,8 @@
 #include <glm/fwd.hpp>
 #include <nlohmann/json_fwd.hpp>
 
+#include "Core/Array.h"
+
 class Entity;
 class EntityHolder;
 
@@ -22,3 +24,6 @@ void to_json( nlohmann::json& oJsonContent, const Entity& oEntity );
 
 void to_json( nlohmann::json& oJsonContent, const EntityHolder& oEntityHolder );
 void from_json( const nlohmann::json& oJsonContent, EntityHolder& oEntityHolder );
+
+void to_json( nlohmann::json& oJsonContent, const Array< glm::vec3 >& aVectors );
+void from_json( const nlohmann::json& oJsonContent, Array< glm::vec3 >& aVectors );

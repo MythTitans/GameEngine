@@ -8,6 +8,7 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
 
+#include "Core/Array.h"
 #include "Game/EntityHolder.h"
 
 class TextureResource;
@@ -93,6 +94,16 @@ template <>
 inline bool DisplayInspector( const char* sName, EntityHolder& oEntityHolder )
 {
 	return oEntityHolder.DisplayInspector( sName );
+}
+
+template <>
+inline bool DisplayInspector( const char* sName, Array< glm::vec3 >& aVectors )
+{
+	bool bModified = false;
+	for( uint u = 0; u < aVectors.Count(); ++u )
+		bModified |= DisplayInspector( std::format( "{}[{}]", sName, u ).c_str(), aVectors[ u ] );
+
+	return bModified;
 }
 
 #endif

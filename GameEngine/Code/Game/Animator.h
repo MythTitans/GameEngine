@@ -32,7 +32,7 @@ public:
 	void						Dispose() override;
 
 #ifdef EDITOR
-	void						DisplayInspector() override;
+	bool						DisplayInspector() override;
 	void						OnPropertyChanged( const std::string& sProperty ) override;
 #endif
 

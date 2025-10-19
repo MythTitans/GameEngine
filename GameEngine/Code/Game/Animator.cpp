@@ -113,7 +113,7 @@ void AnimatorComponent::Dispose()
 }
 
 #ifdef EDITOR
-void AnimatorComponent::DisplayInspector()
+bool AnimatorComponent::DisplayInspector()
 {
 	auto GetAnimationTypeName = []( const AnimationType eAnimationType ) {
 		switch( eAnimationType )
@@ -148,7 +148,7 @@ void AnimatorComponent::DisplayInspector()
 		if( m_xModel->GetAnimations().Empty() )
 		{
 			ImGui::Text( "No animation available" );
-			return;
+			return false;
 		}
 
 		if( ImGui::BeginCombo( "Selected animation", m_xModel->GetAnimations()[ m_uAnimationIndex ].m_sName.c_str() ) )
@@ -195,6 +195,8 @@ void AnimatorComponent::DisplayInspector()
 				ResumeAnimation();
 		}
 	}
+
+	return false;
 }
 
 void AnimatorComponent::OnPropertyChanged( const std::string& sProperty )

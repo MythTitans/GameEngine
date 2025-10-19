@@ -6,7 +6,7 @@
 #include "Core/Array.h"
 #include "Core/Intrusive.h"
 
-inline constexpr uint64 ENTITIES_START_ID = 1024;
+inline constexpr uint64 ENTITIES_START_ID = 1024 * 1024;
 
 class Entity;
 
@@ -24,6 +24,7 @@ public:
 
 	Entity*				CreateEntity( const std::string& sName );
 	Entity*				CreateEntity( const std::string& sName, const uint64 uID );
+	Entity*				CreateInternalEntity( const std::string& sName );
 
 	void				RemoveEntity( const uint64 uEntityID );
 	void				RemoveEntity( Entity* pEntity );
@@ -38,7 +39,6 @@ public:
 
 private:
 	void				CreateInternalEntities();
-	Entity*				CreateInternalEntity( const std::string& sName );
 
 	uint64				GenerateInternalID();
 	uint64				GenerateID();

@@ -26,6 +26,7 @@ public:
 	bool	IsReady() const;
 			
 	Entity*	CreateEntity( const std::string& sName, Entity* pParent = nullptr );
+	Entity* CreateInternalEntity( const std::string& sName, Entity* pParent = nullptr );
 	Entity*	FindEntity( const uint64 uEntityID );
 	void	RemoveEntity( Entity* pEntity );
 
