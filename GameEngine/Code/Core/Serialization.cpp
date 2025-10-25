@@ -7,6 +7,7 @@
 #include "Game/ComponentManager.h"
 #include "Game/Entity.h"
 #include "Game/EntityHolder.h"
+#include "Game/Spline.h"
 #include "Editor/Inspector.h"
 
 namespace glm
@@ -82,6 +83,24 @@ void from_json( const nlohmann::json& oJsonContent, EntityHolder& oEntityHolder 
 	oEntityHolder.SetEntity( oJsonContent[ "entityID" ] );
 }
 
+void to_json( nlohmann::json& oJsonContent, const Array< float >& aFloats )
+{
+	Array< nlohmann::json > aJsonVectors( aFloats.Count() );
+	for( uint u = 0; u < aJsonVectors.Count(); ++u )
+		aJsonVectors[ u ] = aFloats[ u ];
+
+	oJsonContent = aJsonVectors;
+}
+
+void from_json( const nlohmann::json& oJsonContent, Array< float >& aFloats )
+{
+	for( const auto& oVectorIt : oJsonContent.items() )
+	{
+		const nlohmann::json& oVector = oVectorIt.value();
+		aFloats.PushBack( oVector );
+	}
+}
+
 void to_json( nlohmann::json& oJsonContent, const Array< glm::vec3 >& aVectors )
 {
 	Array< nlohmann::json > aJsonVectors( aVectors.Count() );
@@ -98,4 +117,18 @@ void from_json( const nlohmann::json& oJsonContent, Array< glm::vec3 >& aVectors
 		const nlohmann::json& oVector = oVectorIt.value();
 		aVectors.PushBack( oVector );
 	}
+}
+
+void to_json( nlohmann::json& oJsonContent, const Spline& oSpline )
+{
+	oJsonContent[ "controlPoints" ] = oSpline.GetControlPoints();
+	oJsonContent[ "tangents" ] = oSpline.GetTangents();
+}
+
+void from_json( const nlohmann::json& oJsonContent, Spline& oSpline )
+{
+	from_json( oJsonContent[ "controlPoints" ], oSpline.GetControlPoints() );
+	from_json( oJsonContent[ "tangents" ], oSpline.GetTangents() );
+
+	oSpline.RebuildDistances();
 }

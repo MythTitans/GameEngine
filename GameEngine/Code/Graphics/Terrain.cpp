@@ -116,7 +116,7 @@ void TerrainComponent::Initialize()
 
 bool TerrainComponent::IsInitialized() const
 {
-	return m_xHeightMap->IsLoading() == false;
+	return m_xDiffuseMap->IsLoading() == false && m_xHeightMap->IsLoading() == false;
 }
 
 void TerrainComponent::Start()
@@ -159,6 +159,7 @@ void TerrainComponent::Dispose()
 
 	PX_RELEASE( m_pRigidStatic );
 
+	m_xDiffuseMap = nullptr;
 	m_xHeightMap = nullptr;
 }
 
@@ -555,5 +556,5 @@ void TerrainChunkComponent::DisplayWireMesh( const glm::vec3& vColor ) const
 {
 	const TerrainComponent* pTerrain = m_hTerrain;
 
-	g_pDebugDisplay->DisplayWireMesh( m_oMesh, pTerrain->GetEntity()->GetWorldTransform().GetMatrixTR(), vColor );
+	g_pDebugDisplay->DisplayWireMesh( m_oMesh, pTerrain->GetEntity()->GetWorldTransform().GetMatrixTR(), vColor, false );
 }

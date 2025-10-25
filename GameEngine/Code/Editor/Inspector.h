@@ -11,6 +11,7 @@
 #include "Core/Array.h"
 #include "Game/EntityHolder.h"
 
+class Spline;
 class TextureResource;
 
 bool ColorEdit( const char* sLabel, glm::vec3& vColor );
@@ -97,6 +98,16 @@ inline bool DisplayInspector( const char* sName, EntityHolder& oEntityHolder )
 }
 
 template <>
+inline bool DisplayInspector( const char* sName, Array< float >& aVectors )
+{
+	bool bModified = false;
+	for( uint u = 0; u < aVectors.Count(); ++u )
+		bModified |= DisplayInspector( std::format( "{}[{}]", sName, u ).c_str(), aVectors[ u ] );
+
+	return bModified;
+}
+
+template <>
 inline bool DisplayInspector( const char* sName, Array< glm::vec3 >& aVectors )
 {
 	bool bModified = false;
@@ -104,6 +115,12 @@ inline bool DisplayInspector( const char* sName, Array< glm::vec3 >& aVectors )
 		bModified |= DisplayInspector( std::format( "{}[{}]", sName, u ).c_str(), aVectors[ u ] );
 
 	return bModified;
+}
+
+template <>
+inline bool DisplayInspector( const char* sName, Spline& oSpline )
+{
+	return false;
 }
 
 #endif
