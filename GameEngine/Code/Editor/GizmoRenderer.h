@@ -2,8 +2,8 @@
 
 #ifdef EDITOR
 
-#include "Game/Component.h"
-#include "Game/ResourceLoader.h"
+#include <GL/glew.h>
+
 #include "Editor/Gizmo.h"
 
 class RenderContext;

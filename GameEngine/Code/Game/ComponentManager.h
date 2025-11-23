@@ -9,7 +9,6 @@
 #include "Core/Profiler.h"
 #include "Core/Serialization.h"
 #include "Editor/Inspector.h"
-#include "Scene.h"
 
 #define REGISTER_COMPONENT( COMPONENT, ... )							\
 static bool b##COMPONENT##Registered = []() {							\

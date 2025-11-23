@@ -1,7 +1,6 @@
 #include "DebugDisplay.h"
 
 #include "Core/Profiler.h"
-
 #include "Graphics/Renderer.h"
 
 DebugDisplay* g_pDebugDisplay = nullptr;

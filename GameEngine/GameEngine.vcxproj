@@ -192,6 +192,7 @@
     <ClCompile Include="Code\Game\ComponentManager.cpp" />
     <ClCompile Include="Code\Game\EntityHolder.cpp" />
     <ClCompile Include="Code\Game\GameWorld.cpp" />
+    <ClCompile Include="Code\Game\ResourceTypes.cpp" />
     <ClCompile Include="Code\Game\Road.cpp" />
     <ClCompile Include="Code\Game\Spline.cpp" />
     <ClCompile Include="Code\Graphics\DebugDisplay.cpp" />
@@ -261,6 +262,7 @@
     <ClInclude Include="Code\Game\ComponentManager.h" />
     <ClInclude Include="Code\Game\EntityHolder.h" />
     <ClInclude Include="Code\Game\GameWorld.h" />
+    <ClInclude Include="Code\Game\ResourceTypes.h" />
     <ClInclude Include="Code\Game\Road.h" />
     <ClInclude Include="Code\Game\Spline.h" />
     <ClInclude Include="Code\Graphics\DebugDisplay.h" />

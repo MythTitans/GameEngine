@@ -7,10 +7,11 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/transform.hpp>
 
-#include "Game/Entity.h"
-#include "Game/InputHandler.h"
 #include "Core/Logger.h"
 #include "Core/Profiler.h"
+#include "Game/Entity.h"
+#include "Game/InputHandler.h"
+#include "Game/ResourceLoader.h"
 #include "ImGui/imgui.h"
 #include "Math/GLMHelpers.h"
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 #include "Array.h"
 
 template < typename Element >

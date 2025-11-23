@@ -1,9 +1,8 @@
 #pragma once
 
-#include <cstring>
-#include <new>
-
 #include "Common.h"
+#include "Types.h"
+
 #ifdef TRACK_MEMORY
 #include "MemoryTracker.h"
 #endif

@@ -3,7 +3,6 @@
 #include <nlohmann/json.hpp>
 
 #include "Core/Types.h"
-#include "FreeCamera.h"
 #include "Scene.h"
 
 struct GameContext;

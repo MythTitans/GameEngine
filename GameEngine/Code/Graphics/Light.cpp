@@ -3,8 +3,9 @@
 #include <glm/glm.hpp>
 
 #include "DebugDisplay.h"
+#include "Core/Intrusive.h"
 #include "Game/Entity.h"
-#include "Editor/Inspector.h"
+#include "Game/ResourceLoader.h"
 #include "Graphics/Mesh.h"
 #include "Graphics/Renderer.h"
 

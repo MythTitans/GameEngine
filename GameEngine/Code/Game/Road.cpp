@@ -1,8 +1,8 @@
 #include "Road.h"
 
 #include "Entity.h"
-#include "GameWorld.h"
 #include "Graphics/Renderer.h"
+#include "ResourceLoader.h"
 #include "Spline.h"
 
 REGISTER_COMPONENT( RoadComponent, SplineComponent );

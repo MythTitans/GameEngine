@@ -5,6 +5,7 @@
 #include <glm/gtx/vector_query.hpp>
 
 #include "Core/Array.h"
+#include "Game/ResourceLoader.h"
 #include "Math/GLMHelpers.h"
 #include "Renderer.h"
 

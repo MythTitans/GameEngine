@@ -5,9 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/color_space.hpp>
 
-#include "Game/Entity.h"
-#include "Game/GameWorld.h"
-#include "Game/ResourceLoader.h"
+#include "Game/ResourceTypes.h"
 #include "Graphics/Texture.h"
 
 bool ColorEdit( const char* sLabel, glm::vec3& vColor )

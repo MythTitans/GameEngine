@@ -3,12 +3,6 @@
 #define NOMINMAX
 #include <Windows.h>
 
-#include <filesystem>
-#include <format>
-#include <string>
-
-#include "Types.h"
-
 inline HHOOK g_hAssertHook;
 
 LRESULT CALLBACK AssertHook( INT iCode, WPARAM wParam, LPARAM lParam );

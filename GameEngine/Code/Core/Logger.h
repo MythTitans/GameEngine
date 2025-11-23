@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Array.h"
-#include "Common.h"
 
 class Logger
 {

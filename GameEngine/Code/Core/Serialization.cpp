@@ -8,7 +8,6 @@
 #include "Game/Entity.h"
 #include "Game/EntityHolder.h"
 #include "Game/Spline.h"
-#include "Editor/Inspector.h"
 
 namespace glm
 {

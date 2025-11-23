@@ -2,9 +2,8 @@
 
 #include "Bloom.h"
 #include "Camera.h"
-#include "Core/Common.h"
+#include "Core/Types.h"
 #include "DebugRenderer.h"
-#include "Game/ResourceLoader.h"
 #include "Editor/GizmoRenderer.h"
 #include "RenderTarget.h"
 #include "Skybox.h"

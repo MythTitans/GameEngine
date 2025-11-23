@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Game/Component.h"
-#include "Game/ResourceLoader.h"
+#include "Game/ResourceTypes.h"
 #include "Mesh.h"
 #include "PxPhysicsAPI.h"
 

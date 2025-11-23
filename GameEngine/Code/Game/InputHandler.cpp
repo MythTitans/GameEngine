@@ -1,6 +1,5 @@
 #include "InputHandler.h"
 
-#include "Core/Logger.h"
 #include "GameEngine.h"
 
 InputContext::KeyStatus::KeyStatus()

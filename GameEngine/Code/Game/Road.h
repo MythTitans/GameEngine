@@ -2,7 +2,7 @@
 
 #include "Component.h"
 #include "Graphics/Mesh.h"
-#include "ResourceLoader.h"
+#include "ResourceTypes.h"
 
 class SplineComponent;
 

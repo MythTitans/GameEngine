@@ -2,7 +2,6 @@
 
 #include "GameEngine.h"
 #include "Entity.h"
-#include "Scene.h"
 
 Component::Component( Entity* pEntity )
 	: m_pEntity( pEntity )

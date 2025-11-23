@@ -3,15 +3,12 @@
 #ifdef EDITOR
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/color_space.hpp>
 #include <glm/gtx/norm.hpp>
 #include <nlohmann/json.hpp>
 
 #include "Core/ArrayUtils.h"
 #include "Core/FileUtils.h"
-#include "Core/Logger.h"
 #include "Core/Profiler.h"
-#include "Core/Serialization.h"
 #include "Game/Entity.h"
 #include "Game/GameEngine.h"
 #include "Game/InputHandler.h"

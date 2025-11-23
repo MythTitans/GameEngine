@@ -1,6 +1,10 @@
 #pragma once
 
-#include "Game/ResourceLoader.h"
+#include <GL/glew.h>
+
+#include "Game/ResourceTypes.h"
+#include "Mesh.h"
+#include "Technique.h"
 
 class RenderContext;
 

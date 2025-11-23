@@ -1,7 +1,6 @@
 #include "Scene.h"
 
 #include "Core/ArrayUtils.h"
-#include "Core/FileUtils.h"
 #include "Core/Logger.h"
 #include "Entity.h"
 #include "GameEngine.h"
