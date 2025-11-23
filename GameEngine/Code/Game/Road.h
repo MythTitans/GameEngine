@@ -19,6 +19,7 @@ public:
 	bool DisplayInspector() override;
 
 	void GenerateRoad();
+	void GenerateRoad(const Spline& oLeftSpline, const Spline& oRightSpline);
 #endif
 
 private:
@@ -27,6 +28,7 @@ private:
 	SplineHandle		m_xSpline;
 
 	TechniqueResPtr		m_xTechnique;
+	TextureResPtr		m_xTexture;
 	Mesh				m_oMesh;
 	MaterialReference	m_oMaterial;
 

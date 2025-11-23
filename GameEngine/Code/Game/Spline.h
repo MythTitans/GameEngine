@@ -13,6 +13,8 @@ public:
 	glm::vec3	ComputePosition() const;
 	glm::vec3	ComputeTangent() const;
 
+	float		GetRatio() const;
+
 private:
 	const Spline&	m_oSpline;
 

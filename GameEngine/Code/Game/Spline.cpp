@@ -102,6 +102,11 @@ glm::vec3 SplineIterator::ComputeTangent() const
 	return m_oSpline.ComputeTangent( m_fRatio );
 }
 
+float SplineIterator::GetRatio() const
+{
+	return m_fRatio;
+}
+
 Spline::Spline( const Array< glm::vec3 >& aControlPoints )
 	: m_aControlPoints( aControlPoints )
 {
