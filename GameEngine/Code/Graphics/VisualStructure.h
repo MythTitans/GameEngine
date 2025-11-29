@@ -4,6 +4,7 @@
 
 #include "Core/Array.h"
 #include "Mesh.h"
+#include "Technique.h"
 #include "Texture.h"
 
 class Entity;
@@ -49,6 +50,16 @@ struct TerrainNode
 	Array< uint64 >	m_aEntitiesIDs;
 };
 
+struct RoadNode
+{
+	RoadNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Texture& oDiffuse, const Mesh& oMesh );
+
+	uint64		m_uEntityID;
+	glm::mat4x3	m_mMatrix;
+	Texture		m_oDiffuse;
+	Mesh		m_oMesh;
+};
+
 struct VisualNode
 {
 	explicit VisualNode( const uint64 uEntityID );
@@ -92,6 +103,9 @@ public:
 	void					RemoveTerrain( TerrainNode*& pTerrain );
 	TerrainNode*			GetTerrain() const;
 
+	RoadNode*				AddRoad( const Entity* pEntity, const Texture& oTexture, const Mesh& oMesh );
+	void					RemoveRoad( RoadNode*& pRoad );
+
 private:
 	void					Clear();
 
@@ -109,4 +123,6 @@ private:
 	int								m_iActiveSkyIndex;
 
 	TerrainNode*					m_pTerrain; // TODO #eric temporary
+
+	Array< RoadNode* >				m_aRoads;
 };

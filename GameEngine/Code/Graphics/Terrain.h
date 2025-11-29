@@ -14,7 +14,6 @@ public:
 	Terrain();
 
 	void Render( const TerrainNode* pTerrain, const RenderContext& oRenderContext );
-	void RenderWireframe( const TerrainNode* pTerrain, const RenderContext& oRenderContext, const glm::vec3 vColor );
 
 	bool OnLoading();
 

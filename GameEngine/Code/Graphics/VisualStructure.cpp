@@ -3,6 +3,14 @@
 #include "Core/ArrayUtils.h"
 #include "Game/Entity.h"
 
+RoadNode::RoadNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Texture& oDiffuse, const Mesh& oMesh )
+	: m_uEntityID( uEntityID )
+	, m_mMatrix( mMatrix )
+	, m_oDiffuse( oDiffuse )
+	, m_oMesh( oMesh )
+{
+}
+
 VisualNode::VisualNode( const uint64 uEntityID )
 	: m_uEntityID( uEntityID )
 {
@@ -230,6 +238,23 @@ void VisualStructure::RemoveTerrain( TerrainNode*& pTerrain )
 TerrainNode* VisualStructure::GetTerrain() const
 {
 	return m_pTerrain;
+}
+
+RoadNode* VisualStructure::AddRoad( const Entity* pEntity, const Texture& oTexture, const Mesh& oMesh )
+{
+	m_aRoads.PushBack( new RoadNode( pEntity->GetID(), pEntity->GetWorldTransform().GetMatrixTR(), oTexture, oMesh ) );
+	return m_aRoads.Back();
+}
+
+void VisualStructure::RemoveRoad( RoadNode*& pRoad )
+{
+	const int iIndex = Find( m_aRoads, pRoad );
+	if( iIndex != -1 )
+	{
+		m_aRoads.Remove( iIndex );
+		delete pRoad;
+		pRoad = nullptr;
+	}
 }
 
 void VisualStructure::Clear()

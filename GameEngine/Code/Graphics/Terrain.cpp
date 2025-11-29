@@ -62,28 +62,6 @@ void Terrain::Render( const TerrainNode* pTerrain, const RenderContext& oRenderC
 	g_pRenderer->ClearTextureSlot( 0 );
 }
 
-void Terrain::RenderWireframe( const TerrainNode* pTerrain, const RenderContext& oRenderContext, const glm::vec3 vColor )
-{
-	Technique& oTechnique = m_xTerrain->GetTechnique();
-	g_pRenderer->SetTechnique( oTechnique );
-
-	oTechnique.GetParameter( "modelViewProjection" ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * ToMat4( pTerrain->m_mMatrix ) );
-
-	g_pRenderer->SetTextureSlot( *g_pRenderer->GetDefaultDiffuseMap(), 0 );
-	oTechnique.GetParameter( "diffuseMap" ).SetValue( 0 );
-
-	oTechnique.GetParameter( "diffuseColor" ).SetValue( vColor );
-
-	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-
-	for( const Mesh& oMesh : pTerrain->m_aMeshes )
-		g_pRenderer->DrawMesh( oMesh );
-
-	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-
-	g_pRenderer->ClearTextureSlot( 0 );
-}
-
 bool Terrain::OnLoading()
 {
 	return m_xTerrain->IsLoaded();

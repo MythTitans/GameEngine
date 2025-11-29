@@ -201,7 +201,7 @@
     <ClCompile Include="Code\Game\Spline.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Game\Road.cpp">
+    <ClCompile Include="Code\Graphics\Road.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Code\Game\ResourceTypes.cpp">
@@ -410,7 +410,7 @@
     <ClInclude Include="Code\Game\Spline.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Game\Road.h">
+    <ClInclude Include="Code\Graphics\Road.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Code\Game\ResourceTypes.h">

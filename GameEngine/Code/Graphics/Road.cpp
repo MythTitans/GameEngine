@@ -1,9 +1,37 @@
 #include "Road.h"
 
-#include "Entity.h"
+#include "Game/Entity.h"
+#include "Game/ResourceLoader.h"
+#include "Game/Spline.h"
+#include "Graphics/DebugDisplay.h"
 #include "Graphics/Renderer.h"
-#include "ResourceLoader.h"
-#include "Spline.h"
+#include "Math/GLMHelpers.h"
+
+Road::Road()
+	: m_xRoad( g_pResourceLoader->LoadTechnique( "Shader/unlit.tech" ) )
+{
+}
+
+void Road::Render( const RoadNode* pRoad, const RenderContext& oRenderContext )
+{
+	Technique& oTechnique = m_xRoad->GetTechnique();
+	g_pRenderer->SetTechnique( oTechnique );
+
+	oTechnique.GetParameter( "modelViewProjection" ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * ToMat4( pRoad->m_mMatrix ) );
+	oTechnique.GetParameter( "diffuseColor" ).SetValue( glm::vec3( 1.f, 1.f, 1.f ) );
+
+	g_pRenderer->SetTextureSlot( pRoad->m_oDiffuse, 0 );
+	oTechnique.GetParameter( "diffuseMap" ).SetValue( 0 );
+
+	g_pRenderer->DrawMesh( pRoad->m_oMesh );
+
+	g_pRenderer->ClearTextureSlot( 0 );
+}
+
+bool Road::OnLoading()
+{
+	return m_xRoad->IsLoaded();
+}
 
 REGISTER_COMPONENT( RoadComponent, SplineComponent );
 
@@ -15,45 +43,50 @@ RoadComponent::RoadComponent( Entity* pEntity )
 void RoadComponent::Initialize()
 {
 	m_xSpline = GetComponent< SplineComponent >();
-	m_xTechnique = g_pResourceLoader->LoadTechnique( "Shader/unlit.tech" );
 	//m_xTexture = g_pResourceLoader->LoadTexture( "Checker.png" );
 	m_xTexture = g_pResourceLoader->LoadTexture( "RoadTest.jpg" );
 
 	UnlitMaterialData oMaterialData;
 	oMaterialData.m_vDiffuseColor = glm::vec3( 0.6f, 0.6f, 0.6f );
 	oMaterialData.m_xDiffuseTextureResource = m_xTexture;
-
-	m_oMaterial = g_pMaterialManager->CreateMaterial( oMaterialData );
-	m_oMesh.SetMaterial( m_oMaterial );
 }
 
 bool RoadComponent::IsInitialized() const
 {
-	return m_xTechnique->IsLoading() == false && m_xTexture->IsLoading() == false;
+	return m_xTexture->IsLoading() == false;
+}
+
+void RoadComponent::Start()
+{
+	GenerateRoad();
+	m_pRoadNode = g_pRenderer->m_oVisualStructure.AddRoad( GetEntity(), m_xTexture->GetTexture(), m_oMesh );
 }
 
 void RoadComponent::Update( const GameContext& oGameContext )
 {
-// 	bool bContinue = true;
-// 
-// 	SplineIterator oIt( m_xSpline->GetSpline() );
-// 	while( bContinue )
-// 	{
-// 		const glm::vec3 vPosition = oIt.ComputePosition();
-// 		const glm::vec3 vNormal = glm::normalize( glm::cross( oIt.ComputeTangent(), glm::vec3( 0.f, 1.f, 0.f ) ) );
-// 
-// 		g_pDebugDisplay->DisplaySphere( TransformPoint( GetEntity()->GetWorldTransform().GetMatrixTR(), vPosition ), 0.1f, glm::vec3( 1.f, 0.5f, 0.f ) );
-// 
-// 		bContinue = oIt.MoveForward( m_fDistance, m_fTolerance );
-// 	}
-
 	if( m_xSpline.IsValid() && m_xSpline->IsEditing() )
 		GenerateRoad();
 
-	// TODO #eric temporary code, use a dedicated node in the visual structure
-	Entity* pEntity = GetEntity();
-	const glm::mat4x3 mMatrixTR = pEntity->GetWorldTransform().GetMatrixTR();
-	g_pRenderer->m_oVisualStructure.AddTemporaryNode( pEntity, mMatrixTR, Array<Mesh>( 1, m_oMesh ), m_xTechnique->GetTechnique() );
+	m_pRoadNode->m_mMatrix = GetEntity()->GetWorldTransform().GetMatrixTR();
+	m_pRoadNode->m_oMesh = m_oMesh;
+}
+
+void RoadComponent::Stop()
+{
+	g_pRenderer->m_oVisualStructure.RemoveRoad( m_pRoadNode );
+}
+
+void RoadComponent::Dispose()
+{
+	m_xTexture = nullptr;
+
+	m_oMesh.Destroy();
+}
+
+void RoadComponent::DisplayGizmos( const bool bSelected )
+{
+	if( bSelected )
+		g_pDebugDisplay->DisplayWireMesh( m_oMesh, GetEntity()->GetWorldTransform().GetMatrixTR(), glm::vec3( 1.f, 0.8f, 0.f ), false );
 }
 
 #ifdef EDITOR
@@ -148,6 +181,13 @@ void RoadComponent::GenerateRoad( const Spline& oLeftSpline, const Spline& oRigh
 	}
 
 	m_oMesh = MeshBuilder( std::move( aVertices ), std::move( aIndices ) ).WithUVs( std::move( aUVs ) ).Build();
-	m_oMesh.SetMaterial( m_oMaterial );
 }
 #endif
+
+REGISTER_COMPONENT( RoadTrenchComponent, RoadComponent );
+SET_COMPONENT_PRIORITY_AFTER( RoadTrenchComponent, RoadComponent );
+
+RoadTrenchComponent::RoadTrenchComponent( Entity* pEntity )
+	: Component( pEntity )
+{
+}

@@ -6,6 +6,7 @@
 #include "DebugRenderer.h"
 #include "Editor/GizmoRenderer.h"
 #include "RenderTarget.h"
+#include "Road.h"
 #include "Skybox.h"
 #include "Terrain.h"
 #include "TextRenderer.h"
@@ -149,6 +150,7 @@ private:
 	enum class OutlineParam : uint8
 	{
 		BONE_MATRICES,
+		MODEL,
 		MODEL_VIEW_PROJECTION,
 		DISPLACEMENT,
 		CAMERA_POSITION,
@@ -188,6 +190,7 @@ private:
 
 	Skybox								m_oSkybox;
 	Terrain								m_oTerrain;
+	Road								m_oRoad;
 	Bloom								m_oBloom;
 
 	RenderingMode						m_eRenderingMode;

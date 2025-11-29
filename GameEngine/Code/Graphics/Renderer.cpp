@@ -301,7 +301,7 @@ bool Renderer::OnLoading()
 {
 	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
 	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xBlend->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
-	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading() && m_oSkybox.OnLoading() && m_oTerrain.OnLoading() && m_oBloom.OnLoading();
+	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading() && m_oSkybox.OnLoading() && m_oTerrain.OnLoading() && m_oRoad.OnLoading() && m_oBloom.OnLoading();
 
 	return bLoaded;
 }
@@ -329,6 +329,7 @@ void Renderer::OnLoaded()
 
 	m_oOutlineSheet.Init( m_xOutline->GetTechnique() );
 	m_oOutlineSheet.BindArrayParameter( OutlineParam::BONE_MATRICES, "boneMatrices" );
+	m_oOutlineSheet.BindParameter( OutlineParam::MODEL, "model" );
 	m_oOutlineSheet.BindParameter( OutlineParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
 	m_oOutlineSheet.BindParameter( OutlineParam::DISPLACEMENT, "displacement" );
 	m_oOutlineSheet.BindParameter( OutlineParam::CAMERA_POSITION, "cameraPosition" );
@@ -575,9 +576,15 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	if( pActiveSky != nullptr )
 		m_oSkybox.Render( pActiveSky, oRenderContext );
 
-	const TerrainNode* pTerrain = g_pRenderer->m_oVisualStructure.GetTerrain();
+	const TerrainNode* pTerrain = g_pRenderer->m_oVisualStructure.m_pTerrain;
 	if( pTerrain != nullptr )
 		m_oTerrain.Render( pTerrain, oRenderContext );
+
+	const Array< RoadNode* > aRoads = g_pRenderer->m_oVisualStructure.m_aRoads;
+	for( RoadNode* pRoad : aRoads )
+	{
+		m_oRoad.Render( pRoad, oRenderContext );
+	}
 
 	for( uint u = 0; u < m_oVisualStructure.m_aTechniques.Count(); ++u )
 	{
@@ -769,6 +776,17 @@ uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int i
 		}
 	}
 
+	const Array< RoadNode* >& aRoads = g_pRenderer->m_oVisualStructure.m_aRoads;
+	for( RoadNode* pRoad : aRoads )
+	{
+		m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( false );
+
+		m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( pRoad->m_mMatrix ) );
+		m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( pRoad->m_uEntityID ) );
+
+		DrawMesh( pRoad->m_oMesh );
+	}
+
 	if( bAllowGizmos )
 	{
 		glClear( GL_DEPTH_BUFFER_BIT );
@@ -828,6 +846,7 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
 		oParamBoneMatrices.SetValue( glm::mat4( 1.f ), u );
 
+	m_oOutlineSheet.GetParameter( OutlineParam::MODEL ).SetValue( ToMat4( oVisualNode.m_mMatrix ) );
 	m_oOutlineSheet.GetParameter( OutlineParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
 	m_oOutlineSheet.GetParameter( OutlineParam::DISPLACEMENT ).SetValue( 0.f );
 

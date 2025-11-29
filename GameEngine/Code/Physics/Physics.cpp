@@ -1,5 +1,7 @@
 #include "Physics.h"
 
+#include <glm/glm.hpp>
+
 #include "Core/Profiler.h"
 
 using namespace physx;
@@ -54,4 +56,19 @@ void Physics::Tick()
 
 	m_pScene->simulate( TICK_STEP );
 	m_pScene->fetchResults( true );
+}
+
+bool Physics::Raycast(const glm::vec3& vOrigin, const glm::vec3& vDirection, const float fDistance, glm::vec3& vPosition )
+{
+	PxRaycastBuffer oRaycastCallback;
+	m_pScene->raycast( PxVec3( vOrigin.x, vOrigin.y, vOrigin.z ), PxVec3( vDirection.x, vDirection.y, vDirection.z ), fDistance, oRaycastCallback );
+	if( oRaycastCallback.hasBlock )
+	{
+		const PxRaycastHit& oHit = oRaycastCallback.block;
+
+		vPosition = glm::vec3( oHit.position.x, oHit.position.y, oHit.position.z );
+		return true;
+	}
+
+	return false;
 }

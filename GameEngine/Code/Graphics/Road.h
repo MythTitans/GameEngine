@@ -1,20 +1,39 @@
 #pragma once
 
-#include "Component.h"
+#include "Game/Component.h"
+#include "Game/ResourceTypes.h"
 #include "Graphics/Mesh.h"
-#include "ResourceTypes.h"
 
+class RenderContext;
 class SplineComponent;
+struct RoadNode;
+
+class Road
+{
+public:
+	Road();
+
+	void Render( const RoadNode* pRoad, const RenderContext& oRenderContext );
+
+	bool OnLoading();
+
+private:
+	TechniqueResPtr m_xRoad;
+};
 
 class RoadComponent : public Component
 {
 public:
-	RoadComponent( Entity* pEntity );
+	explicit RoadComponent( Entity* pEntity );
 
 	void Initialize() override;
 	bool IsInitialized() const override;
+	void Start() override;
 	void Update( const GameContext& oGameContext ) override;
+	void Stop() override;
+	void Dispose() override;
 
+	void DisplayGizmos( const bool bSelected ) override;
 #ifdef EDITOR
 	bool DisplayInspector() override;
 
@@ -27,11 +46,17 @@ private:
 	using SplineHandle = ComponentHandle< SplineComponent >;
 	SplineHandle		m_xSpline;
 
-	TechniqueResPtr		m_xTechnique;
 	TextureResPtr		m_xTexture;
 	Mesh				m_oMesh;
-	MaterialReference	m_oMaterial;
+
+	RoadNode*			m_pRoadNode;
 
 	float				m_fDistance = 1.f;
 	float				m_fTolerance = 0.01f;
+};
+
+class RoadTrenchComponent : public Component
+{
+public:
+	explicit RoadTrenchComponent( Entity* pEntity );
 };
