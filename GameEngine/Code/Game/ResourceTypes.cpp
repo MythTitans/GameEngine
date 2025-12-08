@@ -29,6 +29,11 @@ bool Resource::IsFailed() const
 	return m_eStatus == Status::FAILED;
 }
 
+uint64 FontResource::GetSize() const
+{
+	return sizeof( FontResource );
+}
+
 void FontResource::Destroy()
 {
 	m_oAtlas.Destroy();
@@ -44,6 +49,11 @@ const Array< stbtt_packedchar > FontResource::GetGlyphs() const
 	return m_aPackedCharacters;
 }
 
+uint64 TextureResource::GetSize() const
+{
+	return sizeof( TextureResource );
+}
+
 void TextureResource::Destroy()
 {
 	m_oTexture.Destroy();
@@ -52,6 +62,11 @@ void TextureResource::Destroy()
 const Texture& TextureResource::GetTexture() const
 {
 	return m_oTexture;
+}
+
+uint64 ModelResource::GetSize() const
+{
+	return sizeof( ModelResource );
 }
 
 void ModelResource::Destroy()
@@ -85,6 +100,11 @@ const Array< glm::mat4x3 >& ModelResource::GetSkinMatrices() const
 	return m_aSkinMatrices;
 }
 
+uint64 ShaderResource::GetSize() const
+{
+	return sizeof( ShaderResource );
+}
+
 void ShaderResource::Destroy()
 {
 	m_oShader.Destroy();
@@ -93,6 +113,11 @@ void ShaderResource::Destroy()
 const Shader& ShaderResource::GetShader() const
 {
 	return m_oShader;
+}
+
+uint64 TechniqueResource::GetSize() const
+{
+	return sizeof( TechniqueResource );
 }
 
 void TechniqueResource::Destroy()

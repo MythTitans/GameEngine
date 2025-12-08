@@ -40,6 +40,7 @@ class FontResource : public Resource
 public:
 	friend class ResourceLoader;
 
+	uint64							GetSize() const override;
 	void							Destroy() override;
 
 	const Texture&					GetAtlas() const;
@@ -61,6 +62,7 @@ class ShaderResource : public Resource
 public:
 	friend class ResourceLoader;
 
+	uint64			GetSize() const override;
 	void			Destroy() override;
 
 	const Shader&	GetShader() const;
@@ -74,6 +76,7 @@ class TechniqueResource : public Resource
 public:
 	friend class ResourceLoader;
 
+	uint64				GetSize() const override;
 	void				Destroy() override;
 
 	Technique&			GetTechnique();
@@ -90,6 +93,7 @@ class TextureResource : public Resource
 public:
 	friend class ResourceLoader;
 
+	uint64			GetSize() const override;
 	void			Destroy() override;
 
 	const Texture&	GetTexture() const;
@@ -103,6 +107,7 @@ class ModelResource : public Resource
 public:
 	friend class ResourceLoader;
 
+	uint64						GetSize() const override;
 	void						Destroy() override;
 
 	const Array< Mesh >&		GetMeshes() const;

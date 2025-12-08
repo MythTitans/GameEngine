@@ -130,4 +130,5 @@ void from_json( const nlohmann::json& oJsonContent, Spline& oSpline )
 	from_json( oJsonContent[ "tangents" ], oSpline.GetTangents() );
 
 	oSpline.RebuildDistances();
+	oSpline.RebuildCurvatures();
 }

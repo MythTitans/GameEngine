@@ -18,6 +18,8 @@ public:
 	Intrusive();
 	virtual ~Intrusive();
 
+	virtual uint64 GetSize() const = 0;
+
 	uint GetReferenceCount() const;
 	uint CountWeakReferences() const;
 
