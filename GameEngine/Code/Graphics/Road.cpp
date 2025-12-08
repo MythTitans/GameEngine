@@ -7,6 +7,24 @@
 #include "Graphics/Renderer.h"
 #include "Math/GLMHelpers.h"
 
+float RoadComponent::MoveDistanceFromCurvature( const float fCurvature )
+{
+		if( fCurvature <= m_aCurvatures.Front() )
+			return m_aDistances.Front();
+		if( fCurvature >= m_aCurvatures.Back() )
+			return m_aDistances.Back();
+
+		uint uIndex = 0;
+		while( m_aCurvatures[ uIndex ] < fCurvature )
+			++uIndex;
+
+		const float fRatio = ( fCurvature - m_aCurvatures[ uIndex - 1 ] ) / ( m_aCurvatures[ uIndex ] - m_aCurvatures[ uIndex - 1 ] );
+
+		return glm::lerp( m_aDistances[ uIndex - 1 ], m_aDistances[ uIndex ], fRatio );
+
+	//return glm::clamp( 1.f / ( 32.f * fCurvature ), 0.5f, 10.f );
+}
+
 Road::Road()
 	: m_xRoad( g_pResourceLoader->LoadTechnique( "Shader/unlit.tech" ) )
 {
@@ -38,6 +56,18 @@ REGISTER_COMPONENT( RoadComponent, SplineComponent );
 RoadComponent::RoadComponent( Entity* pEntity )
 	: Component( pEntity )
 {
+	m_aCurvatures.Resize( 4 );
+	m_aDistances.Resize( 4 );
+
+	m_aCurvatures[ 0 ] = 0.001f;
+	m_aCurvatures[ 1 ] = 0.005f;
+	m_aCurvatures[ 2 ] = 0.02f;
+	m_aCurvatures[ 3 ] = 0.1f;
+
+	m_aDistances[ 0 ] = 10.f;
+	m_aDistances[ 1 ] = 5.f;
+	m_aDistances[ 2 ] = 2.5f;
+	m_aDistances[ 3 ] = 0.5f;
 }
 
 void RoadComponent::Initialize()
@@ -69,6 +99,21 @@ void RoadComponent::Update( const GameContext& oGameContext )
 
 	m_pRoadNode->m_mMatrix = GetEntity()->GetWorldTransform().GetMatrixTR();
 	m_pRoadNode->m_oMesh = m_oMesh;
+
+
+
+
+
+	// TODO #eric temporary code
+	uint u = 0;
+	for( const float fCurve : m_xSpline->GetSpline().GetCurvatures() )
+	{
+		g_pDebugDisplay->DisplayText( std::format( "{} : {}", u, fCurve ), glm::vec4( 1.f, 0.5f, 0.f, 1.f ) );
+		g_pDebugDisplay->DisplayText( std::format( "{} : {}", u, MoveDistanceFromCurvature( fCurve ) ), glm::vec4( 1.f, 0.f, 0.f, 1.f ) );
+
+		++u;
+	}
+
 }
 
 void RoadComponent::Stop()
@@ -101,6 +146,8 @@ bool RoadComponent::DisplayInspector()
 	ImGui::InputFloat( "Tolerance", &fTolerance );
 	if( ImGui::IsItemDeactivatedAfterEdit() )
 		m_fTolerance = fTolerance;
+
+	ImGui::Checkbox( "Use curvature", &m_bUseCurvature );
 
 	if( ImGui::Button( "Generate road" ) )
 		GenerateRoad();
@@ -145,7 +192,45 @@ void RoadComponent::GenerateRoad( const Spline& oLeftSpline, const Spline& oRigh
 
 	SplineIterator oIt( oSpline );
 
+// 	auto MoveDistanceFromCurvature = [ this ]( const float fCurvature )
+// 	{
+// 		if( m_bUseCurvature == false )
+// 			return m_fDistance;
+// 
+// 		static const float fPowFactor = 2.f / glm::log2( 10.f );
+// 
+// 		// Original formula : 0.125 * pow(4, abs(log10(C)))
+// 		// Transformed formula : 0.125 * pow(2, abs(log2(C)) * (2 / log2(10)))
+// 		const float fClampedCurvature = glm::clamp( fCurvature, 0.001f, 0.1f );
+// 		const float fCurvatureFactor = glm::abs( glm::log2( fClampedCurvature ) );
+// 		const float fDistance = 0.125f * glm::pow( 2.f, fCurvatureFactor * fPowFactor );
+// 
+// 		return fDistance;
+// 	};
+
+// 	auto MoveDistanceFromCurvature = [ this ]( const float fCurvature )
+// 	{
+// 		if( m_bUseCurvature == false )
+// 			return m_fDistance;
+// 
+// // 		if( fCurvature <= m_aCurvatures.Front() )
+// // 			return m_aDistances.Front();
+// // 		if( fCurvature >= m_aCurvatures.Back() )
+// // 			return m_aDistances.Back();
+// // 
+// // 		uint uIndex = 0;
+// // 		while( m_aCurvatures[ uIndex ] < fCurvature )
+// // 			++uIndex;
+// // 
+// // 		const float fRatio = ( fCurvature - m_aCurvatures[ uIndex - 1 ] ) / ( m_aCurvatures[ uIndex ] - m_aCurvatures[ uIndex - 1 ] );
+// // 
+// // 		return glm::lerp( m_aDistances[ uIndex - 1 ], m_aDistances[ uIndex ], fRatio );
+// 
+// 		return glm::clamp( 1.f / ( 32.f * fCurvature ), 0.5f, 10.f );
+// 	};
+
 	glm::vec3 vPosition = oIt.ComputePosition();
+	float fMoveDistance = MoveDistanceFromCurvature( oIt.ComputeCurvature() );
 
 	aVertices.PushBack( oLeftSpline.ComputePosition( oIt.GetRatio() ) );
 	aVertices.PushBack( oRightSpline.ComputePosition( oIt.GetRatio() ) );
@@ -153,11 +238,12 @@ void RoadComponent::GenerateRoad( const Spline& oLeftSpline, const Spline& oRigh
 	aUVs.PushBack( glm::vec2( 0.f, fLinearUV ) );
 	aUVs.PushBack( glm::vec2( 1.f, 0.f ) );
 
-	while( oIt.MoveForward( m_fDistance, m_fTolerance ) )
+	while( oIt.MoveForward( fMoveDistance, m_fTolerance ) )
 	{
-		fLinearUV += m_fDistance / 5.f;
+		fLinearUV += fMoveDistance / 5.f;
 
 		vPosition = oIt.ComputePosition();
+		fMoveDistance = MoveDistanceFromCurvature( oIt.ComputeCurvature() );
 
 		aVertices.PushBack( oLeftSpline.ComputePosition( oIt.GetRatio() ) );
 		aVertices.PushBack( oRightSpline.ComputePosition( oIt.GetRatio() ) );

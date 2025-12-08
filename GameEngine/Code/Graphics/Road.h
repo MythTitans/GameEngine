@@ -24,6 +24,8 @@ private:
 class RoadComponent : public Component
 {
 public:
+	float MoveDistanceFromCurvature( const float fCurvature );
+
 	explicit RoadComponent( Entity* pEntity );
 
 	void Initialize() override;
@@ -53,6 +55,10 @@ private:
 
 	float				m_fDistance = 1.f;
 	float				m_fTolerance = 0.01f;
+	bool				m_bUseCurvature = true;
+
+	Array< float >		m_aCurvatures;
+	Array< float >		m_aDistances;
 };
 
 class RoadTrenchComponent : public Component

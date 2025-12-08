@@ -12,6 +12,7 @@ public:
 
 	glm::vec3	ComputePosition() const;
 	glm::vec3	ComputeTangent() const;
+	float		ComputeCurvature() const;
 
 	float		GetRatio() const;
 
@@ -32,12 +33,15 @@ public:
 
 	glm::vec3					ComputePosition( const float fRatio ) const;
 	glm::vec3					ComputeTangent( const float fRatio ) const;
+	glm::vec3					ComputeAcceleration( const float fRatio ) const;
 	float						ComputeDistance( const float fRatioA, const float fRatioB ) const;
+	float						ComputeCurvature( const float fRatio ) const;
 
 	float						GetLength() const;
 
 	void						RebuildTangents();
 	void						RebuildDistances();
+	void						RebuildCurvatures();
 
 	Array< glm::vec3 >&			GetControlPoints();
 	const Array< glm::vec3 >&	GetControlPoints() const;
@@ -45,12 +49,14 @@ public:
 	const Array< glm::vec3 >&	GetTangents() const;
 	const Array< float >&		GetDistances() const;
 	const Array< float >&		GetCumulatedDistances() const;
+	const Array< float >&		GetCurvatures() const;
 
 private:
 	Array< glm::vec3 >	m_aControlPoints;
 	Array< glm::vec3 >	m_aTangents;
 	Array< float >		m_aDistances;
 	Array< float >		m_aCumulatedDistances;
+	Array< float >		m_aCurvatures;
 };
 
 class SplineComponent : public Component

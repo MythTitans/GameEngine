@@ -102,6 +102,11 @@ glm::vec3 SplineIterator::ComputeTangent() const
 	return m_oSpline.ComputeTangent( m_fRatio );
 }
 
+float SplineIterator::ComputeCurvature() const
+{
+	return m_oSpline.ComputeCurvature( m_fRatio );
+}
+
 float SplineIterator::GetRatio() const
 {
 	return m_fRatio;
@@ -192,6 +197,34 @@ glm::vec3 Spline::ComputeTangent( const float fRatio ) const
 	return fStartCPFactor * vStartCPPosition + fStartCPTangentFactor * vStartCPTangent + fEndCPFactor * vEndCPPosition + fEndCPTangentFactor * vEndCPTangent;
 }
 
+glm::vec3 Spline::ComputeAcceleration( const float fRatio ) const
+{
+	if( m_aControlPoints.Count() < 2 )
+		return glm::vec3( 0.f );
+
+	if( fRatio <= 0.f || fRatio >= 1.f )
+		return glm::vec3( 0.f );
+
+	const float fProgress = fRatio * ( m_aControlPoints.Count() - 1 );
+
+	const uint uStartCP = ( uint )fProgress;
+	const uint uEndCP = uStartCP + 1;
+
+	const float fBlend = fProgress - uStartCP;
+
+	const float fStartCPFactor = 12.f * fBlend - 6.f;
+	const float fStartCPTangentFactor = 6.f * fBlend - 4.f;
+	const float fEndCPFactor = -12.f * fBlend + 6.f;
+	const float fEndCPTangentFactor = 6.f * fBlend - 2.f;
+
+	const glm::vec3& vStartCPPosition = m_aControlPoints[ uStartCP ];
+	const glm::vec3& vEndCPPosition = m_aControlPoints[ uEndCP ];
+	const glm::vec3& vStartCPTangent = m_aTangents[ uStartCP ];
+	const glm::vec3& vEndCPTangent = m_aTangents[ uEndCP ];
+
+	return fStartCPFactor * vStartCPPosition + fStartCPTangentFactor * vStartCPTangent + fEndCPFactor * vEndCPPosition + fEndCPTangentFactor * vEndCPTangent;
+}
+
 float Spline::ComputeDistance( const float fRatioA, const float fRatioB ) const
 {
 	float fLastDistance = glm::length( ComputePosition( fRatioB ) - ComputePosition( fRatioA ) );
@@ -223,6 +256,27 @@ float Spline::ComputeDistance( const float fRatioA, const float fRatioB ) const
 	return fDistance;
 }
 
+float Spline::ComputeCurvature( const float fRatio ) const
+{
+	if( m_aControlPoints.Count() < 2 )
+		return 0.f;
+
+	if( fRatio <= 0.f )
+		return m_aCurvatures[ 0 ];
+
+	if( fRatio >= 1.f )
+		return m_aCurvatures.Back();
+
+	const float fProgress = fRatio * ( m_aCurvatures.Count() - 1 );
+
+	const uint uStartCP = ( int )fProgress;
+	const uint uEndCP = uStartCP + 1;
+
+	const float fBlend = fProgress - uStartCP;
+
+	return glm::lerp( m_aCurvatures[ uStartCP ], m_aCurvatures[ uEndCP ], fBlend );
+}
+
 float Spline::GetLength() const
 {
 	if( m_aCumulatedDistances.Empty() )
@@ -234,6 +288,7 @@ float Spline::GetLength() const
 void Spline::RebuildTangents()
 {
 	m_aTangents.Resize( m_aControlPoints.Count() );
+	// TODO #eric avoid branching and compute first and last outside the loop
 
 	for( uint u = 0; u < m_aControlPoints.Count(); ++u )
 	{
@@ -268,6 +323,25 @@ void Spline::RebuildDistances()
 	}
 }
 
+void Spline::RebuildCurvatures()
+{
+	m_aCurvatures.Resize( m_aControlPoints.Count() );
+
+	const uint uSegments = m_aControlPoints.Count() - 1;
+	const float fSegmentRatio = 1.f / uSegments;
+
+	for( uint u = 0; u < m_aCurvatures.Count(); ++u )
+	{
+		const float fRatio = u * fSegmentRatio;
+
+		const glm::vec3 vTangent = ComputeTangent( fRatio );
+		const glm::vec3 vAcceleration = ComputeAcceleration( fRatio );
+		const float fTangentLength = glm::length( vTangent );
+
+		m_aCurvatures[ u ] = glm::length( glm::cross( vTangent, vAcceleration ) ) / ( fTangentLength * fTangentLength * fTangentLength );
+	}
+}
+
 Array< glm::vec3 >& Spline::GetControlPoints()
 {
 	return m_aControlPoints;
@@ -298,6 +372,11 @@ const Array< float >& Spline::GetCumulatedDistances() const
 	return m_aCumulatedDistances;
 }
 
+const Array< float >& Spline::GetCurvatures() const
+{
+	return m_aCurvatures;
+}
+
 REGISTER_COMPONENT( SplineComponent );
 
 SplineComponent::SplineComponent( Entity* pEntity )
@@ -325,6 +404,7 @@ void SplineComponent::Update( const GameContext& oGameContext )
 	{
 		m_oSpline.RebuildTangents();
 		m_oSpline.RebuildDistances();
+		m_oSpline.RebuildCurvatures();
 	}
 }
 
@@ -372,6 +452,7 @@ bool SplineComponent::DisplayInspector()
 			m_oSpline.GetControlPoints().PushBack( glm::vec3( 0.f, 0.f, 0.f ) );
 			m_oSpline.RebuildTangents();
 			m_oSpline.RebuildDistances();
+			m_oSpline.RebuildCurvatures();
 
 			Entity* pEntity = g_pGameWorld->CreateInternalEntity( std::format( "{}_CP", GetEntity()->GetName() ) );
 			g_pGameWorld->AttachToParent( pEntity, GetEntity() );
