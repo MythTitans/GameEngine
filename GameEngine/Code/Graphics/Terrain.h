@@ -55,7 +55,8 @@ private:
 	Array< TerrainChunkHandle >	m_aTerrainChunks;
 
 	TextureResPtr				m_xDiffuseMap;
-	TextureResPtr				m_xHeightMap;
+	TextureResPtr				m_xBaseLayer;
+	TextureResPtr				m_xTrenchLayer;
 
 	TerrainNode*				m_pTerrainNode;
 	physx::PxRigidStatic*		m_pRigidStatic;

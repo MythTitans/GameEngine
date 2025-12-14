@@ -44,7 +44,7 @@ void RoadComponent::Initialize()
 {
 	m_xSpline = GetComponent< SplineComponent >();
 	//m_xTexture = g_pResourceLoader->LoadTexture( "Checker.png" );
-	m_xTexture = g_pResourceLoader->LoadTexture( "RoadTest.jpg" );
+	m_xTexture = g_pResourceLoader->LoadTexture( "RoadTest.jpg", true );
 
 	UnlitMaterialData oMaterialData;
 	oMaterialData.m_vDiffuseColor = glm::vec3( 0.6f, 0.6f, 0.6f );
