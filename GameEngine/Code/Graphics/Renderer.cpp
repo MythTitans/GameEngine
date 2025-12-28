@@ -232,7 +232,6 @@ Renderer::Renderer()
 	, m_xDeferredMaps( g_pResourceLoader->LoadTechnique( "Shader/deferred_maps.tech" ) )
 	, m_xDeferredCompose( g_pResourceLoader->LoadTechnique( "Shader/deferred_compose.tech" ) )
 	, m_xBlend( g_pResourceLoader->LoadTechnique( "Shader/blend.tech" ) )
-	, m_xPicking( g_pResourceLoader->LoadTechnique( "Shader/picking.tech" ) )
 	, m_xOutline( g_pResourceLoader->LoadTechnique( "Shader/outline.tech" ) )
 	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo.tech" ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
@@ -300,7 +299,7 @@ void Renderer::Clear()
 bool Renderer::OnLoading()
 {
 	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
-	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xBlend->IsLoaded() && m_xPicking->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
+	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xBlend->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
 	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading() && m_oSkybox.OnLoading() && m_oTerrain.OnLoading() && m_oRoad.OnLoading() && m_oBloom.OnLoading();
 
 	return bLoaded;
@@ -320,12 +319,6 @@ void Renderer::OnLoaded()
 	m_oBlendSheet.Init( m_xBlend->GetTechnique() );
 	m_oBlendSheet.BindParameter( BlendParam::TEXTURE_A, "textureA" );
 	m_oBlendSheet.BindParameter( BlendParam::TEXTURE_B, "textureB" );
-
-	m_oPickingSheet.Init( m_xPicking->GetTechnique() );
-	m_oPickingSheet.BindParameter( PickingParam::USE_SKINNING, "useSkinning" );
-	m_oPickingSheet.BindArrayParameter( PickingParam::BONE_MATRICES, "boneMatrices" );
-	m_oPickingSheet.BindParameter( PickingParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
-	m_oPickingSheet.BindParameter( PickingParam::COLOR_ID, "colorID" );
 
 	m_oOutlineSheet.Init( m_xOutline->GetTechnique() );
 	m_oOutlineSheet.BindArrayParameter( OutlineParam::BONE_MATRICES, "boneMatrices" );
@@ -580,11 +573,9 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	if( pTerrain != nullptr )
 		m_oTerrain.Render( pTerrain, oRenderContext );
 
-	const Array< RoadNode* > aRoads = g_pRenderer->m_oVisualStructure.m_aRoads;
-	for( RoadNode* pRoad : aRoads )
-	{
-		m_oRoad.Render( pRoad, oRenderContext );
-	}
+	const Array< RoadNode* >& aRoads = g_pRenderer->m_oVisualStructure.m_aRoads;
+	if( aRoads.Empty() == false )
+		m_oRoad.Render( aRoads, oRenderContext );
 
 	for( uint u = 0; u < m_oVisualStructure.m_aTechniques.Count(); ++u )
 	{
@@ -688,138 +679,6 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 }
 
 #ifdef EDITOR
-uint64 Renderer::RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos )
-{
-	GPUBlock oGPUBlock( "Picking" );
-
-	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
-	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
-
-	if( oRenderRect.m_uWidth != m_oPickingTarget.GetWidth() || oRenderRect.m_uHeight != m_oPickingTarget.GetHeight() )
-	{
-		m_oPickingTarget.Destroy();
-
-		m_oPickingTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight, TextureFormat::ID ).Depth() );
-
-		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
-	}
-
-	SetRenderTarget( m_oPickingTarget );
-
-	glClearColor( 1.f, 1.f, 1.f, 1.f );
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	glEnable( GL_DEPTH_TEST );
-
-	Technique& oTechnique = m_xPicking->GetTechnique();
-	SetTechnique( oTechnique );
-
-	auto BuildColorID = []( const uint64 uID ) {
-		const uint16 uRed = ( uID >> 48 ) & 0xFFFF;
-		const uint16 uGreen = ( uID >> 32 ) & 0xFFFF;
-		const uint16 uBlue = ( uID >> 16 ) & 0xFFFF;
-		const uint16 uAlpha = ( uID ) & 0xFFFF;
-
-		return glm::uvec4( uRed, uGreen, uBlue, uAlpha );
-	};
-
-	for( const Array< VisualNode* >& aVisualNodes : g_pRenderer->m_oVisualStructure.m_aVisualNodes )
-	{
-		for( const VisualNode* pVisualNode : aVisualNodes )
-		{
-			m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( true );
-
-			TechniqueArrayParameter& oParamBoneMatrices = m_oPickingSheet.GetArrayParameter( PickingParam::BONE_MATRICES );
-
-			const Array< glm::mat4x3 >& aBoneMatrices = pVisualNode->m_aBoneMatrices;
-			for( uint u = 0; u < aBoneMatrices.Count(); ++u )
-				oParamBoneMatrices.SetValue( ToMat4( aBoneMatrices[ u ] ), u );
-			for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
-				oParamBoneMatrices.SetValue( glm::mat4( 1.f ), u );
-
-			m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( pVisualNode->m_mMatrix ) );
-			m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( pVisualNode->m_uEntityID ) );
-
-			const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
-			for( const Mesh& oMesh : aMeshes )
-				DrawMesh( oMesh );
-		}
-	}
-
-	for( const Array< VisualNode >& aVisualNodes : g_pRenderer->m_oVisualStructure.m_aTemporaryVisualNodes )
-	{
-		for( const VisualNode& oVisualNode : aVisualNodes )
-		{
-			m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( false );
-
-			m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
-			m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( oVisualNode.m_uEntityID ) );
-
-			const Array< Mesh >& aMeshes = oVisualNode.m_aMeshes;
-			for( const Mesh& oMesh : aMeshes )
-				DrawMesh( oMesh );
-		}
-	}
-
-	TerrainNode* pTerrain = g_pRenderer->m_oVisualStructure.m_pTerrain;
-	if( pTerrain != nullptr )
-	{
-		m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( false );
-
-		m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( pTerrain->m_mMatrix ) );
-
-		const Array< Mesh >& aMeshes = pTerrain->m_aMeshes;
-		for( uint u = 0; u < aMeshes.Count(); ++u )
-		{
-			const Mesh& oMesh = aMeshes[ u ];
-			m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( pTerrain->m_aEntitiesIDs[ u ] ) );
-			DrawMesh( oMesh );
-		}
-	}
-
-	const Array< RoadNode* >& aRoads = g_pRenderer->m_oVisualStructure.m_aRoads;
-	for( RoadNode* pRoad : aRoads )
-	{
-		m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( false );
-
-		m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( pRoad->m_mMatrix ) );
-		m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( pRoad->m_uEntityID ) );
-
-		DrawMesh( pRoad->m_oMesh );
-	}
-
-	if( bAllowGizmos )
-	{
-		glClear( GL_DEPTH_BUFFER_BIT );
-
-		Array< GizmoComponent* > aComponents = g_pComponentManager->GetComponents< GizmoComponent >();
-		for( const GizmoComponent* pComponent : aComponents )
-		{
-			m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( false );
-
-			m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( pComponent->GetWorldMatrix() ) );
-			m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( pComponent->GetEntity()->GetID() ) );
-
-			m_oGizmoRenderer.RenderGizmo( pComponent->GetType(), pComponent->GetAxis(), oRenderContext );
-		}
-	}
-
-	ClearTechnique();
-
-	GLushort aChannels[ 4 ];
-	glReadPixels( iCursorX, oRenderRect.m_uHeight - iCursorY - 1, 1, 1, GL_RGBA_INTEGER, GL_UNSIGNED_SHORT, &aChannels[ 0 ] );
-
-	ClearRenderTarget();
-
-	const uint64 uRed = ( ( uint64 )aChannels[ 0 ] << 48 ) & 0xFFFF'0000'0000'0000;
-	const uint64 uGreen = ( ( uint64 )aChannels[ 1 ] << 32 ) & 0x0000'FFFF'0000'0000;
-	const uint64 uBlue = ( ( uint64 )aChannels[ 2 ] << 16 ) & 0x0000'0000'FFFF'0000;
-	const uint64 uAlpha = ( ( uint64 )aChannels[ 3 ] ) & 0x0000'0000'0000'FFFF;
-
-	const uint64 uID = uRed | uGreen | uBlue | uAlpha;
-
-	return uID;
-}
-
 void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode )
 {
 	GPUBlock oGPUBlock( "Outline" );

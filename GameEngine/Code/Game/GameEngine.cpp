@@ -101,9 +101,18 @@ void GameEngine::Update()
 
 	if( m_eGameState == GameState::INITIALIZING )
 	{
-		if( m_oRenderer.OnLoading() )
+		bool bLoaded = m_oRenderer.OnLoading();
+
+#ifdef EDITOR
+		bLoaded &= m_oEditor.OnLoading();
+#endif
+		if( bLoaded )
 		{
 			m_oRenderer.OnLoaded();
+
+#ifdef EDITOR
+			m_oEditor.OnLoaded();
+#endif
 
 			const nlohmann::json oJsonContent = nlohmann::json::parse( ReadTextFile( std::filesystem::path( "Data/Scene/test.scene" ) ) );
 			m_oGameWorld.Load( oJsonContent );
@@ -149,6 +158,7 @@ void GameEngine::Render()
 		m_oRenderer.Render( m_oRenderContext );
 		m_oDebugDisplay.Display( m_oRenderContext );
 		m_oMemoryTracker.Display();
+
 #ifdef EDITOR
 		m_oEditor.Render( m_oRenderContext );
 #endif

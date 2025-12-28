@@ -184,6 +184,8 @@
     <ClCompile Include="Code\Editor\Editor.cpp" />
     <ClCompile Include="Code\Editor\Gizmo.cpp" />
     <ClCompile Include="Code\Editor\Inspector.cpp" />
+    <ClCompile Include="Code\Editor\PickingTool.cpp" />
+    <ClCompile Include="Code\Editor\TrenchTool.cpp" />
     <ClCompile Include="Code\Game\Animation.cpp" />
     <ClCompile Include="Code\Game\Animator.cpp" />
     <ClCompile Include="Code\Game\Camera.cpp" />
@@ -254,6 +256,8 @@
     <ClInclude Include="Code\Editor\Editor.h" />
     <ClInclude Include="Code\Editor\Gizmo.h" />
     <ClInclude Include="Code\Editor\Inspector.h" />
+    <ClInclude Include="Code\Editor\PickingTool.h" />
+    <ClInclude Include="Code\Editor\TrenchTool.h" />
     <ClInclude Include="Code\Game\Animation.h" />
     <ClInclude Include="Code\Game\Animator.h" />
     <ClInclude Include="Code\Game\Camera.h" />

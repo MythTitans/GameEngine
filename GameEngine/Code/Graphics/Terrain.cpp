@@ -74,9 +74,9 @@ TerrainComponent::TerrainComponent( Entity* pEntity )
 	: Component( pEntity )
 	, m_xDiffuseMap( g_pResourceLoader->LoadTexture( "Liege-Diffuse-2048.png", true ) )
 	, m_xBaseLayer( g_pResourceLoader->LoadTexture( "Liege-Heightmap-2048.png", false, true ) )
-	, m_xTrenchLayer( g_pResourceLoader->LoadTexture( "Trench.png", false ) )
 	, m_pTerrainNode( nullptr )
 	, m_pRigidStatic( nullptr )
+	, m_bUseTrench( false )
 {
 }
 
@@ -96,7 +96,7 @@ void TerrainComponent::Initialize()
 
 bool TerrainComponent::IsInitialized() const
 {
-	return m_xDiffuseMap->IsLoading() == false && m_xBaseLayer->IsLoading() == false && m_xTrenchLayer->IsLoading() == false;
+	return m_xDiffuseMap->IsLoading() == false && m_xBaseLayer->IsLoading() == false;
 }
 
 void TerrainComponent::Start()
@@ -141,7 +141,6 @@ void TerrainComponent::Dispose()
 
 	m_xDiffuseMap = nullptr;
 	m_xBaseLayer = nullptr;
-	m_xTrenchLayer = nullptr;
 }
 
 void TerrainComponent::DisplayGizmos( const bool bSelected )
@@ -161,6 +160,26 @@ bool TerrainComponent::DisplayInspector()
 {
 	if( ImGui::Button( "Update chunks" ) )
 	{
+		m_bUseTrench = false;
+		for( TerrainChunkComponent* pChunk : m_aTerrainChunks )
+		{
+			if( pChunk != nullptr )
+				pChunk->UpdateChunk();
+		}
+	}
+
+	if( ImGui::Button( "Trench" ) )
+	{
+		m_bUseTrench = false;
+		for( TerrainChunkComponent* pChunk : m_aTerrainChunks )
+		{
+			if( pChunk != nullptr )
+				pChunk->UpdateChunk();
+		}
+
+		g_pEditor->m_oTrenchTool.Trench( this, m_oTrenchLayer );
+
+		m_bUseTrench = true;
 		for( TerrainChunkComponent* pChunk : m_aTerrainChunks )
 		{
 			if( pChunk != nullptr )
@@ -229,6 +248,26 @@ bool TerrainComponent::DisplayInspector()
 	return false;
 }
 #endif
+
+float TerrainComponent::GetWidth() const
+{
+	return m_fWidth;
+}
+
+float TerrainComponent::GetHeight() const
+{
+	return m_fHeight;
+}
+
+float TerrainComponent::GetIntensity() const
+{
+	return m_fIntensity;
+}
+
+const TerrainNode* TerrainComponent::GetTerrainNode() const
+{
+	return m_pTerrainNode;
+}
 
 void TerrainComponent::RegisterChunk( TerrainChunkComponent* pChunk )
 {
@@ -369,11 +408,17 @@ void TerrainChunkComponent::GenerateTerrain()
 	const float fHalfHeight = pTerrain->m_fHeight / 2.f;
 
 	const Texture& oBaseLayer = pTerrain->m_xBaseLayer->GetTexture();
-	const Texture& oTrenchLayer = pTerrain->m_xTrenchLayer->GetTexture();
 	const Array< uint8, ArrayFlags::FAST_RESIZE > aRawBaseData = oBaseLayer.FetchData();
-	const Array< uint8, ArrayFlags::FAST_RESIZE > aRawTrenchData = oTrenchLayer.FetchData();
+	const Array< uint8, ArrayFlags::FAST_RESIZE > aRawTrenchData = pTerrain->m_oTrenchLayer.FetchData();
 	const uint16* aBaseData = ( uint16* )aRawBaseData.Data();
-	const uint8* aTrenchData = ( uint8* )aRawTrenchData.Data();
+	const uint16* aTrenchData = ( uint16* )aRawTrenchData.Data();
+
+	auto ComputeHeight = [ & ]( const glm::vec2& vUV )
+	{
+		const float fBaseHeight = pTerrain->m_fIntensity * SampleHeightMap( vUV, aBaseData, oBaseLayer.GetWidth(), oBaseLayer.GetHeight() );
+		const float fDelta = pTerrain->m_bUseTrench ? pTerrain->m_fIntensity * ( 2.f * SampleHeightMap( vUV, aTrenchData, pTerrain->m_oTrenchLayer.GetWidth(), pTerrain->m_oTrenchLayer.GetHeight() ) - 1.f ) : 0.f;
+		return fBaseHeight + fDelta;
+	};
 
 	Array< glm::vec3 > aVertices( ( m_uWidthResolution + 1 ) * ( m_uHeightResolution + 1 ) );
 	for( uint uYQuad = 0; uYQuad <= m_uHeightResolution; ++uYQuad )
@@ -381,9 +426,7 @@ void TerrainChunkComponent::GenerateTerrain()
 		for( uint uXQuad = 0; uXQuad <= m_uWidthResolution; ++uXQuad )
 		{
 			const uint uVertexIndex = uXQuad + ( m_uWidthResolution + 1 ) * uYQuad;
-			const float fBaseHeight = pTerrain->m_fIntensity * SampleHeightMap( aUVs[ uVertexIndex ], aBaseData, oBaseLayer.GetWidth(), oBaseLayer.GetHeight() );
-			const float fTrenchHeight = 0.5f * pTerrain->m_fIntensity * ( SampleHeightMap( aUVs[ uVertexIndex ], aTrenchData, oTrenchLayer.GetWidth(), oTrenchLayer.GetHeight() ) - 0.5f);
-			aVertices[ uVertexIndex ] = glm::vec3( uXQuad * fXOffset - fHalfWidth + fChunkStartX, fBaseHeight + fTrenchHeight, uYQuad * fYOffset - fHalfHeight + fChunkStartY );
+			aVertices[ uVertexIndex ] = glm::vec3( uXQuad * fXOffset - fHalfWidth + fChunkStartX, ComputeHeight( aUVs[ uVertexIndex ] ), uYQuad * fYOffset - fHalfHeight + fChunkStartY);
 		}
 	}
 
@@ -493,19 +536,18 @@ Array< float > TerrainChunkComponent::FetchBorder( const Border eBorder ) const
 	const float fChunkStartYRatio = fChunkStartY / pTerrain->m_fHeight;
 
 	const Texture& oBaseLayer = pTerrain->m_xBaseLayer->GetTexture();
-	const Texture& oTrenchLayer = pTerrain->m_xTrenchLayer->GetTexture();
 	const Array< uint8, ArrayFlags::FAST_RESIZE > aRawBaseData = oBaseLayer.FetchData();
-	const Array< uint8, ArrayFlags::FAST_RESIZE > aRawTrenchData = oTrenchLayer.FetchData();
+	const Array< uint8, ArrayFlags::FAST_RESIZE > aRawTrenchData = pTerrain->m_oTrenchLayer.FetchData();
 	const uint16* aBaseData = ( uint16* )aRawBaseData.Data();
-	const uint8* aTrenchData = ( uint8* )aRawTrenchData.Data();
+	const uint16* aTrenchData = ( uint16* )aRawTrenchData.Data();
 
 	Array< float > aHeights;
 
-	auto FillHeights = [&]( const glm::vec2& vUV )
+	auto ComputeHeight = [ & ]( const glm::vec2& vUV )
 	{
 		const float fBaseHeight = pTerrain->m_fIntensity * SampleHeightMap( vUV, aBaseData, oBaseLayer.GetWidth(), oBaseLayer.GetHeight() );
-		const float fTrenchHeight = 0.5f * pTerrain->m_fIntensity * ( SampleHeightMap( vUV, aTrenchData, oTrenchLayer.GetWidth(), oTrenchLayer.GetHeight() ) - 0.5f );
-		aHeights.PushBack( fBaseHeight + fTrenchHeight );
+		const float fDelta = pTerrain->m_bUseTrench ? pTerrain->m_fIntensity * ( 2.f * SampleHeightMap( vUV, aTrenchData, pTerrain->m_oTrenchLayer.GetWidth(), pTerrain->m_oTrenchLayer.GetHeight() ) - 1.f ) : 0.f;
+		return fBaseHeight + fDelta;
 	};
 
 	switch( eBorder )
@@ -515,7 +557,7 @@ Array< float > TerrainChunkComponent::FetchBorder( const Border eBorder ) const
 		for( uint uYQuad = 0; uYQuad <= m_uHeightResolution; ++uYQuad )
 		{
 			const glm::vec2 vUV = glm::vec2( fChunkStartXRatio, fChunkStartYRatio + ( fChunkHeightRatio * uYQuad ) / m_uHeightResolution );
-			FillHeights( vUV );
+			aHeights.PushBack( ComputeHeight( vUV ) );
 		}
 		break;
 	case Border::RIGHT:
@@ -523,7 +565,7 @@ Array< float > TerrainChunkComponent::FetchBorder( const Border eBorder ) const
 		for( uint uYQuad = 0; uYQuad <= m_uHeightResolution; ++uYQuad )
 		{
 			const glm::vec2 vUV = glm::vec2( fChunkStartXRatio + fChunkWidthRatio, fChunkStartYRatio + ( fChunkHeightRatio * uYQuad ) / m_uHeightResolution );
-			FillHeights( vUV );
+			aHeights.PushBack( ComputeHeight( vUV ) );
 		}
 		break;
 	case Border::UP:
@@ -531,7 +573,7 @@ Array< float > TerrainChunkComponent::FetchBorder( const Border eBorder ) const
 		for( uint uXQuad = 0; uXQuad <= m_uWidthResolution; ++uXQuad )
 		{
 			const glm::vec2 vUV = glm::vec2( fChunkStartXRatio + ( fChunkWidthRatio * uXQuad ) / m_uWidthResolution, fChunkStartYRatio );
-			FillHeights( vUV );
+			aHeights.PushBack( ComputeHeight( vUV ) );
 		}
 		break;
 	case Border::DOWN:
@@ -539,7 +581,7 @@ Array< float > TerrainChunkComponent::FetchBorder( const Border eBorder ) const
 		for( uint uXQuad = 0; uXQuad <= m_uWidthResolution; ++uXQuad )
 		{
 			const glm::vec2 vUV = glm::vec2( fChunkStartXRatio + ( fChunkWidthRatio * uXQuad ) / m_uWidthResolution, fChunkStartYRatio + fChunkHeightRatio );
-			FillHeights( vUV );
+			aHeights.PushBack( ComputeHeight( vUV ) );
 		}
 		break;
 	}

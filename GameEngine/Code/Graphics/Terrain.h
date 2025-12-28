@@ -28,21 +28,27 @@ public:
 
 	explicit TerrainComponent( Entity* pEntity );
 
-	void Initialize() override;
-	bool IsInitialized() const override;
-	void Start() override;
-	void Update( const GameContext& oGameContext ) override;
-	void Stop() override;
-	void Dispose() override;
+	void				Initialize() override;
+	bool				IsInitialized() const override;
+	void				Start() override;
+	void				Update( const GameContext& oGameContext ) override;
+	void				Stop() override;
+	void				Dispose() override;
 
-	void DisplayGizmos( const bool bSelected ) override;
+	void				DisplayGizmos( const bool bSelected ) override;
 #ifdef EDITOR
-	bool DisplayInspector() override;
+	bool				DisplayInspector() override;
 #endif
 
+	float				GetWidth() const;
+	float				GetHeight() const;
+	float				GetIntensity() const;
+
+	const TerrainNode*	GetTerrainNode() const;
+
 private:
-	void RegisterChunk( TerrainChunkComponent* pChunk );
-	void UnRegisterChunk( TerrainChunkComponent* pChunk );
+	void				RegisterChunk( TerrainChunkComponent* pChunk );
+	void				UnRegisterChunk( TerrainChunkComponent* pChunk );
 
 	PROPERTIES( TerrainComponent );
 	PROPERTY_DEFAULT( "Width", m_fWidth, float, 100.f );
@@ -56,10 +62,12 @@ private:
 
 	TextureResPtr				m_xDiffuseMap;
 	TextureResPtr				m_xBaseLayer;
-	TextureResPtr				m_xTrenchLayer;
+	Texture						m_oTrenchLayer;
 
 	TerrainNode*				m_pTerrainNode;
 	physx::PxRigidStatic*		m_pRigidStatic;
+
+	bool						m_bUseTrench;
 };
 
 class TerrainChunkComponent : public Component

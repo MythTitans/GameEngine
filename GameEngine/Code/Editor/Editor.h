@@ -9,6 +9,8 @@
 #include "Core/Array.h"
 #include "Core/Types.h"
 #include "Math/MathUtils.h"
+#include "PickingTool.h"
+#include "TrenchTool.h"
 
 class Entity;
 class GizmoComponent;
@@ -22,13 +24,13 @@ class SnapshotStore
 public:
 	explicit SnapshotStore( const uint uCapacity );
 
-	void					Push( const bool bResetForward = true );
-	void					Pop();
+	void			Push( const bool bResetForward = true );
+	void			Pop();
 
-	nlohmann::json&			Back();
+	nlohmann::json&	Back();
 
-	uint					BackwardCount() const;
-	uint					ForwardCount() const;
+	uint			BackwardCount() const;
+	uint			ForwardCount() const;
 
 private:
 	Array< nlohmann::json > m_aSnapshots;
@@ -44,11 +46,17 @@ public:
 	Editor();
 	~Editor();
 
+	bool		OnLoading();
+	void		OnLoaded();
+
 	// TODO #eric do this better, only there to take the first snapshot for undo
 	void		OnSceneLoaded();
 
 	void		Update( const InputContext& oInputContext, const RenderContext& oRenderContext );
 	void		Render( const RenderContext& oRenderContext );
+
+	PickingTool		m_oPickingTool;
+	TrenchTool		m_oTrenchTool;
 
 private:
 	Ray			ComputeCursorViewRay( const InputContext& oInputContext, const RenderContext& oRenderContext ) const;
@@ -61,21 +69,21 @@ private:
 	void		RestoreSnapshotBackward();
 	void		RestoreSnapshotForward();
 
-	uint64					m_uSelectedEntityID;
-	uint64					m_uGizmoEntityID;
+	uint64			m_uSelectedEntityID;
+	uint64			m_uGizmoEntityID;
 
-	glm::vec3				m_vInitialEntityPosition;
-	glm::quat				m_qInitialEntityRotation;
+	glm::vec3		m_vInitialEntityPosition;
+	glm::quat		m_qInitialEntityRotation;
 
-	glm::vec3				m_vMoveStartPosition;
-	glm::vec3				m_vRotationAxis;
+	glm::vec3		m_vMoveStartPosition;
+	glm::vec3		m_vRotationAxis;
 
-	nlohmann::json			m_oSceneJson;
-	SnapshotStore			m_oSnapshotStore;
+	nlohmann::json	m_oSceneJson;
+	SnapshotStore	m_oSnapshotStore;
 
-	bool					m_bDisplayEditor;
+	bool			m_bDisplayEditor;
 
-	bool					m_bStoreSnapshot;
+	bool			m_bStoreSnapshot;
 };
 
 extern Editor* g_pEditor;

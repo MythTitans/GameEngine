@@ -952,6 +952,12 @@ public:
 		return pComponentsHolder->GetComponentIndexFromEntity( pEntity );
 	}
 
+	template < typename ComponentType >
+	void GetComponents( Array< ComponentType* >& aComponents )
+	{
+		aComponents = GetComponents<ComponentType>();
+	}
+
 	void					InitializeComponents();
 	void					InitializeComponents( Entity* pEntity );
 	bool					AreComponentsInitialized() const;

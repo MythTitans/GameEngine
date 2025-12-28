@@ -257,6 +257,37 @@ void VisualStructure::RemoveRoad( RoadNode*& pRoad )
 	}
 }
 
+void VisualStructure::GetVisualNodes( Array< VisualNode* >& aNodes, Array< VisualNode* >& aTemporaryNodes )
+{
+	for( const Array< VisualNode* >& aGroupedNodes : m_aVisualNodes )
+	{
+		aNodes.Reserve( aNodes.Count() + aGroupedNodes.Count() );
+
+		for( VisualNode* pNode : aGroupedNodes )
+			aNodes.PushBack( pNode );
+	}
+
+	for( Array< VisualNode >& aGroupedNodes : m_aTemporaryVisualNodes )
+	{
+		aTemporaryNodes.Reserve( aTemporaryNodes.Count() + aGroupedNodes.Count() );
+
+		for( VisualNode& oNode : aGroupedNodes )
+			aTemporaryNodes.PushBack( &oNode );
+	}
+}
+
+void VisualStructure::GetLights( Array< DirectionalLight* >& aDirectionalLights, Array< PointLight* >& aPointLights, Array< SpotLight* >& aSpotLights )
+{
+	aDirectionalLights = m_aDirectionalLights;
+	aPointLights = m_aPointLights;
+	aSpotLights = m_aSpotLights;
+}
+
+void VisualStructure::GetRoads( Array<RoadNode*>& aRoads )
+{
+	aRoads = m_aRoads;
+}
+
 void VisualStructure::Clear()
 {
 	for( Array< VisualNode >& aNodes : m_aTemporaryVisualNodes )

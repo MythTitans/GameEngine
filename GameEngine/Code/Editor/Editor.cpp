@@ -133,6 +133,17 @@ Editor::~Editor()
 	g_pEditor = nullptr;
 }
 
+bool Editor::OnLoading()
+{
+	return m_oPickingTool.OnLoading() && m_oTrenchTool.OnLoading();
+}
+
+void Editor::OnLoaded()
+{
+	m_oPickingTool.OnLoaded();
+	m_oTrenchTool.OnLoaded();
+}
+
 void Editor::OnSceneLoaded()
 {
 	if( m_bStoreSnapshot )
@@ -161,7 +172,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 	{
 		if( m_uSelectedEntityID != UINT64_MAX )
 		{
-			const uint64 uGizmoEntityID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY(), true );
+			const uint64 uGizmoEntityID = m_oPickingTool.Pick( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY(), true );
 
 			if( uGizmoEntityID != UINT64_MAX )
 			{
@@ -261,7 +272,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		}
 		else
 		{
-			m_uSelectedEntityID = g_pRenderer->RenderPicking( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY(), false );
+			m_uSelectedEntityID = m_oPickingTool.Pick( oRenderContext, oInputContext.GetCursorX(), oInputContext.GetCursorY(), false );
 
 			Array< GizmoComponent* > aGizmoComponents = g_pComponentManager->GetComponents< GizmoComponent >();
 
@@ -284,7 +295,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 	ImGui::DragFloat( "Camera speed", &g_pCameraManager->m_oFreeCamera.m_fSpeed );
 	ImGui::DragFloat( "Camera fast speed multiplier", &g_pCameraManager->m_oFreeCamera.m_fFastSpeedMultiplier );
-
+	
 	if( ImGui::Button( "Save scene" ) )
 	{
 		nlohmann::json oJsonContent;

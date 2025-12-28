@@ -13,7 +13,7 @@ class Road
 public:
 	Road();
 
-	void Render( const RoadNode* pRoad, const RenderContext& oRenderContext );
+	void Render( const Array<RoadNode*>& aRoads, const RenderContext& oRenderContext );
 
 	bool OnLoading();
 
@@ -24,6 +24,8 @@ private:
 class RoadComponent : public Component
 {
 public:
+	friend class RoadTrenchComponent;
+
 	explicit RoadComponent( Entity* pEntity );
 
 	void Initialize() override;
@@ -54,9 +56,18 @@ private:
 	float				m_fDistance = 1.f;
 	float				m_fTolerance = 0.01f;
 };
-
 class RoadTrenchComponent : public Component
 {
 public:
+	friend class TerrainComponent;
+
 	explicit RoadTrenchComponent( Entity* pEntity );
+
+	void			Initialize() override;
+	void			Dispose() override;
+
+	const RoadNode* GetRoadNode() const;
+
+private:
+	ComponentHandle< RoadComponent > m_xRoad;
 };

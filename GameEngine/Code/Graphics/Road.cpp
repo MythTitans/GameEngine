@@ -12,18 +12,22 @@ Road::Road()
 {
 }
 
-void Road::Render( const RoadNode* pRoad, const RenderContext& oRenderContext )
+void Road::Render( const Array<RoadNode*>& aRoads, const RenderContext& oRenderContext )
 {
 	Technique& oTechnique = m_xRoad->GetTechnique();
 	g_pRenderer->SetTechnique( oTechnique );
 
-	oTechnique.GetParameter( "modelViewProjection" ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * ToMat4( pRoad->m_mMatrix ) );
 	oTechnique.GetParameter( "diffuseColor" ).SetValue( glm::vec3( 1.f, 1.f, 1.f ) );
-
-	g_pRenderer->SetTextureSlot( pRoad->m_oDiffuse, 0 );
 	oTechnique.GetParameter( "diffuseMap" ).SetValue( 0 );
 
-	g_pRenderer->DrawMesh( pRoad->m_oMesh );
+	for( const RoadNode* pRoad : aRoads )
+	{
+		oTechnique.GetParameter( "modelViewProjection" ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * ToMat4( pRoad->m_mMatrix ) );
+
+		g_pRenderer->SetTextureSlot( pRoad->m_oDiffuse, 0 );
+
+		g_pRenderer->DrawMesh( pRoad->m_oMesh );
+	}
 
 	g_pRenderer->ClearTextureSlot( 0 );
 }
@@ -119,8 +123,8 @@ void RoadComponent::GenerateRoad()
 	for( uint u = 0; u < aTangents.Count(); ++u )
 	{
 		glm::vec3 vNormal = glm::normalize( glm::cross( aTangents[ u ], glm::vec3( 0.f, 1.f, 0.f ) ) );
-		aLeftControlPoints[ u ] -= vNormal * 2.5f;
-		aRightControlPoints[ u ] += vNormal * 2.5f;
+		aLeftControlPoints[ u ] -= vNormal * 5.f;
+		aRightControlPoints[ u ] += vNormal * 5.f;
 	}
 
 	GenerateRoad( Spline( aLeftControlPoints ), Spline( aRightControlPoints ) );
@@ -190,4 +194,19 @@ SET_COMPONENT_PRIORITY_AFTER( RoadTrenchComponent, RoadComponent );
 RoadTrenchComponent::RoadTrenchComponent( Entity* pEntity )
 	: Component( pEntity )
 {
+}
+
+void RoadTrenchComponent::Initialize()
+{
+	m_xRoad = GetComponent< RoadComponent >();
+}
+
+void RoadTrenchComponent::Dispose()
+{
+	m_xRoad = nullptr;
+}
+
+const RoadNode* RoadTrenchComponent::GetRoadNode() const
+{
+	return m_xRoad->m_pRoadNode;
 }

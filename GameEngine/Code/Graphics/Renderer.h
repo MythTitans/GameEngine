@@ -103,7 +103,6 @@ private:
 	void			RenderForward( const RenderContext& oRenderContext );
 	void			RenderDeferred( const RenderContext& oRenderContext );
 #ifdef EDITOR
-	uint64			RenderPicking( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos );
 	void			RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode );
 	void			RenderGizmos( const RenderContext& oRenderContext );
 #endif
@@ -138,15 +137,6 @@ private:
 		_COUNT
 	};
 
-	enum class PickingParam : uint8
-	{
-		USE_SKINNING,
-		BONE_MATRICES,
-		MODEL_VIEW_PROJECTION,
-		COLOR_ID,
-		_COUNT
-	};
-
 	enum class OutlineParam : uint8
 	{
 		BONE_MATRICES,
@@ -169,7 +159,6 @@ private:
 	RenderTarget						m_oForwardTarget;
 	RenderTarget						m_oPostProcessTarget;
 	RenderTarget						m_oDeferredTarget;
-	RenderTarget						m_oPickingTarget;
 
 	Mesh								m_oRenderMesh;
 
@@ -181,8 +170,6 @@ private:
 	PARAM_SHEET( DeferredComposeParam )	m_oDeferredComposeSheet;
 	TechniqueResPtr						m_xBlend;
 	PARAM_SHEET( BlendParam )			m_oBlendSheet;
-	TechniqueResPtr						m_xPicking;
-	PARAM_SHEET( PickingParam )			m_oPickingSheet;
 	TechniqueResPtr						m_xOutline;
 	PARAM_SHEET( OutlineParam )			m_oOutlineSheet;
 	TechniqueResPtr						m_xGizmo;

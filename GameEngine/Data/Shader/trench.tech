@@ -1,0 +1,7 @@
+{
+    "vertexShader": "Shader/trench.vs",
+    "pixelShader": "Shader/trench.ps",
+    "parameters": [
+        "modelViewProjection"
+    ]
+}

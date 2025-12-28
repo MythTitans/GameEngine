@@ -80,7 +80,6 @@ public:
 
 	VisualNode*				AddNode( const Entity* pEntity, Technique& oTechnique );
 	void					AddTemporaryNode( const Entity* pEntity, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique );
-
 	void					RemoveNode( VisualNode*& pNode );
 
 	Array< VisualNode* >	FindNodes( const Entity* pEntity );
@@ -89,7 +88,6 @@ public:
 	DirectionalLight*		AddDirectionalLight();
 	PointLight*				AddPointLight();
 	SpotLight*				AddSpotLight();
-
 	void					RemoveDirectionalLight( DirectionalLight*& pDirectionalLight );
 	void					RemovePointLight( PointLight*& pPointLight );
 	void					RemoveSpotLight( SpotLight*& pSpotLight );
@@ -105,6 +103,10 @@ public:
 
 	RoadNode*				AddRoad( const Entity* pEntity, const Texture& oTexture, const Mesh& oMesh );
 	void					RemoveRoad( RoadNode*& pRoad );
+
+	void					GetVisualNodes( Array< VisualNode* >& aNodes, Array< VisualNode* >& aTemporaryNodes );
+	void					GetLights( Array< DirectionalLight* >& aDirectionalLights, Array< PointLight* >& aPointLights, Array< SpotLight* >& aSpotLights );
+	void					GetRoads( Array<RoadNode*>& aRoads );
 
 private:
 	void					Clear();
