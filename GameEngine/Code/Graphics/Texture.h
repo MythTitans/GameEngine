@@ -67,7 +67,7 @@ public:
 	int				GetHeight() const;
 	TextureFormat	GetFormat() const;
 
-	Array< uint8 >	FetchData( const bool bSRGB = false ) const;
+	void			FetchData( Array< uint8 >& aData, const bool bSRGB = false ) const;
 
 private:
 	GLuint			m_uTextureID;

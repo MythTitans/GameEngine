@@ -200,7 +200,7 @@ void SkyboxComponent::CreateCubeMap()
 	{
 		if( m_aTextures[ u ]->IsLoaded() )
 		{
-			aData[ u ] = m_aTextures[ u ]->GetTexture().FetchData();
+			m_aTextures[ u ]->GetTexture().FetchData( aData[ u ] );
 			oDesc.Data( aData[ u ].Data(), CubeMapDesc::Side( u ) );
 		}
 		else
