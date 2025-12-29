@@ -220,9 +220,9 @@ TextureFormat Texture::GetFormat() const
 	return m_eFormat;
 }
 
-Array< uint8, ArrayFlags::FAST_RESIZE > Texture::FetchData( const bool bSRGB /*= false*/ ) const
+Array< uint8 > Texture::FetchData( const bool bSRGB /*= false*/ ) const
 {
-	Array< uint8, ArrayFlags::FAST_RESIZE > aResult;
+	Array< uint8 > aResult;
 	aResult.Resize( m_iWidth * m_iHeight * GetFormatBytes( m_eFormat ), 0 );
 	glBindTexture( GL_TEXTURE_2D, m_uTextureID );
 

@@ -55,7 +55,7 @@ void TrenchTool::Trench( const TerrainComponent* pTerrain, Texture& oTrench )
 	for( const Mesh& oMesh : pTerrainNode->m_aMeshes )
 		g_pRenderer->DrawMesh( oMesh );
 
-	const Array< uint8, ArrayFlags::FAST_RESIZE > aRawTerrainDepthData = m_oTrenchRT.GetDepthMap().FetchData();
+	const Array< uint8 > aRawTerrainDepthData = m_oTrenchRT.GetDepthMap().FetchData();
 	const float* aTerrainDepthData = ( float* )aRawTerrainDepthData.Data();
 
 	glDepthFunc( GL_ALWAYS );
@@ -73,7 +73,7 @@ void TrenchTool::Trench( const TerrainComponent* pTerrain, Texture& oTrench )
 
 	g_pRenderer->ClearRenderTarget();
 
-	const Array< uint8, ArrayFlags::FAST_RESIZE > aRawRoadDepthData = m_oTrenchRT.GetDepthMap().FetchData();
+	const Array< uint8 > aRawRoadDepthData = m_oTrenchRT.GetDepthMap().FetchData();
 	const float* aRoadDepthData = ( float* )aRawRoadDepthData.Data();
 
 	constexpr uint16 MAX = ( uint16 )-1;

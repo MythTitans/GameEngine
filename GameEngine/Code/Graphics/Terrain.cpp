@@ -408,8 +408,8 @@ void TerrainChunkComponent::GenerateTerrain()
 	const float fHalfHeight = pTerrain->m_fHeight / 2.f;
 
 	const Texture& oBaseLayer = pTerrain->m_xBaseLayer->GetTexture();
-	const Array< uint8, ArrayFlags::FAST_RESIZE > aRawBaseData = oBaseLayer.FetchData();
-	const Array< uint8, ArrayFlags::FAST_RESIZE > aRawTrenchData = pTerrain->m_oTrenchLayer.FetchData();
+	const Array< uint8 > aRawBaseData = oBaseLayer.FetchData();
+	const Array< uint8 > aRawTrenchData = pTerrain->m_oTrenchLayer.FetchData();
 	const uint16* aBaseData = ( uint16* )aRawBaseData.Data();
 	const uint16* aTrenchData = ( uint16* )aRawTrenchData.Data();
 
@@ -536,8 +536,8 @@ Array< float > TerrainChunkComponent::FetchBorder( const Border eBorder ) const
 	const float fChunkStartYRatio = fChunkStartY / pTerrain->m_fHeight;
 
 	const Texture& oBaseLayer = pTerrain->m_xBaseLayer->GetTexture();
-	const Array< uint8, ArrayFlags::FAST_RESIZE > aRawBaseData = oBaseLayer.FetchData();
-	const Array< uint8, ArrayFlags::FAST_RESIZE > aRawTrenchData = pTerrain->m_oTrenchLayer.FetchData();
+	const Array< uint8 > aRawBaseData = oBaseLayer.FetchData();
+	const Array< uint8 > aRawTrenchData = pTerrain->m_oTrenchLayer.FetchData();
 	const uint16* aBaseData = ( uint16* )aRawBaseData.Data();
 	const uint16* aTrenchData = ( uint16* )aRawTrenchData.Data();
 

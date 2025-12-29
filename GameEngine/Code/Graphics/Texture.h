@@ -59,15 +59,15 @@ public:
 
 	Texture();
 
-	void									Create( const TextureDesc& oDesc );
-	void									Destroy();
+	void			Create( const TextureDesc& oDesc );
+	void			Destroy();
 
-	GLuint									GetID() const;
-	int										GetWidth() const;
-	int										GetHeight() const;
-	TextureFormat							GetFormat() const;
+	GLuint			GetID() const;
+	int				GetWidth() const;
+	int				GetHeight() const;
+	TextureFormat	GetFormat() const;
 
-	Array< uint8, ArrayFlags::FAST_RESIZE >	FetchData( const bool bSRGB = false ) const;
+	Array< uint8 >	FetchData( const bool bSRGB = false ) const;
 
 private:
 	GLuint			m_uTextureID;

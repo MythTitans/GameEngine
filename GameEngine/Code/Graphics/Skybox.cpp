@@ -193,7 +193,7 @@ void SkyboxComponent::CreateCubeMap()
 		}
 	}
 
-	Array< uint8, ArrayFlags::FAST_RESIZE > aData[ CubeMapDesc::_COUNT ];
+	Array< uint8 > aData[ CubeMapDesc::_COUNT ];
 
 	CubeMapDesc oDesc = CubeMapDesc( iWidth, iHeight, eFormat ).Wrapping( TextureWrapping::CLAMP ).SRGB();
 	for( uint u = 0; u < CubeMapDesc::_COUNT; ++u )

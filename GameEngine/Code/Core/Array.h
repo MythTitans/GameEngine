@@ -7,13 +7,6 @@
 #include "MemoryTracker.h"
 #endif
 
-// TODO #eric remove ArrayFlags and optimize based on type traits directly
-enum ArrayFlags
-{
-	STANDARD = 0,
-	FAST_RESIZE = 1
-};
-
 class ArrayBase
 {
 public:
@@ -30,11 +23,11 @@ protected:
 	uint m_uCapacity;
 };
 
-template < typename T, int Flags = ArrayFlags::STANDARD >
+template < typename T >
 class Array : public ArrayBase
 {
 public:
-	template < typename U, int F >
+	template < typename U >
 	friend class Array;
 
 	Array()
@@ -47,8 +40,11 @@ public:
 		: ArrayBase( uCount, uCount )
 		, m_pData( ( T* )malloc( uCount * sizeof( T ) ) )
 	{
-		for( uint u = 0; u < m_uCount; ++u )
-			::new( &m_pData[ u ] ) T;
+		if constexpr( std::is_trivially_default_constructible_v< T > == false )
+		{
+			for( uint u = 0; u < m_uCount; ++u )
+				::new( &m_pData[ u ] ) T();
+		}
 
 		TrackMemory();
 	}
@@ -57,8 +53,25 @@ public:
 		: ArrayBase( uCount, uCount )
 		, m_pData( ( T* )malloc( uCount * sizeof( T ) ) )
 	{
-		for( uint u = 0; u < m_uCount; ++u )
-			::new( &m_pData[ u ] ) T( oValue );
+		if constexpr( std::is_trivially_copy_constructible_v< T > )
+		{
+			if constexpr( sizeof( T ) == sizeof( uint8 ) )
+			{
+				const T oTempValue = oValue;
+				const uint8 uValue = *( ( uint8* )&oTempValue );
+				memset( &m_pData[ 0 ], uValue, m_uCount * sizeof( T ) );
+			}
+			else
+			{
+				for( uint u = 0; u < m_uCount; ++u )
+					memcpy( &m_pData[ u ], &oValue, sizeof( T ) );
+			}
+		}
+		else
+		{
+			for( uint u = 0; u < m_uCount; ++u )
+				::new( &m_pData[ u ] ) T( oValue );
+		}
 
 		TrackMemory();
 	}
@@ -67,9 +80,8 @@ public:
 		: ArrayBase( aArray.m_uCount, aArray.m_uCapacity )
 		, m_pData( ( T* )malloc( aArray.m_uCount * sizeof( T ) ) )
 	{
-		if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+		if constexpr( std::is_trivially_copy_constructible_v< T > )
 		{
-			static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
 			memcpy( m_pData, aArray.m_pData, m_uCount * sizeof( T ) );
 		}
 		else
@@ -94,9 +106,8 @@ public:
 
 		ASSERT( m_uCount <= m_uCapacity );
 
-		if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+		if constexpr( std::is_trivially_copy_constructible_v< T > )
 		{
-			static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
 			memcpy( m_pData, aArray.m_pData, m_uCount * sizeof( T ) );
 		}
 		else
@@ -157,7 +168,7 @@ public:
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount < m_uCapacity );
 
-		::new( &m_pData[ m_uCount++ ] ) T;
+		::new( &m_pData[ m_uCount++ ] ) T();
 	}
 
 	void PushBack( const T& oElement )
@@ -172,7 +183,7 @@ public:
 
 	void PushFront( const T& oElement )
 	{
-		Array< T, Flags > aPush;
+		Array< T > aPush;
 		if( m_uCapacity < m_uCount + 1 )
 			aPush.Reserve( m_uCount + 1 );
 		else
@@ -180,9 +191,8 @@ public:
 
 		aPush.PushBack( oElement );
 
-		if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+		if constexpr( std::is_trivially_copy_constructible_v< T > )
 		{
-			static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
 			memcpy( &aPush.m_pData[ 1 ], m_pData, m_uCount * sizeof( T ) );
 			aPush.m_uCount = m_uCount + 1;
 		}
@@ -200,7 +210,8 @@ public:
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount > 0 );
 
-		m_pData[ --m_uCount ].~T();
+		if( std::is_trivially_destructible_v< T > == false )
+			m_pData[ --m_uCount ].~T();
 	}
 
 	void PopFront()
@@ -214,11 +225,11 @@ public:
 		ASSERT( m_uCount > 0 );
 		ASSERT( uIndex >= 0 && uIndex < m_uCount );
 
-		m_pData[ uIndex ].~T();
+		if constexpr( std::is_trivially_destructible_v< T > == false )
+			m_pData[ uIndex ].~T();
 
-		if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+		if constexpr( std::is_trivially_copyable_v< T > )
 		{
-			static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
 			memmove( &m_pData[ uIndex ], &m_pData[ uIndex + 1 ], ( m_uCount - uIndex - 1 ) * sizeof( T ) );
 		}
 		else
@@ -226,7 +237,9 @@ public:
 			for( uint u = uIndex + 1; u < m_uCount; ++u )
 			{
 				m_pData[ u - 1 ] = m_pData[ u ];
-				m_pData[ u ].~T();
+
+				if constexpr( std::is_trivially_destructible_v< T > == false )
+					m_pData[ u ].~T();
 			}
 		}
 
@@ -235,8 +248,11 @@ public:
 
 	void Clear()
 	{
-		for( uint u = 0; u < m_uCount; ++u )
-			m_pData[ u ].~T();
+		if constexpr( std::is_trivially_destructible_v< T > == false )
+		{
+			for( uint u = 0; u < m_uCount; ++u )
+				m_pData[ u ].~T();
+		}
 
 		m_uCount = 0;
 	}
@@ -269,11 +285,8 @@ public:
 			const uint uExpansion = uCount - m_uCount;
 			Reserve( uCount );
 
-			if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+			if constexpr( std::is_trivially_default_constructible_v< T > )
 			{
-				static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
-				static_assert( sizeof( T ) == sizeof( uint8 ), "Memset only valid for elements of the size of a byte." );
-				memset( &m_pData[ m_uCount ], T(), uExpansion * sizeof( T ) );
 				m_uCount = uCount;
 			}
 			else
@@ -286,7 +299,7 @@ public:
 		{
 			const uint uShrink = m_uCount - uCount;
 
-			if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+			if constexpr( std::is_trivially_destructible_v< T > )
 			{
 				m_uCount = uCount;
 			}
@@ -305,11 +318,20 @@ public:
 			const uint uExpansion = uCount - m_uCount;
 			Reserve( uCount );
 
-			if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+			if constexpr( std::is_trivially_copy_constructible_v< T > )
 			{
-				static_assert( std::is_trivially_constructible_v< T >, "Fast resize can only be set for trivially constructible elements." );
-				static_assert( sizeof( T ) == sizeof( uint8 ), "Memset only valid for elements of the size of a byte." );
-				memset( &m_pData[ m_uCount ], oValue, uExpansion * sizeof( T ) );
+				if constexpr( sizeof( T ) == sizeof( uint8 ) )
+				{
+					const T oTempValue = oValue;
+					const uint8 uValue = *( ( uint8* )&oTempValue );
+					memset( &m_pData[ m_uCount ], uValue, uExpansion * sizeof( T ) );
+				}
+				else
+				{
+					for( uint u = 0; u < uExpansion; ++u )
+						memcpy( &m_pData[ m_uCount + u ], &oValue, sizeof( T ) );
+				}
+
 				m_uCount = uCount;
 			}
 			else
@@ -322,7 +344,7 @@ public:
 		{
 			const uint uShrink = m_uCount - uCount;
 
-			if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+			if constexpr( std::is_trivially_destructible_v< T > )
 			{
 				m_uCount = uCount;
 			}
@@ -340,9 +362,8 @@ public:
 		{
 			T* pData = ( T* )malloc( uCount * sizeof( T ) );
 
-			if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+			if constexpr( std::is_trivially_copy_constructible_v< T > )
 			{
-				static_assert( std::is_trivially_copyable_v< T >, "Fast resize can only be set for trivially copyable elements." );
 				memcpy( pData, m_pData, m_uCount * sizeof( T ) );
 			}
 			else
@@ -459,10 +480,8 @@ public:
 private:
 	void Destroy()
 	{
-		if constexpr( ( Flags & ArrayFlags::FAST_RESIZE ) != 0 )
+		if constexpr( std::is_trivially_destructible_v< T > )
 		{
-			static_assert( std::is_trivially_destructible_v< T >, "Fast resize can only be set for trivially destructible elements." );
-
 			free( m_pData );
 		}
 		else
@@ -477,22 +496,16 @@ private:
 	void TrackMemory()
 	{
 #ifdef TRACK_MEMORY
-		//if constexpr( ( Flags & ArrayFlags::NO_TRACKING ) == 0 )
-		{
-			if( g_pMemoryTracker != nullptr )
-				g_pMemoryTracker->RegisterArray< T >( this );
-		}
+		if( g_pMemoryTracker != nullptr )
+			g_pMemoryTracker->RegisterArray< T >( this );
 #endif
 	}
 
 	void UnTrackMemory()
 	{
 #ifdef TRACK_MEMORY
-		//if constexpr( ( Flags & ArrayFlags::NO_TRACKING ) == 0 )
-		{
-			if( g_pMemoryTracker != nullptr )
-				g_pMemoryTracker->UnRegisterArray( this );
-		}
+		if( g_pMemoryTracker != nullptr )
+			g_pMemoryTracker->UnRegisterArray( this );
 #endif
 	}
 

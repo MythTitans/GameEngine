@@ -368,14 +368,14 @@ namespace Tests
 			Assert::AreEqual( 0u, TestStruct::s_uAliveCount );
 		}
 
-		TEST_METHOD( FastResize )
+		TEST_METHOD( FastType )
 		{
-			Array< int, ArrayFlags::FAST_RESIZE > aFromArray;
+			Array< int > aFromArray;
 			aFromArray.PushBack( 1 );
 			aFromArray.PushBack( 2 );
 			aFromArray.PushBack( 3 );
 
-			Array< int, ArrayFlags::FAST_RESIZE > aArray( aFromArray );
+			Array< int > aArray( aFromArray );
 			Assert::IsNotNull( aArray.Data() );
 			Assert::AreEqual( 3u, aArray.Count() );
 			Assert::AreEqual( 3u, aArray.Capacity() );
@@ -415,24 +415,55 @@ namespace Tests
 			Assert::AreEqual( 1, aArray[ 0 ] );
 			Assert::AreEqual( 3, aArray[ 1 ] );
 
-			// TODO #eric fix those tests when rework array optimizations
+			aArray.Resize( 5, 0 );
+			Assert::IsNotNull( aArray.Data() );
+			Assert::AreEqual( 5u, aArray.Count() );
+			Assert::AreEqual( 5u, aArray.Capacity() );
+			Assert::AreEqual( 1, aArray[ 0 ] );
+			Assert::AreEqual( 3, aArray[ 1 ] );
+			Assert::AreEqual( 0, aArray[ 2 ] );
+			Assert::AreEqual( 0, aArray[ 3 ] );
+			Assert::AreEqual( 0, aArray[ 4 ] );
 
-// 			aArray.Resize( 5, 0 );
-// 			Assert::IsNotNull( aArray.Data() );
-// 			Assert::AreEqual( 5u, aArray.Count() );
-// 			Assert::AreEqual( 5u, aArray.Capacity() );
-// 			Assert::AreEqual( 1, aArray[ 0 ] );
-// 			Assert::AreEqual( 3, aArray[ 1 ] );
-// 			Assert::AreEqual( 0, aArray[ 2 ] );
-// 			Assert::AreEqual( 0, aArray[ 3 ] );
-// 			Assert::AreEqual( 0, aArray[ 4 ] );
-// 
-// 			aArray.Resize( 2, 0 );
-// 			Assert::IsNotNull( aArray.Data() );
-// 			Assert::AreEqual( 2u, aArray.Count() );
-// 			Assert::AreEqual( 5u, aArray.Capacity() );
-// 			Assert::AreEqual( 1, aArray[ 0 ] );
-// 			Assert::AreEqual( 3, aArray[ 1 ] );
+			aArray.Resize( 2, 0 );
+			Assert::IsNotNull( aArray.Data() );
+			Assert::AreEqual( 2u, aArray.Count() );
+			Assert::AreEqual( 5u, aArray.Capacity() );
+			Assert::AreEqual( 1, aArray[ 0 ] );
+			Assert::AreEqual( 3, aArray[ 1 ] );
+		}
+
+		TEST_METHOD( ResizeSpeedTest )
+		{
+			Array< uint8 > aVerySimpleArray;
+			Array< int > aSimpleArray;
+			Array< TestStruct > aComplexArray;
+
+			const uint uCount = 1000000;
+
+			auto t1 = std::chrono::high_resolution_clock::now();
+			aVerySimpleArray.Resize( uCount, 1 );
+			auto t2 = std::chrono::high_resolution_clock::now();
+			aSimpleArray.Resize( uCount, 1 );
+			auto t3 = std::chrono::high_resolution_clock::now();
+			aComplexArray.Resize( uCount, TestStruct( 1 ) );
+			auto t4 = std::chrono::high_resolution_clock::now();
+
+			auto oVerySimpleTime = ( t2 - t1 ).count();
+			auto oSimpleTime = ( t3 - t2 ).count();
+			auto oComplexTime = ( t4 - t3 ).count();
+
+			// Suspicious if not, but not a hard truth
+			Assert::IsTrue( oVerySimpleTime < oSimpleTime );
+			Assert::IsTrue( oSimpleTime < oComplexTime );
+
+			// Just check a few because this takes a lot of time
+			for( uint u = 0; u < 5; ++u )
+			{
+				Assert::AreEqual( 1, ( int )aVerySimpleArray[ u ] );
+				Assert::AreEqual( 1, aSimpleArray[ u ] );
+				Assert::AreEqual( 1, aComplexArray[ u ].m_iValue );
+			}
 		}
 	};
 
