@@ -143,8 +143,12 @@ ShaderResPtr ResourceLoader::LoadShader( const char* sFilePath )
 
 	xShaderPtr = new ShaderResource();
 
-	LOG_INFO( "Loading {}", sFilePath );
-	m_oPendingLoadCommands.m_aShaderLoadCommands.PushBack( ShaderLoadCommand( sFilePath, xShaderPtr ) );
+	Array< std::string > aFlags = Split( sFilePath, "|" );
+	const std::string sRealFilePath = aFlags.Front();
+	aFlags.PopFront();
+
+	LOG_INFO( "Loading {}", sRealFilePath );
+	m_oPendingLoadCommands.m_aShaderLoadCommands.PushBack( ShaderLoadCommand( sRealFilePath.c_str(), xShaderPtr, std::move( aFlags ) ) );
 
 	return xShaderPtr;
 }
@@ -939,9 +943,10 @@ uint ResourceLoader::ModelLoadCommand::FetchNodeIndex( const std::string& sName 
 	return uIndex;
 }
 
-ResourceLoader::ShaderLoadCommand::ShaderLoadCommand( const char* sFilePath, const ShaderResPtr& xResource )
+ResourceLoader::ShaderLoadCommand::ShaderLoadCommand( const char* sFilePath, const ShaderResPtr& xResource, Array< std::string >&& aFlags )
 	: LoadCommand( sFilePath, xResource )
 	, m_eShaderType( ShaderType::UNDEFINED )
+	, m_aFlags( aFlags )
 {
 	const std::filesystem::path oFilePath = GetFilePath();
 	if( oFilePath.extension() == ".vs" )
@@ -965,7 +970,7 @@ void ResourceLoader::ShaderLoadCommand::OnFinished()
 	switch( m_eStatus )
 	{
 	case ResourceLoader::LoadCommandStatus::FINISHED:
-		m_xResource->m_oShader.Create( m_sShaderCode, m_eShaderType );
+		m_xResource->m_oShader.Create( m_sShaderCode, m_eShaderType, m_aFlags );
 		m_xResource->m_eStatus = Resource::Status::LOADED;
 		break;
 	case ResourceLoader::LoadCommandStatus::NOT_FOUND:
@@ -994,6 +999,7 @@ void ResourceLoader::TechniqueLoadCommand::Load( std::unique_lock< std::mutex >&
 	std::string sPixelShader;
 	Array< std::string > aParameters;
 	Array< std::pair< std::string, uint > > aArrayParameters;
+	Array< std::string > aFlags;
 
 	bool bSuccess = true;
 
