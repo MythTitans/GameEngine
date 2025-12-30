@@ -4,6 +4,9 @@
 
 #include <GL/glew.h>
 
+template < typename T >
+class Array;
+
 enum class ShaderType
 {
 	UNDEFINED,
@@ -19,7 +22,7 @@ public:
 
 	Shader();
 
-	void Create( const std::string& sShaderCode, const ShaderType eShaderType );
+	void Create( const std::string& sShaderCode, const ShaderType eShaderType, const Array< std::string >& aFlags );
 	void Destroy();
 
 private:

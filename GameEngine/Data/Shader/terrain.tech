@@ -1,5 +1,5 @@
 {
-    "vertexShader": "Shader/world_view_projection_uv.vs",
+    "vertexShader": "Shader/model_view_projection.vs|UV",
     "pixelShader": "Shader/terrain.ps",
     "parameters": [
         "modelViewProjection",

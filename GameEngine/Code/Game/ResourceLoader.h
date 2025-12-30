@@ -173,14 +173,15 @@ private:
 
 	struct ShaderLoadCommand : LoadCommand< ShaderResource >
 	{
-		ShaderLoadCommand( const char* sFilePath, const ShaderResPtr& xResource );
+		ShaderLoadCommand( const char* sFilePath, const ShaderResPtr& xResource, Array< std::string >&& aFlags );
 
 		void Load( std::unique_lock< std::mutex >& oLock ) override;
 		void OnFinished() override;
 		void OnDependenciesReady() override;
 
-		std::string m_sShaderCode;
-		ShaderType	m_eShaderType;
+		std::string				m_sShaderCode;
+		ShaderType				m_eShaderType;
+		Array< std::string >	m_aFlags;
 	};
 
 	struct TechniqueLoadCommand : LoadCommand< TechniqueResource >

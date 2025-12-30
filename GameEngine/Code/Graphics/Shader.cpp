@@ -1,5 +1,6 @@
 #include "Shader.h"
 
+#include "Core/Array.h"
 #include "Core/Logger.h"
 
 Shader::Shader()
@@ -7,22 +8,29 @@ Shader::Shader()
 {
 }
 
-void Shader::Create( const std::string& sShaderCode, const ShaderType eShaderType )
+void Shader::Create( const std::string& sShaderCode, const ShaderType eShaderType, const Array< std::string >& aFlags )
 {
 	m_uShaderID = glCreateShader( GetGLShaderType( eShaderType ) );
 
 	const std::string sVersion = "#version 330 core\n";
+
+	std::string sFlags;
+	for( const std::string& sFlag : aFlags )
+		sFlags += "#define " + sFlag + "\n";
+
 	const std::string sContent = ( "#line 1\n" + sShaderCode );
 
-	const uint uShaderPartCount = 2;
+	const uint uShaderPartCount = 3;
 
 	const GLchar* aShaderCode[ uShaderPartCount ];
 	aShaderCode[ 0 ] = sVersion.c_str();
-	aShaderCode[ 1 ] = sContent.c_str();
+	aShaderCode[ 1 ] = sFlags.c_str();
+	aShaderCode[ 2 ] = sContent.c_str();
 
 	GLint aShaderCodeLength[ uShaderPartCount ];
 	aShaderCodeLength[ 0 ] = ( GLint )sVersion.length();
-	aShaderCodeLength[ 1 ] = ( GLint )sContent.length();
+	aShaderCodeLength[ 1 ] = ( GLint )sFlags.length();
+	aShaderCodeLength[ 2 ] = ( GLint )sContent.length();
 
 	GLint iCompileResult;
 	glShaderSource( m_uShaderID, uShaderPartCount, aShaderCode, aShaderCodeLength );
