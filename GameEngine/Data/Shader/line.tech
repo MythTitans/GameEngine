@@ -1,8 +1,8 @@
 {
-    "vertexShader": "Shader/line.vs",
-    "pixelShader": "Shader/line.ps",
+    "vertexShader": "Shader/world_view_projection.vs",
+    "pixelShader": "Shader/color.ps",
     "parameters": [
-        "viewProjection",
+        "modelViewProjection",
         "color"
     ]
 }

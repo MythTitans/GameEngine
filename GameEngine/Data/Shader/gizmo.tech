@@ -1,6 +1,6 @@
 {
-    "vertexShader": "Shader/gizmo.vs",
-    "pixelShader": "Shader/gizmo.ps",
+    "vertexShader": "Shader/world_view_projection.vs",
+    "pixelShader": "Shader/color.ps",
     "parameters": [
         "modelViewProjection",
         "color"

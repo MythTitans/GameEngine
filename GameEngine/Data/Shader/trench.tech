@@ -1,5 +1,5 @@
 {
-    "vertexShader": "Shader/trench.vs",
+    "vertexShader": "Shader/world_view_projection.vs",
     "pixelShader": "Shader/trench.ps",
     "parameters": [
         "modelViewProjection"

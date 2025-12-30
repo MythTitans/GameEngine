@@ -11,14 +11,21 @@ void Shader::Create( const std::string& sShaderCode, const ShaderType eShaderTyp
 {
 	m_uShaderID = glCreateShader( GetGLShaderType( eShaderType ) );
 
-	const GLchar* aShaderCode[ 1 ];
-	aShaderCode[ 0 ] = sShaderCode.c_str();
+	const std::string sVersion = "#version 330 core\n";
+	const std::string sContent = ( "#line 1\n" + sShaderCode );
 
-	GLint aShaderCodeLength[ 1 ];
-	aShaderCodeLength[ 0 ] = ( GLint )sShaderCode.length();
+	const uint uShaderPartCount = 2;
+
+	const GLchar* aShaderCode[ uShaderPartCount ];
+	aShaderCode[ 0 ] = sVersion.c_str();
+	aShaderCode[ 1 ] = sContent.c_str();
+
+	GLint aShaderCodeLength[ uShaderPartCount ];
+	aShaderCodeLength[ 0 ] = ( GLint )sVersion.length();
+	aShaderCodeLength[ 1 ] = ( GLint )sContent.length();
 
 	GLint iCompileResult;
-	glShaderSource( m_uShaderID, 1, aShaderCode, aShaderCodeLength );
+	glShaderSource( m_uShaderID, uShaderPartCount, aShaderCode, aShaderCodeLength );
 	glCompileShader( m_uShaderID );
 
 	glGetShaderiv( m_uShaderID, GL_COMPILE_STATUS, &iCompileResult );
@@ -34,6 +41,7 @@ void Shader::Create( const std::string& sShaderCode, const ShaderType eShaderTyp
 		glGetShaderInfoLog( m_uShaderID, iCompileLogLength, &iCompileLogLength, &sCompileLog[ 0 ] );
 
 		LOG_ERROR( "Shader compilation error : {}", sCompileLog );
+		ASSERT( false );
 	}
 }
 

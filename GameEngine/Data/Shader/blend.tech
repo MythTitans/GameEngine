@@ -1,5 +1,5 @@
 {
-    "vertexShader": "Shader/blend.vs",
+    "vertexShader": "Shader/screen_space.vs",
     "pixelShader": "Shader/blend.ps",
     "parameters":
     [

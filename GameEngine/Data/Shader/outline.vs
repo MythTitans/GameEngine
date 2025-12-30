@@ -1,5 +1,3 @@
-#version 330
-
 layout (location = 0) in vec3 vertPosition;
 layout (location = 2) in vec3 vertNormal;
 layout (location = 4) in uvec4 vertBones;
