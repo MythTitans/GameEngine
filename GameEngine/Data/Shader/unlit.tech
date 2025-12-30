@@ -1,5 +1,5 @@
 {
-    "vertexShader": "Shader/unlit.vs",
+    "vertexShader": "Shader/world_view_projection_uv.vs",
     "pixelShader": "Shader/unlit.ps",
     "parameters": [
         "modelViewProjection",

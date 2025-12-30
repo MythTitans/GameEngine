@@ -218,6 +218,7 @@ void Technique::Create( const Array< const Shader* > aShaders, const Array< std:
 		glGetProgramInfoLog( m_uProgramID, iLinkLogLength, &iLinkLogLength, &sLinkLog[ 0 ] );
 
 		LOG_ERROR( "Technique link error : {}", sLinkLog );
+		ASSERT( false );
 	}
 
 	for( const std::string& sParameter : aParameters )

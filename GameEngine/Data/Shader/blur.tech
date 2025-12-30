@@ -1,5 +1,5 @@
 {
-    "vertexShader": "Shader/blur.vs",
+    "vertexShader": "Shader/screen_space.vs",
     "pixelShader": "Shader/blur.ps",
     "parameters":
     [

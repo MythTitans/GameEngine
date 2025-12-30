@@ -1,11 +1,12 @@
 {
     "vertexShader": "Shader/outline.vs",
-    "pixelShader": "Shader/outline.ps",
+    "pixelShader": "Shader/color.ps",
     "parameters": [
         "model",
         "modelViewProjection",
         "cameraPosition",
-        "displacement"
+        "displacement",
+        "color"
     ],
     "arrays":
     [

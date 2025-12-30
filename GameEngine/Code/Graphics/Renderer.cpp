@@ -326,6 +326,7 @@ void Renderer::OnLoaded()
 	m_oOutlineSheet.BindParameter( OutlineParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
 	m_oOutlineSheet.BindParameter( OutlineParam::DISPLACEMENT, "displacement" );
 	m_oOutlineSheet.BindParameter( OutlineParam::CAMERA_POSITION, "cameraPosition" );
+	m_oOutlineSheet.BindParameter( OutlineParam::COLOR, "color" );
 
 	m_oGizmoSheet.Init( m_xGizmo->GetTechnique() );
 	m_oGizmoSheet.BindParameter( GizmoParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
@@ -708,6 +709,7 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	m_oOutlineSheet.GetParameter( OutlineParam::MODEL ).SetValue( ToMat4( oVisualNode.m_mMatrix ) );
 	m_oOutlineSheet.GetParameter( OutlineParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
 	m_oOutlineSheet.GetParameter( OutlineParam::DISPLACEMENT ).SetValue( 0.f );
+	m_oOutlineSheet.GetParameter( OutlineParam::COLOR ).SetValue( glm::vec3( 1.f, 0.8f, 0.f ) );
 
 	const Array< Mesh >& aMeshes = oVisualNode.m_aMeshes;
 	for( const Mesh& oMesh : aMeshes )

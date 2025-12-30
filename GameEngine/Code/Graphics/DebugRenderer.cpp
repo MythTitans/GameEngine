@@ -143,7 +143,7 @@ void DebugRenderer::RenderLines( const Array< Line >& aLines, const RenderContex
 	Technique& oTechnique = m_xLine->GetTechnique();
 	glUseProgram( oTechnique.m_uProgramID );
 
-	m_oLineSheet.GetParameter( LineParam::VIEW_PROJECTION).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+	m_oLineSheet.GetParameter( LineParam::VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
 
 	Array< GLfloat > aVertices;
 	aVertices.Reserve( 3 * 2 * aLines.Count() );
@@ -432,7 +432,7 @@ void DebugRenderer::OnLoaded()
 {
 	m_oLineSheet.Init( m_xLine->GetTechnique() );
 
-	m_oLineSheet.BindParameter( LineParam::VIEW_PROJECTION, "viewProjection" );
+	m_oLineSheet.BindParameter( LineParam::VIEW_PROJECTION, "modelViewProjection" );
 	m_oLineSheet.BindParameter( LineParam::COLOR, "color" );
 
 	m_oSphereSheet.Init( m_xSphere->GetTechnique() );

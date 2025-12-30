@@ -1,5 +1,5 @@
 {
-    "vertexShader": "Shader/deferred_compose.vs",
+    "vertexShader": "Shader/screen_space.vs",
     "pixelShader": "Shader/deferred_compose.ps",
     "parameters":
     [
