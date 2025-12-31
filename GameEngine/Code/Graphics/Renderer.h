@@ -123,9 +123,10 @@ public:
 private:
 	enum class DeferredComposeParam : uint8
 	{
-		COLOR,
+		DIFFUSE,
 		NORMAL,
 		DEPTH,
+		VIEW_POSITION,
 		INVERSE_VIEW_PROJECTION,
 		_COUNT
 	};

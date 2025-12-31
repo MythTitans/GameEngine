@@ -1,4 +1,4 @@
-in vec2 uv;
+in vec2 texCoord;
 
 out vec4 finalColor;
 
@@ -14,12 +14,12 @@ void main()
     if( vertical )
     {
         for( int i = 0; i <= 32; ++i )
-            color += texture( inputTexture, uv + vec2( 0.0, delta * ( i - 16 ) ) ).rgb * kernel[ i ];
+            color += texture( inputTexture, texCoord + vec2( 0.0, delta * ( i - 16 ) ) ).rgb * kernel[ i ];
     }
     else
     {
         for( int i = 0; i <= 32; ++i )
-            color += texture( inputTexture, uv + vec2( delta * ( i - 16 ), 0.0 ) ).rgb * kernel[ i ];
+            color += texture( inputTexture, texCoord + vec2( delta * ( i - 16 ), 0.0 ) ).rgb * kernel[ i ];
     }
 
     finalColor = vec4( color, 1.0 );

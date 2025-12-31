@@ -1,4 +1,4 @@
-in vec2 uv;
+in vec2 texCoord;
 
 out vec4 finalColor;
 
@@ -7,5 +7,5 @@ uniform sampler2D textureB;
 
 void main()
 {
-    finalColor = texture( textureA, uv ) + texture( textureB, uv );
+    finalColor = texture( textureA, texCoord ) + texture( textureB, texCoord );
 }
