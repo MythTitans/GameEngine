@@ -1,12 +1,23 @@
 {
-    "vertexShader": "Shader/deferred_maps.vs",
+    "vertexShader": "Shader/skinning.vs|DEFERRED",
     "pixelShader": "Shader/deferred_maps.ps",
     "parameters": [
         "modelViewProjection",
         "modelInverseTranspose",
+        "useSkinning",
         "diffuseMap",
         "normalMap",
         "specularMap",
         "emissiveMap"
+    ],
+    "arrays":
+    [
+        {
+            "parameters":
+            [
+                "boneMatrices"
+            ],
+            "count": 128
+        }
     ]
 }

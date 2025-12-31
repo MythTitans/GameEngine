@@ -87,7 +87,9 @@ void UnlitMaterialData::PrepareMaterial( Technique& oTechnique )
 
 void UnlitMaterialData::ApplyMaterial( Technique& oTechnique )
 {
-	s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_COLOR ).SetValue( m_vDiffuseColor );
+	TechniqueParameter& oDiffuseColor = s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_COLOR );
+	if( oDiffuseColor.IsValid() )
+		oDiffuseColor.SetValue( m_vDiffuseColor );
 	
 	if( m_xDiffuseTextureResource != nullptr )
 		s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_MAP ).SetValue( &m_xDiffuseTextureResource->GetTexture(), oTechnique );

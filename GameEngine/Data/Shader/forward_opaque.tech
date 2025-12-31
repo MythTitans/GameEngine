@@ -1,5 +1,5 @@
 {
-    "vertexShader": "Shader/forward_opaque.vs",
+    "vertexShader": "Shader/skinning.vs|FORWARD",
     "pixelShader": "Shader/lighting.ps|FORWARD",
     "parameters": [
         "modelViewProjection",
