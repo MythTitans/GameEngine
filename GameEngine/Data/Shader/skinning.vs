@@ -6,13 +6,17 @@ layout (location = 4) in uvec4 vertBones;
 layout (location = 5) in vec4 vertWeights;
 
 out vec2 texCoord;
+#ifdef FORWARD
 out vec3 position;
+#endif
 out vec3 normal;
 out vec3 tangent;
 out vec3 bitangent;
 
 uniform mat4 modelViewProjection;
+#ifdef FORWARD
 uniform mat4 model;
+#endif
 uniform mat4 modelInverseTranspose;
 uniform mat4 boneMatrices[ 128 ];
 uniform bool useSkinning;
@@ -45,7 +49,9 @@ void main()
         transformedTangent = vertTangent;
     }
 
+#ifdef FORWARD
     position = ( model * transformedPosition ).xyz;
+#endif
 
     normal = ( modelInverseTranspose * vec4( transformedNormal, 0.0 ) ).xyz;
     tangent = ( modelInverseTranspose * vec4( transformedTangent, 0.0 ) ).xyz;
