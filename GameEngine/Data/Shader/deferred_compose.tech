@@ -1,9 +1,9 @@
 {
     "vertexShader": "Shader/screen_space.vs",
-    "pixelShader": "Shader/deferred_compose.ps",
+    "pixelShader": "Shader/lighting.ps|DEFERRED",
     "parameters":
     [
-        "colorMap",
+        "diffuseMap",
         "normalMap",
         "depthMap",
         "inverseViewProjection",

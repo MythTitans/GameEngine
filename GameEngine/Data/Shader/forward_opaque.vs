@@ -5,7 +5,7 @@ layout (location = 3) in vec3 vertTangent;
 layout (location = 4) in uvec4 vertBones;
 layout (location = 5) in vec4 vertWeights;
 
-out vec2 texCoords;
+out vec2 texCoord;
 out vec3 position;
 out vec3 normal;
 out vec3 tangent;
@@ -19,7 +19,7 @@ uniform bool useSkinning;
 
 void main()
 {
-    texCoords = vertTexCoords;
+    texCoord = vertTexCoords;
 
     vec4 transformedPosition = vec4( 0.0, 0.0, 0.0, 0.0 );
     vec3 transformedNormal = vec3( 0.0, 0.0, 0.0 );

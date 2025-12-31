@@ -1,6 +1,6 @@
 {
     "vertexShader": "Shader/forward_opaque.vs",
-    "pixelShader": "Shader/forward_opaque.ps",
+    "pixelShader": "Shader/lighting.ps|FORWARD",
     "parameters": [
         "modelViewProjection",
         "model",

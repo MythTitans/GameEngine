@@ -311,8 +311,9 @@ void Renderer::OnLoaded()
 	m_oDebugRenderer.OnLoaded();
 
 	m_oDeferredComposeSheet.Init( m_xDeferredCompose->GetTechnique() );
+	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::VIEW_POSITION, "viewPosition" );
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::INVERSE_VIEW_PROJECTION, "inverseViewProjection" );
-	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::COLOR, "colorMap" );
+	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::DIFFUSE, "diffuseMap" );
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::NORMAL, "normalMap" );
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::DEPTH, "depthMap" );
 
@@ -659,12 +660,13 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	SetTechnique( oComposeTechnique );
 
 	SetTextureSlot( m_oDeferredTarget.GetColorMap( 0 ), 0 );
-	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::COLOR ).SetValue( 0 );
+	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::DIFFUSE ).SetValue( 0 );
 	SetTextureSlot( m_oDeferredTarget.GetColorMap( 1 ), 1 );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::NORMAL ).SetValue( 1 );
 	SetTextureSlot( m_oDeferredTarget.GetDepthMap(), 2 );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::DEPTH ).SetValue( 2 );
 
+	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::VIEW_POSITION ).SetValue( m_oCamera.GetPosition() );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::INVERSE_VIEW_PROJECTION ).SetValue( m_oCamera.GetInverseViewProjectionMatrix() );
 
 	SetupLighting( oComposeTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
