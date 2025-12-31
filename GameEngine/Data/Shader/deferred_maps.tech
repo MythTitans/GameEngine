@@ -4,8 +4,9 @@
     "parameters": [
         "modelViewProjection",
         "modelInverseTranspose",
-        "diffuseColor",
         "diffuseMap",
-        "normalMap"
+        "normalMap",
+        "specularMap",
+        "emissiveMap"
     ]
 }

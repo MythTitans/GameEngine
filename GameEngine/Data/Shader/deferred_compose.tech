@@ -5,6 +5,9 @@
     [
         "diffuseMap",
         "normalMap",
+        "specularMap",
+        "emissiveMap",
+        "viewPosition",
         "depthMap",
         "inverseViewProjection",
         "directionalLightCount",
