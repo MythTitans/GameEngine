@@ -34,10 +34,21 @@ void LitMaterialData::PrepareMaterial( Technique& oTechnique )
 
 void LitMaterialData::ApplyMaterial( Technique& oTechnique )
 {
-	s_oMaterialSheet.GetParameter( LitMaterialParam::DIFFUSE_COLOR ).SetValue( m_vDiffuseColor );
-	s_oMaterialSheet.GetParameter( LitMaterialParam::SPECULAR_COLOR ).SetValue( m_vSpecularColor );
-	s_oMaterialSheet.GetParameter( LitMaterialParam::EMISSIVE_COLOR ).SetValue( m_vEmissiveColor );
-	s_oMaterialSheet.GetParameter( LitMaterialParam::SHININESS ).SetValue( glm::max( m_fShininess, 1.0f ) );
+	TechniqueParameter& oDiffuseColor = s_oMaterialSheet.GetParameter( LitMaterialParam::DIFFUSE_COLOR );
+	if( oDiffuseColor.IsValid() )
+		oDiffuseColor.SetValue( m_vDiffuseColor );
+
+	TechniqueParameter& oSpecularColor = s_oMaterialSheet.GetParameter( LitMaterialParam::SPECULAR_COLOR );
+	if( oSpecularColor.IsValid() )
+		oSpecularColor.SetValue( m_vSpecularColor );
+
+	TechniqueParameter& oEmissiveColor = s_oMaterialSheet.GetParameter( LitMaterialParam::EMISSIVE_COLOR );
+	if( oEmissiveColor.IsValid() )
+		oEmissiveColor.SetValue( m_vEmissiveColor );
+
+	TechniqueParameter& oShininess = s_oMaterialSheet.GetParameter( LitMaterialParam::SHININESS );
+	if( oShininess.IsValid() )
+		oShininess.SetValue( glm::max( m_fShininess, 1.0f ) );
 
 	if( m_xDiffuseTextureResource != nullptr )
 		s_oMaterialSheet.GetParameter( LitMaterialParam::DIFFUSE_MAP ).SetValue( &m_xDiffuseTextureResource->GetTexture(), oTechnique );

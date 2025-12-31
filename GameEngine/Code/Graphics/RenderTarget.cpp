@@ -87,7 +87,7 @@ void RenderTarget::Create( const RenderTargetDesc& oDesc )
 	for( uint u = 0; u < aDrawBuffers.Count(); ++u )
 		aDrawBuffers[ u ] = GL_COLOR_ATTACHMENT0 + u;
 
-	glDrawBuffers( 2, aDrawBuffers.Data() );
+	glDrawBuffers( m_uColorMapCount, aDrawBuffers.Data() );
 
 	if( glCheckFramebufferStatus( GL_FRAMEBUFFER ) != GL_FRAMEBUFFER_COMPLETE )
 		LOG_ERROR( "Failed to initialize frame buffer" );

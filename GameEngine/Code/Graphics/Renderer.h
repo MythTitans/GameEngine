@@ -125,6 +125,8 @@ private:
 	{
 		DIFFUSE,
 		NORMAL,
+		SPECULAR,
+		EMISSIVE,
 		DEPTH,
 		VIEW_POSITION,
 		INVERSE_VIEW_PROJECTION,
@@ -160,7 +162,8 @@ private:
 	RenderTarget						m_oForwardMSAATarget;
 	RenderTarget						m_oForwardTarget;
 	RenderTarget						m_oPostProcessTarget;
-	RenderTarget						m_oDeferredTarget;
+	RenderTarget						m_oDeferredMapsTarget;
+	RenderTarget						m_oDeferredComposeTarget;
 
 	Mesh								m_oRenderMesh;
 

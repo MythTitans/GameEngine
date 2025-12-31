@@ -315,6 +315,8 @@ void Renderer::OnLoaded()
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::INVERSE_VIEW_PROJECTION, "inverseViewProjection" );
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::DIFFUSE, "diffuseMap" );
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::NORMAL, "normalMap" );
+	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::SPECULAR, "specularMap" );
+	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::EMISSIVE, "emissiveMap" );
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::DEPTH, "depthMap" );
 
 	m_oBlendSheet.Init( m_xBlend->GetTechnique() );
@@ -632,7 +634,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 
 void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 {
-	SetRenderTarget( m_oDeferredTarget );
+	SetRenderTarget( m_oDeferredMapsTarget );
 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
@@ -651,7 +653,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 		DrawMeshes( aTemporaryVisualNodes, oMapsTechnique );
 	}
 
-	ClearRenderTarget();
+	SetRenderTarget( m_oDeferredComposeTarget );
 
 	glClear( GL_COLOR_BUFFER_BIT );
 	glDisable( GL_DEPTH_TEST );
@@ -659,23 +661,31 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	Technique& oComposeTechnique = m_xDeferredCompose->GetTechnique();
 	SetTechnique( oComposeTechnique );
 
-	SetTextureSlot( m_oDeferredTarget.GetColorMap( 0 ), 0 );
+	SetTextureSlot( m_oDeferredMapsTarget.GetColorMap( 0 ), 0 );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::DIFFUSE ).SetValue( 0 );
-	SetTextureSlot( m_oDeferredTarget.GetColorMap( 1 ), 1 );
+	SetTextureSlot( m_oDeferredMapsTarget.GetColorMap( 1 ), 1 );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::NORMAL ).SetValue( 1 );
-	SetTextureSlot( m_oDeferredTarget.GetDepthMap(), 2 );
-	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::DEPTH ).SetValue( 2 );
+	SetTextureSlot( m_oDeferredMapsTarget.GetColorMap( 2 ), 2 );
+	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::SPECULAR ).SetValue( 2 );
+	SetTextureSlot( m_oDeferredMapsTarget.GetColorMap( 3 ), 3 );
+	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::EMISSIVE ).SetValue( 3 );
+	SetTextureSlot( m_oDeferredMapsTarget.GetDepthMap(), 4 );
+	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::DEPTH ).SetValue( 4 );
 
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::VIEW_POSITION ).SetValue( m_oCamera.GetPosition() );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::INVERSE_VIEW_PROJECTION ).SetValue( m_oCamera.GetInverseViewProjectionMatrix() );
 
 	SetupLighting( oComposeTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 
+	RenderQuad();
+
+	m_oBloom.Render( m_oDeferredComposeTarget, m_oPostProcessTarget, oRenderContext );
+
 	if( m_bSRGB )
 		glEnable( GL_FRAMEBUFFER_SRGB );
-	RenderQuad();
+	CopyRenderTargetColor( m_oPostProcessTarget, 0, m_oFramebuffer, 0 );
 	glDisable( GL_FRAMEBUFFER_SRGB );
-	CopyRenderTargetDepth( m_oDeferredTarget, m_oFramebuffer );
+	CopyRenderTargetDepth( m_oDeferredMapsTarget, m_oFramebuffer );
 
 	ClearTextureSlot( 0 );
 	ClearTechnique();
@@ -798,8 +808,11 @@ void Renderer::UpdateRenderPipeline( const RenderContext& oRenderContext )
 		m_oPostProcessTarget.Destroy();
 		m_oPostProcessTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB16 ).AddColor( TextureFormat::RGB16 ).Depth() );
 
-		m_oDeferredTarget.Destroy();
-		m_oDeferredTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB ).AddColor( TextureFormat::NORMAL ).Depth() );
+		m_oDeferredMapsTarget.Destroy();
+		m_oDeferredMapsTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB ).AddColor( TextureFormat::NORMAL ).AddColor( TextureFormat::RGB ).AddColor( TextureFormat::RGB ).Depth() );
+
+		m_oDeferredComposeTarget.Destroy();
+		m_oDeferredComposeTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB16 ).AddColor( TextureFormat::RGB16 ) );
 
 		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
 
