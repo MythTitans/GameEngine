@@ -9,6 +9,35 @@
 #include "Game/EntityHolder.h"
 #include "Game/Spline.h"
 
+template < typename T >
+void TypedSerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< T >& aProperties )
+{
+	aSerializedProperties.Reserve( aNames.Count() );
+
+	for( uint u = 0; u < aNames.Count(); ++u )
+	{
+		nlohmann::json oSerializedProperty;
+		oSerializedProperty[ aNames[ u ] ] = aProperties[ u ];
+		aSerializedProperties.PushBack( oSerializedProperty );
+	}
+}
+
+template < typename T >
+static void TypedDeserializeProperties( Array< T >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	aProperties.Resize( aNames.Count() );
+
+	for( uint u = 0; u < aNames.Count(); ++u )
+	{
+		for( const auto& it : oJsonContent.items() )
+		{
+			const nlohmann::json& oProperty = it.value();
+			if( oProperty.contains( aNames[ u ] ) )
+				aProperties[ u ] = oProperty[ aNames[ u ] ];
+		}
+	}
+}
+
 namespace glm
 {
 	void to_json( nlohmann::json& oJsonContent, const bvec3& vVector )
@@ -82,6 +111,14 @@ void from_json( const nlohmann::json& oJsonContent, EntityHolder& oEntityHolder 
 	oEntityHolder.SetEntity( oJsonContent[ "entityID" ] );
 }
 
+void SerializeComponent( nlohmann::json& oJsonContent, const std::string& sComponentName, const Array< nlohmann::json >& aSerializedProperties )
+{
+	if( aSerializedProperties.Empty() == false )
+		oJsonContent[ "properties" ] = aSerializedProperties;
+
+	oJsonContent[ "name" ] = sComponentName;
+}
+
 void to_json( nlohmann::json& oJsonContent, const Array< float >& aFloats )
 {
 	Array< nlohmann::json > aJsonVectors( aFloats.Count() );
@@ -131,4 +168,136 @@ void from_json( const nlohmann::json& oJsonContent, Spline& oSpline )
 
 	oSpline.RebuildDistances();
 	//oSpline.RebuildCurvatures();
+}
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< bool >& aProperties )
+{
+	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
+}
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< int >& aProperties )
+{
+	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
+}
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< uint >& aProperties )
+{
+	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
+}
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< float >& aProperties )
+{
+	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
+}
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< std::string >& aProperties )
+{
+	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
+}
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< glm::bvec3 >& aProperties )
+{
+	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
+}
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< glm::vec3 >& aProperties )
+{
+	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
+}
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< EntityHolder >& aProperties )
+{
+	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
+}
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< Array< glm::vec3 > >& aProperties )
+{
+	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
+}
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< Array< float > >& aProperties )
+{
+	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
+}
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< Spline >& aProperties )
+{
+	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
+}
+
+template <>
+void DeserializeProperties( Array< bool >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
+}
+
+template <>
+void DeserializeProperties( Array< int >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
+}
+
+template <>
+void DeserializeProperties( Array< uint >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
+}
+
+template <>
+void DeserializeProperties( Array< float >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
+}
+
+template <>
+void DeserializeProperties( Array< std::string >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
+}
+
+template <>
+void DeserializeProperties( Array< glm::bvec3 >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
+}
+
+template <>
+void DeserializeProperties( Array< glm::vec3 >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
+}
+
+template <>
+void DeserializeProperties( Array< EntityHolder >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
+}
+
+template <>
+void DeserializeProperties( Array< Array< float > >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
+}
+
+template <>
+void DeserializeProperties( Array< Array< glm::vec3 > >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
+}
+
+template <>
+void DeserializeProperties( Array< Spline >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
 }

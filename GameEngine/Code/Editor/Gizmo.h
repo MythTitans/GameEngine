@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 
+#include "Core/Intrusive.h"
 #include "Game/Component.h"
 
 enum class GizmoType : uint8
