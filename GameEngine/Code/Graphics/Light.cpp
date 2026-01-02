@@ -6,6 +6,7 @@
 #include "Core/Intrusive.h"
 #include "Game/Entity.h"
 #include "Game/ResourceLoader.h"
+#include "Graphics/MaterialManager.h"
 #include "Graphics/Mesh.h"
 #include "Graphics/Renderer.h"
 

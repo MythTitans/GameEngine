@@ -2,15 +2,6 @@
 
 #include "Graphics/Renderer.h"
 
-static const std::string PARAM_DIFFUSE_COLOR( "diffuseColor" );
-static const std::string PARAM_SPECULAR_COLOR( "specularColor" );
-static const std::string PARAM_EMISSIVE_COLOR( "emissiveColor" );
-static const std::string PARAM_SHININESS( "shininess" );
-static const std::string PARAM_DIFFUSE_MAP( "diffuseMap" );
-static const std::string PARAM_NORMAL_MAP( "normalMap" );
-static const std::string PARAM_SPECULAR_MAP( "specularMap" );
-static const std::string PARAM_EMISSIVE_MAP( "emissiveMap" );
-
 LitMaterialData::LitMaterialData()
 	: m_vDiffuseColor( 1.f, 1.f, 1.f )
 	, m_vSpecularColor( 1.f, 1.f, 1.f )

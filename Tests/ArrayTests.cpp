@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "CppUnitTest.h"
 
+#include <chrono>
+
 #include "Core/Array.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

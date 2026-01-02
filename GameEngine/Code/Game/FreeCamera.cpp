@@ -1,6 +1,7 @@
 #include "FreeCamera.h"
 
 #include <glm/gtc/constants.hpp>
+#include <format>
 
 #include "Graphics/DebugDisplay.h"
 #include "Graphics/Renderer.h"

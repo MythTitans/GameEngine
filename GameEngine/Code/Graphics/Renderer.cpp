@@ -12,7 +12,9 @@
 #include "Game/Entity.h"
 #include "Game/InputHandler.h"
 #include "Game/ResourceLoader.h"
+#include "Editor/Gizmo.h"
 #include "ImGui/imgui.h"
+#include "MaterialManager.h"
 #include "Math/GLMHelpers.h"
 
 static const std::string PARAM_MODEL_VIEW_PROJECTION( "modelViewProjection" );

@@ -4,8 +4,11 @@
 
 #include <GL/glew.h>
 
-#include "Editor/Gizmo.h"
+#include "Core/Array.h"
+#include "Core/Types.h"
 
+enum class GizmoType : uint8;
+enum class GizmoAxis : uint8;
 class RenderContext;
 
 class GizmoRenderer

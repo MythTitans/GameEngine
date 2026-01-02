@@ -2,6 +2,7 @@
 
 #include "Core/ArrayUtils.h"
 #include "Core/Logger.h"
+#include "Editor/Gizmo.h"
 #include "Entity.h"
 #include "GameEngine.h"
 

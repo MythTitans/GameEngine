@@ -1,5 +1,7 @@
 #pragma once
 
+#include <type_traits>
+
 #include "Common.h"
 #include "Types.h"
 

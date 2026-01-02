@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include "Core/Array.h"
+#include "Material.h"
 
 class Technique;
 
@@ -36,26 +37,6 @@ struct MaterialsHolder : MaterialsHolderBase
 	}
 
 	Array< MaterialData > m_aMaterialData;
-};
-
-// TODO #eric may be intrusive and stored in material manager for lifetime management
-class MaterialReference
-{
-public:
-	friend class MaterialManager;
-
-	MaterialReference();
-
-	template < typename MaterialData >
-	MaterialReference( const MaterialData& /*oMaterialData*/, const uint uMaterialID )
-		: m_oTypeIndex( typeid( MaterialData ) )
-		, m_iMaterialID( uMaterialID )
-	{
-	}
-
-private:
-	std::type_index m_oTypeIndex;
-	int				m_iMaterialID;
 };
 
 class MaterialManager

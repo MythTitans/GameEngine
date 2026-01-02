@@ -3,6 +3,7 @@
 #ifdef EDITOR
 
 #include <glm/glm.hpp>
+#include <format>
 #include <string>
 
 #include "ImGui/imgui.h"

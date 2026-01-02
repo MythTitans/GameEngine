@@ -2,6 +2,7 @@
 
 #ifdef EDITOR
 
+#include "Gizmo.h"
 #include "Graphics/Renderer.h"
 
 static constexpr uint CIRCLE_SEGMENT_COUNT = 32;

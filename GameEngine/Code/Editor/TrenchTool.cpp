@@ -4,6 +4,8 @@
 
 #include "Game/Entity.h"
 #include "Game/ResourceLoader.h"
+#include "Game/Road.h"
+#include "Game/Terrain.h"
 #include "Graphics/Renderer.h"
 #include "Math/GLMHelpers.h"
 
