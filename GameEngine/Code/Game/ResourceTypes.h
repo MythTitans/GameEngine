@@ -4,10 +4,11 @@
 #include "Core/Array.h"
 #include "Core/Intrusive.h"
 #include "Core/stb_truetype.h"
-#include "Graphics/Mesh.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Technique.h"
 #include "Graphics/Texture.h"
+
+class Mesh;
 
 class Resource : public Intrusive
 {

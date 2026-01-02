@@ -195,6 +195,9 @@
     <ClCompile Include="Code\Game\EntityHolder.cpp" />
     <ClCompile Include="Code\Game\GameWorld.cpp" />
     <ClCompile Include="Code\Game\ResourceTypes.cpp" />
+    <ClCompile Include="Code\Game\Road.cpp" />
+    <ClCompile Include="Code\Game\Skybox.cpp" />
+    <ClCompile Include="Code\Game\Terrain.cpp" />
     <ClCompile Include="Code\Graphics\Road.cpp" />
     <ClCompile Include="Code\Game\Spline.cpp" />
     <ClCompile Include="Code\Graphics\DebugDisplay.cpp" />
@@ -251,6 +254,7 @@
     <ClInclude Include="Code\Core\stb_truetype.h" />
     <ClInclude Include="Code\Core\StringUtils.h" />
     <ClInclude Include="Code\Core\TaskScheduler.h" />
+    <ClInclude Include="Code\Core\Time.h" />
     <ClInclude Include="Code\Core\Types.h" />
     <ClInclude Include="Code\Core\FileUtils.h" />
     <ClInclude Include="Code\Editor\Editor.h" />
@@ -267,6 +271,9 @@
     <ClInclude Include="Code\Game\EntityHolder.h" />
     <ClInclude Include="Code\Game\GameWorld.h" />
     <ClInclude Include="Code\Game\ResourceTypes.h" />
+    <ClInclude Include="Code\Game\Road.h" />
+    <ClInclude Include="Code\Game\Skybox.h" />
+    <ClInclude Include="Code\Game\Terrain.h" />
     <ClInclude Include="Code\Graphics\Road.h" />
     <ClInclude Include="Code\Game\Spline.h" />
     <ClInclude Include="Code\Graphics\DebugDisplay.h" />

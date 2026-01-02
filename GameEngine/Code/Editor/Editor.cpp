@@ -13,6 +13,7 @@
 #include "Game/GameEngine.h"
 #include "Game/InputHandler.h"
 #include "Game/Scene.h"
+#include "Gizmo.h"
 #include "Graphics/Renderer.h"
 
 static bool EditableVector3( const char* sName, glm::vec3& vVector )

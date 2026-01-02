@@ -1,5 +1,7 @@
 #include "ResourceTypes.h"
 
+#include "Graphics/Mesh.h"
+
 Resource::Resource()
 	: m_eStatus( Status::LOADING )
 {

@@ -5,6 +5,7 @@
 
 #include "Array.h"
 #include "ImGui/imgui.h"
+#include "Time.h"
 
 class ProfilerBlock
 {

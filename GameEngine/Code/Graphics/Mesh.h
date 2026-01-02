@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "Core/Array.h"
-#include "Graphics/MaterialManager.h"
+#include "Graphics/Material.h"
 
 struct VisualNode;
 

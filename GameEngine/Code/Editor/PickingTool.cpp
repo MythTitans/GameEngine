@@ -4,6 +4,7 @@
 
 #include "Game/Entity.h"
 #include "Game/ResourceLoader.h"
+#include "Gizmo.h"
 #include "Graphics/Renderer.h"
 #include "Math/GLMHelpers.h"
 

@@ -6,14 +6,14 @@
 
 #include "Game/Component.h"
 
-enum class GizmoType
+enum class GizmoType : uint8
 {
 	TRANSLATE,
 	ROTATE,
 	SCALE
 };
 
-enum class GizmoAxis
+enum class GizmoAxis : uint8
 {
 	X,
 	Y,
