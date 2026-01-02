@@ -1,6 +1,6 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
+#include <array>
 #include <typeindex>
 #include <unordered_map>
 
@@ -77,7 +77,7 @@ struct PropertiesHolderBase
 {
 	virtual ~PropertiesHolderBase();
 
-	virtual Array< nlohmann::json > Serialize( const void* pClass ) const = 0;
+	virtual void					Serialize( Array< nlohmann::json >& aSerializedProperties, const void* pClass ) const = 0;
 	virtual void					Deserialize( const nlohmann::json& oJsonContent, void* pClass ) = 0;
 #ifdef EDITOR
 	virtual Array< std::string >	DisplayInspector( void* pClass ) = 0;
@@ -90,35 +90,34 @@ struct PropertiesHolderBase
 template < typename PropertyType, typename PropertyClass >
 struct PropertiesHolder : PropertiesHolderBase
 {
-	Array< nlohmann::json > Serialize( const void* pClass ) const override
+	void Serialize( Array< nlohmann::json >& aSerializedProperties, const void* pClass ) const override
 	{
 		const PropertyClass* pTypedClass = static_cast< const PropertyClass* >( pClass );
 
-		Array< nlohmann::json > aSerializedProperties;
-		aSerializedProperties.Reserve( m_aNames.Count() );
-		for( uint u = 0; u < m_aNames.Count(); ++u )
-		{
-			nlohmann::json oSerializedProperty;
-			oSerializedProperty[ m_aNames[ u ] ] = pTypedClass->*m_aProperties[ u ];
-			aSerializedProperties.PushBack( oSerializedProperty );
-		}
+		// Set values from object into temporary
+		Array< PropertyType > aProperties( m_aNames.Count() );
+		for( uint u = 0; u < aProperties.Count(); ++u )
+			aProperties[ u ] = pTypedClass->*m_aProperties[ u ];
 
-		return aSerializedProperties;
+		// Serialize from temporary (because pointer-to-member cannot be passed directly as parameter, at least I don't know how)
+		SerializeProperties( aSerializedProperties, m_aNames, aProperties );
 	}
 
 	void Deserialize( const nlohmann::json& oJsonContent, void* pClass ) override
 	{
 		PropertyClass* pTypedClass = static_cast< PropertyClass* >( pClass );
 
-		for( uint u = 0; u < m_aNames.Count(); ++u )
-		{
-			for( const auto& it : oJsonContent.items() )
-			{
-				const nlohmann::json& oProperty = it.value();
-				if( oProperty.contains( m_aNames[ u ] ) )
-					pTypedClass->*m_aProperties[ u ] = oProperty[ m_aNames[ u ] ];
-			}
-		}
+		// Set default values from object into temporary
+		Array< PropertyType > aProperties( m_aNames.Count() );
+		for( uint u = 0; u < aProperties.Count(); ++u )
+			aProperties[ u ] = pTypedClass->*m_aProperties[ u ];
+
+		// Deserialize into temporary (because pointer-to-member cannot be passed directly as parameter, at least I don't know how)
+		DeserializeProperties( aProperties, m_aNames, oJsonContent );
+
+		// Apply loaded values from temporary into object
+		for( uint u = 0; u < aProperties.Count(); ++u )
+			pTypedClass->*m_aProperties[ u ] = aProperties[ u ];
 	}
 
 #ifdef EDITOR
@@ -167,7 +166,7 @@ public:
 	virtual void				NotifyAfterPhysicsOnComponents() = 0;
 	virtual void				UpdateComponents( const GameContext& oGameContext ) = 0;
 
-	virtual nlohmann::json		SerializeComponent( const Entity* pEntity ) const = 0;
+	virtual void				SerializeComponent( nlohmann::json& oJsonContent, Array< nlohmann::json >& aSerializedProperties, const Entity* pEntity ) const = 0;
 	virtual void				DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, const Entity* pEntity ) = 0;
 
 #ifdef EDITOR
@@ -365,14 +364,12 @@ public:
 		}
 	}
 
-	nlohmann::json SerializeComponent( const Entity* pEntity ) const override
+	void SerializeComponent( nlohmann::json& oJsonContent, Array< nlohmann::json >& aSerializedProperties, const Entity* pEntity ) const override
 	{
 		ProfilerBlock oBlock( GetComponentName().c_str() );
 
-		nlohmann::json oJsonContent;
-
 		if( ComponentManager::GetComponentsFactory().find( GetComponentName() ) == ComponentManager::GetComponentsFactory().end() )
-			return oJsonContent;
+			return;
 
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
@@ -382,30 +379,22 @@ public:
 			const ComponentType& oComponent = m_aComponents[ u ];
 			if( oComponent.m_pEntity == pEntity )
 			{
-				oJsonContent[ "name" ] = GetComponentName();
-
-				Array< nlohmann::json > aSerializedProperties;
 				for( const auto& it : s_mProperties )
-				{
-					const Array< nlohmann::json > aSerializedTypeProperties = it.second->Serialize( &oComponent );
-					for( const nlohmann::json& oSerializedTypeProperty : aSerializedTypeProperties )
-						aSerializedProperties.PushBack( oSerializedTypeProperty );
-				}
+					it.second->Serialize( aSerializedProperties, &oComponent );
 
-				if( aSerializedProperties.Empty() == false )
-					oJsonContent[ "properties" ] = aSerializedProperties;
+				::SerializeComponent( oJsonContent, GetComponentName(), aSerializedProperties );
 
-				return oJsonContent;
+				return;
 			}
 		}
-
-		return oJsonContent;
 	}
 
 	void DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, const Entity* pEntity ) override
 	{
 		if( sComponentName != GetComponentName() )
 			return;
+
+		ProfilerBlock oBlock( GetComponentName().c_str() );
 
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{

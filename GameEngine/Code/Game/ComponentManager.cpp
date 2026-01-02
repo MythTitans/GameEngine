@@ -1,5 +1,7 @@
 #include "ComponentManager.h"
 
+#include <nlohmann/json.hpp>
+
 PropertiesHolderBase::~PropertiesHolderBase()
 {
 }
@@ -116,7 +118,9 @@ Array< nlohmann::json > ComponentManager::SerializeComponents( const Entity* pEn
 	Array< nlohmann::json > aSerializedComponents;
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
 	{
-		const nlohmann::json oSerializedComponent = pHolder->SerializeComponent( pEntity );
+		nlohmann::json oSerializedComponent;
+		Array< nlohmann::json > aSerializedProperties;
+		pHolder->SerializeComponent( oSerializedComponent, aSerializedProperties, pEntity );
 		if( oSerializedComponent.is_null() == false )
 			aSerializedComponents.PushBack( oSerializedComponent );
 	}

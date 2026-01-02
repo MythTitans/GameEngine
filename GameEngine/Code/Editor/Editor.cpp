@@ -15,6 +15,7 @@
 #include "Game/Scene.h"
 #include "Gizmo.h"
 #include "Graphics/Renderer.h"
+#include "ImGui/imgui_stdlib.h"
 
 static bool EditableVector3( const char* sName, glm::vec3& vVector )
 {
