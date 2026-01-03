@@ -40,7 +40,11 @@ static void GetFormatDetails( const TextureFormat eFormat, const bool bSRGB, GLi
 		iInternalFormat = GL_DEPTH_COMPONENT24;
 		eType = GL_FLOAT;
 		break;
-	case TextureFormat::ID:
+	case TextureFormat::ID8:
+		iFormat = GL_RED_INTEGER;
+		iInternalFormat = GL_R8UI;
+		break;
+	case TextureFormat::ID64:
 		iFormat = GL_RGBA_INTEGER;
 		iInternalFormat = GL_RGBA16UI;
 		break;
@@ -65,7 +69,7 @@ constexpr uint GetFormatBytes( const TextureFormat eFormat )
 		return 3 * sizeof( uint16 );
 	case TextureFormat::DEPTH:
 		return 1 * sizeof( GLfloat );
-	case TextureFormat::ID:
+	case TextureFormat::ID64:
 		return 4 * sizeof( uint16 );
 	default:
 		ASSERT( false );

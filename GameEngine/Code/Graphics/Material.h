@@ -92,6 +92,7 @@ class MaterialReference
 {
 public:
 	friend class MaterialManager;
+	friend class Road; // TODO #eric temporary
 
 	MaterialReference();
 

@@ -2,6 +2,7 @@
 
 #include "Game/ResourceLoader.h"
 #include "Graphics/Renderer.h"
+#include "MaterialManager.h"
 #include "Math/GLMHelpers.h"
 
 Road::Road()
@@ -14,7 +15,7 @@ void Road::Render( const Array<RoadNode*>& aRoads, const RenderContext& oRenderC
 	Technique& oTechnique = m_xRoad->GetTechnique();
 	g_pRenderer->SetTechnique( oTechnique );
 
-	oTechnique.GetParameter( "materialID" ).SetValue( 0u );
+	oTechnique.GetParameter( "materialID" ).SetValue( MaterialManager::GetRoadMaterialID() );
 	oTechnique.GetParameter( "diffuseMap" ).SetValue( 0 );
 
 	for( const RoadNode* pRoad : aRoads )

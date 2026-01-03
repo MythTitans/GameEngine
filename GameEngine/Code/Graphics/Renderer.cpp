@@ -331,6 +331,7 @@ void Renderer::OnLoaded()
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::NORMAL, "normalMap" );
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::SPECULAR, "specularMap" );
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::EMISSIVE, "emissiveMap" );
+	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::MATERIAL_ID, "materialMap" );
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::DEPTH, "depthMap" );
 
 	m_oBlendSheet.Init( m_xBlend->GetTechnique() );
@@ -688,8 +689,10 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::SPECULAR ).SetValue( 2 );
 	SetTextureSlot( m_oDeferredMapsTarget.GetColorMap( 3 ), 3 );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::EMISSIVE ).SetValue( 3 );
-	SetTextureSlot( m_oDeferredMapsTarget.GetDepthMap(), 4 );
-	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::DEPTH ).SetValue( 4 );
+	SetTextureSlot( m_oDeferredMapsTarget.GetColorMap( 4 ), 4 );
+	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::MATERIAL_ID ).SetValue( 4 );
+	SetTextureSlot( m_oDeferredMapsTarget.GetDepthMap(), 5 );
+	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::DEPTH ).SetValue( 5 );
 
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::VIEW_POSITION ).SetValue( m_oCamera.GetPosition() );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::INVERSE_VIEW_PROJECTION ).SetValue( m_oCamera.GetInverseViewProjectionMatrix() );
@@ -819,19 +822,37 @@ void Renderer::UpdateRenderPipeline( const RenderContext& oRenderContext )
 		};
 
 		m_oForwardMSAATarget.Destroy();
-		m_oForwardMSAATarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB16 ).AddColor( TextureFormat::RGB16 ).Depth().Multisample( GetMSAALEvelSamples( m_eMSAALevel ) ) );
+		m_oForwardMSAATarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
+									 .AddColor( TextureFormat::RGB16 )
+									 .AddColor( TextureFormat::RGB16 )
+									 .Depth()
+									 .Multisample( GetMSAALEvelSamples( m_eMSAALevel ) ) );
 
 		m_oForwardTarget.Destroy();
-		m_oForwardTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB16 ).AddColor( TextureFormat::RGB16 ).Depth() );
+		m_oForwardTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
+								 .AddColor( TextureFormat::RGB16 )
+								 .AddColor( TextureFormat::RGB16 )
+								 .Depth() );
 
 		m_oPostProcessTarget.Destroy();
-		m_oPostProcessTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB16 ).AddColor( TextureFormat::RGB16 ).Depth() );
+		m_oPostProcessTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
+									 .AddColor( TextureFormat::RGB16 )
+									 .AddColor( TextureFormat::RGB16 )
+									 .Depth() );
 
 		m_oDeferredMapsTarget.Destroy();
-		m_oDeferredMapsTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB ).AddColor( TextureFormat::NORMAL ).AddColor( TextureFormat::RGB ).AddColor( TextureFormat::RGB ).Depth() );
+		m_oDeferredMapsTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
+									  .AddColor( TextureFormat::RGB )
+									  .AddColor( TextureFormat::NORMAL )
+									  .AddColor( TextureFormat::RGB )
+									  .AddColor( TextureFormat::RGB )
+									  .AddColor( TextureFormat::ID8 ) // TODO #eric switch to 16 bits at some point
+									  .Depth() );
 
 		m_oDeferredComposeTarget.Destroy();
-		m_oDeferredComposeTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight ).AddColor( TextureFormat::RGB16 ).AddColor( TextureFormat::RGB16 ) );
+		m_oDeferredComposeTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
+										 .AddColor( TextureFormat::RGB16 )
+										 .AddColor( TextureFormat::RGB16 ) );
 
 		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
 

@@ -38,7 +38,7 @@ uint64 PickingTool::Pick( const RenderContext& oRenderContext, const int iCursor
 	{
 		m_oPickingTarget.Destroy();
 
-		m_oPickingTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight, TextureFormat::ID ).Depth() );
+		m_oPickingTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight, TextureFormat::ID64 ).Depth() );
 
 		g_pRenderer->m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
 	}

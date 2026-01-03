@@ -109,6 +109,10 @@ public:
 	void PrepareMaterials( Technique& oTechnique );
 	void ApplyMaterial( const MaterialReference& oMaterialReference, Technique& oTechnique );
 
+	// TODO #eric those are temporary
+	static uint GetMeshMaterialID();
+	static uint GetRoadMaterialID();
+
 private:
 	std::unordered_map< std::type_index, MaterialsHolderBase* > m_mMaterialsHolders;
 };

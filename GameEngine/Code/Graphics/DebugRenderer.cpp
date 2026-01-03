@@ -6,6 +6,7 @@
 
 #include "Core/Array.h"
 #include "Game/ResourceLoader.h"
+#include "MaterialManager.h"
 #include "Math/GLMHelpers.h"
 #include "Renderer.h"
 
@@ -409,7 +410,8 @@ void DebugRenderer::RenderWireMeshes( const Array< WireMesh >& aMeshes, const Re
 	for( const WireMesh& oMesh : aMeshes )
 	{
 		m_oUnlitSheet.GetParameter( UnlitParam::MODEL_VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * ToMat4( oMesh.m_mMatrix ) );
-		m_oUnlitSheet.GetParameter( UnlitParam::DIFFUSE_COLOR ).SetValue( oMesh.m_vColor );
+		//m_oUnlitSheet.GetParameter( UnlitParam::DIFFUSE_COLOR ).SetValue( oMesh.m_vColor );
+		m_oUnlitSheet.GetParameter( UnlitParam::MATERIAL_ID ).SetValue( g_pMaterialManager->GetMeshMaterialID() );
 
 		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
@@ -445,7 +447,7 @@ void DebugRenderer::OnLoaded()
 	m_oUnlitSheet.Init( m_xUnlit->GetTechnique() );
 
 	m_oUnlitSheet.BindParameter( UnlitParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
-	m_oUnlitSheet.BindParameter( UnlitParam::DIFFUSE_COLOR, "diffuseColor" );
+	m_oUnlitSheet.BindParameter( UnlitParam::MATERIAL_ID, "materialID" );
 	m_oUnlitSheet.BindParameter( UnlitParam::DIFFUSE_MAP, "diffuseMap" );
 }
 
