@@ -119,7 +119,7 @@ private:
 	enum class UnlitParam : uint
 	{
 		MODEL_VIEW_PROJECTION,
-		DIFFUSE_COLOR,
+		MATERIAL_ID,
 		DIFFUSE_MAP,
 		_COUNT
 	};

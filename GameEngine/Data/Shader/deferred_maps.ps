@@ -7,7 +7,9 @@ layout(location = 0) out vec4 finalColor;
 layout(location = 1) out vec3 finalNormal;
 layout(location = 2) out vec3 finalSpecular;
 layout(location = 3) out vec3 finalEmissive;
+layout(location = 4) out uint finalMaterialID;
 
+uniform uint materialID;
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D specularMap;
@@ -28,4 +30,5 @@ void main()
     finalNormal = normalize( worldSpaceNormal ) * 0.5 + vec3( 0.5, 0.5, 0.5 );
     finalSpecular = vec3( texture( specularMap, texCoord ).r, 0.0, 0.0 );
     finalEmissive = texture( emissiveMap, texCoord ).rgb;
+    finalMaterialID = materialID;
 }

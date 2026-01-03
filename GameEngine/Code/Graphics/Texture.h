@@ -13,7 +13,8 @@ enum class TextureFormat : uint8
 	RGB16,
 	NORMAL,
 	DEPTH,
-	ID
+	ID8,
+	ID64
 };
 
 enum class TextureWrapping : uint8

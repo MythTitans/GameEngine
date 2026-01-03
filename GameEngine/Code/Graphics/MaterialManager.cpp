@@ -40,3 +40,27 @@ void MaterialManager::ApplyMaterial( const MaterialReference& oMaterialReference
 
 	it->second->ApplyMaterial( oMaterialReference.m_iMaterialID, oTechnique );
 }
+
+uint MaterialManager::GetMeshMaterialID()
+{
+	static MaterialReference oMaterialReference = []()
+	{
+		UnlitMaterialData oMaterialData;
+		oMaterialData.m_vDiffuseColor = glm::vec3( 1.f, 0.f, 0.f );
+		return g_pMaterialManager->CreateMaterial( oMaterialData );
+	}( );
+
+	return oMaterialReference.m_iMaterialID;
+}
+
+uint MaterialManager::GetRoadMaterialID()
+{
+	static MaterialReference oMaterialReference = []()
+	{
+		UnlitMaterialData oMaterialData;
+		oMaterialData.m_vDiffuseColor = glm::vec3( 1.f );
+		return g_pMaterialManager->CreateMaterial( oMaterialData );
+	}();
+
+	return oMaterialReference.m_iMaterialID;
+}
