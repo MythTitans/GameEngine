@@ -14,7 +14,7 @@ void Road::Render( const Array<RoadNode*>& aRoads, const RenderContext& oRenderC
 	Technique& oTechnique = m_xRoad->GetTechnique();
 	g_pRenderer->SetTechnique( oTechnique );
 
-	oTechnique.GetParameter( "diffuseColor" ).SetValue( glm::vec3( 1.f, 1.f, 1.f ) );
+	oTechnique.GetParameter( "materialID" ).SetValue( 0u );
 	oTechnique.GetParameter( "diffuseMap" ).SetValue( 0 );
 
 	for( const RoadNode* pRoad : aRoads )

@@ -27,7 +27,7 @@ struct MaterialsHolder : MaterialsHolderBase
 
 	void ApplyMaterial( const uint uMaterialID, Technique& oTechnique ) override
 	{
-		m_aMaterialData[ uMaterialID ].ApplyMaterial( oTechnique );
+		m_aMaterialData[ uMaterialID ].ApplyMaterial( uMaterialID, oTechnique );
 	}
 
 	static const MaterialData& GetDefaultMaterialData()

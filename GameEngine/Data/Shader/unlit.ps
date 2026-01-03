@@ -3,7 +3,26 @@ in vec2 texCoords;
 layout(location = 0) out vec4 finalColor;
 layout(location = 1) out vec4 finalEmissive;
 
-uniform vec3 diffuseColor;
+struct LitMaterialData
+{
+    vec3 diffuseColor;
+    vec3 specularColor;
+    vec3 emissiveColor;
+    float shininess;
+};
+
+struct UnlitMaterialData
+{
+    vec3 diffuseColor;
+};
+
+layout(std140, binding = 0) uniform MaterialDataBlock
+{
+    LitMaterialData litMaterialData[ 128 ];
+    UnlitMaterialData unlitMaterialData[ 128 ];
+};
+
+uniform uint materialID;
 uniform sampler2D diffuseMap;
 
 void main()
@@ -11,6 +30,8 @@ void main()
     vec4 diffuseTextureColor = texture( diffuseMap, texCoords );
     if( diffuseTextureColor.a < 0.001 )
         discard;
+
+    vec3 diffuseColor = unlitMaterialData[ materialID ].diffuseColor;
 
     vec3 color = clamp( diffuseColor * diffuseTextureColor.rgb, 0.0, 1.0 );
     finalColor = vec4( color, 1.0 );

@@ -36,16 +36,13 @@ struct LitMaterialData
 
 	static void PrepareMaterial( Technique& oTechnique );
 
-	void		ApplyMaterial( Technique& oTechnique );
+	void		ApplyMaterial( const uint uMaterialID, Technique& oTechnique );
 
 	void		ExportToGPU( GPULitMaterialData& oMaterialData ) const;
 
 	enum class LitMaterialParam
 	{
-		DIFFUSE_COLOR,
-		SPECULAR_COLOR,
-		EMISSIVE_COLOR,
-		SHININESS,
+		MATERIAL_ID,
 		DIFFUSE_MAP,
 		NORMAL_MAP,
 		SPECULAR_MAP,
@@ -72,13 +69,13 @@ struct UnlitMaterialData
 
 	static void PrepareMaterial( Technique& oTechnique );
 
-	void		ApplyMaterial( Technique& oTechnique );
+	void		ApplyMaterial( const uint uMaterialID, Technique& oTechnique );
 
 	void		ExportToGPU( GPUUnlitMaterialData& oMaterialData ) const;
 
 	enum class UnlitMaterialParam
 	{
-		DIFFUSE_COLOR,
+		MATERIAL_ID,
 		DIFFUSE_MAP,
 		_COUNT
 	};
