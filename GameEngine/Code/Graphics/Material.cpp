@@ -13,33 +13,21 @@ LitMaterialData::LitMaterialData()
 void LitMaterialData::PrepareMaterial( Technique& oTechnique )
 {
 	s_oMaterialSheet.Init( oTechnique );
-	s_oMaterialSheet.BindParameter( LitMaterialParam::DIFFUSE_COLOR, "diffuseColor" );
-	s_oMaterialSheet.BindParameter( LitMaterialParam::SPECULAR_COLOR, "specularColor" );
-	s_oMaterialSheet.BindParameter( LitMaterialParam::EMISSIVE_COLOR, "emissiveColor" );
-	s_oMaterialSheet.BindParameter( LitMaterialParam::SHININESS, "shininess" );
+	s_oMaterialSheet.BindParameter( LitMaterialParam::MATERIAL_ID, "materialID" );
 	s_oMaterialSheet.BindParameter( LitMaterialParam::DIFFUSE_MAP, "diffuseMap" );
 	s_oMaterialSheet.BindParameter( LitMaterialParam::NORMAL_MAP, "normalMap" );
 	s_oMaterialSheet.BindParameter( LitMaterialParam::SPECULAR_MAP, "specularMap" );
 	s_oMaterialSheet.BindParameter( LitMaterialParam::EMISSIVE_MAP, "emissiveMap" );
 }
 
-void LitMaterialData::ApplyMaterial( Technique& oTechnique )
+void LitMaterialData::ApplyMaterial( const uint uMaterialID, Technique& oTechnique )
 {
-	TechniqueParameter& oDiffuseColor = s_oMaterialSheet.GetParameter( LitMaterialParam::DIFFUSE_COLOR );
-	if( oDiffuseColor.IsValid() )
-		oDiffuseColor.SetValue( m_vDiffuseColor );
+	ASSERT( uMaterialID <= MAX_MATERIAL_COUNT );
 
-	TechniqueParameter& oSpecularColor = s_oMaterialSheet.GetParameter( LitMaterialParam::SPECULAR_COLOR );
-	if( oSpecularColor.IsValid() )
-		oSpecularColor.SetValue( m_vSpecularColor );
-
-	TechniqueParameter& oEmissiveColor = s_oMaterialSheet.GetParameter( LitMaterialParam::EMISSIVE_COLOR );
-	if( oEmissiveColor.IsValid() )
-		oEmissiveColor.SetValue( m_vEmissiveColor );
-
-	TechniqueParameter& oShininess = s_oMaterialSheet.GetParameter( LitMaterialParam::SHININESS );
-	if( oShininess.IsValid() )
-		oShininess.SetValue( glm::max( m_fShininess, 1.0f ) );
+	if( uMaterialID <= MAX_MATERIAL_COUNT )
+		s_oMaterialSheet.GetParameter( LitMaterialParam::MATERIAL_ID ).SetValue( uMaterialID );
+	else
+		s_oMaterialSheet.GetParameter( LitMaterialParam::MATERIAL_ID ).SetValue( 0u );
 
 	if( m_xDiffuseTextureResource != nullptr )
 		s_oMaterialSheet.GetParameter( LitMaterialParam::DIFFUSE_MAP ).SetValue( &m_xDiffuseTextureResource->GetTexture(), oTechnique );
@@ -80,15 +68,18 @@ UnlitMaterialData::UnlitMaterialData()
 void UnlitMaterialData::PrepareMaterial( Technique& oTechnique )
 {
 	s_oMaterialSheet.Init( oTechnique );
-	s_oMaterialSheet.BindParameter( UnlitMaterialParam::DIFFUSE_COLOR, "diffuseColor" );
+	s_oMaterialSheet.BindParameter( UnlitMaterialParam::MATERIAL_ID, "materialID" );
 	s_oMaterialSheet.BindParameter( UnlitMaterialParam::DIFFUSE_MAP, "diffuseMap" );
 }
 
-void UnlitMaterialData::ApplyMaterial( Technique& oTechnique )
+void UnlitMaterialData::ApplyMaterial( const uint uMaterialID, Technique& oTechnique )
 {
-	TechniqueParameter& oDiffuseColor = s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_COLOR );
-	if( oDiffuseColor.IsValid() )
-		oDiffuseColor.SetValue( m_vDiffuseColor );
+	ASSERT( uMaterialID <= MAX_MATERIAL_COUNT );
+
+	if( uMaterialID <= MAX_MATERIAL_COUNT )
+		s_oMaterialSheet.GetParameter( UnlitMaterialParam::MATERIAL_ID ).SetValue( uMaterialID );
+	else
+		s_oMaterialSheet.GetParameter( UnlitMaterialParam::MATERIAL_ID ).SetValue( 0u );
 	
 	if( m_xDiffuseTextureResource != nullptr )
 		s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_MAP ).SetValue( &m_xDiffuseTextureResource->GetTexture(), oTechnique );
