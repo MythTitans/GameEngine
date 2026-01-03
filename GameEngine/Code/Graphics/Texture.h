@@ -53,10 +53,6 @@ struct TextureDesc
 class Texture
 {
 public:
-	friend class Renderer;
-	friend class TextRenderer;
-	friend class RenderTarget;
-
 	Texture();
 
 	void			Create( const TextureDesc& oDesc );

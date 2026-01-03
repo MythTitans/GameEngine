@@ -12,7 +12,7 @@ void Shader::Create( const std::string& sShaderCode, const ShaderType eShaderTyp
 {
 	m_uShaderID = glCreateShader( GetGLShaderType( eShaderType ) );
 
-	const std::string sVersion = "#version 330 core\n";
+	const std::string sVersion = "#version 420 core\n";
 
 	std::string sFlags;
 	for( const std::string& sFlag : aFlags )

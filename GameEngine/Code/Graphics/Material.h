@@ -6,8 +6,29 @@
 #include "Game/ResourceTypes.h"
 #include "Graphics/Technique.h"
 
+inline constexpr uint MAX_MATERIAL_COUNT = 128;
+
 class Technique;
 class TextureResource;
+
+struct GPULitMaterialData
+{
+	alignas( 16 ) glm::vec3	m_vDiffuseColor;
+	alignas( 16 ) glm::vec3	m_vSpecularColor;
+	alignas( 16 ) glm::vec3	m_vEmissiveColor;
+	alignas( 4 ) float		m_fShininess;
+};
+
+struct GPUUnlitMaterialData
+{
+	alignas( 16 ) glm::vec3	m_vDiffuseColor;
+};
+
+struct GPUMaterialDataBlock
+{
+	GPULitMaterialData		m_aLitMaterialData[ MAX_MATERIAL_COUNT ];
+	GPUUnlitMaterialData	m_aUnlitMaterialData[ MAX_MATERIAL_COUNT ];
+};
 
 struct LitMaterialData
 {
@@ -16,6 +37,8 @@ struct LitMaterialData
 	static void PrepareMaterial( Technique& oTechnique );
 
 	void		ApplyMaterial( Technique& oTechnique );
+
+	void		ExportToGPU( GPULitMaterialData& oMaterialData ) const;
 
 	enum class LitMaterialParam
 	{
@@ -50,6 +73,8 @@ struct UnlitMaterialData
 	static void PrepareMaterial( Technique& oTechnique );
 
 	void		ApplyMaterial( Technique& oTechnique );
+
+	void		ExportToGPU( GPUUnlitMaterialData& oMaterialData ) const;
 
 	enum class UnlitMaterialParam
 	{

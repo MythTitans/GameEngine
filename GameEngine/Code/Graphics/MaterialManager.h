@@ -84,6 +84,22 @@ public:
 		return pMaterialsHolder->m_aMaterialData[ oMaterialReference.m_iMaterialID ];
 	}
 
+	template < typename MaterialData, typename GPUMaterialData >
+	void ExportMaterialsToGPU( GPUMaterialData* pGPUMaterials )
+	{
+		auto it = m_mMaterialsHolders.find( typeid( MaterialData ) );
+		if( it == m_mMaterialsHolders.end() || it->second == nullptr )
+			return;
+
+		MaterialsHolder< MaterialData >* pMaterialsHolder = static_cast< MaterialsHolder< MaterialData >* >( it->second );
+
+		ASSERT( pMaterialsHolder->m_aMaterialData.Count() <= MAX_MATERIAL_COUNT );
+		const uint uMaterialCount = glm::min( pMaterialsHolder->m_aMaterialData.Count(), MAX_MATERIAL_COUNT );
+
+		for( uint u = 0; u < uMaterialCount; ++u )
+			pMaterialsHolder->m_aMaterialData[ u ].ExportToGPU( pGPUMaterials[ u ] );
+	}
+
 	template < typename MaterialData >
 	bool IsMaterialType( const MaterialReference& oMaterialReference )
 	{
