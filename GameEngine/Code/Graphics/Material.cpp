@@ -62,6 +62,14 @@ void LitMaterialData::ApplyMaterial( Technique& oTechnique )
 		s_oMaterialSheet.GetParameter( LitMaterialParam::EMISSIVE_MAP ).SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
 }
 
+void LitMaterialData::ExportToGPU( GPULitMaterialData& oMaterialData ) const
+{
+	oMaterialData.m_vDiffuseColor = m_vDiffuseColor;
+	oMaterialData.m_vSpecularColor = m_vSpecularColor;
+	oMaterialData.m_vEmissiveColor = m_vEmissiveColor;
+	oMaterialData.m_fShininess = m_fShininess;
+}
+
 PARAM_SHEET( LitMaterialData::LitMaterialParam ) LitMaterialData::s_oMaterialSheet;
 
 UnlitMaterialData::UnlitMaterialData()
@@ -86,6 +94,11 @@ void UnlitMaterialData::ApplyMaterial( Technique& oTechnique )
 		s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_MAP ).SetValue( &m_xDiffuseTextureResource->GetTexture(), oTechnique );
 	else
 		s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_MAP ).SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
+}
+
+void UnlitMaterialData::ExportToGPU( GPUUnlitMaterialData& oMaterialData ) const
+{
+	oMaterialData.m_vDiffuseColor = m_vDiffuseColor;
 }
 
 PARAM_SHEET( UnlitMaterialData::UnlitMaterialParam ) UnlitMaterialData::s_oMaterialSheet;

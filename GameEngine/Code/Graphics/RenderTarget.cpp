@@ -70,17 +70,17 @@ void RenderTarget::Create( const RenderTargetDesc& oDesc )
 	for( uint u = 0; u < oDesc.m_aColorFormats.Count(); ++u )
 	{
 		if( oDesc.m_iSamples > 1 )
-			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + u, GL_TEXTURE_2D_MULTISAMPLE, m_aTextures[ u ].m_uTextureID, 0 );
+			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + u, GL_TEXTURE_2D_MULTISAMPLE, m_aTextures[ u ].GetID(), 0 );
 		else
-			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + u, GL_TEXTURE_2D, m_aTextures[ u ].m_uTextureID, 0 );
+			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + u, GL_TEXTURE_2D, m_aTextures[ u ].GetID(), 0 );
 	}
 
 	if( m_bDepthMap )
 	{
 		if( oDesc.m_iSamples > 1 )
-			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_aTextures[ m_uColorMapCount ].m_uTextureID, 0 );
+			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_aTextures[ m_uColorMapCount ].GetID(), 0 );
 		else
-			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_aTextures[ m_uColorMapCount ].m_uTextureID, 0 );
+			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_aTextures[ m_uColorMapCount ].GetID(), 0 );
 	}
 
 	Array< GLuint > aDrawBuffers( m_uColorMapCount );

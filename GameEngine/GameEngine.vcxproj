@@ -209,6 +209,7 @@
     <ClCompile Include="Code\Graphics\Material.cpp" />
     <ClCompile Include="Code\Graphics\MaterialManager.cpp" />
     <ClCompile Include="Code\Game\ResourceLoader.cpp" />
+    <ClCompile Include="Code\Graphics\ShaderBuffer.cpp" />
     <ClCompile Include="Code\Graphics\Skybox.cpp" />
     <ClCompile Include="Code\Graphics\Terrain.cpp" />
     <ClCompile Include="Code\Physics\Rigidbody.cpp" />
@@ -275,6 +276,7 @@
     <ClInclude Include="Code\Game\Road.h" />
     <ClInclude Include="Code\Game\Skybox.h" />
     <ClInclude Include="Code\Game\Terrain.h" />
+    <ClInclude Include="Code\Graphics\ShaderBuffer.h" />
     <ClInclude Include="Code\Graphics\Road.h" />
     <ClInclude Include="Code\Game\Spline.h" />
     <ClInclude Include="Code\Graphics\DebugDisplay.h" />

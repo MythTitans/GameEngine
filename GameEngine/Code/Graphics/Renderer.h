@@ -7,6 +7,7 @@
 #include "Editor/GizmoRenderer.h"
 #include "RenderTarget.h"
 #include "Road.h"
+#include "ShaderBuffer.h"
 #include "Skybox.h"
 #include "Terrain.h"
 #include "TextRenderer.h"
@@ -72,6 +73,7 @@ public:
 	void			ClearTextureSlot( const uint uTextureUnit );
 	void			SetCubeMapSlot( const CubeMap& oCubeMap, const uint uTextureUnit );
 	void			ClearCubeMapSlot( const uint uTextureUnit );
+	void			SetShaderBufferSlot( const ShaderBufferBase& oBuffer, const uint uBinding );
 	void			SetRenderTarget( const RenderTarget& oRenderTarget );
 	void			ClearRenderTarget();
 	void			DrawMesh( const Mesh& oMesh );
@@ -158,40 +160,42 @@ private:
 		_COUNT
 	};
 
-	RenderTarget						m_oFramebuffer;
-	RenderTarget						m_oForwardMSAATarget;
-	RenderTarget						m_oForwardTarget;
-	RenderTarget						m_oPostProcessTarget;
-	RenderTarget						m_oDeferredMapsTarget;
-	RenderTarget						m_oDeferredComposeTarget;
+	RenderTarget							m_oFramebuffer;
+	RenderTarget							m_oForwardMSAATarget;
+	RenderTarget							m_oForwardTarget;
+	RenderTarget							m_oPostProcessTarget;
+	RenderTarget							m_oDeferredMapsTarget;
+	RenderTarget							m_oDeferredComposeTarget;
 
-	Mesh								m_oRenderMesh;
+	Mesh									m_oRenderMesh;
 
-	TextureResPtr						m_xDefaultDiffuseMap;
-	TextureResPtr						m_xDefaultNormalMap;
+	ShaderBuffer< GPUMaterialDataBlock >	m_oMaterialBuffer;
 
-	TechniqueResPtr						m_xDeferredMaps;
-	TechniqueResPtr						m_xDeferredCompose;
-	PARAM_SHEET( DeferredComposeParam )	m_oDeferredComposeSheet;
-	TechniqueResPtr						m_xBlend;
-	PARAM_SHEET( BlendParam )			m_oBlendSheet;
-	TechniqueResPtr						m_xOutline;
-	PARAM_SHEET( OutlineParam )			m_oOutlineSheet;
-	TechniqueResPtr						m_xGizmo;
-	PARAM_SHEET( GizmoParam )			m_oGizmoSheet;
+	TextureResPtr							m_xDefaultDiffuseMap;
+	TextureResPtr							m_xDefaultNormalMap;
 
-	Skybox								m_oSkybox;
-	Terrain								m_oTerrain;
-	Road								m_oRoad;
-	Bloom								m_oBloom;
+	TechniqueResPtr							m_xDeferredMaps;
+	TechniqueResPtr							m_xDeferredCompose;
+	PARAM_SHEET( DeferredComposeParam )		m_oDeferredComposeSheet;
+	TechniqueResPtr							m_xBlend;
+	PARAM_SHEET( BlendParam )				m_oBlendSheet;
+	TechniqueResPtr							m_xOutline;
+	PARAM_SHEET( OutlineParam )				m_oOutlineSheet;
+	TechniqueResPtr							m_xGizmo;
+	PARAM_SHEET( GizmoParam )				m_oGizmoSheet;
 
-	RenderingMode						m_eRenderingMode;
-	MSAALevel							m_eMSAALevel;
-	bool								m_bSRGB;
+	Skybox									m_oSkybox;
+	Terrain									m_oTerrain;
+	Road									m_oRoad;
+	Bloom									m_oBloom;
 
-	bool								m_bUpdateRenderPipeline;
+	RenderingMode							m_eRenderingMode;
+	MSAALevel								m_eMSAALevel;
+	bool									m_bSRGB;
 
-	bool								m_bDisplayDebug;
+	bool									m_bUpdateRenderPipeline;
+
+	bool									m_bDisplayDebug;
 };
 
 extern Renderer* g_pRenderer;

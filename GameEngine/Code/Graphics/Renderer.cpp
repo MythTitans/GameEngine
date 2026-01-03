@@ -264,6 +264,8 @@ Renderer::Renderer()
 
 	m_oRenderMesh = MeshBuilder( std::move( aVertices ), std::move( aIndices ) ).WithUVs( std::move( aUVs ) ).Build();
 
+	m_oMaterialBuffer.Create( ShaderBufferDesc().Dynamic() );
+
 	m_oFramebuffer.m_uFrameBufferID = 0;
 
 	g_pRenderer = this;
@@ -284,6 +286,13 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 
 	UpdateRenderPipeline( oRenderContext );
+
+	GPUMaterialDataBlock oMaterialDataBlock;
+	g_pMaterialManager->ExportMaterialsToGPU< LitMaterialData >( oMaterialDataBlock.m_aLitMaterialData );
+	g_pMaterialManager->ExportMaterialsToGPU< UnlitMaterialData >( oMaterialDataBlock.m_aUnlitMaterialData );
+
+	m_oMaterialBuffer.Update( oMaterialDataBlock );
+	SetShaderBufferSlot( m_oMaterialBuffer, 0 );
 
 	switch( m_eRenderingMode )
 	{
@@ -445,7 +454,7 @@ void Renderer::ClearTechnique()
 void Renderer::SetTextureSlot( const Texture& oTexture, const uint uTextureUnit )
 {
 	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
-	glBindTexture( GL_TEXTURE_2D, oTexture.m_uTextureID );
+	glBindTexture( GL_TEXTURE_2D, oTexture.GetID() );
 }
 
 void Renderer::ClearTextureSlot( const uint uTextureUnit )
@@ -464,6 +473,11 @@ void Renderer::ClearCubeMapSlot( const uint uTextureUnit )
 {
 	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
 	glBindTexture( GL_TEXTURE_CUBE_MAP, 0 );
+}
+
+void Renderer::SetShaderBufferSlot( const ShaderBufferBase& oBuffer, const uint uBinding )
+{
+	glBindBufferBase( GL_UNIFORM_BUFFER, uBinding, oBuffer.GetID() );
 }
 
 void Renderer::SetRenderTarget( const RenderTarget& oRenderTarget )
@@ -516,9 +530,9 @@ void Renderer::CopyRenderTarget( const RenderTarget& oSource, const RenderTarget
 
 	for( uint u = 0; u < uTextureCount; ++u )
 	{
-		ASSERT( oSource.m_aTextures[ u ].m_iWidth == oDestination.m_aTextures[ u ].m_iWidth );
-		ASSERT( oSource.m_aTextures[ u ].m_iHeight == oDestination.m_aTextures[ u ].m_iHeight );
-		ASSERT( oSource.m_aTextures[ u ].m_eFormat == oDestination.m_aTextures[ u ].m_eFormat );
+		ASSERT( oSource.m_aTextures[ u ].GetWidth() == oDestination.m_aTextures[ u ].GetWidth() );
+		ASSERT( oSource.m_aTextures[ u ].GetHeight() == oDestination.m_aTextures[ u ].GetHeight() );
+		ASSERT( oSource.m_aTextures[ u ].GetFormat() == oDestination.m_aTextures[u].GetFormat());
 
 		glReadBuffer( GL_COLOR_ATTACHMENT0 + u );
 		glDrawBuffer( GL_COLOR_ATTACHMENT0 + u );
@@ -528,7 +542,7 @@ void Renderer::CopyRenderTarget( const RenderTarget& oSource, const RenderTarget
 
 	if( oSource.m_bDepthMap )
 	{
-		ASSERT( oSource.m_aTextures.Back().m_eFormat == oDestination.m_aTextures.Back().m_eFormat );
+		ASSERT( oSource.m_aTextures.Back().GetFormat() == oDestination.m_aTextures.Back().GetFormat() );
 
 		glReadBuffer( GL_DEPTH_ATTACHMENT );
 		glDrawBuffer( GL_DEPTH_ATTACHMENT );

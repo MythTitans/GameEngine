@@ -64,7 +64,7 @@ void TextRenderer::RenderText( const Array< Text >& aTexts, const RenderContext&
 	glUseProgram( oTechnique.m_uProgramID );
 
 	glActiveTexture( GL_TEXTURE0 );
-	glBindTexture( GL_TEXTURE_2D, m_xFont->GetAtlas().m_uTextureID );
+	glBindTexture( GL_TEXTURE_2D, m_xFont->GetAtlas().GetID() );
 
  	for( const Text& oText : aTexts )
  		DrawText( oText, oRenderContext );

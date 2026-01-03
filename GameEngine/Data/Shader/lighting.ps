@@ -14,6 +14,25 @@ in vec3 bitangent;
 layout(location = 0) out vec4 finalColor;
 layout(location = 1) out vec4 finalEmissive;
 
+struct LitMaterialData
+{
+    vec3 diffuseColor;
+    vec3 specularColor;
+    vec3 emissiveColor;
+    float shininess;
+};
+
+struct UnlitMaterialData
+{
+    vec3 diffuseColor;
+};
+
+layout(std140, binding = 0) uniform MaterialDataBlock
+{
+    LitMaterialData litMaterialData[ 128 ];
+    UnlitMaterialData unlitMaterialData[ 128 ];
+};
+
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D specularMap;
