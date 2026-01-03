@@ -4,9 +4,9 @@
 #include "ComponentManager.h"
 #include "Core/MemoryTracker.h"
 #include "Core/Profiler.h"
-#include "Core/Time.h"
 #include "Core/Types.h"
 #include "Editor/Editor.h"
+#include "GameContext.h"
 #include "GameWorld.h"
 #include "Graphics/DebugDisplay.h"
 #include "Graphics/MaterialManager.h"
@@ -16,21 +16,6 @@
 #include "ResourceLoader.h"
 
 class Renderer;
-
-struct GameContext
-{
-	GameContext();
-
-	GameTimePoint	m_oFrameStart;
-	uint64			m_uFrameIndex;
-
-	float			m_fLastDeltaTime;
-	float			m_fLastRealDeltaTime;
-
-	uint			m_uLastTicks;
-
-	bool			m_bEditing;
-};
 
 class GameEngine
 {

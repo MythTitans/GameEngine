@@ -1,5 +1,8 @@
 #include "ResourceLoader.h"
 
+#define NOMINMAX
+#include <Windows.h>
+
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -528,7 +531,7 @@ void ResourceLoader::TextureLoadCommand::Load( std::unique_lock< std::mutex >& o
 	int iWidth;
 	int iHeight;
 	int iDepth;
-	uint8* pData = m_bUse16Bits ? ( uint8* )stbi_load_16( GetFilePath().string().c_str(), &iWidth, &iHeight, &iDepth, 0 ) : stbi_load( GetFilePath().string().c_str(), &iWidth, &iHeight, &iDepth, 0 );
+	uint8* pData = m_bUse16Bits ? ( uint8* )stbi_load_16( GetFilePath().c_str(), &iWidth, &iHeight, &iDepth, 0 ) : stbi_load( GetFilePath().c_str(), &iWidth, &iHeight, &iDepth, 0 );
 
 	oLock.lock();
 	m_eStatus = pData != nullptr ? LoadCommandStatus::LOADED : LoadCommandStatus::ERROR_READING;
@@ -583,7 +586,7 @@ void ResourceLoader::ModelLoadCommand::Load( std::unique_lock< std::mutex >& oLo
 {
 	aiScene* pSceneData = nullptr;
 
-	const aiScene* pScene = g_pResourceLoader->m_oModelImporter.ReadFile( GetFilePath().string(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace );
+	const aiScene* pScene = g_pResourceLoader->m_oModelImporter.ReadFile( GetFilePath(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices | aiProcess_CalcTangentSpace );
 	if( pScene != nullptr )
 		pSceneData = g_pResourceLoader->m_oModelImporter.GetOrphanedScene();
 
@@ -921,7 +924,7 @@ TextureResPtr ResourceLoader::ModelLoadCommand::LoadTexture( const std::string& 
 		std::string sInternalFileName = sFileName;
 		const uint64 uOffset = sFileName.find( ".fbm/" );
 		if( uOffset != std::string::npos )
-			Replace( sInternalFileName, sInternalFileName.substr( 0, uOffset + 5 ), GetFilePath().string() + "@" );
+			Replace( sInternalFileName, sInternalFileName.substr( 0, uOffset + 5 ), GetFilePath() + "@" );
 
 		return g_pResourceLoader->LoadTexture( sInternalFileName.c_str(), ( uint8* )pTexture->pcData, pTexture->mWidth, bSRGB );
 	}
@@ -1040,7 +1043,7 @@ void ResourceLoader::TechniqueLoadCommand::Load( std::unique_lock< std::mutex >&
 	}
 	catch( const std::exception& oException )
 	{
-		LOG_ERROR( "{} : {}", GetFilePath().string(), oException.what() );
+		LOG_ERROR( "{} : {}", GetFilePath(), oException.what() );
 		bSuccess = false;
 	}
 

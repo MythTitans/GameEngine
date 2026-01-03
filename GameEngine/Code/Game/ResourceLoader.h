@@ -1,7 +1,7 @@
 #pragma once
 
 #include <condition_variable>
-#include <filesystem>
+#include <format>
 #include <mutex>
 #include <thread>
 #include <unordered_map>
@@ -77,9 +77,9 @@ private:
 		{
 		}
 
-		std::filesystem::path GetFilePath() const
+		std::string GetFilePath() const
 		{
-			return std::filesystem::path( std::format( "Data/{}", m_sFilePath ) );
+			return std::format( "Data/{}", m_sFilePath );
 		}
 
 		bool HasDependencies() const

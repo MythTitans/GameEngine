@@ -1,7 +1,8 @@
 #include "Animator.h"
 
+#include "GameContext.h"
 #include "Entity.h"
-#include "GameEngine.h"
+#include "Graphics/Renderer.h"
 #include "Graphics/Visual.h"
 #include "Math/GLMHelpers.h"
 

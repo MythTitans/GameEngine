@@ -1,11 +1,8 @@
 #pragma once
 
-#define NOMINMAX
-#include <Windows.h>
+#include "Core/Types.h"
 
-inline HHOOK g_hAssertHook;
-
-LRESULT CALLBACK AssertHook( INT iCode, WPARAM wParam, LPARAM lParam );
+int AssertHook( int iCode, uint* wParam, uint* lParam );
 
 bool DisplayAssert( const wchar_t* sExpression, const wchar_t* sFile, const wchar_t* sFunction, int iLine );
 

@@ -4,6 +4,11 @@
 #include <format>
 #include <xstring>
 
+#define NOMINMAX
+#include <Windows.h>
+
+inline HHOOK g_hAssertHook;
+
 LRESULT CALLBACK AssertHook( INT iCode, WPARAM wParam, LPARAM lParam )
 {
 	SetDlgItemTextA( ( HWND )wParam, IDCANCEL, "Ignore" );
