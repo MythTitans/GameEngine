@@ -2,6 +2,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include "Core/Profiler.h"
+
 PropertiesHolderBase::~PropertiesHolderBase()
 {
 }
@@ -33,19 +35,29 @@ ComponentManager::~ComponentManager()
 void ComponentManager::InitializeComponents()
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->InitializeComponents();
+	}
 }
 
 void ComponentManager::InitializeComponents( Entity* pEntity )
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->InitializeComponent( pEntity );
+	}
 }
 
 bool ComponentManager::AreComponentsInitialized() const
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
 	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		if( pHolder->AreComponentsInitialized() == false )
 			return false;
 	}
@@ -56,61 +68,101 @@ bool ComponentManager::AreComponentsInitialized() const
 void ComponentManager::StartPendingComponents()
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->StartPendingComponents();
+	}
 }
 
 void ComponentManager::StartComponents()
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->StartComponents();
+	}
 }
 
 void ComponentManager::StartComponents( Entity* pEntity )
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->StartComponent( pEntity );
+	}
 }
 
 void ComponentManager::StopComponents()
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->StopComponents();
+	}
 }
 
 void ComponentManager::StopComponents( Entity* pEntity )
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->StopComponent( pEntity );
+	}
 }
 
 void ComponentManager::DisposeComponents( Entity* pEntity )
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->DisposeComponent( pEntity );
+	}
 }
 
 void ComponentManager::TickComponents()
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->TickComponents();
+	}
 }
 
 void ComponentManager::NotifyBeforePhysicsOnComponents()
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->NotifyBeforePhysicsOnComponents();
+	}
 }
 
 void ComponentManager::NotifyAfterPhysicsOnComponents()
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->NotifyAfterPhysicsOnComponents();
+	}
 }
 
 void ComponentManager::UpdateComponents( const GameContext& oGameContext )
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->UpdateComponents( oGameContext );
+	}
 }
 
 Array< nlohmann::json > ComponentManager::SerializeComponents( const Entity* pEntity )
@@ -118,6 +170,8 @@ Array< nlohmann::json > ComponentManager::SerializeComponents( const Entity* pEn
 	Array< nlohmann::json > aSerializedComponents;
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
 	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		nlohmann::json oSerializedComponent;
 		Array< nlohmann::json > aSerializedProperties;
 		pHolder->SerializeComponent( oSerializedComponent, aSerializedProperties, pEntity );
@@ -131,7 +185,11 @@ Array< nlohmann::json > ComponentManager::SerializeComponents( const Entity* pEn
 void ComponentManager::DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, Entity* pEntity )
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->DeserializeComponent( sComponentName, oJsonContent, pEntity );
+	}
 }
 
 #ifdef EDITOR
@@ -142,6 +200,8 @@ bool ComponentManager::DisplayInspector( Entity* pEntity )
 	int iImGuiID = 0;
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
 	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		ImGui::PushID( iImGuiID++ );
 		bModified |= pHolder->DisplayInspector( pEntity );
 		ImGui::PopID();
@@ -154,5 +214,9 @@ bool ComponentManager::DisplayInspector( Entity* pEntity )
 void ComponentManager::DisplayGizmos( const uint64 uSelectedEntityID )
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
 		pHolder->DisplayGizmos( uSelectedEntityID );
+	}
 }

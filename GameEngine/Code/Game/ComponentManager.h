@@ -6,9 +6,9 @@
 
 #include "Core/ArrayUtils.h"
 #include "Core/MemoryTracker.h"
-#include "Core/Profiler.h"
 #include "Core/Serialization.h"
 #include "Editor/Inspector.h"
+#include "ImGui/imgui.h"
 
 #define REGISTER_COMPONENT( COMPONENT, ... )							\
 static bool b##COMPONENT##Registered = []() {							\
@@ -201,16 +201,12 @@ public:
 
 	void InitializeComponents() override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 			InitializeComponentFromIndex( u );
 	}
 
 	void InitializeComponent( Entity* pEntity, const bool bThenStart /*= false*/ ) override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			if( m_aComponents[ u ].m_pEntity == pEntity )
@@ -224,8 +220,6 @@ public:
 
 	bool AreComponentsInitialized() const override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			if( m_aStates[ u ] == ComponentState::DISPOSED )
@@ -240,8 +234,6 @@ public:
 
 	void StartPendingComponents() override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( int u = ( int )m_aPendingComponents.Count() - 1; u >= 0; --u )
 		{
 			const uint uIndex = m_aPendingComponents[ u ];
@@ -262,8 +254,6 @@ public:
 
 	void StartComponents() override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			StartComponentFromIndex( u );
@@ -272,8 +262,6 @@ public:
 
 	void StartComponent( Entity* pEntity ) override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			if( m_aComponents[ u ].m_pEntity == pEntity )
@@ -286,8 +274,6 @@ public:
 
 	void StopComponents() override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			StopComponentFromIndex( u );
@@ -296,8 +282,6 @@ public:
 
 	void StopComponent( Entity* pEntity ) override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			if( m_aComponents[ u ].m_pEntity == pEntity )
@@ -310,8 +294,6 @@ public:
 
 	void TickComponents() override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			if( m_aStates[ u ] == ComponentState::DISPOSED )
@@ -324,8 +306,6 @@ public:
 
 	void NotifyBeforePhysicsOnComponents() override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			if( m_aStates[ u ] == ComponentState::DISPOSED )
@@ -338,8 +318,6 @@ public:
 
 	void NotifyAfterPhysicsOnComponents() override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			if( m_aStates[ u ] == ComponentState::DISPOSED )
@@ -352,8 +330,6 @@ public:
 
 	void UpdateComponents( const GameContext& oGameContext ) override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			if( m_aStates[ u ] == ComponentState::DISPOSED )
@@ -366,8 +342,6 @@ public:
 
 	void SerializeComponent( nlohmann::json& oJsonContent, Array< nlohmann::json >& aSerializedProperties, const Entity* pEntity ) const override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		if( ComponentManager::GetComponentsFactory().find( GetComponentName() ) == ComponentManager::GetComponentsFactory().end() )
 			return;
 
@@ -394,8 +368,6 @@ public:
 		if( sComponentName != GetComponentName() )
 			return;
 
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			if( m_aStates[ u ] == ComponentState::DISPOSED )
@@ -415,8 +387,6 @@ public:
 #ifdef EDITOR
 	bool DisplayInspector( const Entity* pEntity ) override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		if( ComponentManager::GetComponentsFactory().find( GetComponentName() ) == ComponentManager::GetComponentsFactory().end() )
 			return false;
 
@@ -465,8 +435,6 @@ public:
 
 	void DisplayGizmos( const uint64 uSelectedEntityID ) override
 	{
-		ProfilerBlock oBlock( GetComponentName().c_str() );
-
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
 			if( m_aStates[ u ] == ComponentState::DISPOSED )
