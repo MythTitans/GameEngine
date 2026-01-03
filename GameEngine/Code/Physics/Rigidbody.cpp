@@ -6,7 +6,8 @@
 
 #include "Game/ComponentManager.h"
 #include "Game/Entity.h"
-#include "Game/GameEngine.h"
+#include "Game/GameContext.h"
+#include "Graphics/DebugDisplay.h"
 #include "Physics/Physics.h"
 
 using namespace physx;

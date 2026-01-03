@@ -1,6 +1,8 @@
 #include "CameraManager.h"
 
-#include "GameEngine.h"
+#include "Core/Profiler.h"
+#include "GameContext.h"
+#include "Graphics/Renderer.h"
 
 CameraManager* g_pCameraManager = nullptr;
 

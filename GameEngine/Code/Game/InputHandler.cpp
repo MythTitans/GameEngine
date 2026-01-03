@@ -1,6 +1,6 @@
 #include "InputHandler.h"
 
-#include "GameEngine.h"
+#include "Core/Profiler.h"
 
 InputContext::KeyStatus::KeyStatus()
 	: m_bPressed( false )

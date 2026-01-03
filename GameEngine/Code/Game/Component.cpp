@@ -1,6 +1,5 @@
 #include "Component.h"
 
-#include "GameEngine.h"
 #include "Entity.h"
 
 Component::Component( Entity* pEntity )

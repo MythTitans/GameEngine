@@ -1,7 +1,9 @@
 #include "Skybox.h"
 
-#include "Game/GameEngine.h"
+#include "Game/GameContext.h"
 #include "Game/Entity.h"
+#include "Game/ResourceLoader.h"
+#include "Graphics/Renderer.h"
 #include "Math/GLMHelpers.h"
 
 REGISTER_COMPONENT( SkyboxComponent );

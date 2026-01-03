@@ -1,7 +1,10 @@
 #include "GameWorld.h"
 
+#include "Core/Profiler.h"
 #include "Entity.h"
-#include "GameEngine.h"
+#include "GameContext.h"
+#include "ResourceLoader.h"
+#include "Physics/Physics.h"
 
 GameWorld* g_pGameWorld = nullptr;
 

@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 #include "Entity.h"
-#include "GameEngine.h"
+#include "CameraManager.h"
 #include "Graphics/Camera.h"
 
 CameraComponentBase::CameraComponentBase( Entity* pEntity )

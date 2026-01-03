@@ -1,10 +1,11 @@
 #include "Scene.h"
 
+#include <nlohmann/json.hpp>
+
 #include "Core/ArrayUtils.h"
 #include "Core/Logger.h"
 #include "Editor/Gizmo.h"
 #include "Entity.h"
-#include "GameEngine.h"
 
 Scene::Scene()
 	: m_uNextInternalID( 0 )

@@ -269,6 +269,7 @@
     <ClInclude Include="Code\Game\Component.h" />
     <ClInclude Include="Code\Game\ComponentManager.h" />
     <ClInclude Include="Code\Game\EntityHolder.h" />
+    <ClInclude Include="Code\Game\GameContext.h" />
     <ClInclude Include="Code\Game\GameWorld.h" />
     <ClInclude Include="Code\Game\ResourceTypes.h" />
     <ClInclude Include="Code\Game\Road.h" />

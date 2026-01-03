@@ -2,7 +2,8 @@
 
 #include "Editor/Inspector.h"
 #include "Game/Entity.h"
-#include "Game/GameEngine.h"
+#include "Game/GameContext.h"
+#include "Graphics/MaterialManager.h"
 #include "Graphics/Renderer.h"
 #include "Physics/Rigidbody.h"
 
