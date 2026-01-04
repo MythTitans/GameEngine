@@ -184,6 +184,8 @@
     <ClCompile Include="Code\Editor\Editor.cpp" />
     <ClCompile Include="Code\Editor\Gizmo.cpp" />
     <ClCompile Include="Code\Editor\Inspector.cpp" />
+    <ClCompile Include="Code\Editor\PickingTool.cpp" />
+    <ClCompile Include="Code\Editor\TrenchTool.cpp" />
     <ClCompile Include="Code\Game\Animation.cpp" />
     <ClCompile Include="Code\Game\Animator.cpp" />
     <ClCompile Include="Code\Game\Camera.cpp" />
@@ -192,6 +194,8 @@
     <ClCompile Include="Code\Game\ComponentManager.cpp" />
     <ClCompile Include="Code\Game\EntityHolder.cpp" />
     <ClCompile Include="Code\Game\GameWorld.cpp" />
+    <ClCompile Include="Code\Game\ResourceTypes.cpp" />
+    <ClCompile Include="Code\Graphics\Road.cpp" />
     <ClCompile Include="Code\Game\Spline.cpp" />
     <ClCompile Include="Code\Graphics\DebugDisplay.cpp" />
     <ClCompile Include="Code\Game\Entity.cpp" />
@@ -252,6 +256,8 @@
     <ClInclude Include="Code\Editor\Editor.h" />
     <ClInclude Include="Code\Editor\Gizmo.h" />
     <ClInclude Include="Code\Editor\Inspector.h" />
+    <ClInclude Include="Code\Editor\PickingTool.h" />
+    <ClInclude Include="Code\Editor\TrenchTool.h" />
     <ClInclude Include="Code\Game\Animation.h" />
     <ClInclude Include="Code\Game\Animator.h" />
     <ClInclude Include="Code\Game\Camera.h" />
@@ -260,6 +266,8 @@
     <ClInclude Include="Code\Game\ComponentManager.h" />
     <ClInclude Include="Code\Game\EntityHolder.h" />
     <ClInclude Include="Code\Game\GameWorld.h" />
+    <ClInclude Include="Code\Game\ResourceTypes.h" />
+    <ClInclude Include="Code\Graphics\Road.h" />
     <ClInclude Include="Code\Game\Spline.h" />
     <ClInclude Include="Code\Graphics\DebugDisplay.h" />
     <ClInclude Include="Code\Game\Entity.h" />

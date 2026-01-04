@@ -118,7 +118,7 @@ void MemoryTracker::Display()
 			for( const Intrusive* pIntrusive : m_lIntrusives )
 			{
 				IntrusiveMemory& oObjectMemory = mObjects[ typeid( *pIntrusive ) ];
-				oObjectMemory.m_uBytes += sizeof( *pIntrusive );
+				oObjectMemory.m_uBytes += pIntrusive->GetSize();
 				oObjectMemory.m_uCount += 1;
 			}
 

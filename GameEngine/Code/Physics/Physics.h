@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/fwd.hpp>
+
 #include "PxPhysicsAPI.h"
 
 class Physics
@@ -16,6 +18,8 @@ public:
 	~Physics();
 
 	void Tick();
+
+	bool Raycast( const glm::vec3& vOrigin, const glm::vec3& vDirection, const float fDistance, glm::vec3& vPosition );
 
 	static constexpr float TICK_STEP = 1.f / 60.f;
 

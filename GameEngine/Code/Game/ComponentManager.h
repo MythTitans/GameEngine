@@ -9,7 +9,6 @@
 #include "Core/Profiler.h"
 #include "Core/Serialization.h"
 #include "Editor/Inspector.h"
-#include "Scene.h"
 
 #define REGISTER_COMPONENT( COMPONENT, ... )							\
 static bool b##COMPONENT##Registered = []() {							\
@@ -951,6 +950,12 @@ public:
 			return -1;
 
 		return pComponentsHolder->GetComponentIndexFromEntity( pEntity );
+	}
+
+	template < typename ComponentType >
+	void GetComponents( Array< ComponentType* >& aComponents )
+	{
+		aComponents = GetComponents<ComponentType>();
 	}
 
 	void					InitializeComponents();

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Game/ResourceLoader.h"
+#include "Game/ResourceTypes.h"
+#include "Technique.h"
 #include "RenderTarget.h"
 
 class RenderContext;

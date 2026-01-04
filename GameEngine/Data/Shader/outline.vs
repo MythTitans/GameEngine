@@ -5,6 +5,7 @@ layout (location = 2) in vec3 vertNormal;
 layout (location = 4) in uvec4 vertBones;
 layout (location = 5) in vec4 vertWeights;
 
+uniform mat4 model;
 uniform mat4 modelViewProjection;
 uniform vec3 cameraPosition;
 uniform float displacement;
@@ -23,6 +24,6 @@ void main()
 
     transformedNormal = normalize( transformedNormal );
 
-    float factor = length( transformedPosition.xyz - cameraPosition );
+    float factor = length( (model * transformedPosition).xyz - cameraPosition );
     gl_Position = modelViewProjection * vec4( transformedPosition.xyz + factor * displacement * normalize( transformedNormal ), 1.0 );
 }

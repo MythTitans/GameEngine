@@ -3,479 +3,6 @@
         {
             "components": [
                 {
-                    "name": "TerrainChunkComponent",
-                    "properties": [
-                        {
-                            "Width resolution": 256
-                        },
-                        {
-                            "Height resolution": 256
-                        },
-                        {
-                            "Has collisions": false
-                        },
-                        {
-                            "Chunk index": 26
-                        }
-                    ]
-                }
-            ],
-            "id": 2096554,
-            "name": "Chunk_2_3",
-            "parentId": 2096551,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "TerrainChunkComponent",
-                    "properties": [
-                        {
-                            "Width resolution": 16
-                        },
-                        {
-                            "Height resolution": 16
-                        },
-                        {
-                            "Has collisions": false
-                        },
-                        {
-                            "Chunk index": 16
-                        }
-                    ]
-                }
-            ],
-            "id": 2096543,
-            "name": "Chunk_0_2",
-            "parentId": 2096542,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096144,
-            "name": "Sphere1",
-            "parentId": 2096140,
-            "position": {
-                "x": 1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096287,
-            "name": "Sphere3",
-            "parentId": 2096285,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096166,
-            "name": "Sphere2",
-            "parentId": 2096165,
-            "position": {
-                "x": -1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "TerrainChunkComponent",
-                    "properties": [
-                        {
-                            "Width resolution": 16
-                        },
-                        {
-                            "Height resolution": 16
-                        },
-                        {
-                            "Has collisions": false
-                        },
-                        {
-                            "Chunk index": 29
-                        }
-                    ]
-                }
-            ],
-            "id": 2096557,
-            "name": "Chunk_5_3",
-            "parentId": 2096551,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
-                        },
-                        {
-                            "Lock axis": {
-                                "x": false,
-                                "y": false,
-                                "z": false
-                            }
-                        },
-                        {
-                            "Lock rotation": {
-                                "x": false,
-                                "y": false,
-                                "z": false
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
-                        }
-                    ]
-                },
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096245,
-            "name": "Sphere_Duplicate_Duplicate",
-            "position": {
-                "x": 2.974593162536621,
-                "y": 7.300000190734863,
-                "z": 8.773884773254395
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "TerrainChunkComponent",
-                    "properties": [
-                        {
-                            "Width resolution": 16
-                        },
-                        {
-                            "Height resolution": 16
-                        },
-                        {
-                            "Has collisions": false
-                        },
-                        {
-                            "Chunk index": 21
-                        }
-                    ]
-                }
-            ],
-            "id": 2096548,
-            "name": "Chunk_5_2",
-            "parentId": 2096542,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096234,
-            "name": "Sphere1",
-            "parentId": 2096230,
-            "position": {
-                "x": 1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096249,
-            "name": "Sphere1",
-            "parentId": 2096245,
-            "position": {
-                "x": 1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "SkyboxComponent",
-                    "properties": [
-                        {
-                            "Left": "Skybox/xpos.png"
-                        },
-                        {
-                            "Right": "Skybox/xneg.png"
-                        },
-                        {
-                            "Top": "Skybox/ypos.png"
-                        },
-                        {
-                            "Bottom": "Skybox/yneg.png"
-                        },
-                        {
-                            "Front": "Skybox/zpos.png"
-                        },
-                        {
-                            "Back": "Skybox/zneg.png"
-                        },
-                        {
-                            "Active": false
-                        }
-                    ]
-                }
-            ],
-            "id": 2096320,
-            "name": "NewEntity",
-            "parentId": 2096133,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "SpotLightComponent",
-                    "properties": [
-                        {
-                            "Color": {
-                                "x": 1.0,
-                                "y": 1.0,
-                                "z": 1.0
-                            }
-                        },
-                        {
-                            "Intensity": 1.0
-                        },
-                        {
-                            "InnerAngle": 30.0
-                        },
-                        {
-                            "OuterAngle": 60.0
-                        },
-                        {
-                            "FalloffMinDistance": 1.0
-                        },
-                        {
-                            "FalloffMaxDistance": 10.0
-                        }
-                    ]
-                }
-            ],
-            "id": 2096132,
-            "name": "Light 4",
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 0.7071114778518677,
-                "x": 0.7071020007133484,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
                     "name": "PointLightComponent",
                     "properties": [
                         {
@@ -745,6 +272,250 @@
         {
             "components": [
                 {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 1024
+                        },
+                        {
+                            "Height resolution": 1024
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 26
+                        }
+                    ]
+                }
+            ],
+            "id": 2096554,
+            "name": "Chunk_2_3",
+            "parentId": 2096551,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096177,
+            "name": "Sphere3",
+            "parentId": 2096175,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 16
+                        }
+                    ]
+                }
+            ],
+            "id": 2096543,
+            "name": "Chunk_0_2",
+            "parentId": 2096542,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096144,
+            "name": "Sphere1",
+            "parentId": 2096140,
+            "position": {
+                "x": 1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096287,
+            "name": "Sphere3",
+            "parentId": 2096285,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096166,
+            "name": "Sphere2",
+            "parentId": 2096165,
+            "position": {
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 29
+                        }
+                    ]
+                }
+            ],
+            "id": 2096557,
+            "name": "Chunk_5_3",
+            "parentId": 2096551,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "RigidbodyComponent",
                     "properties": [
                         {
@@ -800,6 +571,137 @@
                 "x": 1.0,
                 "y": 1.0,
                 "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        },
+                        {
+                            "Lock axis": {
+                                "x": false,
+                                "y": false,
+                                "z": false
+                            }
+                        },
+                        {
+                            "Lock rotation": {
+                                "x": false,
+                                "y": false,
+                                "z": false
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096245,
+            "name": "Sphere_Duplicate_Duplicate",
+            "position": {
+                "x": 2.974593162536621,
+                "y": 7.300000190734863,
+                "z": 8.773884773254395
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 21
+                        }
+                    ]
+                }
+            ],
+            "id": 2096548,
+            "name": "Chunk_5_2",
+            "parentId": 2096542,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096234,
+            "name": "Sphere1",
+            "parentId": 2096230,
+            "position": {
+                "x": 1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
             }
         },
         {
@@ -905,6 +807,37 @@
         {
             "components": [
                 {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096249,
+            "name": "Sphere1",
+            "parentId": 2096245,
+            "position": {
+                "x": 1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "RigidbodyComponent",
                     "properties": [
                         {
@@ -953,6 +886,104 @@
             "rotation": {
                 "w": 1.0,
                 "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "SkyboxComponent",
+                    "properties": [
+                        {
+                            "Left": "Skybox/xpos.png"
+                        },
+                        {
+                            "Right": "Skybox/xneg.png"
+                        },
+                        {
+                            "Top": "Skybox/ypos.png"
+                        },
+                        {
+                            "Bottom": "Skybox/yneg.png"
+                        },
+                        {
+                            "Front": "Skybox/zpos.png"
+                        },
+                        {
+                            "Back": "Skybox/zneg.png"
+                        },
+                        {
+                            "Active": false
+                        }
+                    ]
+                }
+            ],
+            "id": 2096320,
+            "name": "NewEntity",
+            "parentId": 2096133,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "SpotLightComponent",
+                    "properties": [
+                        {
+                            "Color": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                            }
+                        },
+                        {
+                            "Intensity": 1.0
+                        },
+                        {
+                            "InnerAngle": 30.0
+                        },
+                        {
+                            "OuterAngle": 60.0
+                        },
+                        {
+                            "FalloffMinDistance": 1.0
+                        },
+                        {
+                            "FalloffMaxDistance": 10.0
+                        }
+                    ]
+                }
+            ],
+            "id": 2096132,
+            "name": "Light 4",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 0.7071142196655273,
+                "x": 0.7070992588996887,
                 "y": 0.0,
                 "z": 0.0
             },
@@ -1575,37 +1606,6 @@
                 "x": 1.0,
                 "y": 1.0,
                 "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096177,
-            "name": "Sphere3",
-            "parentId": 2096175,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
             }
         },
         {
@@ -2623,8 +2623,8 @@
                 "z": 0.0
             },
             "rotation": {
-                "w": 0.7071114778518677,
-                "x": 0.7071020007133484,
+                "w": 0.7071142196655273,
+                "x": 0.7070992588996887,
                 "y": 0.0,
                 "z": 0.0
             },
@@ -4787,70 +4787,170 @@
                     "name": "SplineComponent",
                     "properties": [
                         {
-                            "Control points": [
-                                {
-                                    "x": -127.2852783203125,
-                                    "y": 7.62939453125e-06,
-                                    "z": 17.240814208984375
-                                },
-                                {
-                                    "x": -150.93701171875,
-                                    "y": 0.0,
-                                    "z": 19.33270263671875
-                                },
-                                {
-                                    "x": -171.9676513671875,
-                                    "y": -3.0517578125e-05,
-                                    "z": 21.96697998046875
-                                },
-                                {
-                                    "x": -194.1370849609375,
-                                    "y": 0.0,
-                                    "z": 24.493988037109375
-                                },
-                                {
-                                    "x": -218.404052734375,
-                                    "y": 0.6784553527832031,
-                                    "z": 26.27435302734375
-                                },
-                                {
-                                    "x": -242.8824462890625,
-                                    "y": 0.8293952941894531,
-                                    "z": 25.6910400390625
-                                },
-                                {
-                                    "x": -270.6849365234375,
-                                    "y": 1.63916015625,
-                                    "z": 19.33074951171875
-                                },
-                                {
-                                    "x": -294.1416015625,
-                                    "y": 1.8418922424316406,
-                                    "z": 2.4720458984375
-                                },
-                                {
-                                    "x": -312.654296875,
-                                    "y": 2.170473098754883,
-                                    "z": -19.493896484375
-                                },
-                                {
-                                    "x": -323.65673828125,
-                                    "y": 2.6177215576171875,
-                                    "z": -44.581817626953125
-                                },
-                                {
-                                    "x": -328.9189453125,
-                                    "y": 4.245002746582031,
-                                    "z": -80.633544921875
-                                },
-                                {
-                                    "x": -327.43505859375,
-                                    "y": 7.64486026763916,
-                                    "z": -103.10714721679688
-                                }
-                            ]
+                            "Spline": {
+                                "controlPoints": [
+                                    {
+                                        "x": -85.8521728515625,
+                                        "y": 1.52587890625e-05,
+                                        "z": 12.498016357421875
+                                    },
+                                    {
+                                        "x": -150.93701171875,
+                                        "y": 0.0,
+                                        "z": 19.33270263671875
+                                    },
+                                    {
+                                        "x": -171.9676513671875,
+                                        "y": -3.0517578125e-05,
+                                        "z": 21.96697998046875
+                                    },
+                                    {
+                                        "x": -194.1370849609375,
+                                        "y": 0.0,
+                                        "z": 24.493988037109375
+                                    },
+                                    {
+                                        "x": -218.404052734375,
+                                        "y": 0.6784553527832031,
+                                        "z": 26.27435302734375
+                                    },
+                                    {
+                                        "x": -242.8824462890625,
+                                        "y": 0.8293952941894531,
+                                        "z": 25.6910400390625
+                                    },
+                                    {
+                                        "x": -270.6849365234375,
+                                        "y": 1.63916015625,
+                                        "z": 19.33074951171875
+                                    },
+                                    {
+                                        "x": -294.1416015625,
+                                        "y": 1.8418922424316406,
+                                        "z": 2.4720458984375
+                                    },
+                                    {
+                                        "x": -312.654296875,
+                                        "y": 2.170473098754883,
+                                        "z": -19.493896484375
+                                    },
+                                    {
+                                        "x": -323.65673828125,
+                                        "y": 2.6177215576171875,
+                                        "z": -44.581817626953125
+                                    },
+                                    {
+                                        "x": -328.9189453125,
+                                        "y": 4.245002746582031,
+                                        "z": -80.633544921875
+                                    },
+                                    {
+                                        "x": -329.0565185546875,
+                                        "y": 6.127308368682861,
+                                        "z": -97.02459716796875
+                                    },
+                                    {
+                                        "x": -327.79443359375,
+                                        "y": 7.452906608581543,
+                                        "z": -103.60195922851563
+                                    },
+                                    {
+                                        "x": -322.3406982421875,
+                                        "y": 7.9857378005981445,
+                                        "z": -106.70309448242188
+                                    },
+                                    {
+                                        "x": -309.4166259765625,
+                                        "y": 9.094388008117676,
+                                        "z": -106.42581176757813
+                                    }
+                                ],
+                                "tangents": [
+                                    {
+                                        "x": -65.0848388671875,
+                                        "y": -1.52587890625e-05,
+                                        "z": 6.834686279296875
+                                    },
+                                    {
+                                        "x": -43.0577392578125,
+                                        "y": -2.288818359375e-05,
+                                        "z": 4.7344818115234375
+                                    },
+                                    {
+                                        "x": -21.60003662109375,
+                                        "y": 0.0,
+                                        "z": 2.5806427001953125
+                                    },
+                                    {
+                                        "x": -23.21820068359375,
+                                        "y": 0.33924293518066406,
+                                        "z": 2.1536865234375
+                                    },
+                                    {
+                                        "x": -24.3726806640625,
+                                        "y": 0.41469764709472656,
+                                        "z": 0.5985260009765625
+                                    },
+                                    {
+                                        "x": -26.14044189453125,
+                                        "y": 0.48035240173339844,
+                                        "z": -3.4718017578125
+                                    },
+                                    {
+                                        "x": -25.62957763671875,
+                                        "y": 0.5062484741210938,
+                                        "z": -11.6094970703125
+                                    },
+                                    {
+                                        "x": -20.98468017578125,
+                                        "y": 0.2656564712524414,
+                                        "z": -19.412322998046875
+                                    },
+                                    {
+                                        "x": -14.757568359375,
+                                        "y": 0.38791465759277344,
+                                        "z": -23.526931762695313
+                                    },
+                                    {
+                                        "x": -8.13232421875,
+                                        "y": 1.0372648239135742,
+                                        "z": -30.56982421875
+                                    },
+                                    {
+                                        "x": -2.69989013671875,
+                                        "y": 1.754793405532837,
+                                        "z": -26.221389770507813
+                                    },
+                                    {
+                                        "x": 0.562255859375,
+                                        "y": 1.6039519309997559,
+                                        "z": -11.484207153320313
+                                    },
+                                    {
+                                        "x": 3.35791015625,
+                                        "y": 0.9292147159576416,
+                                        "z": -4.8392486572265625
+                                    },
+                                    {
+                                        "x": 9.18890380859375,
+                                        "y": 0.8207406997680664,
+                                        "z": -1.41192626953125
+                                    },
+                                    {
+                                        "x": 12.924072265625,
+                                        "y": 1.1086502075195313,
+                                        "z": 0.27728271484375
+                                    }
+                                ]
+                            }
                         }
                     ]
+                },
+                {
+                    "name": "RoadComponent"
+                },
+                {
+                    "name": "RoadTrenchComponent"
                 }
             ],
             "id": 2096599,
@@ -5183,50 +5283,100 @@
                     "name": "SplineComponent",
                     "properties": [
                         {
-                            "Control points": [
-                                {
-                                    "x": -2.1950130462646484,
-                                    "y": -0.00023603439331054688,
-                                    "z": -5.988618850708008
-                                },
-                                {
-                                    "x": 0.024637222290039063,
-                                    "y": -9.5367431640625e-07,
-                                    "z": -4.0823516845703125
-                                },
-                                {
-                                    "x": 0.04338645935058594,
-                                    "y": 1.0618290901184082,
-                                    "z": -1.6014013290405273
-                                },
-                                {
-                                    "x": -2.507997512817383,
-                                    "y": 1.1831097602844238,
-                                    "z": -0.23032569885253906
-                                },
-                                {
-                                    "x": -13.357295036315918,
-                                    "y": 2.384185791015625e-06,
-                                    "z": 0.061981201171875
-                                },
-                                {
-                                    "x": -12.362090110778809,
-                                    "y": -4.76837158203125e-06,
-                                    "z": -2.991795539855957
-                                },
-                                {
-                                    "x": -9.804964065551758,
-                                    "y": 2.86102294921875e-06,
-                                    "z": -4.408081531524658
-                                },
-                                {
-                                    "x": -6.213227272033691,
-                                    "y": 4.76837158203125e-07,
-                                    "z": -5.668048858642578
-                                }
-                            ]
+                            "Spline": {
+                                "controlPoints": [
+                                    {
+                                        "x": -2.3429794311523438,
+                                        "y": -0.00023603439331054688,
+                                        "z": -5.78516960144043
+                                    },
+                                    {
+                                        "x": 2.3663158416748047,
+                                        "y": 2.86102294921875e-06,
+                                        "z": -5.298871994018555
+                                    },
+                                    {
+                                        "x": 1.3012027740478516,
+                                        "y": 1.3713936805725098,
+                                        "z": -2.4309911727905273
+                                    },
+                                    {
+                                        "x": -2.507997512817383,
+                                        "y": 1.1831097602844238,
+                                        "z": -0.23032569885253906
+                                    },
+                                    {
+                                        "x": -7.784294128417969,
+                                        "y": -0.00024175643920898438,
+                                        "z": 0.019762039184570313
+                                    },
+                                    {
+                                        "x": -12.362090110778809,
+                                        "y": -4.76837158203125e-06,
+                                        "z": -2.991795539855957
+                                    },
+                                    {
+                                        "x": -9.804964065551758,
+                                        "y": 2.86102294921875e-06,
+                                        "z": -4.408081531524658
+                                    },
+                                    {
+                                        "x": -6.213227272033691,
+                                        "y": 4.76837158203125e-07,
+                                        "z": -5.668048858642578
+                                    }
+                                ],
+                                "tangents": [
+                                    {
+                                        "x": 4.709295272827148,
+                                        "y": 0.00023889541625976563,
+                                        "z": 0.486297607421875
+                                    },
+                                    {
+                                        "x": 1.8220911026000977,
+                                        "y": 0.6858148574829102,
+                                        "z": 1.6770892143249512
+                                    },
+                                    {
+                                        "x": -2.4371566772460938,
+                                        "y": 0.5915534496307373,
+                                        "z": 2.534273147583008
+                                    },
+                                    {
+                                        "x": -4.54274845123291,
+                                        "y": -0.6858177185058594,
+                                        "z": 1.2253766059875488
+                                    },
+                                    {
+                                        "x": -4.927046298980713,
+                                        "y": -0.5915572643280029,
+                                        "z": -1.380734920501709
+                                    },
+                                    {
+                                        "x": -1.0103349685668945,
+                                        "y": 0.00012230873107910156,
+                                        "z": -2.2139217853546143
+                                    },
+                                    {
+                                        "x": 3.0744314193725586,
+                                        "y": 2.6226043701171875e-06,
+                                        "z": -1.3381266593933105
+                                    },
+                                    {
+                                        "x": 3.5917367935180664,
+                                        "y": -2.384185791015625e-06,
+                                        "z": -1.25996732711792
+                                    }
+                                ]
+                            }
                         }
                     ]
+                },
+                {
+                    "name": "RoadComponent"
+                },
+                {
+                    "name": "RoadTrenchComponent"
                 }
             ],
             "id": 2096597,

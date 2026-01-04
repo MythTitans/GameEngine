@@ -1,5 +1,6 @@
 #include "Bloom.h"
 
+#include "Game/ResourceLoader.h"
 #include "Renderer.h"
 
 Array< float > ComputeBlurKernel( const uint uRadius )

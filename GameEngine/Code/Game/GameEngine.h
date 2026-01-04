@@ -2,18 +2,16 @@
 
 #include "CameraManager.h"
 #include "ComponentManager.h"
-#include "Core/Common.h"
 #include "Core/MemoryTracker.h"
 #include "Core/Profiler.h"
+#include "Core/Types.h"
 #include "Editor/Editor.h"
-#include "FreeCamera.h"
 #include "GameWorld.h"
 #include "Graphics/DebugDisplay.h"
 #include "Graphics/Renderer.h"
 #include "InputHandler.h"
 #include "Physics/Physics.h"
 #include "ResourceLoader.h"
-#include "Scene.h"
 
 class Renderer;
 

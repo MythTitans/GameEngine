@@ -248,6 +248,11 @@ Entity::~Entity()
 	g_pComponentManager->DisposeComponents( this );
 }
 
+uint64 Entity::GetSize() const
+{
+	return sizeof( Entity );
+}
+
 uint64 Entity::GetID() const
 {
 	return m_uID;

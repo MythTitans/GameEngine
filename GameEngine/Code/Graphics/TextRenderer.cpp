@@ -1,6 +1,7 @@
 #include "TextRenderer.h"
 
 #include "Core/Profiler.h"
+#include "Game/ResourceLoader.h"
 #include "Renderer.h"
 
 glm::vec2 PositionOnScreen( const glm::vec2& vPosition, const RenderContext& oRenderContext )

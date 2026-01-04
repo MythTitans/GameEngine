@@ -66,10 +66,10 @@ private:
 
 	struct Frame
 	{
-		GameTimePoint						m_oFrameStart;
-		GameTimePoint						m_oFrameEnd;
-		Array< Block, FAST_RESIZE >			m_aBlocks;
-		Array< AsyncBlock, FAST_RESIZE >	m_aAsyncBlocks;
+		GameTimePoint		m_oFrameStart;
+		GameTimePoint		m_oFrameEnd;
+		Array< Block >		m_aBlocks;
+		Array< AsyncBlock >	m_aAsyncBlocks;
 	};
 
 	void	DrawGrid( const float fReferenceWidth );

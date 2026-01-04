@@ -4,7 +4,6 @@
 #include <unordered_map>
 
 #include "Core/Array.h"
-#include "Core/Intrusive.h"
 
 class Technique;
 

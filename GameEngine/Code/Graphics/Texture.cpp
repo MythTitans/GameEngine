@@ -220,10 +220,9 @@ TextureFormat Texture::GetFormat() const
 	return m_eFormat;
 }
 
-Array< uint8, ArrayFlags::FAST_RESIZE > Texture::FetchData( const bool bSRGB /*= false*/ ) const
+void Texture::FetchData( Array< uint8 >& aData, const bool bSRGB /*= false */ ) const
 {
-	Array< uint8, ArrayFlags::FAST_RESIZE > aResult;
-	aResult.Resize( m_iWidth * m_iHeight * GetFormatBytes( m_eFormat ), 0 );
+	aData.Resize( m_iWidth * m_iHeight * GetFormatBytes( m_eFormat ) );
 	glBindTexture( GL_TEXTURE_2D, m_uTextureID );
 
 	GLint iFormat;
@@ -231,11 +230,9 @@ Array< uint8, ArrayFlags::FAST_RESIZE > Texture::FetchData( const bool bSRGB /*=
 	GLenum eType;
 	GetFormatDetails( m_eFormat, bSRGB, iFormat, iInternalFormat, eType );
 
-	glGetTexImage( GL_TEXTURE_2D, 0, iFormat, eType, aResult.Data() );
+	glGetTexImage( GL_TEXTURE_2D, 0, iFormat, eType, aData.Data() );
 
 	glBindTexture( GL_TEXTURE_2D, 0 );
-
-	return aResult;
 }
 
 CubeMapDesc::CubeMapDesc( const int iWidth, const int iHeight, const TextureFormat eFormat )

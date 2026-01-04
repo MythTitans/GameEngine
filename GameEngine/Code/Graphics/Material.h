@@ -2,14 +2,11 @@
 
 #include <glm/glm.hpp>
 
-#include "Core/Intrusive.h"
+#include "Game/ResourceTypes.h"
 #include "Graphics/Technique.h"
-#include "Graphics/Texture.h"
 
 class Technique;
 class TextureResource;
-
-using TextureResPtr = StrongPtr< TextureResource >;
 
 struct LitMaterialData
 {

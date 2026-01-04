@@ -1,6 +1,5 @@
 #include "Animation.h"
 
-#include "Entity.h"
 #include "Math/GLMHelpers.h"
 
 NodeAnimation::NodeAnimation()

@@ -22,6 +22,11 @@ namespace Tests
 			{
 				--s_uAliveCount;
 			}
+
+			uint64 GetSize() const override
+			{
+				return sizeof( TestIntrusive );
+			}
 		};
 
 	public:

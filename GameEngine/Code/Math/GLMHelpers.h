@@ -10,3 +10,6 @@ namespace glm
 
 glm::mat4 ToMat4( const glm::mat3& mM );
 glm::mat4 ToMat4( const glm::mat4x3& mM );
+
+glm::vec3 TransformPoint( const glm::mat4x3& mA, const glm::vec3& vB );
+glm::vec3 TransformDirection( const glm::mat4x3& mA, const glm::vec3& vB );

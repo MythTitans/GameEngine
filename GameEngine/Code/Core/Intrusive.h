@@ -3,6 +3,7 @@
 #include <type_traits>
 
 #include "Common.h"
+#include "Types.h"
 
 class Intrusive
 {
@@ -16,6 +17,8 @@ public:
 
 	Intrusive();
 	virtual ~Intrusive();
+
+	virtual uint64 GetSize() const = 0;
 
 	uint GetReferenceCount() const;
 	uint CountWeakReferences() const;

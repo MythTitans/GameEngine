@@ -2,6 +2,7 @@
     "vertexShader": "Shader/outline.vs",
     "pixelShader": "Shader/outline.ps",
     "parameters": [
+        "model",
         "modelViewProjection",
         "cameraPosition",
         "displacement"

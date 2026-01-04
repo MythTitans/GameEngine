@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Component.h"
-#include "ResourceLoader.h"
+#include "ResourceTypes.h"
 
 enum class AnimationState : uint8
 {

@@ -1,7 +1,6 @@
 #include "DebugDisplay.h"
 
 #include "Core/Profiler.h"
-
 #include "Graphics/Renderer.h"
 
 DebugDisplay* g_pDebugDisplay = nullptr;
@@ -34,13 +33,22 @@ void DebugDisplay::Display( const RenderContext& oRenderContext )
 	GPUBlock oGPUBlock( "DebugDisplay" );
 
 	glEnable( GL_DEPTH_TEST );
-	g_pRenderer->m_oDebugRenderer.RenderLines( m_aLines, oRenderContext );
-	g_pRenderer->m_oDebugRenderer.RenderSpheres( m_aSpheres, oRenderContext );
-	g_pRenderer->m_oDebugRenderer.RenderWireSpheres( m_aWireSpheres, oRenderContext );
-	g_pRenderer->m_oDebugRenderer.RenderWireCylinders( m_aWireCylinders, oRenderContext );
-	g_pRenderer->m_oDebugRenderer.RenderWireCones( m_aWireCones, oRenderContext );
-	g_pRenderer->m_oDebugRenderer.RenderWireBoxes( m_aWireBoxes, oRenderContext );
-	g_pRenderer->m_oDebugRenderer.RenderWireMeshes( m_aWireMeshes, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderLines( m_aLines.m_aShapes, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderSpheres( m_aSpheres.m_aShapes, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireSpheres( m_aWireSpheres.m_aShapes, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireCylinders( m_aWireCylinders.m_aShapes, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireCones( m_aWireCones.m_aShapes, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireBoxes( m_aWireBoxes.m_aShapes, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireMeshes( m_aWireMeshes.m_aShapes, oRenderContext );
+
+	glDisable( GL_DEPTH_TEST );
+	g_pRenderer->m_oDebugRenderer.RenderLines( m_aLines.m_aShapesNoDepth, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderSpheres( m_aSpheres.m_aShapesNoDepth, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireSpheres( m_aWireSpheres.m_aShapesNoDepth, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireCylinders( m_aWireCylinders.m_aShapesNoDepth, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireCones( m_aWireCones.m_aShapesNoDepth, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireBoxes( m_aWireBoxes.m_aShapesNoDepth, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireMeshes( m_aWireMeshes.m_aShapesNoDepth, oRenderContext );
 }
 
 void DebugDisplay::DisplayOverlay( const float fDeltaTime, const RenderContext& oRenderContext )
@@ -79,37 +87,37 @@ void DebugDisplay::DisplayText( const std::string& sText, const float fTime, con
 	m_aTimedTextsRemaining.PushBack( fTime );
 }
 
-void DebugDisplay::DisplayLine( const glm::vec3& vFrom, const glm::vec3& vTo, const glm::vec3& vColor )
+void DebugDisplay::DisplayLine( const glm::vec3& vFrom, const glm::vec3& vTo, const glm::vec3& vColor, const bool bDepth /*= true*/ )
 {
-	m_aLines.PushBack( Line( vFrom, vTo, vColor ) );
+	m_aLines.Add( Line( vFrom, vTo, vColor ), bDepth );
 }
 
-void DebugDisplay::DisplaySphere( const glm::vec3& vPosition, const float fRadius, const glm::vec3& vColor )
+void DebugDisplay::DisplaySphere( const glm::vec3& vPosition, const float fRadius, const glm::vec3& vColor, const bool bDepth /*= true*/ )
 {
-	m_aSpheres.PushBack( Sphere( vPosition, fRadius, vColor ) );
+	m_aSpheres.Add( Sphere( vPosition, fRadius, vColor ), bDepth );
 }
 
-void DebugDisplay::DisplayWireSphere( const glm::vec3& vPosition, const float fRadius, const glm::vec3& vColor )
+void DebugDisplay::DisplayWireSphere( const glm::vec3& vPosition, const float fRadius, const glm::vec3& vColor, const bool bDepth /*= true*/ )
 {
-	m_aWireSpheres.PushBack( Sphere( vPosition, fRadius, vColor ) );
+	m_aWireSpheres.Add( Sphere( vPosition, fRadius, vColor ), bDepth );
 }
 
-void DebugDisplay::DisplayWireCylinder( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor )
+void DebugDisplay::DisplayWireCylinder( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor, const bool bDepth /*= true*/ )
 {
-	m_aWireCylinders.PushBack( Cylinder( vFrom, vTo, fRadius, vColor ) );
+	m_aWireCylinders.Add( Cylinder( vFrom, vTo, fRadius, vColor ), bDepth );
 }
 
-void DebugDisplay::DisplayWireCone( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor )
+void DebugDisplay::DisplayWireCone( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor, const bool bDepth /*= true*/ )
 {
-	m_aWireCones.PushBack( Cylinder( vFrom, vTo, fRadius, vColor ) );
+	m_aWireCones.Add( Cylinder( vFrom, vTo, fRadius, vColor ), bDepth );
 }
 
-void DebugDisplay::DisplayWireBox( const glm::vec3& vCenter, const glm::vec3& vHalfSize, const glm::mat3& mAxes, const glm::vec3& vColor )
+void DebugDisplay::DisplayWireBox( const glm::vec3& vCenter, const glm::vec3& vHalfSize, const glm::mat3& mAxes, const glm::vec3& vColor, const bool bDepth /*= true*/ )
 {
-	m_aWireBoxes.PushBack( Box( vCenter, vHalfSize, mAxes, vColor ) );
+	m_aWireBoxes.Add( Box( vCenter, vHalfSize, mAxes, vColor ), bDepth );
 }
 
-void DebugDisplay::DisplayWireMesh( const Mesh& oMesh, const glm::mat4x3& mMatrix, const glm::vec3& vColor )
+void DebugDisplay::DisplayWireMesh( const Mesh& oMesh, const glm::mat4x3& mMatrix, const glm::vec3& vColor, const bool bDepth /*= true*/ )
 {
-	m_aWireMeshes.PushBack( WireMesh( oMesh, mMatrix, vColor ) );
+	m_aWireMeshes.Add( WireMesh( oMesh, mMatrix, vColor ), bDepth );
 }

@@ -4,7 +4,6 @@
 #include <cstdio>
 #include <filesystem>
 #include <format>
-#include <fstream>
 #include <string>
 
 static constexpr uint LOG_BUFFER_SIZE = 10 * 1024;

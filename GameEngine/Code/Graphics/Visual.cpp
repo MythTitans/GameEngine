@@ -1,7 +1,6 @@
 #include "Visual.h"
 
 #include "Editor/Inspector.h"
-#include "Game/Animator.h"
 #include "Game/Entity.h"
 #include "Game/GameEngine.h"
 #include "Graphics/Renderer.h"

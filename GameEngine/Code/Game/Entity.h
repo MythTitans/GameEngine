@@ -81,6 +81,8 @@ public:
 	Entity( const uint64 uID, const std::string& sName );
 	~Entity();
 
+	uint64					GetSize() const override;
+
 	uint64					GetID() const;
 
 	void					SetName( const std::string& sName );

@@ -1,5 +1,9 @@
 #include "Common.h"
 
+#include <filesystem>
+#include <format>
+#include <xstring>
+
 LRESULT CALLBACK AssertHook( INT iCode, WPARAM wParam, LPARAM lParam )
 {
 	SetDlgItemTextA( ( HWND )wParam, IDCANCEL, "Ignore" );

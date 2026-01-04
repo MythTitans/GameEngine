@@ -4,6 +4,7 @@
 
 #include "Core/Array.h"
 #include "Mesh.h"
+#include "Technique.h"
 #include "Texture.h"
 
 class Entity;
@@ -49,6 +50,16 @@ struct TerrainNode
 	Array< uint64 >	m_aEntitiesIDs;
 };
 
+struct RoadNode
+{
+	RoadNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Texture& oDiffuse, const Mesh& oMesh );
+
+	uint64		m_uEntityID;
+	glm::mat4x3	m_mMatrix;
+	Texture		m_oDiffuse;
+	Mesh		m_oMesh;
+};
+
 struct VisualNode
 {
 	explicit VisualNode( const uint64 uEntityID );
@@ -69,7 +80,6 @@ public:
 
 	VisualNode*				AddNode( const Entity* pEntity, Technique& oTechnique );
 	void					AddTemporaryNode( const Entity* pEntity, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique );
-
 	void					RemoveNode( VisualNode*& pNode );
 
 	Array< VisualNode* >	FindNodes( const Entity* pEntity );
@@ -78,7 +88,6 @@ public:
 	DirectionalLight*		AddDirectionalLight();
 	PointLight*				AddPointLight();
 	SpotLight*				AddSpotLight();
-
 	void					RemoveDirectionalLight( DirectionalLight*& pDirectionalLight );
 	void					RemovePointLight( PointLight*& pPointLight );
 	void					RemoveSpotLight( SpotLight*& pSpotLight );
@@ -91,6 +100,13 @@ public:
 	TerrainNode*			AddTerrain();
 	void					RemoveTerrain( TerrainNode*& pTerrain );
 	TerrainNode*			GetTerrain() const;
+
+	RoadNode*				AddRoad( const Entity* pEntity, const Texture& oTexture, const Mesh& oMesh );
+	void					RemoveRoad( RoadNode*& pRoad );
+
+	void					GetVisualNodes( Array< VisualNode* >& aNodes, Array< VisualNode* >& aTemporaryNodes );
+	void					GetLights( Array< DirectionalLight* >& aDirectionalLights, Array< PointLight* >& aPointLights, Array< SpotLight* >& aSpotLights );
+	void					GetRoads( Array<RoadNode*>& aRoads );
 
 private:
 	void					Clear();
@@ -109,4 +125,6 @@ private:
 	int								m_iActiveSkyIndex;
 
 	TerrainNode*					m_pTerrain; // TODO #eric temporary
+
+	Array< RoadNode* >				m_aRoads;
 };
