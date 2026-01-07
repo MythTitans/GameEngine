@@ -105,27 +105,30 @@ int main()
 
 				{
 					ProfilerBlock oBlock( "Frame" );
+					GPUProfilerBlock oGPUBlock( "Frame" );
 
 					s_oInputContext.Refresh();
 					oGameEngine.ProcessFrame();
 
 					oGameEngine.EndFrame();
-					
+
 					{
-						ProfilerBlock oBlock( "Wait display" );
+						ProfilerBlock oBlock( "WaitDisplay" );
+						GPUProfilerBlock oGPUBlock( "WaitDisplay" );
 
 						{
-							GPUBlock oGPUBlock( "ImGUI" );
+							GPUMarker oGPUMarker( "ImGUI" );
+							GPUProfilerBlock oGPUBlock( "ImGUI" );
 							ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
 
 							ImGui::UpdatePlatformWindows();
 							ImGui::RenderPlatformWindowsDefault();
 						}
-						
-						glfwMakeContextCurrent( pWindow );
 
-						glfwSwapBuffers( pWindow );
+						glfwMakeContextCurrent( pWindow );
 					}
+
+					glfwSwapBuffers( pWindow );
 				}
 			}
 		}

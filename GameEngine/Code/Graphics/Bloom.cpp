@@ -1,5 +1,6 @@
 #include "Bloom.h"
 
+#include "Core/Profiler.h"
 #include "Game/ResourceLoader.h"
 #include "Renderer.h"
 
@@ -32,7 +33,8 @@ Bloom::Bloom()
 
 void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, const RenderContext& oRenderContext )
 {
-	GPUBlock oGPUBlock( "Bloom" );
+	GPUMarker oGPUMarker( "Bloom" );
+	GPUProfilerBlock oBlock( "Bloom" );
 
 	RenderRect oBloomRenderRect = oRenderContext.GetRenderRect();
 	oBloomRenderRect.m_uWidth /= 2;

@@ -41,11 +41,11 @@ private:
 	RenderRect	m_oRenderRect;
 };
 
-class GPUBlock
+class GPUMarker
 {
 public:
-	GPUBlock( const char* sName );
-	~GPUBlock();
+	GPUMarker( const char* sName );
+	~GPUMarker();
 };
 
 class Renderer

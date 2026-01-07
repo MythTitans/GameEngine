@@ -2,6 +2,7 @@
 
 #ifdef EDITOR
 
+#include "Core/Profiler.h"
 #include "Game/Entity.h"
 #include "Game/ResourceLoader.h"
 #include "Game/Road.h"
@@ -28,7 +29,8 @@ void TrenchTool::OnLoaded()
 
 void TrenchTool::Trench( const TerrainComponent* pTerrain, Texture& oTrench )
 {
-	GPUBlock oBlock( "Trench" );
+	GPUMarker oGPUMarker( "Trench" );
+	GPUProfilerBlock oGPUBlock( "Trench" );
 
 	g_pRenderer->SetRenderTarget( m_oTrenchRT );
 

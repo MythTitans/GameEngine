@@ -2,6 +2,7 @@
 
 #ifdef EDITOR
 
+#include "Core/Profiler.h"
 #include "Game/Entity.h"
 #include "Game/ResourceLoader.h"
 #include "Gizmo.h"
@@ -29,7 +30,8 @@ void PickingTool::OnLoaded()
 
 uint64 PickingTool::Pick( const RenderContext& oRenderContext, const int iCursorX, const int iCursorY, const bool bAllowGizmos )
 {
-	GPUBlock oGPUBlock( "Picking" );
+	GPUMarker oGPUMarker( "Picking" );
+	GPUProfilerBlock oGPUBlock( "Picking" );
 
 	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
 	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );

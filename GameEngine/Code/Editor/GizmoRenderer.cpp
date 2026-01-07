@@ -2,6 +2,7 @@
 
 #ifdef EDITOR
 
+#include "Core/Profiler.h"
 #include "Gizmo.h"
 #include "Graphics/Renderer.h"
 
@@ -47,7 +48,8 @@ GizmoRenderer::~GizmoRenderer()
 
 void GizmoRenderer::RenderGizmo( const GizmoType eGizmoType, const GizmoAxis eGizmoAxis, const RenderContext& oRenderContext )
 {
-	GPUBlock oGPUBlock( "Gizmo" );
+	GPUMarker oGPUMarker( "Gizmo" );
+	GPUProfilerBlock oGPUBlock( "Gizmo" );
 
 	switch( eGizmoType )
 	{

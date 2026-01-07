@@ -2,6 +2,8 @@
 
 #include <format>
 
+#include <GL/glew.h>
+
 #include "Time.h"
 #include "Game/GameEngine.h"
 #include "Game/InputHandler.h"
@@ -99,6 +101,16 @@ ProfilerBlock::~ProfilerBlock()
 	m_bAsync ? g_pProfiler->EndAsyncBlock( m_uBlockID ) : g_pProfiler->EndBlock( m_uBlockID );
 }
 
+GPUProfilerBlock::GPUProfilerBlock( const char* sName )
+	: m_uBlockID( g_pProfiler->StartGPUBlock( sName ) )
+{
+}
+
+GPUProfilerBlock::~GPUProfilerBlock()
+{
+	g_pProfiler->EndGPUBlock( m_uBlockID );
+}
+
 struct Block
 {
 	Block( const char* sName, const uint uDepth )
@@ -130,12 +142,26 @@ struct AsyncBlock : Block
 	uint m_uID;
 };
 
+struct GPUBlock : Block
+{
+	GPUBlock( const GLuint uStartID, const char* sName, const uint uDepth )
+		: Block( sName, uDepth )
+		, m_uStartID( uStartID )
+	{
+	}
+
+	GLuint m_uStartID;
+	GLuint m_uEndID;
+};
+
 struct Frame
 {
 	GameTimePoint		m_oFrameStart;
 	GameTimePoint		m_oFrameEnd;
 	Array< Block >		m_aBlocks;
 	Array< AsyncBlock >	m_aAsyncBlocks;
+	Array< GPUBlock >	m_aGPUBlocks;
+	bool				m_bReady;
 };
 
 Profiler* g_pProfiler = nullptr;
@@ -146,20 +172,63 @@ Profiler::Profiler()
 	, m_uBlocksDepth( 0 )
 	, m_uAsyncBlocksDepth( 0 )
 	, m_uAsyncBlocksCount( 0 )
+	, m_uGPUBlocksDepth( 0 )
 	, m_bDisplayProfiler( false )
 	, m_bPauseProfiler( false )
 {
+	glGenQueries( GPU_QUERY_COUNT, m_aGPUQueries );
+	m_aAvailableGPUQueries.Resize( GPU_QUERY_COUNT );
+	for( uint u = 0; u < GPU_QUERY_COUNT; ++u )
+		m_aAvailableGPUQueries[ u ] = m_aGPUQueries[ u ];
+
 	g_pProfiler = this;
 }
 
 Profiler::~Profiler()
 {
+	glDeleteQueries( GPU_QUERY_COUNT, m_aGPUQueries );
+
 	g_pProfiler = nullptr;
 }
 
 void Profiler::NewFrame()
 {
 	std::unique_lock oLock( m_oFrameMutex );
+
+	for( int i = m_aPendingFrames.Count() - 1; i >= 0; --i )
+	{
+		Frame* pFrame = m_aPendingFrames[ i ];
+
+		if( pFrame->m_aGPUBlocks.Empty() )
+		{
+			pFrame->m_bReady = true;
+			m_aPendingFrames.Remove( i );
+			continue;
+		}
+
+		GLint iResultAvailable;
+		glGetQueryObjectiv( pFrame->m_aGPUBlocks.Front().m_uEndID, GL_QUERY_RESULT_AVAILABLE, &iResultAvailable );
+		if( iResultAvailable == GL_TRUE )
+		{
+			for( GPUBlock& oBlock : pFrame->m_aGPUBlocks )
+			{
+				GLuint64 uStart;
+				glGetQueryObjectui64v( oBlock.m_uStartID, GL_QUERY_RESULT, &uStart );
+
+				GLuint64 uEnd;
+				glGetQueryObjectui64v( oBlock.m_uEndID, GL_QUERY_RESULT, &uEnd );
+
+				oBlock.m_oStart = std::chrono::high_resolution_clock::time_point( std::chrono::nanoseconds( uStart ) );
+				oBlock.m_oEnd = std::chrono::high_resolution_clock::time_point( std::chrono::nanoseconds( uEnd ) );
+
+				m_aAvailableGPUQueries.PushBack( oBlock.m_uStartID );
+				m_aAvailableGPUQueries.PushBack( oBlock.m_uEndID );
+			}
+
+			pFrame->m_bReady = true;
+			m_aPendingFrames.Remove( i );
+		}
+	}
 
  	Frame& oPreviousFrame = m_aFrames[ m_uCurrentFrameIndex ];
 
@@ -170,6 +239,9 @@ void Profiler::NewFrame()
 
 	oCurrentFrame.m_aBlocks.Clear();
 	oCurrentFrame.m_aAsyncBlocks.Clear();
+	oCurrentFrame.m_aGPUBlocks.Clear();
+	oCurrentFrame.m_bReady = false;
+	m_aPendingFrames.PushBack( &oCurrentFrame );
 
 	oCurrentFrame.m_oFrameStart = g_pGameEngine->GetGameContext().m_oFrameStart;
 	oPreviousFrame.m_oFrameEnd = oCurrentFrame.m_oFrameStart;
@@ -211,7 +283,7 @@ void Profiler::Display()
 		int iCurrentFrameIndex = ( int )m_uCurrentFrameIndex - 1;
 		if( iCurrentFrameIndex < 0 )
 			iCurrentFrameIndex += FRAME_HISTORY_COUNT;
-
+		
 		const uint64 uLengthMilliSeconds = std::chrono::duration_cast< std::chrono::milliseconds >( m_aFrames[ iCurrentFrameIndex ].m_oFrameEnd - m_aFrames[ iCurrentFrameIndex ].m_oFrameStart ).count();
 
 		if( bPauseOnLongFrame && m_bPauseProfiler == false && uLengthMilliSeconds >= ( uint64 )iLongFrameMs )
@@ -252,7 +324,21 @@ void Profiler::Display()
 
 		static int iSlider = 0;
 		if( m_bPauseProfiler == false )
+		{
 			iSlider = 0;
+
+			auto GetSliderFrameIndex = [ & ]( const int iSlider )
+			{
+				int iReadyFrameIndex = ( int )m_uCurrentFrameIndex + iSlider - 1;
+				if( iReadyFrameIndex < 0 )
+					iReadyFrameIndex += FRAME_HISTORY_COUNT;
+
+				return iReadyFrameIndex;
+			};
+
+			while( m_aFrames[ GetSliderFrameIndex( iSlider ) ].m_bReady == false )
+				--iSlider;
+		}
 		ImGui::SliderInt( "Frame index", &iSlider, -( int )FRAME_HISTORY_COUNT + 2, 0 );
 
 		static float fZoom = 1.f;
@@ -321,6 +407,35 @@ void Profiler::Display()
 				fMaxY = vCursorPos.y;
 		}
 
+		if( oDisplayedFrame.m_bReady )
+		{
+			ImGui::Separator();
+			ImGui::Text( "\n GPU (not synced with CPU)" );
+
+			uint64 uDeltaMicroSeconds = 0;
+			if( oDisplayedFrame.m_aGPUBlocks.Empty() == false )
+				uDeltaMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oDisplayedFrame.m_aGPUBlocks.Front().m_oStart - oDisplayedFrame.m_oFrameStart ).count();
+
+			for( const GPUBlock& oBlock : oDisplayedFrame.m_aGPUBlocks )
+			{
+				const uint64 uStartMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oBlock.m_oStart - oDisplayedFrame.m_oFrameStart ).count() - uDeltaMicroSeconds;
+				const float fStartMilliSeconds = uStartMicroSeconds / 1000.f;
+
+				const uint64 uEndMicroSeconds = std::chrono::duration_cast< std::chrono::microseconds >( oBlock.m_oEnd - oDisplayedFrame.m_oFrameStart ).count() - uDeltaMicroSeconds;
+				const float fEndMilliSeconds = uEndMicroSeconds / 1000.f;
+
+				const float fStart = fStartMilliSeconds * fReferenceWidth;
+				const float fEnd = fEndMilliSeconds * fReferenceWidth;
+
+				const ImVec2 vCursorPos = DrawBlock( oBlock.m_sName, std::format( "{} ({:.3f} ms)", oBlock.m_sName, fEndMilliSeconds - fStartMilliSeconds ).c_str(), fStart, fEnd, oBlock.m_uDepth );
+
+				if( fMaxX < vCursorPos.x )
+					fMaxX = vCursorPos.x;
+				if( fMaxY < vCursorPos.y )
+					fMaxY = vCursorPos.y;
+			}
+		}
+
 		ImGui::SetCursorScreenPos( ImVec2( ImGui::GetCursorScreenPos().x, fMaxY ) );
 		ImGui::Separator();
 
@@ -344,6 +459,44 @@ void Profiler::EndBlock( const uint uBlockID )
 {
 	m_aFrames[ m_uCurrentFrameIndex ].m_aBlocks[ uBlockID ].m_oEnd = std::chrono::high_resolution_clock::now();
 	--m_uBlocksDepth;
+}
+
+uint Profiler::StartGPUBlock( const char* sName )
+{
+	if( m_bPauseProfiler )
+		return 0;
+
+	ASSERT( m_aAvailableGPUQueries.Empty() == false );
+	if( m_aAvailableGPUQueries.Empty() )
+		return 0;
+
+	const GLuint uStartID = m_aAvailableGPUQueries.Back();
+	m_aAvailableGPUQueries.PopBack();
+
+	glQueryCounter( uStartID, GL_TIMESTAMP );
+
+	const uint uID = m_aFrames[ m_uCurrentFrameIndex ].m_aGPUBlocks.Count();
+	m_aFrames[ m_uCurrentFrameIndex ].m_aGPUBlocks.PushBack( GPUBlock( uStartID, sName, m_uGPUBlocksDepth ) );
+	++m_uGPUBlocksDepth;
+	return uID;
+}
+
+void Profiler::EndGPUBlock( const uint uBlockID )
+{
+	if( m_bPauseProfiler )
+		return;
+
+	ASSERT( m_aAvailableGPUQueries.Empty() == false );
+	if( m_aAvailableGPUQueries.Empty() )
+		return;
+
+	const GLuint uEndID = m_aAvailableGPUQueries.Back();
+	m_aAvailableGPUQueries.PopBack();
+
+	glQueryCounter( uEndID, GL_TIMESTAMP );
+
+	m_aFrames[ m_uCurrentFrameIndex ].m_aGPUBlocks[ uBlockID ].m_uEndID = uEndID;
+	--m_uGPUBlocksDepth;
 }
 
 uint Profiler::StartAsyncBlock( const char* sName )

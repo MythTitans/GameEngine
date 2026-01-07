@@ -219,12 +219,12 @@ float RenderContext::ComputeAspectRatio() const
 	return ( float )m_oRenderRect.m_uWidth / ( float )m_oRenderRect.m_uHeight;
 }
 
-GPUBlock::GPUBlock( const char* sName )
+GPUMarker::GPUMarker( const char* sName )
 {
 	glPushDebugGroup( GL_DEBUG_SOURCE_APPLICATION, 0, -1, sName );
 }
 
-GPUBlock::~GPUBlock()
+GPUMarker::~GPUMarker()
 {
 	glPopDebugGroup();
 }
@@ -279,6 +279,7 @@ Renderer::~Renderer()
 void Renderer::Render( const RenderContext& oRenderContext )
 {
 	ProfilerBlock oBlock( "Renderer" );
+	GPUProfilerBlock oGPUBlock( "Renderer" );
 
 	glClearColor( 0.f, 0.f, 0.f, 0.f );
 
@@ -582,58 +583,78 @@ void Renderer::CopyRenderTargetDepth( const RenderTarget& oSource, const RenderT
 
 void Renderer::RenderForward( const RenderContext& oRenderContext )
 {
-	GPUBlock oGPUBlock( "Forward" );
+	GPUMarker oGPUMarker( "Forward" );
 
 	SetRenderTarget( m_oForwardMSAATarget );
 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
 
-	const Sky* pActiveSky = g_pRenderer->m_oVisualStructure.GetActiveSky();
-	if( pActiveSky != nullptr )
-		m_oSkybox.Render( pActiveSky, oRenderContext );
-
-	const TerrainNode* pTerrain = g_pRenderer->m_oVisualStructure.m_pTerrain;
-	if( pTerrain != nullptr )
-		m_oTerrain.Render( pTerrain, oRenderContext );
-
-	const Array< RoadNode* >& aRoads = g_pRenderer->m_oVisualStructure.m_aRoads;
-	if( aRoads.Empty() == false )
-		m_oRoad.Render( aRoads, oRenderContext );
-
-	for( uint u = 0; u < m_oVisualStructure.m_aTechniques.Count(); ++u )
 	{
-		Technique& oTechnique = *m_oVisualStructure.m_aTechniques[ u ];
-		SetTechnique( oTechnique );
+		GPUProfilerBlock oBlock( "Sky" );
 
-		g_pMaterialManager->PrepareMaterials( oTechnique );
-
-		TechniqueParameter oParamViewPosition = oTechnique.GetParameter( PARAM_VIEW_POSITION );
-
-		SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
-
-		if( oParamViewPosition.IsValid() )
-			oParamViewPosition.SetValue( m_oCamera.m_vPosition );
-
-		DrawMeshes( m_oVisualStructure.m_aVisualNodes[ u ], oTechnique );
+		const Sky* pActiveSky = g_pRenderer->m_oVisualStructure.GetActiveSky();
+		if( pActiveSky != nullptr )
+			m_oSkybox.Render( pActiveSky, oRenderContext );
 	}
 
-	for( uint u = 0; u < m_oVisualStructure.m_aTemporaryTechniques.Count(); ++u )
 	{
-		Technique& oTechnique = *m_oVisualStructure.m_aTemporaryTechniques[ u ];
-		SetTechnique( oTechnique );
+		GPUProfilerBlock oBlock( "Terrain" );
 
-		g_pMaterialManager->PrepareMaterials( oTechnique );
+		const TerrainNode* pTerrain = g_pRenderer->m_oVisualStructure.m_pTerrain;
+		if( pTerrain != nullptr )
+			m_oTerrain.Render( pTerrain, oRenderContext );
+	}
 
-		TechniqueParameter oParamViewPosition = oTechnique.GetParameter( PARAM_VIEW_POSITION );
+	{
+		GPUProfilerBlock oBlock( "Roads" );
 
-		SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+		const Array< RoadNode* >& aRoads = g_pRenderer->m_oVisualStructure.m_aRoads;
+		if( aRoads.Empty() == false )
+			m_oRoad.Render( aRoads, oRenderContext );
+	}
 
-		if( oParamViewPosition.IsValid() )
-			oParamViewPosition.SetValue( m_oCamera.m_vPosition );
+	{
+		GPUProfilerBlock oBlock( "Meshes" );
 
-		const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( m_oVisualStructure.m_aTemporaryVisualNodes[ u ] );
-		DrawMeshes( aTemporaryVisualNodes, oTechnique );
+		for( uint u = 0; u < m_oVisualStructure.m_aTechniques.Count(); ++u )
+		{
+			Technique& oTechnique = *m_oVisualStructure.m_aTechniques[ u ];
+			SetTechnique( oTechnique );
+
+			g_pMaterialManager->PrepareMaterials( oTechnique );
+
+			TechniqueParameter oParamViewPosition = oTechnique.GetParameter( PARAM_VIEW_POSITION );
+
+			SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+
+			if( oParamViewPosition.IsValid() )
+				oParamViewPosition.SetValue( m_oCamera.m_vPosition );
+
+			DrawMeshes( m_oVisualStructure.m_aVisualNodes[ u ], oTechnique );
+		}
+	}
+
+	{
+		GPUProfilerBlock oBlock( "TemporaryMeshes" );
+
+		for( uint u = 0; u < m_oVisualStructure.m_aTemporaryTechniques.Count(); ++u )
+		{
+			Technique& oTechnique = *m_oVisualStructure.m_aTemporaryTechniques[ u ];
+			SetTechnique( oTechnique );
+
+			g_pMaterialManager->PrepareMaterials( oTechnique );
+
+			TechniqueParameter oParamViewPosition = oTechnique.GetParameter( PARAM_VIEW_POSITION );
+
+			SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+
+			if( oParamViewPosition.IsValid() )
+				oParamViewPosition.SetValue( m_oCamera.m_vPosition );
+
+			const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( m_oVisualStructure.m_aTemporaryVisualNodes[ u ] );
+			DrawMeshes( aTemporaryVisualNodes, oTechnique );
+		}
 	}
 
 	glDisable( GL_DEPTH_TEST );
@@ -664,13 +685,21 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 
 	g_pMaterialManager->PrepareMaterials( oMapsTechnique );
 
-	for( const Array< VisualNode* >& aVisualNodes : m_oVisualStructure.m_aVisualNodes )
-		DrawMeshes( aVisualNodes, oMapsTechnique );
-
-	for( Array< VisualNode >& aVisualNodes : m_oVisualStructure.m_aTemporaryVisualNodes )
 	{
-		const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( aVisualNodes );
-		DrawMeshes( aTemporaryVisualNodes, oMapsTechnique );
+		GPUProfilerBlock oGPUBlock( "Meshes" );
+
+		for( const Array< VisualNode* >& aVisualNodes : m_oVisualStructure.m_aVisualNodes )
+			DrawMeshes( aVisualNodes, oMapsTechnique );
+	}
+
+	{
+		GPUProfilerBlock oGPUBlock( "TemporaryMeshes" );
+
+		for( Array< VisualNode >& aVisualNodes : m_oVisualStructure.m_aTemporaryVisualNodes )
+		{
+			const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( aVisualNodes );
+			DrawMeshes( aTemporaryVisualNodes, oMapsTechnique );
+		}
 	}
 
 	SetRenderTarget( m_oDeferredComposeTarget );
@@ -697,9 +726,13 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::VIEW_POSITION ).SetValue( m_oCamera.GetPosition() );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::INVERSE_VIEW_PROJECTION ).SetValue( m_oCamera.GetInverseViewProjectionMatrix() );
 
-	SetupLighting( oComposeTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+	{
+		GPUProfilerBlock oGPUBlock( "Lighting" );
 
-	RenderQuad();
+		SetupLighting( oComposeTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+
+		RenderQuad();
+	}
 
 	m_oBloom.Render( m_oDeferredComposeTarget, m_oPostProcessTarget, oRenderContext );
 
@@ -716,7 +749,8 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 #ifdef EDITOR
 void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode )
 {
-	GPUBlock oGPUBlock( "Outline" );
+	GPUMarker oGPUMarker( "Outline" );
+	GPUProfilerBlock oGPUBlock( "Outline" );
 
 	glDisable( GL_CULL_FACE );
 	glEnable( GL_DEPTH_TEST );
@@ -771,7 +805,8 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 
 void Renderer::RenderGizmos( const RenderContext& oRenderContext )
 {
-	GPUBlock oGPUBlock( "Gizmos" );
+	GPUMarker oGPUMarker( "Gizmos" );
+	GPUProfilerBlock oGPUBlock( "Gizmos" );
 
 	glEnable( GL_DEPTH_TEST );
 

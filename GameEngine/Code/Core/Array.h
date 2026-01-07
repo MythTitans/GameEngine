@@ -214,8 +214,9 @@ public:
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount > 0 );
 
+		--m_uCount;
 		if( std::is_trivially_destructible_v< T > == false )
-			m_pData[ --m_uCount ].~T();
+			m_pData[ m_uCount ].~T();
 	}
 
 	void PopFront()
