@@ -54,7 +54,7 @@ static const std::string PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES( "spotLightFallo
 static const std::string PARAM_USE_SKINNING( "useSkinning" );
 
 template < typename Technique >
-static void SetupLighting( Technique& oTechnique, const Array< DirectionalLight* >& aDirectionalLights, const Array< PointLight* >& aPointLights, const Array< SpotLight* >& aSpotLights )
+static void SetupLighting( Technique& oTechnique, const Array< DirectionalLightNode* >& aDirectionalLights, const Array< PointLightNode* >& aPointLights, const Array< SpotLightNode* >& aSpotLights )
 {
 	TechniqueParameter oParamDirectionalLightCount = oTechnique.GetParameter( PARAM_DIRECTIONAL_LIGHT_COUNT );
 	TechniqueParameter oParamPointLightCount = oTechnique.GetParameter( PARAM_POINT_LIGHT_COUNT );
@@ -590,7 +590,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	{
 		GPUProfilerBlock oBlock( "Sky" );
 
-		const Sky* pActiveSky = g_pRenderer->m_oVisualStructure.GetActiveSky();
+		const SkyNode* pActiveSky = g_pRenderer->m_oVisualStructure.GetActiveSky();
 		if( pActiveSky != nullptr )
 			m_oSkybox.Render( pActiveSky, oRenderContext );
 	}
@@ -630,7 +630,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 			if( oParamViewPosition.IsValid() )
 				oParamViewPosition.SetValue( m_oCamera.m_vPosition );
 
-			DrawMeshes( m_oVisualStructure.m_aVisualNodes[ u ], oTechnique );
+			DrawMeshes( m_oVisualStructure.m_aVisuals[ u ], oTechnique );
 		}
 	}
 
@@ -651,7 +651,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 			if( oParamViewPosition.IsValid() )
 				oParamViewPosition.SetValue( m_oCamera.m_vPosition );
 
-			const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( m_oVisualStructure.m_aTemporaryVisualNodes[ u ] );
+			const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( m_oVisualStructure.m_aTemporaryVisuals[ u ] );
 			DrawMeshes( aTemporaryVisualNodes, oTechnique );
 		}
 	}
@@ -689,14 +689,14 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	{
 		GPUProfilerBlock oGPUBlock( "Meshes" );
 
-		for( const Array< VisualNode* >& aVisualNodes : m_oVisualStructure.m_aVisualNodes )
+		for( const Array< VisualNode* >& aVisualNodes : m_oVisualStructure.m_aVisuals )
 			DrawMeshes( aVisualNodes, oMapsTechnique );
 	}
 
 	{
 		GPUProfilerBlock oGPUBlock( "TemporaryMeshes" );
 
-		for( Array< VisualNode >& aVisualNodes : m_oVisualStructure.m_aTemporaryVisualNodes )
+		for( Array< VisualNode >& aVisualNodes : m_oVisualStructure.m_aTemporaryVisuals )
 		{
 			const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( aVisualNodes );
 			DrawMeshes( aTemporaryVisualNodes, oMapsTechnique );

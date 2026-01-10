@@ -4,7 +4,7 @@
 #include "Game/ResourceTypes.h"
 #include "Graphics/Texture.h"
 
-struct Sky;
+struct SkyNode;
 
 // TODO #eric maybe we could load the cube map only when the skybox is active (in fact the component should give all the textures to the skybox and it should generate the cube map itself)
 class SkyboxComponent : public Component
@@ -40,5 +40,5 @@ private:
 	TextureResPtr	m_aTextures[ CubeMapDesc::_COUNT ];
 	CubeMap			m_oCubeMap;
 
-	Sky*			m_pSky;
+	SkyNode*		m_pSky;
 };

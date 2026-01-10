@@ -36,7 +36,7 @@ void VisualComponent::Start()
 {
 	const Entity* pEntity = GetEntity();
 
-	m_pVisualNode = g_pRenderer->m_oVisualStructure.AddNode( pEntity, m_xTechnique->GetTechnique() );
+	m_pVisualNode = g_pRenderer->m_oVisualStructure.AddVisual( pEntity, m_xTechnique->GetTechnique() );
 	m_pVisualNode->m_aMeshes = m_xModel->GetMeshes();
 }
 
@@ -52,7 +52,7 @@ void VisualComponent::Update( const GameContext& oGameContext )
 
 void VisualComponent::Stop()
 {
-	g_pRenderer->m_oVisualStructure.RemoveNode( m_pVisualNode );
+	g_pRenderer->m_oVisualStructure.RemoveVisual( m_pVisualNode );
 }
 
 void VisualComponent::Dispose()

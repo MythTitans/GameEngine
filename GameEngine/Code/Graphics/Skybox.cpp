@@ -34,7 +34,7 @@ Skybox::Skybox()
 	m_oMesh = MeshBuilder( std::move( aVertices ), std::move( aIndices ) ).Build();
 }
 
-void Skybox::Render( const Sky* pSky, const RenderContext& /*oRenderContext*/ )
+void Skybox::Render( const SkyNode* pSky, const RenderContext& /*oRenderContext*/ )
 {
 	glDepthMask( GL_FALSE );
 

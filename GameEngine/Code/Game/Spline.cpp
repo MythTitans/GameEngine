@@ -38,7 +38,7 @@ static void DisplayControlPointVisual( const Entity* pEntity, const glm::vec3& v
 	{
 		Transform oTransform = pEntity->GetWorldTransform();
 		oTransform.SetScale( 0.25f, 0.25f, 0.25f );
-		g_pRenderer->m_oVisualStructure.AddTemporaryNode( pEntity, oTransform.GetMatrixTRS(), s_aControlPointVisuals, s_xUnlitTechnique->GetTechnique() );
+		g_pRenderer->m_oVisualStructure.AddTemporaryVisual( pEntity, oTransform.GetMatrixTRS(), s_aControlPointVisuals, s_xUnlitTechnique->GetTechnique() );
 	}
 }
 

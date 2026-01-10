@@ -30,7 +30,7 @@ VisualStructure::VisualStructure()
 {
 }
 
-VisualNode* VisualStructure::AddNode( const Entity* pEntity, Technique& oTechnique )
+VisualNode* VisualStructure::AddVisual( const Entity* pEntity, Technique& oTechnique )
 {
 	int iIndex = Find( m_aTechniques, &oTechnique );
 	if( iIndex == -1 )
@@ -38,16 +38,16 @@ VisualNode* VisualStructure::AddNode( const Entity* pEntity, Technique& oTechniq
 		iIndex = m_aTechniques.Count();
 		m_aTechniques.PushBack( &oTechnique );
 
-		if( iIndex >= ( int )m_aVisualNodes.Count() )
-			m_aVisualNodes.PushBack( Array< VisualNode* >() );
+		if( iIndex >= ( int )m_aVisuals.Count() )
+			m_aVisuals.PushBack( Array< VisualNode* >() );
 	}
 
-	m_aVisualNodes[ iIndex ].PushBack( new VisualNode( pEntity->GetID() ) );
+	m_aVisuals[ iIndex ].PushBack( new VisualNode( pEntity->GetID() ) );
 
-	return m_aVisualNodes[ iIndex ].Back();
+	return m_aVisuals[ iIndex ].Back();
 }
 
-void VisualStructure::AddTemporaryNode( const Entity* pEntity, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique )
+void VisualStructure::AddTemporaryVisual( const Entity* pEntity, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique )
 {
 	ASSERT( aMeshes.Empty() == false );
 
@@ -57,18 +57,18 @@ void VisualStructure::AddTemporaryNode( const Entity* pEntity, const glm::mat4x3
 		iIndex = m_aTemporaryTechniques.Count();
 		m_aTemporaryTechniques.PushBack( &oTechnique );
 
-		if( iIndex >= ( int )m_aTemporaryVisualNodes.Count() )
-			m_aTemporaryVisualNodes.PushBack( Array< VisualNode >() );
+		if( iIndex >= ( int )m_aTemporaryVisuals.Count() )
+			m_aTemporaryVisuals.PushBack( Array< VisualNode >() );
 	}
 
-	m_aTemporaryVisualNodes[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, aMeshes, Array< glm::mat4x3 >() ) );
+	m_aTemporaryVisuals[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, aMeshes, Array< glm::mat4x3 >() ) );
 }
 
-void VisualStructure::RemoveNode( VisualNode*& pNode )
+void VisualStructure::RemoveVisual( VisualNode*& pNode )
 {
-	for( uint uGroupIndex = 0; uGroupIndex < m_aVisualNodes.Count(); ++uGroupIndex )
+	for( uint uGroupIndex = 0; uGroupIndex < m_aVisuals.Count(); ++uGroupIndex )
 	{
-		Array< VisualNode* >& aNodes = m_aVisualNodes[ uGroupIndex ];
+		Array< VisualNode* >& aNodes = m_aVisuals[ uGroupIndex ];
 
 		const int iIndex = Find( aNodes, pNode );
 		if( iIndex != -1 )
@@ -79,7 +79,7 @@ void VisualStructure::RemoveNode( VisualNode*& pNode )
 
 			if( aNodes.Empty() )
 			{
-				m_aVisualNodes.Remove( uGroupIndex );
+				m_aVisuals.Remove( uGroupIndex );
 				m_aTechniques.Remove( uGroupIndex );
 			}
 
@@ -88,15 +88,15 @@ void VisualStructure::RemoveNode( VisualNode*& pNode )
 	}
 }
 
-Array< VisualNode* > VisualStructure::FindNodes( const Entity* pEntity )
+Array< VisualNode* > VisualStructure::FindVisuals( const Entity* pEntity )
 {
-	return FindNodes( pEntity->GetID() );
+	return FindVisuals( pEntity->GetID() );
 }
 
-Array< VisualNode* > VisualStructure::FindNodes( const uint64 uEntityID )
+Array< VisualNode* > VisualStructure::FindVisuals( const uint64 uEntityID )
 {
 	Array< VisualNode* > aFoundVisualNodes;
-	for( Array< VisualNode* >& aVisualNodes : m_aVisualNodes )
+	for( Array< VisualNode* >& aVisualNodes : m_aVisuals )
 	{
 		for( VisualNode* pVisualNode : aVisualNodes )
 		{
@@ -108,7 +108,7 @@ Array< VisualNode* > VisualStructure::FindNodes( const uint64 uEntityID )
 		}
 	}
 
-	for( Array< VisualNode >& aVisualNodes : m_aTemporaryVisualNodes )
+	for( Array< VisualNode >& aVisualNodes : m_aTemporaryVisuals )
 	{
 		for( VisualNode& oVisualNode : aVisualNodes )
 		{
@@ -123,28 +123,28 @@ Array< VisualNode* > VisualStructure::FindNodes( const uint64 uEntityID )
 	return aFoundVisualNodes;
 }
 
-DirectionalLight* VisualStructure::AddDirectionalLight()
+DirectionalLightNode* VisualStructure::AddDirectionalLight()
 {
-	m_aDirectionalLights.PushBack( new DirectionalLight );
+	m_aDirectionalLights.PushBack( new DirectionalLightNode );
 
 	return m_aDirectionalLights.Back();
 }
 
-PointLight* VisualStructure::AddPointLight()
+PointLightNode* VisualStructure::AddPointLight()
 {
-	m_aPointLights.PushBack( new PointLight );
+	m_aPointLights.PushBack( new PointLightNode );
 
 	return m_aPointLights.Back();
 }
 
-SpotLight* VisualStructure::AddSpotLight()
+SpotLightNode* VisualStructure::AddSpotLight()
 {
-	m_aSpotLights.PushBack( new SpotLight );
+	m_aSpotLights.PushBack( new SpotLightNode );
 
 	return m_aSpotLights.Back();
 }
 
-void VisualStructure::RemoveDirectionalLight( DirectionalLight*& pDirectionalLight )
+void VisualStructure::RemoveDirectionalLight( DirectionalLightNode*& pDirectionalLight )
 {
 	const int iIndex = Find( m_aDirectionalLights, pDirectionalLight );
 	if( iIndex != -1 )
@@ -155,7 +155,7 @@ void VisualStructure::RemoveDirectionalLight( DirectionalLight*& pDirectionalLig
 	}
 }
 
-void VisualStructure::RemovePointLight( PointLight*& pPointLight )
+void VisualStructure::RemovePointLight( PointLightNode*& pPointLight )
 {
 	const int iIndex = Find( m_aPointLights, pPointLight );
 	if( iIndex != -1 )
@@ -166,7 +166,7 @@ void VisualStructure::RemovePointLight( PointLight*& pPointLight )
 	}
 }
 
-void VisualStructure::RemoveSpotLight( SpotLight*& pSpotLight )
+void VisualStructure::RemoveSpotLight( SpotLightNode*& pSpotLight )
 {
 	const int iIndex = Find( m_aSpotLights, pSpotLight );
 	if( iIndex != -1 )
@@ -177,14 +177,14 @@ void VisualStructure::RemoveSpotLight( SpotLight*& pSpotLight )
 	}
 }
 
-Sky* VisualStructure::AddSky()
+SkyNode* VisualStructure::AddSky()
 {
-	m_aSkies.PushBack( new Sky );
+	m_aSkies.PushBack( new SkyNode );
 
 	return m_aSkies.Back();
 }
 
-void VisualStructure::RemoveSky( Sky*& pSky )
+void VisualStructure::RemoveSky( SkyNode*& pSky )
 {
 	const int iIndex = Find( m_aSkies, pSky );
 	if( iIndex != -1 )
@@ -200,7 +200,7 @@ void VisualStructure::RemoveSky( Sky*& pSky )
 	}
 }
 
-void VisualStructure::SetActiveSky( const Sky* pSky )
+void VisualStructure::SetActiveSky( const SkyNode* pSky )
 {
 	m_iActiveSkyIndex = -1;
 
@@ -214,7 +214,7 @@ void VisualStructure::SetActiveSky( const Sky* pSky )
 	}
 }
 
-const Sky* VisualStructure::GetActiveSky() const
+const SkyNode* VisualStructure::GetActiveSky() const
 {
 	if( m_iActiveSkyIndex == -1 )
 		return nullptr;
@@ -259,7 +259,7 @@ void VisualStructure::RemoveRoad( RoadNode*& pRoad )
 
 void VisualStructure::GetVisualNodes( Array< VisualNode* >& aNodes, Array< VisualNode* >& aTemporaryNodes )
 {
-	for( const Array< VisualNode* >& aGroupedNodes : m_aVisualNodes )
+	for( const Array< VisualNode* >& aGroupedNodes : m_aVisuals )
 	{
 		aNodes.Reserve( aNodes.Count() + aGroupedNodes.Count() );
 
@@ -267,7 +267,7 @@ void VisualStructure::GetVisualNodes( Array< VisualNode* >& aNodes, Array< Visua
 			aNodes.PushBack( pNode );
 	}
 
-	for( Array< VisualNode >& aGroupedNodes : m_aTemporaryVisualNodes )
+	for( Array< VisualNode >& aGroupedNodes : m_aTemporaryVisuals )
 	{
 		aTemporaryNodes.Reserve( aTemporaryNodes.Count() + aGroupedNodes.Count() );
 
@@ -276,7 +276,7 @@ void VisualStructure::GetVisualNodes( Array< VisualNode* >& aNodes, Array< Visua
 	}
 }
 
-void VisualStructure::GetLights( Array< DirectionalLight* >& aDirectionalLights, Array< PointLight* >& aPointLights, Array< SpotLight* >& aSpotLights )
+void VisualStructure::GetLights( Array< DirectionalLightNode* >& aDirectionalLights, Array< PointLightNode* >& aPointLights, Array< SpotLightNode* >& aSpotLights )
 {
 	aDirectionalLights = m_aDirectionalLights;
 	aPointLights = m_aPointLights;
@@ -290,7 +290,7 @@ void VisualStructure::GetRoads( Array<RoadNode*>& aRoads )
 
 void VisualStructure::Clear()
 {
-	for( Array< VisualNode >& aNodes : m_aTemporaryVisualNodes )
+	for( Array< VisualNode >& aNodes : m_aTemporaryVisuals )
 		aNodes.Clear();
 
 	m_aTemporaryTechniques.Clear();

@@ -9,14 +9,14 @@
 
 class Entity;
 
-struct DirectionalLight
+struct DirectionalLightNode
 {
 	glm::vec3	m_vDirection;
 	glm::vec3	m_vColor;
 	float		m_fIntensity;
 };
 
-struct PointLight
+struct PointLightNode
 {
 	glm::vec3	m_vPosition;
 	glm::vec3	m_vColor;
@@ -25,7 +25,7 @@ struct PointLight
 	float		m_fFalloffMaxDistance;
 };
 
-struct SpotLight
+struct SpotLightNode
 {
 	glm::vec3	m_vPosition;
 	glm::vec3	m_vDirection;
@@ -37,7 +37,7 @@ struct SpotLight
 	float		m_fFalloffMaxDistance;
 };
 
-struct Sky
+struct SkyNode
 {
 	CubeMap m_oCubeMap;
 };
@@ -78,24 +78,24 @@ public:
 
 	VisualStructure();
 
-	VisualNode*				AddNode( const Entity* pEntity, Technique& oTechnique );
-	void					AddTemporaryNode( const Entity* pEntity, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique );
-	void					RemoveNode( VisualNode*& pNode );
+	VisualNode*				AddVisual( const Entity* pEntity, Technique& oTechnique );
+	void					AddTemporaryVisual( const Entity* pEntity, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique );
+	void					RemoveVisual( VisualNode*& pNode );
 
-	Array< VisualNode* >	FindNodes( const Entity* pEntity );
-	Array< VisualNode* >	FindNodes( const uint64 uEntityID );
+	Array< VisualNode* >	FindVisuals( const Entity* pEntity );
+	Array< VisualNode* >	FindVisuals( const uint64 uEntityID );
 
-	DirectionalLight*		AddDirectionalLight();
-	PointLight*				AddPointLight();
-	SpotLight*				AddSpotLight();
-	void					RemoveDirectionalLight( DirectionalLight*& pDirectionalLight );
-	void					RemovePointLight( PointLight*& pPointLight );
-	void					RemoveSpotLight( SpotLight*& pSpotLight );
+	DirectionalLightNode*	AddDirectionalLight();
+	PointLightNode*			AddPointLight();
+	SpotLightNode*			AddSpotLight();
+	void					RemoveDirectionalLight( DirectionalLightNode*& pDirectionalLight );
+	void					RemovePointLight( PointLightNode*& pPointLight );
+	void					RemoveSpotLight( SpotLightNode*& pSpotLight );
 
-	Sky*					AddSky();
-	void					RemoveSky( Sky*& pSky );
-	void					SetActiveSky( const Sky* pSky );
-	const Sky*				GetActiveSky() const;
+	SkyNode*				AddSky();
+	void					RemoveSky( SkyNode*& pSky );
+	void					SetActiveSky( const SkyNode* pSky );
+	const SkyNode*			GetActiveSky() const;
 
 	TerrainNode*			AddTerrain();
 	void					RemoveTerrain( TerrainNode*& pTerrain );
@@ -105,23 +105,23 @@ public:
 	void					RemoveRoad( RoadNode*& pRoad );
 
 	void					GetVisualNodes( Array< VisualNode* >& aNodes, Array< VisualNode* >& aTemporaryNodes );
-	void					GetLights( Array< DirectionalLight* >& aDirectionalLights, Array< PointLight* >& aPointLights, Array< SpotLight* >& aSpotLights );
+	void					GetLights( Array< DirectionalLightNode* >& aDirectionalLights, Array< PointLightNode* >& aPointLights, Array< SpotLightNode* >& aSpotLights );
 	void					GetRoads( Array<RoadNode*>& aRoads );
 
 private:
 	void					Clear();
 
-	Array< Array< VisualNode* > >	m_aVisualNodes;
+	Array< Array< VisualNode* > >	m_aVisuals;
 	Array< Technique* >				m_aTechniques;
 
-	Array< Array< VisualNode > >	m_aTemporaryVisualNodes;
+	Array< Array< VisualNode > >	m_aTemporaryVisuals;
 	Array< Technique* >				m_aTemporaryTechniques;
 
-	Array< DirectionalLight* >		m_aDirectionalLights;
-	Array< PointLight* >			m_aPointLights;
-	Array< SpotLight* >				m_aSpotLights;
+	Array< DirectionalLightNode* >	m_aDirectionalLights;
+	Array< PointLightNode* >		m_aPointLights;
+	Array< SpotLightNode* >			m_aSpotLights;
 
-	Array< Sky* >					m_aSkies;
+	Array< SkyNode* >				m_aSkies;
 	int								m_iActiveSkyIndex;
 
 	TerrainNode*					m_pTerrain; // TODO #eric temporary

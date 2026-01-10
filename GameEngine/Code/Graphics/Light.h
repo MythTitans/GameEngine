@@ -17,7 +17,7 @@ public:
 	void DisplayGizmos( const bool bSelected ) override;
 
 private:
-	DirectionalLight* m_pDirectionalLight;
+	DirectionalLightNode* m_pDirectionalLight;
 
 	PROPERTIES( DirectionalLightComponent );
 	PROPERTY_DEFAULT( "Color", m_vColor, glm::vec3, glm::vec3( 1.f ) );
@@ -36,7 +36,7 @@ public:
 	void DisplayGizmos( const bool bSelected ) override;
 
 private:
-	PointLight* m_pPointLight;
+	PointLightNode* m_pPointLight;
 
 	PROPERTIES( PointLightComponent );
 	PROPERTY_DEFAULT( "Color", m_vColor, glm::vec3, glm::vec3( 1.f ) );
@@ -57,7 +57,7 @@ public:
 	void DisplayGizmos( const bool bSelected ) override;
 
 private:
-	SpotLight* m_pSpotLight;
+	SpotLightNode* m_pSpotLight;
 
 	PROPERTIES( SpotLightComponent );
 	PROPERTY_DEFAULT( "Color", m_vColor, glm::vec3, glm::vec3( 1.f ) );

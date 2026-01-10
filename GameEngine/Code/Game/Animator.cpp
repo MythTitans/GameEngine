@@ -103,7 +103,7 @@ void AnimatorComponent::Update( const GameContext& oGameContext )
 			m_aBoneMatrices[ u ] = glm::mat4( 1.f );
 	}
 
-	const Array< VisualNode* > aNodes = g_pRenderer->m_oVisualStructure.FindNodes( GetEntity() );
+	const Array< VisualNode* > aNodes = g_pRenderer->m_oVisualStructure.FindVisuals( GetEntity() );
 	for( VisualNode* pNode : aNodes )
 		pNode->m_aBoneMatrices = m_aBoneMatrices;
 }

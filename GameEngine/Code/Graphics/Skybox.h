@@ -5,14 +5,14 @@
 #include "Technique.h"
 
 class RenderContext;
-struct Sky;
+struct SkyNode;
 
 class Skybox
 {
 public:
 	Skybox();
 
-	void Render( const Sky* pSky, const RenderContext& oRenderContext );
+	void Render( const SkyNode* pSky, const RenderContext& oRenderContext );
 
 	bool OnLoading();
 	void OnLoaded();
