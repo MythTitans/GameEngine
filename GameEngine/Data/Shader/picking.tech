@@ -5,15 +5,5 @@
         "modelViewProjection",
         "colorID",
         "useSkinning"
-    ],
-    "arrays":
-    [
-        {
-            "parameters":
-            [
-                "boneMatrices"
-            ],
-            "count": 128
-        }
     ]
 }

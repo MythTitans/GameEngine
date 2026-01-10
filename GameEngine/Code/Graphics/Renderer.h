@@ -8,6 +8,7 @@
 #include "RenderTarget.h"
 #include "Road.h"
 #include "ShaderBuffer.h"
+#include "Skinning.h"
 #include "Skybox.h"
 #include "Terrain.h"
 #include "TextRenderer.h"
@@ -52,6 +53,9 @@ class Renderer
 {
 public:
 	friend class Editor;
+
+	template < typename Technique >
+	friend void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique );
 
 	Renderer();
 	~Renderer();
@@ -145,7 +149,6 @@ private:
 
 	enum class OutlineParam : uint8
 	{
-		BONE_MATRICES,
 		MODEL,
 		MODEL_VIEW_PROJECTION,
 		DISPLACEMENT,
@@ -171,6 +174,7 @@ private:
 	Mesh									m_oRenderMesh;
 
 	ShaderBuffer< GPUMaterialDataBlock >	m_oMaterialBuffer;
+	ShaderBuffer< GPUSkinningDataBlock >	m_oSkinningBuffer;
 
 	TextureResPtr							m_xDefaultDiffuseMap;
 	TextureResPtr							m_xDefaultNormalMap;

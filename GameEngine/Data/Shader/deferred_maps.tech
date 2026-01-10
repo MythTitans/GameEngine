@@ -10,15 +10,5 @@
         "normalMap",
         "specularMap",
         "emissiveMap"
-    ],
-    "arrays":
-    [
-        {
-            "parameters":
-            [
-                "boneMatrices"
-            ],
-            "count": 128
-        }
     ]
 }

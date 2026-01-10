@@ -13,12 +13,16 @@ out vec3 normal;
 out vec3 tangent;
 out vec3 bitangent;
 
+layout(std140, binding = 1) uniform SkinningDataBlock
+{
+    mat4 boneMatrices[ 128 ];
+};
+
 uniform mat4 modelViewProjection;
 #ifdef FORWARD
 uniform mat4 model;
 #endif
 uniform mat4 modelInverseTranspose;
-uniform mat4 boneMatrices[ 128 ];
 uniform bool useSkinning;
 
 void main()

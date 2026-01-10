@@ -12,6 +12,7 @@
 PickingTool::PickingTool()
 	: m_xPicking( g_pResourceLoader->LoadTechnique( "Shader/picking.tech" ) )
 {
+	m_oSkinningBuffer.Create( ShaderBufferDesc().Dynamic() );
 }
 
 bool PickingTool::OnLoading()
@@ -23,7 +24,6 @@ void PickingTool::OnLoaded()
 {
 	m_oPickingSheet.Init( m_xPicking->GetTechnique() );
 	m_oPickingSheet.BindParameter( PickingParam::USE_SKINNING, "useSkinning" );
-	m_oPickingSheet.BindArrayParameter( PickingParam::BONE_MATRICES, "boneMatrices" );
 	m_oPickingSheet.BindParameter( PickingParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
 	m_oPickingSheet.BindParameter( PickingParam::COLOR_ID, "colorID" );
 }
@@ -71,13 +71,16 @@ uint64 PickingTool::Pick( const RenderContext& oRenderContext, const int iCursor
 	{
 		m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( true );
 
-		TechniqueArrayParameter& oParamBoneMatrices = m_oPickingSheet.GetArrayParameter( PickingParam::BONE_MATRICES );
-
 		const Array< glm::mat4x3 >& aBoneMatrices = pVisualNode->m_aBoneMatrices;
+
+		GPUSkinningDataBlock oSkinningDataBlock;
 		for( uint u = 0; u < aBoneMatrices.Count(); ++u )
-			oParamBoneMatrices.SetValue( ToMat4( aBoneMatrices[ u ] ), u );
+			oSkinningDataBlock.m_aBones[ u ].m_mMatrix = ToMat4( aBoneMatrices[ u ] );
 		for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
-			oParamBoneMatrices.SetValue( glm::mat4( 1.f ), u );
+			oSkinningDataBlock.m_aBones[ u ].m_mMatrix = glm::mat4( 1.f );
+
+		m_oSkinningBuffer.Update( oSkinningDataBlock );
+		g_pRenderer->SetShaderBufferSlot( m_oSkinningBuffer, 0 );
 
 		m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * ToMat4( pVisualNode->m_mMatrix ) );
 		m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( pVisualNode->m_uEntityID ) );

@@ -5,6 +5,8 @@
 #include "Core/Types.h"
 #include "Game/ResourceTypes.h"
 #include "Graphics/RenderTarget.h"
+#include "Graphics/ShaderBuffer.h"
+#include "Graphics/Skinning.h"
 #include "Graphics/Technique.h"
 
 class RenderContext;
@@ -23,16 +25,17 @@ private:
 	enum class PickingParam : uint8
 	{
 		USE_SKINNING,
-		BONE_MATRICES,
 		MODEL_VIEW_PROJECTION,
 		COLOR_ID,
 		_COUNT
 	};
 
-	RenderTarget				m_oPickingTarget;
+	RenderTarget							m_oPickingTarget;
 
-	TechniqueResPtr				m_xPicking;
-	PARAM_SHEET( PickingParam )	m_oPickingSheet;
+	ShaderBuffer< GPUSkinningDataBlock >	m_oSkinningBuffer;
+
+	TechniqueResPtr							m_xPicking;
+	PARAM_SHEET( PickingParam )				m_oPickingSheet;
 };
 
 #endif

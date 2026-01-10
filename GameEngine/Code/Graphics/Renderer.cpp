@@ -51,8 +51,6 @@ static const std::string PARAM_SPOT_LIGHT_RANGES( "spotLightRanges" );
 static const std::string PARAM_SPOT_LIGHT_FALLOFF_MIN_DISTANCES( "spotLightFalloffMinDistances" );
 static const std::string PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES( "spotLightFalloffMaxDistances" );
 
-static const std::string PARAM_BONE_MATRICES( "boneMatrices" );
-
 static const std::string PARAM_USE_SKINNING( "useSkinning" );
 
 template < typename Technique >
@@ -121,7 +119,6 @@ template < typename Technique >
 static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique )
 {
 	TechniqueParameter oParamUseSkinning = oTechnique.GetParameter( PARAM_USE_SKINNING );
-	TechniqueArrayParameter oParamBoneMatrices = oTechnique.GetArrayParameter( PARAM_BONE_MATRICES );
 	TechniqueParameter oParamModelViewProjection = oTechnique.GetParameter( PARAM_MODEL_VIEW_PROJECTION );
 	TechniqueParameter oParamModelInverseTranspose = oTechnique.GetParameter( PARAM_MODEL_INVERSE_TRANSPOSE );
 	TechniqueParameter oParamModel = oTechnique.GetParameter( PARAM_MODEL );
@@ -133,13 +130,13 @@ static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTe
 		{
 			oParamUseSkinning.SetValue( true );
 
-			if( oParamBoneMatrices.IsValid() )
-			{
-				for( uint u = 0; u < aBoneMatrices.Count(); ++u )
-					oParamBoneMatrices.SetValue( ToMat4( aBoneMatrices[ u ] ), u );
-				for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
-					oParamBoneMatrices.SetValue( glm::mat4( 1.f ), u );
-			}
+			GPUSkinningDataBlock oSkinningDataBlock;
+			for( uint u = 0; u < aBoneMatrices.Count(); ++u )
+				oSkinningDataBlock.m_aBones[ u ].m_mMatrix = ToMat4( aBoneMatrices[ u ] );
+			for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
+				oSkinningDataBlock.m_aBones[ u ].m_mMatrix = glm::mat4( 1.f );
+
+			g_pRenderer->m_oSkinningBuffer.Update( oSkinningDataBlock );
 		}
 		else
 		{
@@ -265,6 +262,7 @@ Renderer::Renderer()
 	m_oRenderMesh = MeshBuilder( std::move( aVertices ), std::move( aIndices ) ).WithUVs( std::move( aUVs ) ).Build();
 
 	m_oMaterialBuffer.Create( ShaderBufferDesc().Dynamic() );
+	m_oSkinningBuffer.Create( ShaderBufferDesc().Dynamic() );
 
 	m_oFramebuffer.m_uFrameBufferID = 0;
 
@@ -340,7 +338,6 @@ void Renderer::OnLoaded()
 	m_oBlendSheet.BindParameter( BlendParam::TEXTURE_B, "textureB" );
 
 	m_oOutlineSheet.Init( m_xOutline->GetTechnique() );
-	m_oOutlineSheet.BindArrayParameter( OutlineParam::BONE_MATRICES, "boneMatrices" );
 	m_oOutlineSheet.BindParameter( OutlineParam::MODEL, "model" );
 	m_oOutlineSheet.BindParameter( OutlineParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
 	m_oOutlineSheet.BindParameter( OutlineParam::DISPLACEMENT, "displacement" );
@@ -614,6 +611,8 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 			m_oRoad.Render( aRoads, oRenderContext );
 	}
 
+	SetShaderBufferSlot( m_oSkinningBuffer, 1 );
+
 	{
 		GPUProfilerBlock oBlock( "Meshes" );
 
@@ -684,6 +683,8 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	SetTechnique( oMapsTechnique );
 
 	g_pMaterialManager->PrepareMaterials( oMapsTechnique );
+
+	SetShaderBufferSlot( m_oSkinningBuffer, 1 );
 
 	{
 		GPUProfilerBlock oGPUBlock( "Meshes" );
@@ -766,13 +767,16 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	Technique& oTechnique = m_xOutline->GetTechnique();
 	SetTechnique( oTechnique );
 
-	TechniqueArrayParameter& oParamBoneMatrices = m_oOutlineSheet.GetArrayParameter( OutlineParam::BONE_MATRICES );
-
 	const Array< glm::mat4x3 >& aBoneMatrices = oVisualNode.m_aBoneMatrices;
+
+	GPUSkinningDataBlock oSkinningDataBlock;
 	for( uint u = 0; u < aBoneMatrices.Count(); ++u )
-		oParamBoneMatrices.SetValue( ToMat4( aBoneMatrices[ u ] ), u );
+		oSkinningDataBlock.m_aBones[ u ].m_mMatrix = ToMat4( aBoneMatrices[ u ] );
 	for( uint u = aBoneMatrices.Count(); u < MAX_BONE_COUNT; ++u )
-		oParamBoneMatrices.SetValue( glm::mat4( 1.f ), u );
+		oSkinningDataBlock.m_aBones[ u ].m_mMatrix = glm::mat4( 1.f );
+
+	m_oSkinningBuffer.Update( oSkinningDataBlock );
+	SetShaderBufferSlot( m_oSkinningBuffer, 0 );
 
 	m_oOutlineSheet.GetParameter( OutlineParam::MODEL ).SetValue( ToMat4( oVisualNode.m_mMatrix ) );
 	m_oOutlineSheet.GetParameter( OutlineParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );

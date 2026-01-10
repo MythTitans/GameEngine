@@ -7,15 +7,5 @@
         "cameraPosition",
         "displacement",
         "color"
-    ],
-    "arrays":
-    [
-        {
-            "parameters":
-            [
-                "boneMatrices"
-            ],
-            "count": 128
-        }
     ]
 }
