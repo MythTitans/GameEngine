@@ -14,7 +14,8 @@
         "directionalLightCount",
         "pointLightCount",
         "spotLightCount",
-        "useSkinning"
+        "useSkinning",
+        "skinningOffset"
     ],
     "arrays":
     [

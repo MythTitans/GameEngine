@@ -5,6 +5,7 @@
         "modelViewProjection",
         "modelInverseTranspose",
         "useSkinning",
+        "skinningOffset",
         "materialID",
         "diffuseMap",
         "normalMap",

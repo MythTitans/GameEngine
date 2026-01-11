@@ -13,14 +13,17 @@ RoadNode::RoadNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Te
 
 VisualNode::VisualNode( const uint64 uEntityID )
 	: m_uEntityID( uEntityID )
+	, m_uBoneStorageIndex( 0 )
+	, m_uBoneCount( 0 )
 {
 }
 
-VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, const Array< glm::mat4x3 >& aBoneMatrices )
+VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes )
 	: m_uEntityID( uEntityID )
 	, m_mMatrix( mMatrix )
 	, m_aMeshes( aMeshes )
-	, m_aBoneMatrices( aBoneMatrices )
+	, m_uBoneStorageIndex( 0 )
+	, m_uBoneCount( 0 )
 {
 }
 
@@ -61,7 +64,7 @@ void VisualStructure::AddTemporaryVisual( const Entity* pEntity, const glm::mat4
 			m_aTemporaryVisuals.PushBack( Array< VisualNode >() );
 	}
 
-	m_aTemporaryVisuals[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, aMeshes, Array< glm::mat4x3 >() ) );
+	m_aTemporaryVisuals[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, aMeshes ) );
 }
 
 void VisualStructure::RemoveVisual( VisualNode*& pNode )

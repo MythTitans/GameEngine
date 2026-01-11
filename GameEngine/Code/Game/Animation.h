@@ -9,8 +9,6 @@
 
 #include "Core/Array.h"
 
-inline constexpr uint MAX_BONE_COUNT = 128;
-
 template < typename T >
 inline T Interpolate( const T& oA, const T& oB, const float fRatio )
 {

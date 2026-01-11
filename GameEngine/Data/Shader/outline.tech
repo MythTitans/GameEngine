@@ -6,6 +6,7 @@
         "modelViewProjection",
         "cameraPosition",
         "displacement",
-        "color"
+        "color",
+        "skinningOffset"
     ]
 }

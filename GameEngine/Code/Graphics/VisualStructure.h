@@ -63,12 +63,13 @@ struct RoadNode
 struct VisualNode
 {
 	explicit VisualNode( const uint64 uEntityID );
-	VisualNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, const Array< glm::mat4x3 >& aBoneMatrices );
+	VisualNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes );
 
 	uint64					m_uEntityID;
 	glm::mat4x3				m_mMatrix;
 	Array< Mesh >			m_aMeshes;
-	Array< glm::mat4x3 >	m_aBoneMatrices;
+	uint					m_uBoneStorageIndex;
+	uint					m_uBoneCount;
 };
 
 class VisualStructure

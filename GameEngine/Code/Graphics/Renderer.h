@@ -116,15 +116,16 @@ private:
 	void			UpdateRenderPipeline( const RenderContext& oRenderContext );
 
 public:
-	TextRenderer	m_oTextRenderer;
-	DebugRenderer	m_oDebugRenderer;
+	TextRenderer		m_oTextRenderer;
+	DebugRenderer		m_oDebugRenderer;
 #ifdef EDITOR
-	GizmoRenderer	m_oGizmoRenderer;
+	GizmoRenderer		m_oGizmoRenderer;
 #endif
 
-	Camera			m_oCamera;
+	Camera				m_oCamera;
 
-	VisualStructure	m_oVisualStructure;
+	VisualStructure		m_oVisualStructure;
+	GPUSkinningStorage	m_oGPUSkinningStorage;
 
 private:
 	enum class DeferredComposeParam : uint8
@@ -154,6 +155,7 @@ private:
 		DISPLACEMENT,
 		CAMERA_POSITION,
 		COLOR,
+		SKINNING_OFFSET,
 		_COUNT
 	};
 

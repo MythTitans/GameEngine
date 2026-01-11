@@ -103,9 +103,14 @@ void AnimatorComponent::Update( const GameContext& oGameContext )
 			m_aBoneMatrices[ u ] = glm::mat4( 1.f );
 	}
 
+	const uint uStorageIndex = g_pRenderer->m_oGPUSkinningStorage.Store( m_aBoneMatrices );
+
 	const Array< VisualNode* > aNodes = g_pRenderer->m_oVisualStructure.FindVisuals( GetEntity() );
 	for( VisualNode* pNode : aNodes )
-		pNode->m_aBoneMatrices = m_aBoneMatrices;
+	{
+		pNode->m_uBoneStorageIndex = uStorageIndex;
+		pNode->m_uBoneCount = m_aBoneMatrices.Count();
+	}
 }
 
 void AnimatorComponent::Dispose()

@@ -697,8 +697,7 @@ void ResourceLoader::ModelLoadCommand::LoadSkeleton()
 	m_xResource->m_aPoseMatrices.Resize( ( uint )m_mNodeIndices.size(), glm::mat4( 1.f ) );
 	LoadSkeleton( m_pScene->mRootNode, m_xResource->m_oSkeleton );
 
-	ASSERT( m_mNodeIndices.size() < MAX_BONE_COUNT );
-	m_xResource->m_aSkinMatrices.Resize( glm::min( ( uint )m_mNodeIndices.size(), MAX_BONE_COUNT ), glm::mat4( 1.f ) );
+	m_xResource->m_aSkinMatrices.Resize( ( uint )m_mNodeIndices.size(), glm::mat4( 1.f ) );
 }
 
 void ResourceLoader::ModelLoadCommand::LoadMaterials()

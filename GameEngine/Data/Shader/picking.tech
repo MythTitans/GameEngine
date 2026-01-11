@@ -4,6 +4,7 @@
     "parameters": [
         "modelViewProjection",
         "colorID",
-        "useSkinning"
+        "useSkinning",
+        "skinningOffset"
     ]
 }

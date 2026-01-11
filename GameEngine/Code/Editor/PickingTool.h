@@ -25,6 +25,7 @@ private:
 	enum class PickingParam : uint8
 	{
 		USE_SKINNING,
+		SKINNING_OFFSET,
 		MODEL_VIEW_PROJECTION,
 		COLOR_ID,
 		_COUNT

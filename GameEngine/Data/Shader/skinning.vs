@@ -15,7 +15,7 @@ out vec3 bitangent;
 
 layout(std140, binding = 1) uniform SkinningDataBlock
 {
-    mat4 boneMatrices[ 128 ];
+    mat4 boneMatrices[ 1024 ];
 };
 
 uniform mat4 modelViewProjection;
@@ -24,6 +24,7 @@ uniform mat4 model;
 #endif
 uniform mat4 modelInverseTranspose;
 uniform bool useSkinning;
+uniform uint skinningOffset;
 
 void main()
 {
@@ -37,10 +38,10 @@ void main()
     {
         for( int i = 0; i < 4; ++i )
         {
-            transformedPosition += vertWeights[ i ] * boneMatrices[ vertBones[ i ] ] * vec4( vertPosition, 1.0 );
+            transformedPosition += vertWeights[ i ] * boneMatrices[ vertBones[ i ] + skinningOffset ] * vec4( vertPosition, 1.0 );
             // TODO #eric maybe add support for non-uniform scaling ?
-            transformedNormal += vertWeights[ i ] * mat3( boneMatrices[ vertBones[ i ] ] ) * vertNormal;
-            transformedTangent += vertWeights[ i ] * mat3( boneMatrices[ vertBones[ i ] ] ) * vertTangent;
+            transformedNormal += vertWeights[ i ] * mat3( boneMatrices[ vertBones[ i ] + skinningOffset ] ) * vertNormal;
+            transformedTangent += vertWeights[ i ] * mat3( boneMatrices[ vertBones[ i ] + skinningOffset ] ) * vertTangent;
         }
 
         transformedNormal = normalize( transformedNormal );
