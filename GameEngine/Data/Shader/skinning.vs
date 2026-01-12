@@ -13,7 +13,7 @@ out vec3 normal;
 out vec3 tangent;
 out vec3 bitangent;
 
-layout(std140, binding = 1) uniform SkinningDataBlock
+layout(std140, binding = 0) uniform SkinningDataBlock
 {
     mat4 boneMatrices[ 1024 ];
 };

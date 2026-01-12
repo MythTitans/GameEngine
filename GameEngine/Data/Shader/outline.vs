@@ -3,7 +3,7 @@ layout (location = 2) in vec3 vertNormal;
 layout (location = 4) in uvec4 vertBones;
 layout (location = 5) in vec4 vertWeights;
 
-layout(std140, binding = 1) uniform SkinningDataBlock
+layout(std140, binding = 0) uniform SkinningDataBlock
 {
     mat4 boneMatrices[ 1024 ];
 };

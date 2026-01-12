@@ -28,92 +28,45 @@ static const std::string PARAM_VIEW_POSITION( "viewPosition" );
 static const std::string PARAM_DIFFUSE_MAP( "diffuseMap" );
 static const std::string PARAM_NORMAL_MAP( "normalMap" );
 
-static const std::string PARAM_DIRECTIONAL_LIGHT_COUNT( "directionalLightCount" );
-static const std::string PARAM_POINT_LIGHT_COUNT( "pointLightCount" );
-static const std::string PARAM_SPOT_LIGHT_COUNT( "spotLightCount" );
-
-static const std::string PARAM_DIRECTIONAL_LIGHT_DIRECTIONS( "directionalLightDirections" );
-static const std::string PARAM_DIRECTIONAL_LIGHT_COLORS( "directionalLightColors" );
-static const std::string PARAM_DIRECTIONAL_LIGHT_INTENSITIES( "directionalLightIntensities" );
-
-static const std::string PARAM_POINT_LIGHT_POSITIONS( "pointLightPositions" );
-static const std::string PARAM_POINT_LIGHT_COLORS( "pointLightColors" );
-static const std::string PARAM_POINT_LIGHT_INTENSITIES( "pointLightIntensities" );
-static const std::string PARAM_POINT_LIGHT_FALLOFF_MIN_DISTANCES( "pointLightFalloffMinDistances" );
-static const std::string PARAM_POINT_LIGHT_FALLOFF_MAX_DISTANCES( "pointLightFalloffMaxDistances" );
-
-static const std::string PARAM_SPOT_LIGHT_POSITIONS( "spotLightPositions" );
-static const std::string PARAM_SPOT_LIGHT_DIRECTIONS( "spotLightDirections" );
-static const std::string PARAM_SPOT_LIGHT_COLORS( "spotLightColors" );
-static const std::string PARAM_SPOT_LIGHT_INTENSITIES( "spotLightIntensities" );
-static const std::string PARAM_SPOT_LIGHT_OUTERRANGES( "spotLightOuterRanges" );
-static const std::string PARAM_SPOT_LIGHT_RANGES( "spotLightRanges" );
-static const std::string PARAM_SPOT_LIGHT_FALLOFF_MIN_DISTANCES( "spotLightFalloffMinDistances" );
-static const std::string PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES( "spotLightFalloffMaxDistances" );
-
 static const std::string PARAM_USE_SKINNING( "useSkinning" );
 static const std::string PARAM_SKINNING_OFFSET( "skinningOffset" );
 
-template < typename Technique >
-static void SetupLighting( Technique& oTechnique, const Array< DirectionalLightNode* >& aDirectionalLights, const Array< PointLightNode* >& aPointLights, const Array< SpotLightNode* >& aSpotLights )
+static GPULightingDataBlock SetupLighting( const Array< DirectionalLightNode* >& aDirectionalLights, const Array< PointLightNode* >& aPointLights, const Array< SpotLightNode* >& aSpotLights )
 {
-	TechniqueParameter oParamDirectionalLightCount = oTechnique.GetParameter( PARAM_DIRECTIONAL_LIGHT_COUNT );
-	TechniqueParameter oParamPointLightCount = oTechnique.GetParameter( PARAM_POINT_LIGHT_COUNT );
-	TechniqueParameter oParamSpotLightCount = oTechnique.GetParameter( PARAM_SPOT_LIGHT_COUNT );
-
-	if( oParamDirectionalLightCount.IsValid() == false || oParamPointLightCount.IsValid() == false || oParamSpotLightCount.IsValid() == false )
-		return;
-
-	TechniqueArrayParameter oParamDirectionalLightDirections = oTechnique.GetArrayParameter( PARAM_DIRECTIONAL_LIGHT_DIRECTIONS );
-	TechniqueArrayParameter oParamDirectionalLightColors = oTechnique.GetArrayParameter( PARAM_DIRECTIONAL_LIGHT_COLORS );
-	TechniqueArrayParameter oParamDirectionalLightIntensities = oTechnique.GetArrayParameter( PARAM_DIRECTIONAL_LIGHT_INTENSITIES );
-
-	TechniqueArrayParameter oParamPointLightPositions = oTechnique.GetArrayParameter( PARAM_POINT_LIGHT_POSITIONS );
-	TechniqueArrayParameter oParamPointLightColors = oTechnique.GetArrayParameter( PARAM_POINT_LIGHT_COLORS );
-	TechniqueArrayParameter oParamPointLightIntensities = oTechnique.GetArrayParameter( PARAM_POINT_LIGHT_INTENSITIES );
-	TechniqueArrayParameter oParamPointLightFalloffMinDistances = oTechnique.GetArrayParameter( PARAM_POINT_LIGHT_FALLOFF_MIN_DISTANCES );
-	TechniqueArrayParameter oParamPointLightFallofMaxDistances = oTechnique.GetArrayParameter( PARAM_POINT_LIGHT_FALLOFF_MAX_DISTANCES );
-
-	TechniqueArrayParameter oParamSpotLightPositions = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_POSITIONS );
-	TechniqueArrayParameter oParamSpotLightDirections = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_DIRECTIONS );
-	TechniqueArrayParameter oParamSpotLightColors = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_COLORS );
-	TechniqueArrayParameter oParamSpotLightIntensities = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_INTENSITIES );
-	TechniqueArrayParameter oParamSpotLightOuterRanges = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_OUTERRANGES );
-	TechniqueArrayParameter oParamSpotLightRanges = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_RANGES );
-	TechniqueArrayParameter oParamSpotLightFalloffMinDistances = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_FALLOFF_MIN_DISTANCES );
-	TechniqueArrayParameter oParamSpotLightFalloffMaxDistances = oTechnique.GetArrayParameter( PARAM_SPOT_LIGHT_FALLOFF_MAX_DISTANCES );
-
-	oParamDirectionalLightCount.SetValue( ( int )aDirectionalLights.Count() );
-	oParamPointLightCount.SetValue( ( int )aPointLights.Count() );
-	oParamSpotLightCount.SetValue( ( int )aSpotLights.Count() );
+	GPULightingDataBlock oLightingData;
 
 	for( uint u = 0; u < aDirectionalLights.Count(); ++u )
 	{
-		oParamDirectionalLightDirections.SetValue( aDirectionalLights[ u ]->m_vDirection, u );
-		oParamDirectionalLightColors.SetValue( aDirectionalLights[ u ]->m_vColor, u );
-		oParamDirectionalLightIntensities.SetValue( aDirectionalLights[ u ]->m_fIntensity, u );
+		oLightingData.m_aDirectionalLights[ u ].m_vDirection = aDirectionalLights[ u ]->m_vDirection;
+		oLightingData.m_aDirectionalLights[ u ].m_vColor = aDirectionalLights[ u ]->m_vColor;
+		oLightingData.m_aDirectionalLights[ u ].m_fIntensity = aDirectionalLights[ u ]->m_fIntensity;
 	}
+	oLightingData.m_uDirectionalLightCount = aDirectionalLights.Count();
 
 	for( uint u = 0; u < aPointLights.Count(); ++u )
 	{
-		oParamPointLightPositions.SetValue( aPointLights[ u ]->m_vPosition, u );
-		oParamPointLightColors.SetValue( aPointLights[ u ]->m_vColor, u );
-		oParamPointLightIntensities.SetValue( aPointLights[ u ]->m_fIntensity, u );
-		oParamPointLightFalloffMinDistances.SetValue( aPointLights[ u ]->m_fFalloffMinDistance, u );
-		oParamPointLightFallofMaxDistances.SetValue( aPointLights[ u ]->m_fFalloffMaxDistance, u );
+		oLightingData.m_aPointLights[ u ].m_vPosition = aPointLights[ u ]->m_vPosition;
+		oLightingData.m_aPointLights[ u ].m_vColor = aPointLights[ u ]->m_vColor;
+		oLightingData.m_aPointLights[ u ].m_fIntensity = aPointLights[ u ]->m_fIntensity;
+		oLightingData.m_aPointLights[ u ].m_fFalloffMinDistance = aPointLights[ u ]->m_fFalloffMinDistance;
+		oLightingData.m_aPointLights[ u ].m_fFalloffMaxDistance = aPointLights[ u ]->m_fFalloffMaxDistance;
 	}
+	oLightingData.m_uPointLightCount = aPointLights.Count();
 
 	for( uint u = 0; u < aSpotLights.Count(); ++u )
 	{
-		oParamSpotLightPositions.SetValue( aSpotLights[ u ]->m_vPosition, u );
-		oParamSpotLightDirections.SetValue( aSpotLights[ u ]->m_vDirection, u );
-		oParamSpotLightColors.SetValue( aSpotLights[ u ]->m_vColor, u );
-		oParamSpotLightIntensities.SetValue( aSpotLights[ u ]->m_fIntensity, u );
-		oParamSpotLightOuterRanges.SetValue( glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) ), u );
-		oParamSpotLightRanges.SetValue( glm::cos( glm::radians( aSpotLights[ u ]->m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) ), u );
-		oParamSpotLightFalloffMinDistances.SetValue( aSpotLights[ u ]->m_fFalloffMinDistance, u );
-		oParamSpotLightFalloffMaxDistances.SetValue( aSpotLights[ u ]->m_fFalloffMaxDistance, u );
+		oLightingData.m_aSpotLights[ u ].m_vDirection = aSpotLights[ u ]->m_vDirection;
+		oLightingData.m_aSpotLights[ u ].m_vPosition = aSpotLights[ u ]->m_vPosition;
+		oLightingData.m_aSpotLights[ u ].m_vColor = aSpotLights[ u ]->m_vColor;
+		oLightingData.m_aSpotLights[ u ].m_fIntensity = aSpotLights[ u ]->m_fIntensity;
+		oLightingData.m_aSpotLights[ u ].m_fInnerRange = glm::cos( glm::radians( aSpotLights[ u ]->m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) );
+		oLightingData.m_aSpotLights[ u ].m_fOuterRange = glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) );
+		oLightingData.m_aSpotLights[ u ].m_fFalloffMinDistance = aSpotLights[ u ]->m_fFalloffMinDistance;
+		oLightingData.m_aSpotLights[ u ].m_fFalloffMaxDistance = aSpotLights[ u ]->m_fFalloffMaxDistance;
 	}
+	oLightingData.m_uSpotLightCount = aSpotLights.Count();
+
+	return oLightingData;
 }
 
 template < typename Technique >
@@ -250,8 +203,9 @@ Renderer::Renderer()
 
 	m_oRenderMesh = MeshBuilder( std::move( aVertices ), std::move( aIndices ) ).WithUVs( std::move( aUVs ) ).Build();
 
-	m_oMaterialBuffer.Create( ShaderBufferDesc().Dynamic() );
 	m_oSkinningBuffer.Create( ShaderBufferDesc().Dynamic() );
+	m_oMaterialBuffer.Create( ShaderBufferDesc().Dynamic() );
+	m_oLightingBuffer.Create( ShaderBufferDesc().Dynamic() );
 
 	m_oFramebuffer.m_uFrameBufferID = 0;
 
@@ -275,15 +229,19 @@ void Renderer::Render( const RenderContext& oRenderContext )
 
 	UpdateRenderPipeline( oRenderContext );
 
-	GPUMaterialDataBlock oMaterialDataBlock;
-	g_pMaterialManager->ExportMaterialsToGPU< LitMaterialData >( oMaterialDataBlock.m_aLitMaterialData );
-	g_pMaterialManager->ExportMaterialsToGPU< UnlitMaterialData >( oMaterialDataBlock.m_aUnlitMaterialData );
-
-	m_oMaterialBuffer.Update( oMaterialDataBlock );
-	SetShaderBufferSlot( m_oMaterialBuffer, 0 );
+	GPUMaterialDataBlock oMaterialData;
+	g_pMaterialManager->ExportMaterialsToGPU< LitMaterialData >( oMaterialData.m_aLitMaterialData );
+	g_pMaterialManager->ExportMaterialsToGPU< UnlitMaterialData >( oMaterialData.m_aUnlitMaterialData );
 
 	m_oSkinningBuffer.Update( m_oGPUSkinningStorage.GetSkinningData() );
-	SetShaderBufferSlot( m_oSkinningBuffer, 1 );
+	SetShaderBufferSlot( m_oSkinningBuffer, 0 );
+
+	m_oMaterialBuffer.Update( oMaterialData );
+	SetShaderBufferSlot( m_oMaterialBuffer, 1 );
+
+	GPULightingDataBlock oLightingData = SetupLighting( m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
+	m_oLightingBuffer.Update( oLightingData );
+	SetShaderBufferSlot( m_oLightingBuffer, 2 );
 
 	switch( m_eRenderingMode )
 	{
@@ -617,8 +575,6 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 
 			TechniqueParameter oParamViewPosition = oTechnique.GetParameter( PARAM_VIEW_POSITION );
 
-			SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
-
 			if( oParamViewPosition.IsValid() )
 				oParamViewPosition.SetValue( m_oCamera.m_vPosition );
 
@@ -637,8 +593,6 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 			g_pMaterialManager->PrepareMaterials( oTechnique );
 
 			TechniqueParameter oParamViewPosition = oTechnique.GetParameter( PARAM_VIEW_POSITION );
-
-			SetupLighting( oTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 
 			if( oParamViewPosition.IsValid() )
 				oParamViewPosition.SetValue( m_oCamera.m_vPosition );
@@ -719,8 +673,6 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 
 	{
 		GPUProfilerBlock oGPUBlock( "Lighting" );
-
-		SetupLighting( oComposeTechnique, m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 
 		RenderQuad();
 	}

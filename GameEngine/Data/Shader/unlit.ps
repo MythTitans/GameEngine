@@ -16,7 +16,7 @@ struct UnlitMaterialData
     vec3 diffuseColor;
 };
 
-layout(std140, binding = 0) uniform MaterialDataBlock
+layout(std140, binding = 1) uniform MaterialDataBlock
 {
     LitMaterialData litMaterialData[ 128 ];
     UnlitMaterialData unlitMaterialData[ 128 ];

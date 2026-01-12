@@ -27,10 +27,48 @@ struct UnlitMaterialData
     vec3 diffuseColor;
 };
 
-layout(std140, binding = 0) uniform MaterialDataBlock
+layout(std140, binding = 1) uniform MaterialDataBlock
 {
     LitMaterialData litMaterialData[ 128 ];
     UnlitMaterialData unlitMaterialData[ 128 ];
+};
+
+struct DirectionalLightData
+{
+	vec3 direction;
+	vec3 color;
+	float intensity;
+};
+
+struct PointLightData
+{
+	vec3 position;
+	vec3 color;
+	float intensity;
+	float falloffMinDistance;
+	float falloffMaxDistance;
+};
+
+struct SpotLightData
+{
+	vec3 position;
+	vec3 direction;
+	vec3 color;
+	float intensity;
+	float innerRange;
+	float outerRange;
+	float falloffMinDistance;
+	float falloffMaxDistance;
+};
+
+layout(std140, binding = 2) uniform LightingDataBlock
+{
+	DirectionalLightData directionalLightData[ 4 ];
+	PointLightData pointLightData[ 128 ];
+	SpotLightData spotLightData[ 128 ];
+	uint directionalLightCount;
+	uint pointLightCount;
+	uint spotLightCount;
 };
 
 uniform sampler2D diffuseMap;
@@ -47,28 +85,6 @@ uniform usampler2D materialMap;
 uniform sampler2D depthMap;
 uniform mat4 inverseViewProjection;
 #endif
-
-uniform vec3 directionalLightDirections[ MAX_DIRECTIONAL_LIGHT_COUNT ];
-uniform vec3 directionalLightColors[ MAX_DIRECTIONAL_LIGHT_COUNT ];
-uniform float directionalLightIntensities[ MAX_DIRECTIONAL_LIGHT_COUNT ];
-uniform int directionalLightCount;
-
-uniform vec3 pointLightPositions[ MAX_POINT_LIGHT_COUNT ];
-uniform vec3 pointLightColors[ MAX_POINT_LIGHT_COUNT ];
-uniform float pointLightIntensities[ MAX_POINT_LIGHT_COUNT ];
-uniform float pointLightFalloffMinDistances[ MAX_POINT_LIGHT_COUNT ];
-uniform float pointLightFalloffMaxDistances[ MAX_POINT_LIGHT_COUNT ];
-uniform int pointLightCount;
-
-uniform vec3 spotLightPositions[ MAX_SPOT_LIGHT_COUNT ];
-uniform vec3 spotLightDirections[ MAX_SPOT_LIGHT_COUNT ];
-uniform vec3 spotLightColors[ MAX_SPOT_LIGHT_COUNT ];
-uniform float spotLightIntensities[ MAX_SPOT_LIGHT_COUNT ];
-uniform float spotLightOuterRanges[ MAX_SPOT_LIGHT_COUNT ];
-uniform float spotLightRanges[ MAX_SPOT_LIGHT_COUNT ];
-uniform float spotLightFalloffMinDistances[ MAX_SPOT_LIGHT_COUNT ];
-uniform float spotLightFalloffMaxDistances[ MAX_SPOT_LIGHT_COUNT ];
-uniform int spotLightCount;
 
 void main()
 {
@@ -106,53 +122,52 @@ void main()
 
     for( int i = 0; i < directionalLightCount; ++i )
     {
-        float lightIntensity = directionalLightIntensities[ i ];
-        float surfaceExposure = max( dot( -normalize( directionalLightDirections[ i ] ), worldSpaceNormal ), 0.0 );
-        diffuseIntensity += lightIntensity * surfaceExposure * directionalLightColors[ i ];
+        float surfaceExposure = max( dot( -normalize( directionalLightData[ i ].direction ), worldSpaceNormal ), 0.0 );
+        diffuseIntensity += directionalLightData[ i ].intensity * surfaceExposure * directionalLightData[ i ].color;
 
-        vec3 halfVector = normalize( -directionalLightDirections[ i ] + pointToViewDirection );
+        vec3 halfVector = normalize( -directionalLightData[ i ].direction + pointToViewDirection );
         float surfaceHighlight = pow( max( dot( halfVector, worldSpaceNormal ), 0.0 ), shininess );
         float highlightIntensity = texture( specularMap, texCoord ).r;
-        specularIntensity += lightIntensity * surfaceHighlight * highlightIntensity * directionalLightColors[ i ];
+        specularIntensity += directionalLightData[ i ].intensity * surfaceHighlight * highlightIntensity * directionalLightData[ i ].color;
     }
 
     for( int i = 0; i < pointLightCount; ++i )
     {
-        vec3 positionToLight = pointLightPositions[ i ] - position;
-        float minSquareDist = pointLightFalloffMinDistances[ i ] * pointLightFalloffMinDistances[ i ];
-        float maxSquareDist = pointLightFalloffMaxDistances[ i ] * pointLightFalloffMaxDistances[ i ];
+        vec3 positionToLight = pointLightData[ i ].position - position;
+        float minSquareDist = pointLightData[ i ].falloffMinDistance * pointLightData[ i ].falloffMinDistance;
+        float maxSquareDist = pointLightData[ i ].falloffMaxDistance * pointLightData[ i ].falloffMaxDistance;
         float squareDist = dot( positionToLight, positionToLight );
         float attenuation = ( 1.0 - smoothstep( minSquareDist, maxSquareDist, squareDist ) );
-        float lightIntensity = pointLightIntensities[ i ] * attenuation;
+        float lightIntensity = pointLightData[ i ].intensity * attenuation;
 
-        vec3 pointToLightDirection = normalize( pointLightPositions[ i ] - position );
+        vec3 pointToLightDirection = normalize( pointLightData[ i ].position - position );
         float surfaceExposure = max( dot( pointToLightDirection, worldSpaceNormal ), 0.0 );
-        diffuseIntensity += lightIntensity * surfaceExposure * pointLightColors[ i ];
+        diffuseIntensity += lightIntensity * surfaceExposure * pointLightData[ i ].color;
 
         vec3 halfVector = normalize( pointToLightDirection + pointToViewDirection );
         float surfaceHighlight = pow( max( dot( halfVector, worldSpaceNormal ), 0.0 ), shininess );
         float highlightIntensity = texture( specularMap, texCoord ).r;
-        specularIntensity += lightIntensity * surfaceHighlight * highlightIntensity * pointLightColors[ i ];
+        specularIntensity += lightIntensity * surfaceHighlight * highlightIntensity * pointLightData[ i ].color;
     }
 
     for( int i = 0; i < spotLightCount; ++i )
     {
-        vec3 positionToLight = spotLightPositions[ i ] - position;
-        float minSquareDist = spotLightFalloffMinDistances[ i ] * spotLightFalloffMinDistances[ i ];
-        float maxSquareDist = spotLightFalloffMaxDistances[ i ] * spotLightFalloffMaxDistances[ i ];
+        vec3 positionToLight = spotLightData[ i ].position - position;
+        float minSquareDist = spotLightData[ i ].falloffMinDistance * spotLightData[ i ].falloffMinDistance;
+        float maxSquareDist = spotLightData[ i ].falloffMaxDistance * spotLightData[ i ].falloffMaxDistance;
         float squareDist = dot( positionToLight, positionToLight );
         float attenuation = ( 1.0 - smoothstep( minSquareDist, maxSquareDist, squareDist ) );
-        float lightIntensity = spotLightIntensities[ i ] * attenuation;
+        float lightIntensity = spotLightData[ i ].intensity * attenuation;
 
-        vec3 pointToLightDirection = normalize( spotLightPositions[ i ] - position );
-        float spotExposure = clamp( ( dot( pointToLightDirection, -normalize( spotLightDirections[ i ] ) ) - spotLightOuterRanges[ i ] ) / spotLightRanges[ i ], 0.0, 1.0 );
+        vec3 pointToLightDirection = normalize( spotLightData[ i ].position - position );
+        float spotExposure = clamp( ( dot( pointToLightDirection, -normalize( spotLightData[ i ].direction ) ) - spotLightData[ i ].outerRange ) / spotLightData[ i ].innerRange, 0.0, 1.0 );
         float surfaceExposure = max( dot( pointToLightDirection, worldSpaceNormal ), 0.0 ) * spotExposure;
-        diffuseIntensity += lightIntensity * surfaceExposure * spotLightColors[ i ];
+        diffuseIntensity += lightIntensity * surfaceExposure * spotLightData[ i ].color;
 
         vec3 halfVector = normalize( pointToLightDirection + pointToViewDirection );
         float surfaceHighlight = pow( max( dot( halfVector, worldSpaceNormal ), 0.0 ), shininess ) * spotExposure;
         float highlightIntensity = texture( specularMap, texCoord ).r;
-        specularIntensity += lightIntensity * surfaceHighlight * highlightIntensity * spotLightColors[ i ];
+        specularIntensity += lightIntensity * surfaceHighlight * highlightIntensity * spotLightData[ i ].color;
     }
     
     vec3 color = clamp( diffuseIntensity * diffuseColor * diffuseTextureColor.rgb + specularIntensity * specularColor * diffuseTextureColor.rgb, 0.0, 1.0 );

@@ -17,6 +17,10 @@
 class VisualComponent;
 struct GLFWwindow;
 
+inline constexpr uint MAX_DIRECTIONAL_LIGHTS = 4;
+inline constexpr uint MAX_POINT_LIGHTS = 128;
+inline constexpr uint MAX_SPOT_LIGHTS = 128;
+
 struct RenderRect
 {
 	RenderRect();
@@ -47,6 +51,44 @@ class GPUMarker
 public:
 	GPUMarker( const char* sName );
 	~GPUMarker();
+};
+
+struct GPUDirectionalLight
+{
+	alignas( 16 ) glm::vec3	m_vDirection;
+	alignas( 16 ) glm::vec3	m_vColor;
+	alignas( 4 ) float		m_fIntensity;
+};
+
+struct GPUPointLight
+{
+	alignas( 16 ) glm::vec3 m_vPosition;
+	alignas( 16 ) glm::vec3 m_vColor;
+	alignas( 4 ) float		m_fIntensity;
+	alignas( 4 ) float		m_fFalloffMinDistance;
+	alignas( 4 ) float		m_fFalloffMaxDistance;
+};
+
+struct GPUSpotLight
+{
+	alignas( 16 ) glm::vec3 m_vPosition;
+	alignas( 16 ) glm::vec3 m_vDirection;
+	alignas( 16 ) glm::vec3 m_vColor;
+	alignas( 4 ) float		m_fIntensity;
+	alignas( 4 ) float		m_fInnerRange;
+	alignas( 4 ) float		m_fOuterRange;
+	alignas( 4 ) float		m_fFalloffMinDistance;
+	alignas( 4 ) float		m_fFalloffMaxDistance;
+};
+
+struct GPULightingDataBlock
+{
+	GPUDirectionalLight m_aDirectionalLights[ MAX_DIRECTIONAL_LIGHTS ];
+	GPUPointLight		m_aPointLights[ MAX_POINT_LIGHTS ];
+	GPUSpotLight		m_aSpotLights[ MAX_SPOT_LIGHTS ];
+	uint				m_uDirectionalLightCount;
+	uint				m_uPointLightCount;
+	uint				m_uSpotLightCount;
 };
 
 class Renderer
@@ -175,8 +217,9 @@ private:
 
 	Mesh									m_oRenderMesh;
 
-	ShaderBuffer< GPUMaterialDataBlock >	m_oMaterialBuffer;
 	ShaderBuffer< GPUSkinningDataBlock >	m_oSkinningBuffer;
+	ShaderBuffer< GPUMaterialDataBlock >	m_oMaterialBuffer;
+	ShaderBuffer< GPULightingDataBlock >	m_oLightingBuffer;
 
 	TextureResPtr							m_xDefaultDiffuseMap;
 	TextureResPtr							m_xDefaultNormalMap;

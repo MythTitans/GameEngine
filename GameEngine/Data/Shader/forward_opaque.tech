@@ -11,47 +11,7 @@
         "normalMap",
         "specularMap",
         "emissiveMap",
-        "directionalLightCount",
-        "pointLightCount",
-        "spotLightCount",
         "useSkinning",
         "skinningOffset"
-    ],
-    "arrays":
-    [
-        {
-            "parameters":
-            [
-                "directionalLightDirections",
-                "directionalLightColors",
-                "directionalLightIntensities"
-            ],
-            "count": 2
-        },
-        {
-            "parameters":
-            [
-                "pointLightPositions",
-                "pointLightColors",
-                "pointLightIntensities",
-                "pointLightFalloffMinDistances",
-                "pointLightFalloffMaxDistances"
-            ],
-            "count": 8
-        },
-        {
-            "parameters":
-            [
-                "spotLightPositions",
-                "spotLightDirections",
-                "spotLightColors",
-                "spotLightIntensities",
-                "spotLightOuterRanges",
-                "spotLightRanges",
-                "spotLightFalloffMinDistances",
-                "spotLightFalloffMaxDistances"
-            ],
-            "count": 6
-        }
     ]
 }
