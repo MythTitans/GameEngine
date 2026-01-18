@@ -113,7 +113,7 @@ void main()
     vec3 diffuseColor = litMaterialData[ materialID ].diffuseColor;
     vec3 specularColor = litMaterialData[ materialID ].specularColor;
     vec3 emissiveColor = litMaterialData[ materialID ].emissiveColor;
-    float shininess = litMaterialData[ materialID ].shininess;
+    float shininess = max( litMaterialData[ materialID ].shininess, 0.001 );
 
     vec3 pointToViewDirection = normalize( viewPosition - position );
 
