@@ -1,5 +1,6 @@
 #include "GameWorld.h"
 
+#include "Core/FileUtils.h"
 #include "Core/Profiler.h"
 #include "Entity.h"
 #include "GameContext.h"
@@ -20,9 +21,19 @@ GameWorld::~GameWorld()
 	g_pGameWorld = nullptr;
 }
 
-void GameWorld::Load( const nlohmann::json& oJsonContent )
+void GameWorld::SetScene( const std::filesystem::path& oScenePath )
 {
-	m_oSceneJson = oJsonContent;
+	m_oScenePath = oScenePath;
+	m_oSceneJson = nlohmann::json::parse( ReadTextFile( m_oScenePath ) );
+}
+
+const std::filesystem::path& GameWorld::GetScene() const
+{
+	return m_oScenePath;
+}
+
+void GameWorld::Load()
+{
 	m_eWorldTrigger = WorldTrigger::LOAD;
 }
 
@@ -86,6 +97,11 @@ void GameWorld::Update( const GameContext& oGameContext )
 bool GameWorld::IsReady() const
 {
 	return m_eWorldState == WorldState::READY;
+}
+
+bool GameWorld::IsRunning() const
+{
+	return m_eWorldState == WorldState::RUNNING;
 }
 
 Entity* GameWorld::CreateEntity( const std::string& sName, Entity* pParent /*= nullptr */ )

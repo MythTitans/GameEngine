@@ -16,24 +16,28 @@ public:
 	GameWorld();
 	~GameWorld();
 
-	void	Load( const nlohmann::json& oJsonContent );
-	void	Run();
-	void	Reset();
-			
-	void	Update( const GameContext& oGameContext );
-			
-	bool	IsReady() const;
-			
-	Entity*	CreateEntity( const std::string& sName, Entity* pParent = nullptr );
-	Entity* CreateInternalEntity( const std::string& sName, Entity* pParent = nullptr );
-	Entity*	FindEntity( const uint64 uEntityID );
-	void	RemoveEntity( Entity* pEntity );
+	void							Load();
+	void							Run();
+	void							Reset();
+									
+	void							Update( const GameContext& oGameContext );
+									
+	bool							IsReady() const;
+	bool							IsRunning() const;
 
-	void	AttachToParent( Entity* pChild, Entity* pParent );
-	void	DetachFromParent( Entity* pChild );
+	void							SetScene( const std::filesystem::path& oScenePath );
+	const std::filesystem::path&	GetScene() const;
+			
+	Entity*							CreateEntity( const std::string& sName, Entity* pParent = nullptr );
+	Entity*							CreateInternalEntity( const std::string& sName, Entity* pParent = nullptr );
+	Entity*							FindEntity( const uint64 uEntityID );
+	void							RemoveEntity( Entity* pEntity );
+
+	void							AttachToParent( Entity* pChild, Entity* pParent );
+	void							DetachFromParent( Entity* pChild );
 
 private:
-	void	UpdateWorld( const GameContext& oGameContext );
+	void							UpdateWorld( const GameContext& oGameContext );
 
 	enum class WorldState : uint8
 	{
@@ -51,11 +55,12 @@ private:
 		RUN
 	};
 
-	WorldState		m_eWorldState;
-	WorldTrigger	m_eWorldTrigger;
+	WorldState				m_eWorldState;
+	WorldTrigger			m_eWorldTrigger;
 
-	Scene			m_oScene;
-	nlohmann::json	m_oSceneJson;
+	std::filesystem::path	m_oScenePath;
+	Scene					m_oScene;
+	nlohmann::json			m_oSceneJson;
 };
 
 extern GameWorld* g_pGameWorld;

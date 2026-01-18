@@ -9,6 +9,7 @@
 #include "Core/ArrayUtils.h"
 #include "Core/FileUtils.h"
 #include "Core/Profiler.h"
+#include "Core/StringUtils.h"
 #include "Game/Entity.h"
 #include "Game/GameEngine.h"
 #include "Game/InputHandler.h"
@@ -297,14 +298,96 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 	ImGui::DragFloat( "Camera speed", &g_pCameraManager->m_oFreeCamera.m_fSpeed );
 	ImGui::DragFloat( "Camera fast speed multiplier", &g_pCameraManager->m_oFreeCamera.m_fFastSpeedMultiplier );
-	
+
+	ImGui::Separator();
+
+	const std::filesystem::path oScenePath( "Data/Scene" );
+	const std::filesystem::directory_iterator oScenePathIterator( oScenePath );
+
+	Array< std::string > aScenes;
+
+	for( const std::filesystem::directory_entry& oElement : oScenePathIterator )
+	{
+		const std::filesystem::path oPath = oElement.path();
+		const std::string sFilename = oPath.filename().string();
+		const std::string sExtension = oPath.extension().string();
+
+		if( oElement.is_regular_file() && sExtension == ".scene" )
+			aScenes.PushBack( sFilename );
+	}
+
+	static std::string sSceneName = "";
+	ImGui::InputText( "Scene name", &sSceneName );
+
+	const Array< std::string > aParts = Split( sSceneName, "." );
+	const bool bMalformed = aParts.Count() < 2 || aParts.Back() != "scene";
+	const bool bExistingName = Contains( aScenes, sSceneName );
+
+	ImGui::BeginDisabled( bMalformed || bExistingName );
+	if( ImGui::Button( "New scene" ) )
+	{
+		Scene oBlankScene;
+
+		nlohmann::json oJsonContent;
+		oBlankScene.Save( oJsonContent );
+		WriteTextFile( oJsonContent.dump( 4 ), oScenePath / sSceneName );
+
+		sSceneName.clear();
+	}
+	ImGui::EndDisabled();
+
+	if( bMalformed && ImGui::IsItemHovered( ImGuiHoveredFlags_AllowWhenDisabled ) )
+	{
+		ImGui::BeginTooltip();
+		ImGui::Text( "Scene name should be [name].scene !" );
+		ImGui::EndTooltip();
+	}
+	else if( bExistingName && ImGui::IsItemHovered( ImGuiHoveredFlags_AllowWhenDisabled ) )
+	{
+		ImGui::BeginTooltip();
+		ImGui::Text( "Scene name already exist !" );
+		ImGui::EndTooltip();
+	}
+
+	ImGui::Separator();
+
+	std::string sCurrentScene = g_pGameWorld->GetScene().filename().string();
+	ImGui::InputText( "Current scene", &sCurrentScene, ImGuiInputTextFlags_ReadOnly );
+
+	ImGui::BeginDisabled( g_pGameWorld->IsRunning() == false );
 	if( ImGui::Button( "Save scene" ) )
 	{
 		nlohmann::json oJsonContent;
 		g_pGameWorld->m_oScene.Save( oJsonContent );
-		WriteTextFile( oJsonContent.dump( 4 ), std::filesystem::path( "Data/Scene/test.scene" ) );
+		WriteTextFile( oJsonContent.dump( 4 ), oScenePath / sCurrentScene );
+	}
+	ImGui::EndDisabled();
+
+	ImGui::Separator();
+
+	static std::string sSceneToLoad = sCurrentScene;
+	if( ImGui::BeginCombo( "Scene to load", sSceneToLoad.c_str() ) )
+	{
+		for( const std::string& sScene : aScenes )
+		{
+			if( ImGui::Selectable( sScene.c_str(), sScene == sSceneToLoad ) )
+				sSceneToLoad = sScene;
+		}
+
+		ImGui::EndCombo();
 	}
 
+	ImGui::BeginDisabled( g_pGameWorld->IsRunning() == false );
+	if( ImGui::Button( "Load scene" ) )
+	{
+		g_pGameWorld->SetScene( oScenePath / sSceneToLoad );
+		g_pGameWorld->Reset();
+	}
+	ImGui::EndDisabled();
+
+	ImGui::Separator();
+
+	ImGui::BeginDisabled( g_pGameWorld->IsRunning() == false );
 	if( g_pGameEngine->m_eGameState == GameEngine::GameState::EDITING && ImGui::Button( "Start running " ) )
 	{
 		g_pGameEngine->m_eGameState = GameEngine::GameState::RUNNING;
@@ -353,6 +436,7 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 
 		ImGui::TreePop();
 	}
+	ImGui::EndDisabled();
 
 	ImGui::End();
 
