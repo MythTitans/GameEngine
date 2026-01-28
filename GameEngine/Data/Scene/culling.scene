@@ -1,0 +1,98 @@
+{
+    "scene": [
+        {
+            "components": [
+                {
+                    "name": "DirectionalLightComponent",
+                    "properties": [
+                        {
+                            "Color": {
+                                "x": 1.0,
+                                "y": 1.0,
+                                "z": 1.0
+                            }
+                        },
+                        {
+                            "Intensity": 1.0
+                        }
+                    ]
+                }
+            ],
+            "id": 2096600,
+            "name": "Sun",
+            "position": {
+                "x": 0.0,
+                "y": 20.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 0.8535534143447876,
+                "x": 0.3535533547401428,
+                "y": 0.3535533547401428,
+                "z": -0.1464465856552124
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "ProceduralGridGenerator",
+                    "properties": [
+                        {
+                            "Width": 25
+                        },
+                        {
+                            "Height": 25
+                        },
+                        {
+                            "Cell width": 2.5
+                        },
+                        {
+                            "Cell height": 2.5
+                        },
+                        {
+                            "Min variation X offset": 0.20000000298023224
+                        },
+                        {
+                            "Max variation X offset": 0.5
+                        },
+                        {
+                            "Min variation Y offset": 0.0
+                        },
+                        {
+                            "Max variation Y offset": 1.0
+                        },
+                        {
+                            "Min variation Z offset": 0.20000000298023224
+                        },
+                        {
+                            "Max variation Z offset": 0.5
+                        }
+                    ]
+                }
+            ],
+            "id": 2096601,
+            "name": "Generator",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        }
+    ]
+}

@@ -4,6 +4,7 @@
 #include "Core/Array.h"
 #include "Core/Intrusive.h"
 #include "Core/stb_truetype.h"
+#include "Graphics/BoundingVolume.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Technique.h"
 #include "Graphics/Texture.h"
@@ -112,6 +113,7 @@ public:
 	void						Destroy() override;
 
 	const Array< Mesh >&		GetMeshes() const;
+	const AxisAlignedBox		GetAABB() const;
 
 	const Array< Animation >&	GetAnimations() const;
 	const Skeleton&				GetSkeleton() const;
@@ -121,6 +123,7 @@ public:
 
 private:
 	Array< Mesh >			m_aMeshes;
+	AxisAlignedBox			m_oAABB;
 	Array< Animation >		m_aAnimations;
 	Skeleton				m_oSkeleton;
 	Array < glm::mat4x3 >	m_aPoseMatrices;

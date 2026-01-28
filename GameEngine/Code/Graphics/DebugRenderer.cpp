@@ -344,6 +344,61 @@ void DebugRenderer::RenderWireCones( const Array< Cylinder >& aCylinders, const 
 	glUseProgram( 0 );
 }
 
+void DebugRenderer::RenderWireAxisBoxes( const Array< AxisBox >& aBoxes, const RenderContext& oRenderContext )
+{
+	Technique& oTechnique = m_xLine->GetTechnique();
+	glUseProgram( oTechnique.m_uProgramID );
+
+	m_oLineSheet.GetParameter( LineParam::VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
+
+	Array< GLfloat > aVertices;
+	aVertices.Reserve( 3 * 16 * aBoxes.Count() );
+	for( const AxisBox& oBox : aBoxes )
+	{
+		const glm::vec3 vP1 = oBox.m_vMin;
+		const glm::vec3 vP2 = oBox.m_vMin + glm::vec3( oBox.m_vMax.x - oBox.m_vMin.x, 0.f, 0.f );
+		const glm::vec3 vP3 = oBox.m_vMin + glm::vec3( oBox.m_vMax.x - oBox.m_vMin.x, 0.f, oBox.m_vMax.z - oBox.m_vMin.z );
+		const glm::vec3 vP4 = oBox.m_vMin + glm::vec3( 0.f, 0.f, oBox.m_vMax.z - oBox.m_vMin.z );
+		const glm::vec3 vVerticalOffset = glm::vec3( 0.f, oBox.m_vMax.y - oBox.m_vMin.y, 0.f );
+
+		PushVertex( aVertices, vP1 );
+		PushVertex( aVertices, vP2 );
+		PushVertex( aVertices, vP3 );
+		PushVertex( aVertices, vP4 );
+
+		PushVertex( aVertices, vP1 + vVerticalOffset );
+		PushVertex( aVertices, vP2 + vVerticalOffset );
+		PushVertex( aVertices, vP3 + vVerticalOffset );
+		PushVertex( aVertices, vP4 + vVerticalOffset );
+
+		PushVertex( aVertices, vP1 );
+		PushVertex( aVertices, vP1 + vVerticalOffset );
+		PushVertex( aVertices, vP2 );
+		PushVertex( aVertices, vP2 + vVerticalOffset );
+		PushVertex( aVertices, vP3 );
+		PushVertex( aVertices, vP3 + vVerticalOffset );
+		PushVertex( aVertices, vP4 );
+		PushVertex( aVertices, vP4 + vVerticalOffset );
+	}
+
+	glBindVertexArray( m_uVertexArrayID );
+	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
+	glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+
+	for( uint u = 0; u < aBoxes.Count(); ++u )
+	{
+		m_oLineSheet.GetParameter( LineParam::COLOR ).SetValue( aBoxes[ u ].m_vColor );
+		glDrawArrays( GL_LINE_LOOP, 4 * u, 4 );
+		glDrawArrays( GL_LINE_LOOP, 4 * u + 4, 4 );
+		glDrawArrays( GL_LINES, 4 * u + 8, 8 );
+	}
+
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindVertexArray( 0 );
+
+	glUseProgram( 0 );
+}
+
 void DebugRenderer::RenderWireBoxes( const Array< Box >& aBoxes, const RenderContext& oRenderContext )
 {
 	Technique& oTechnique = m_xLine->GetTechnique();

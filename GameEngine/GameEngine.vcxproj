@@ -198,6 +198,8 @@
     <ClCompile Include="Code\Game\Road.cpp" />
     <ClCompile Include="Code\Game\Skybox.cpp" />
     <ClCompile Include="Code\Game\Terrain.cpp" />
+    <ClCompile Include="Code\Game\ProceduralGridGenerator.cpp" />
+    <ClCompile Include="Code\Graphics\BoundingVolume.cpp" />
     <ClCompile Include="Code\Graphics\Road.cpp" />
     <ClCompile Include="Code\Game\Spline.cpp" />
     <ClCompile Include="Code\Graphics\DebugDisplay.cpp" />
@@ -277,6 +279,8 @@
     <ClInclude Include="Code\Game\Road.h" />
     <ClInclude Include="Code\Game\Skybox.h" />
     <ClInclude Include="Code\Game\Terrain.h" />
+    <ClInclude Include="Code\Game\ProceduralGridGenerator.h" />
+    <ClInclude Include="Code\Graphics\BoundingVolume.h" />
     <ClInclude Include="Code\Graphics\ShaderBuffer.h" />
     <ClInclude Include="Code\Graphics\Road.h" />
     <ClInclude Include="Code\Game\Spline.h" />

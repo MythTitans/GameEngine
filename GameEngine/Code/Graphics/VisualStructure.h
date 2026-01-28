@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 
+#include "BoundingVolume.h"
 #include "Core/Array.h"
 #include "Mesh.h"
 #include "Technique.h"
@@ -70,6 +71,7 @@ struct VisualNode
 	Array< Mesh >			m_aMeshes;
 	uint					m_uBoneStorageIndex;
 	uint					m_uBoneCount;
+	AxisAlignedBox			m_oAABB;
 };
 
 class VisualStructure

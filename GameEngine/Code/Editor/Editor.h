@@ -59,8 +59,8 @@ public:
 	TrenchTool		m_oTrenchTool;
 
 private:
-	Ray			ComputeCursorViewRay( const InputContext& oInputContext, const RenderContext& oRenderContext ) const;
-	glm::vec3	ProjectOnGizmo( const Ray& oRay, const GizmoComponent& oGizmo ) const;
+	RayUtil		ComputeCursorViewRay( const InputContext& oInputContext, const RenderContext& oRenderContext ) const;
+	glm::vec3	ProjectOnGizmo( const RayUtil& oRay, const GizmoComponent& oGizmo ) const;
 	Entity*		DuplicateEntity( const Entity* pEntity, const std::string& sNameSuffix = "_Duplicate", Entity* pForcedParent = nullptr );
 
 	bool		DisplayHierarchy( Entity* pEntity, int iImGuiID );

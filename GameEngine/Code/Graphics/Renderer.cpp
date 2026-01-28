@@ -12,6 +12,7 @@
 
 #include "Core/Logger.h"
 #include "Core/Profiler.h"
+#include "DebugDisplay.h"
 #include "Game/Entity.h"
 #include "Game/InputHandler.h"
 #include "Game/ResourceLoader.h"
@@ -78,36 +79,68 @@ static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTe
 	TechniqueParameter oParamModelInverseTranspose = oTechnique.GetParameter( PARAM_MODEL_INVERSE_TRANSPOSE );
 	TechniqueParameter oParamModel = oTechnique.GetParameter( PARAM_MODEL );
 
-	for( const VisualNode* pVisualNode : aVisualNodes )
+	const glm::mat4 mViewProjectionMatrix = g_pRenderer->m_oCamera.GetViewProjectionMatrix();
+
+	const Frustum oFrustum = Frustum::FromViewProjection( mViewProjectionMatrix );
+
+	Array< VisualNode* > aVisibleNodes;
+
+	if( g_pRenderer->m_bEnableFrustumCulling )
 	{
-		if( oParamSkinningOffset.IsValid() )
-			oParamSkinningOffset.SetValue( pVisualNode->m_uBoneStorageIndex );
+		ProfilerBlock oBlock( "FrustumCulling" );
 
-		if( oParamUseSkinning.IsValid() )
-			oParamUseSkinning.SetValue( pVisualNode->m_uBoneCount > 0 );
-
-		const glm::mat4 mMatrix = ToMat4( pVisualNode->m_mMatrix );
-
-		oParamModelViewProjection.SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * mMatrix );
-
-		if( oParamModelInverseTranspose.IsValid() )
-			oParamModelInverseTranspose.SetValue( glm::inverseTranspose( mMatrix ) );
-
-		if( oParamModel.IsValid() )
-			oParamModel.SetValue( mMatrix );
-
-		const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
-		for( const Mesh& oMesh : aMeshes )
+		aVisibleNodes.Reserve( aVisualNodes.Count() );
+		for( VisualNode* pVisualNode : aVisualNodes )
 		{
-			g_pMaterialManager->ApplyMaterial( oMesh.m_oMaterial, oTechnique );
+			if( oFrustum.IsVisible( pVisualNode->m_oAABB ) )
+				aVisibleNodes.PushBack( pVisualNode );
+		}
+	}
+	else
+	{
+		aVisibleNodes = aVisualNodes;
+	}
 
-			const Array< const Texture* >& aTextures = oTechnique.m_aTextures;
-			for( uint u = 0; u < aTextures.Count(); ++u )
-				g_pRenderer->SetTextureSlot( *aTextures[ u ], ( int )u );
+	{
+		ProfilerBlock oBlock( "Draw" );
 
-			g_pRenderer->DrawMesh( oMesh );
+		for( const VisualNode* pVisualNode : aVisibleNodes )
+		{
+			if( g_pRenderer->m_bEnableFrustumCulling )
+			{
+				if( oFrustum.IsVisible( pVisualNode->m_oAABB ) == false )
+					continue;
+			}
 
-			oTechnique.m_aTextures.Clear();
+			if( oParamSkinningOffset.IsValid() )
+				oParamSkinningOffset.SetValue( pVisualNode->m_uBoneStorageIndex );
+
+			if( oParamUseSkinning.IsValid() )
+				oParamUseSkinning.SetValue( pVisualNode->m_uBoneCount > 0 );
+
+			const glm::mat4 mMatrix = ToMat4( pVisualNode->m_mMatrix );
+
+			oParamModelViewProjection.SetValue( mViewProjectionMatrix * mMatrix );
+
+			if( oParamModelInverseTranspose.IsValid() )
+				oParamModelInverseTranspose.SetValue( glm::inverseTranspose( mMatrix ) );
+
+			if( oParamModel.IsValid() )
+				oParamModel.SetValue( mMatrix );
+
+			const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
+			for( const Mesh& oMesh : aMeshes )
+			{
+				g_pMaterialManager->ApplyMaterial( oMesh.m_oMaterial, oTechnique );
+
+				const Array< const Texture* >& aTextures = oTechnique.m_aTextures;
+				for( uint u = 0; u < aTextures.Count(); ++u )
+					g_pRenderer->SetTextureSlot( *aTextures[ u ], ( int )u );
+
+				g_pRenderer->DrawMesh( oMesh );
+
+				oTechnique.m_aTextures.Clear();
+			}
 		}
 	}
 }
@@ -168,6 +201,12 @@ GPUMarker::~GPUMarker()
 	glPopDebugGroup();
 }
 
+RendererStatistics::RendererStatistics()
+	: m_uTriangleCount( 0 )
+	, m_uDrawCallCount( 0 )
+{
+}
+
 Renderer* g_pRenderer = nullptr;
 
 Renderer::Renderer()
@@ -181,6 +220,7 @@ Renderer::Renderer()
 	, m_eRenderingMode( RenderingMode::FORWARD )
 	, m_eMSAALevel( MSAALevel::MSAA_8X )
 	, m_bSRGB( true )
+	, m_bEnableFrustumCulling( true )
 	, m_bUpdateRenderPipeline( false )
 	, m_bDisplayDebug( false )
 {
@@ -252,10 +292,38 @@ void Renderer::Render( const RenderContext& oRenderContext )
 		RenderDeferred( oRenderContext );
 		break;
 	}
+
+	auto FormatNumber = []( const uint64 uNumber )
+	{
+		std::string sResult;
+
+
+		uint64 uRemaining = uNumber;
+		while( uRemaining != 0 )
+		{
+			if( sResult.empty() == false )
+				sResult = "'" + sResult;
+
+			const uint64 uPart = uRemaining % 1000;
+			uRemaining = ( uRemaining - uPart ) / 1000;
+
+			if( uRemaining != 0 )
+				sResult = std::format( "{:03d}", uPart ) + sResult;
+			else
+				sResult = std::format( "{}", uPart ) + sResult;
+		}
+
+		return sResult;
+	};
+
+	const RendererStatistics& oRendererStatistics = g_pRenderer->GetStatistics();
+	g_pDebugDisplay->DisplayText( std::format( "Renderer statistics : {} triangles, {} draw calls", FormatNumber( oRendererStatistics.m_uTriangleCount ), FormatNumber( oRendererStatistics.m_uDrawCallCount ) ) );
 }
 
 void Renderer::Clear()
 {
+	m_oStatistics = RendererStatistics();
+
 	m_oVisualStructure.Clear();
 	m_oGPUSkinningStorage.Reset();
 }
@@ -376,6 +444,7 @@ void Renderer::DisplayDebug()
 	}
 
 	ImGui::Checkbox( "SRGB", &m_bSRGB );
+	ImGui::Checkbox( "Enable frustum culling", &m_bEnableFrustumCulling );
 
 	ImGui::InputInt( "Bloom iterations", &m_oBloom.m_iIterations );
 
@@ -443,6 +512,9 @@ void Renderer::ClearRenderTarget()
 
 void Renderer::DrawMesh( const Mesh& oMesh )
 {
+	m_oStatistics.m_uTriangleCount += oMesh.m_iIndexCount / 3;
+	m_oStatistics.m_uDrawCallCount += 1;
+
 	glBindVertexArray( oMesh.m_uVertexArrayID );
 	glDrawElements( GL_TRIANGLES, oMesh.m_iIndexCount, GL_UNSIGNED_INT, nullptr );
 	glBindVertexArray( 0 );
@@ -528,6 +600,11 @@ void Renderer::CopyRenderTargetDepth( const RenderTarget& oSource, const RenderT
 	glBlitFramebuffer( 0, 0, oSource.m_iWidth, oSource.m_iHeight, 0, 0, oDestination.m_iWidth, oDestination.m_iHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST );
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+}
+
+const RendererStatistics& Renderer::GetStatistics() const
+{
+	return m_oStatistics;
 }
 
 void Renderer::RenderForward( const RenderContext& oRenderContext )

@@ -240,14 +240,16 @@ public:
 			if( m_aStates[ uIndex ] == ComponentState::DISPOSED )
 			{
 				m_aPendingComponents.Remove( u );
-				return;
+				continue;
+				//return; // I don't understand why I had put this return, I don't think it is useful (and it slows down starting components at runtime)
 			}
 
 			if( m_aComponents[ uIndex ].IsInitialized() )
 			{
 				m_aPendingComponents.Remove( u );
 				StartComponentFromIndex( uIndex );
-				return;
+				continue;
+				//return; // I don't understand why I had put this return, I don't think it is useful (and it slows down starting components at runtime)
 			}
 		}
 	}
@@ -255,9 +257,7 @@ public:
 	void StartComponents() override
 	{
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
-		{
 			StartComponentFromIndex( u );
-		}
 	}
 
 	void StartComponent( Entity* pEntity ) override
@@ -275,9 +275,7 @@ public:
 	void StopComponents() override
 	{
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
-		{
 			StopComponentFromIndex( u );
-		}
 	}
 
 	void StopComponent( Entity* pEntity ) override
@@ -487,6 +485,30 @@ public:
 
 		return &m_aComponents.Back();
 	}
+
+// 	Array< ComponentType* > CreateComponents( const Array< Entity* >& aEntities, const ComponentManagement eComponentManagement )
+// 	{
+// 		Array< ComponentType* > aComponents;
+// 		aComponents.Reserve( aEntities.Count() );
+// 
+// 		uint uReusableComponentCount = 0;
+// 		for( uint u = 0; u < m_aStates.Count(); ++u )
+// 		{
+// 			if( m_aStates[ u ] == ComponentState::DISPOSED )
+// 				++uReusableComponentCount;
+// 		}
+// 
+// 		m_aComponents.Expand( aEntities.Count() - uReusableComponentCount );
+// 		m_aStates.Expand( aEntities.Count() - uReusableComponentCount );
+// 
+// 		if( eComponentManagement == ComponentManagement::INITIALIZE_THEN_START )
+// 			m_aPendingComponents.Expand( aEntities.Count() );
+// 
+// 		for( const Entity* pEntity : aEntities )
+// 			aComponents.PushBack( CreateComponent( pEntity, eComponentManagement ) );
+// 
+// 		return aComponents;
+// 	}
 
 	void InitializeComponentFromIndex( const int iIndex )
 	{

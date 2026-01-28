@@ -3,8 +3,10 @@
 #include "Editor/Inspector.h"
 #include "Game/Entity.h"
 #include "Game/GameContext.h"
+#include "Graphics/DebugDisplay.h"
 #include "Graphics/MaterialManager.h"
 #include "Graphics/Renderer.h"
+#include "Math/GLMHelpers.h"
 #include "Physics/Rigidbody.h"
 
 REGISTER_COMPONENT( VisualComponent );
@@ -38,16 +40,20 @@ void VisualComponent::Start()
 
 	m_pVisualNode = g_pRenderer->m_oVisualStructure.AddVisual( pEntity, m_xTechnique->GetTechnique() );
 	m_pVisualNode->m_aMeshes = m_xModel->GetMeshes();
+
+	m_oModelAABB = m_xModel->GetAABB();
 }
 
 void VisualComponent::Update( const GameContext& oGameContext )
 {
 	if( oGameContext.m_bEditing && m_xModel->IsLoaded() )
+	{
 		m_pVisualNode->m_aMeshes = m_xModel->GetMeshes();
+		m_oModelAABB = m_xModel->GetAABB();
+	}
 
-	const Entity* pEntity = GetEntity();
-
-	m_pVisualNode->m_mMatrix = pEntity->GetWorldTransform().GetMatrixTRS();
+	m_pVisualNode->m_mMatrix = GetEntity()->GetWorldTransform().GetMatrixTRS();
+	m_pVisualNode->m_oAABB = AxisAlignedBox::FromOrientedBox( OrientedBox::FromAxisAlignedBox( m_oModelAABB, m_pVisualNode->m_mMatrix ) );
 }
 
 void VisualComponent::Stop()
@@ -59,6 +65,12 @@ void VisualComponent::Dispose()
 {
 	m_xModel = nullptr;
 	m_xTechnique = nullptr;
+}
+
+void VisualComponent::DisplayGizmos( const bool bSelected )
+{
+	if( bSelected && m_pVisualNode != nullptr )
+		g_pDebugDisplay->DisplayWireAxisBox( m_pVisualNode->m_oAABB.m_vMin, m_pVisualNode->m_oAABB.m_vMax, glm::vec3( 1.f, 0.f, 1.f ) );
 }
 
 #ifdef EDITOR

@@ -52,6 +52,20 @@ struct Cylinder
 	glm::vec3	m_vColor;
 };
 
+struct AxisBox
+{
+	AxisBox( const glm::vec3& vMin, const glm::vec3& vMax, const glm::vec3& vColor )
+		: m_vMin( vMin )
+		, m_vMax( vMax )
+		, m_vColor( vColor )
+	{
+	}
+
+	glm::vec3 m_vMin;
+	glm::vec3 m_vMax;
+	glm::vec3 m_vColor;
+};
+
 struct Box
 {
 	Box( const glm::vec3& vCenter, const glm::vec3& vHalfSize, const glm::mat3& mAxes, const glm::vec3& vColor )
@@ -93,6 +107,7 @@ public:
 	void RenderWireSpheres( const Array< Sphere >& aSpheres, const RenderContext& oRenderContext );
 	void RenderWireCylinders( const Array< Cylinder >& aCylinders, const RenderContext& oRenderContext );
 	void RenderWireCones( const Array< Cylinder >& aCylinders, const RenderContext& oRenderContext );
+	void RenderWireAxisBoxes( const Array< AxisBox >& aBoxes, const RenderContext& oRenderContext );
 	void RenderWireBoxes( const Array< Box >& aBoxes, const RenderContext& oRenderContext );
 	void RenderWireMeshes( const Array< WireMesh >& aMeshes, const RenderContext& oRenderContext );
 

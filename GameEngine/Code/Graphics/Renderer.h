@@ -91,6 +91,14 @@ struct GPULightingDataBlock
 	uint				m_uSpotLightCount;
 };
 
+struct RendererStatistics
+{
+	RendererStatistics();
+
+	uint64	m_uTriangleCount;
+	uint64	m_uDrawCallCount;
+};
+
 class Renderer
 {
 public:
@@ -102,34 +110,36 @@ public:
 	Renderer();
 	~Renderer();
 
-	void			Render( const RenderContext& oRenderContext );
-	void			Clear();
+	void						Render( const RenderContext& oRenderContext );
+	void						Clear();
 
-	bool			OnLoading();
-	void			OnLoaded();
+	bool						OnLoading();
+	void						OnLoaded();
 
-	void			DisplayDebug();
+	void						DisplayDebug();
 
-	const Texture*	GetDefaultDiffuseMap() const;
-	const Texture*	GetDefaultNormalMap() const;
+	const Texture*				GetDefaultDiffuseMap() const;
+	const Texture*				GetDefaultNormalMap() const;
 
-	void			SetTechnique( const Technique& oTechnique );
-	void			ClearTechnique();
-	void			SetTextureSlot( const Texture& oTexture, const uint uTextureUnit );
-	void			ClearTextureSlot( const uint uTextureUnit );
-	void			SetCubeMapSlot( const CubeMap& oCubeMap, const uint uTextureUnit );
-	void			ClearCubeMapSlot( const uint uTextureUnit );
-	void			SetShaderBufferSlot( const ShaderBufferBase& oBuffer, const uint uBinding );
-	void			SetRenderTarget( const RenderTarget& oRenderTarget );
-	void			ClearRenderTarget();
-	void			DrawMesh( const Mesh& oMesh );
+	void						SetTechnique( const Technique& oTechnique );
+	void						ClearTechnique();
+	void						SetTextureSlot( const Texture& oTexture, const uint uTextureUnit );
+	void						ClearTextureSlot( const uint uTextureUnit );
+	void						SetCubeMapSlot( const CubeMap& oCubeMap, const uint uTextureUnit );
+	void						ClearCubeMapSlot( const uint uTextureUnit );
+	void						SetShaderBufferSlot( const ShaderBufferBase& oBuffer, const uint uBinding );
+	void						SetRenderTarget( const RenderTarget& oRenderTarget );
+	void						ClearRenderTarget();
+	void						DrawMesh( const Mesh& oMesh );
 
-	void			RenderQuad();
-	void			BlendTextures( const Texture& oTextureA, const Texture& oTextureB );
+	void						RenderQuad();
+	void						BlendTextures( const Texture& oTextureA, const Texture& oTextureB );
 
-	void			CopyRenderTarget( const RenderTarget& oSource, const RenderTarget& oDestination );
-	void			CopyRenderTargetColor( const RenderTarget& oSource, const uint uSourceColorIndex, const RenderTarget& oDestination, const uint uDestinationColorIndex );
-	void			CopyRenderTargetDepth( const RenderTarget& oSource, const RenderTarget& oDestination );
+	void						CopyRenderTarget( const RenderTarget& oSource, const RenderTarget& oDestination );
+	void						CopyRenderTargetColor( const RenderTarget& oSource, const uint uSourceColorIndex, const RenderTarget& oDestination, const uint uDestinationColorIndex );
+	void						CopyRenderTargetDepth( const RenderTarget& oSource, const RenderTarget& oDestination );
+
+	const RendererStatistics&	GetStatistics() const;
 
 private:
 	enum class RenderingMode : uint8
@@ -242,10 +252,13 @@ private:
 	RenderingMode							m_eRenderingMode;
 	MSAALevel								m_eMSAALevel;
 	bool									m_bSRGB;
+	bool									m_bEnableFrustumCulling;
 
 	bool									m_bUpdateRenderPipeline;
 
 	bool									m_bDisplayDebug;
+
+	RendererStatistics						m_oStatistics;
 };
 
 extern Renderer* g_pRenderer;

@@ -18,6 +18,7 @@
 #include "Core/stb_image.h"
 #include "Core/stb_truetype.h"
 #include "Core/StringUtils.h"
+#include "Graphics/BoundingVolume.h"
 #include "Graphics/DebugDisplay.h"
 #include "Graphics/MaterialManager.h"
 #include "InputHandler.h"
@@ -775,7 +776,8 @@ void ResourceLoader::ModelLoadCommand::LoadMeshes()
 {
 	aiNode* pRoot = m_pScene->mRootNode;
 
-	m_xResource->m_aMeshes.Reserve( CountMeshes( pRoot ) );
+	const uint uMeshCount = CountMeshes( pRoot );
+	m_xResource->m_aMeshes.Reserve( uMeshCount );
 	LoadMeshes( pRoot );
 }
 
@@ -860,6 +862,8 @@ void ResourceLoader::ModelLoadCommand::LoadMesh( aiMesh* pMesh )
 			++uVertexBoneIndex;
 		}
 	}
+
+	FitAxisAlignedBox( m_xResource->m_oAABB, aVertices );
 
 	MeshBuilder oMeshBuilder = MeshBuilder( std::move( aVertices ), std::move( aIndices ) )
 		.WithUVs( std::move( aUVs ) )

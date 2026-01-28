@@ -46,7 +46,7 @@ void ComponentManager::InitializeComponents( Entity* pEntity )
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
 	{
-		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+		//ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
 
 		pHolder->InitializeComponent( pEntity );
 	}
@@ -89,7 +89,7 @@ void ComponentManager::StartComponents( Entity* pEntity )
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
 	{
-		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+		//ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
 
 		pHolder->StartComponent( pEntity );
 	}
@@ -109,7 +109,7 @@ void ComponentManager::StopComponents( Entity* pEntity )
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
 	{
-		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+		//ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
 
 		pHolder->StopComponent( pEntity );
 	}
@@ -119,7 +119,7 @@ void ComponentManager::DisposeComponents( Entity* pEntity )
 {
 	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
 	{
-		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+		//ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
 
 		pHolder->DisposeComponent( pEntity );
 	}

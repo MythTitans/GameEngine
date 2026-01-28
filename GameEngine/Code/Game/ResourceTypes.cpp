@@ -82,6 +82,11 @@ const Array< Mesh >& ModelResource::GetMeshes() const
 	return m_aMeshes;
 }
 
+const AxisAlignedBox ModelResource::GetAABB() const
+{
+	return m_oAABB;
+}
+
 const Array< Animation >& ModelResource::GetAnimations() const
 {
 	return m_aAnimations;

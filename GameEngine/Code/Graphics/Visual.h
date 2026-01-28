@@ -18,6 +18,7 @@ public:
 	void					Stop() override;
 	void					Dispose() override;
 
+	void					DisplayGizmos( const bool bSelected ) override;
 #ifdef EDITOR
 	bool					DisplayInspector() override;
 	void					OnPropertyChanged( const std::string& sProperty ) override;
@@ -33,4 +34,5 @@ private:
 	TechniqueResPtr		m_xTechnique;
 
 	VisualNode*			m_pVisualNode;
+	AxisAlignedBox		m_oModelAABB;
 };

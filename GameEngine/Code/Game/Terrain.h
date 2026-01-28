@@ -30,7 +30,7 @@ public:
 	float				GetHeight() const;
 	float				GetIntensity() const;
 
-	const TerrainNode* GetTerrainNode() const;
+	const TerrainNode*	GetTerrainNode() const;
 
 private:
 	void				RegisterChunk( TerrainChunkComponent* pChunk );

@@ -23,6 +23,7 @@ void DebugDisplay::NewFrame()
 	m_aWireSpheres.Clear();
 	m_aWireCylinders.Clear();
 	m_aWireCones.Clear();
+	m_aWireAxisBoxes.Clear();
 	m_aWireBoxes.Clear();
 	m_aWireMeshes.Clear();
 }
@@ -38,6 +39,7 @@ void DebugDisplay::Display( const RenderContext& oRenderContext )
 	g_pRenderer->m_oDebugRenderer.RenderWireSpheres( m_aWireSpheres.m_aShapes, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireCylinders( m_aWireCylinders.m_aShapes, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireCones( m_aWireCones.m_aShapes, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireAxisBoxes( m_aWireAxisBoxes.m_aShapes, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireBoxes( m_aWireBoxes.m_aShapes, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireMeshes( m_aWireMeshes.m_aShapes, oRenderContext );
 
@@ -47,6 +49,7 @@ void DebugDisplay::Display( const RenderContext& oRenderContext )
 	g_pRenderer->m_oDebugRenderer.RenderWireSpheres( m_aWireSpheres.m_aShapesNoDepth, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireCylinders( m_aWireCylinders.m_aShapesNoDepth, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireCones( m_aWireCones.m_aShapesNoDepth, oRenderContext );
+	g_pRenderer->m_oDebugRenderer.RenderWireAxisBoxes( m_aWireAxisBoxes.m_aShapesNoDepth, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireBoxes( m_aWireBoxes.m_aShapesNoDepth, oRenderContext );
 	g_pRenderer->m_oDebugRenderer.RenderWireMeshes( m_aWireMeshes.m_aShapesNoDepth, oRenderContext );
 }
@@ -111,6 +114,11 @@ void DebugDisplay::DisplayWireCylinder( const glm::vec3& vFrom, const glm::vec3&
 void DebugDisplay::DisplayWireCone( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor, const bool bDepth /*= true*/ )
 {
 	m_aWireCones.Add( Cylinder( vFrom, vTo, fRadius, vColor ), bDepth );
+}
+
+void DebugDisplay::DisplayWireAxisBox( const glm::vec3& vMin, const glm::vec3& vMax, const glm::vec3& vColor, const bool bDepth /*= true */ )
+{
+	m_aWireAxisBoxes.Add( AxisBox( vMin, vMax, vColor ), bDepth );
 }
 
 void DebugDisplay::DisplayWireBox( const glm::vec3& vCenter, const glm::vec3& vHalfSize, const glm::mat3& mAxes, const glm::vec3& vColor, const bool bDepth /*= true*/ )

@@ -4,13 +4,13 @@
 #include "glm/gtx/intersect.hpp"
 #include "glm/gtx/projection.hpp"
 
-glm::vec3 Project( const Segment& oSegment, const glm::vec3& vDirection )
+glm::vec3 Project( const SegmentUtil& oSegment, const glm::vec3& vDirection )
 {
 	const glm::vec3 vSegmentDirection = oSegment.m_vTo - oSegment.m_vFrom;
 	return oSegment.m_vFrom + glm::proj( vSegmentDirection, vDirection );
 }
 
-bool Intersect( const Ray& oRay, const Plane& oPlane, glm::vec3& vIntersection )
+bool Intersect( const RayUtil& oRay, const PlaneUtil& oPlane, glm::vec3& vIntersection )
 {
 	float fDistance;
 	if( glm::intersectRayPlane( oRay.m_vOrigin, oRay.m_vDirection, oPlane.m_vOrigin, oPlane.m_vNormal, fDistance ) )
@@ -22,37 +22,37 @@ bool Intersect( const Ray& oRay, const Plane& oPlane, glm::vec3& vIntersection )
 	return false;
 }
 
-Ray::Ray()
+RayUtil::RayUtil()
 	: m_vOrigin( 0.f, 0.f, 0.f )
 	, m_vDirection( 0.f, 0.f, 0.f )
 {
 }
 
-Ray::Ray( const glm::vec3& vOrigin, const glm::vec3& vDirection )
+RayUtil::RayUtil( const glm::vec3& vOrigin, const glm::vec3& vDirection )
 	: m_vOrigin( vOrigin )
 	, m_vDirection( glm::normalize( vDirection ) )
 {
 }
 
-Segment::Segment()
+SegmentUtil::SegmentUtil()
 	: m_vFrom( 0.f, 0.f, 0.f )
 	, m_vTo( 0.f, 0.f, 0.f )
 {
 }
 
-Segment::Segment( const glm::vec3& vFrom, const glm::vec3& vTo )
+SegmentUtil::SegmentUtil( const glm::vec3& vFrom, const glm::vec3& vTo )
 	: m_vFrom( vFrom )
 	, m_vTo( vTo )
 {
 }
 
-Plane::Plane()
+PlaneUtil::PlaneUtil()
 	: m_vOrigin( 0.f, 0.f, 0.f )
 	, m_vNormal( 0.f, 0.f, 0.f )
 {
 }
 
-Plane::Plane( const glm::vec3& vOrigin, const glm::vec3& vNormal )
+PlaneUtil::PlaneUtil( const glm::vec3& vOrigin, const glm::vec3& vNormal )
 	: m_vOrigin( vOrigin )
 	, m_vNormal( glm::normalize( vNormal ) )
 {

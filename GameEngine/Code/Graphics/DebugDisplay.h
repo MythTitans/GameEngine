@@ -53,6 +53,7 @@ public:
 	void DisplayWireSphere( const glm::vec3& vPosition, const float fRadius, const glm::vec3& vColor, const bool bDepth = true );
 	void DisplayWireCylinder( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor, const bool bDepth = true );
 	void DisplayWireCone( const glm::vec3& vFrom, const glm::vec3& vTo, const float fRadius, const glm::vec3& vColor, const bool bDepth = true );
+	void DisplayWireAxisBox( const glm::vec3& vMin, const glm::vec3& vMax, const glm::vec3& vColor, const bool bDepth = true );
 	void DisplayWireBox( const glm::vec3& vCenter, const glm::vec3& vHalfSize, const glm::mat3& mAxes, const glm::vec3& vColor, const bool bDepth = true );
 	void DisplayWireMesh( const Mesh& oMesh, const glm::mat4x3& mMatrix, const glm::vec3& vColor, const bool bDepth = true );
 
@@ -66,6 +67,7 @@ private:
 	DebugShapeHolder< Sphere >		m_aWireSpheres;
 	DebugShapeHolder< Cylinder >	m_aWireCylinders;
 	DebugShapeHolder< Cylinder >	m_aWireCones;
+	DebugShapeHolder< AxisBox >		m_aWireAxisBoxes;
 	DebugShapeHolder< Box >			m_aWireBoxes;
 	DebugShapeHolder< WireMesh >	m_aWireMeshes;
 };
