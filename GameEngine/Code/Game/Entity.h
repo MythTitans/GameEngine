@@ -43,33 +43,31 @@ struct Transform
 	glm::vec3	m_vPosition;
 	glm::vec3	m_vScale;
 
-	bool		m_bDirtyRotation;
 	bool		m_bUniformScale;
 };
 
-// TODO #eric we should have a way to specify which callbacks should be called (i.e. Update(), ...)
-struct TransformComponent : public Component
+class TransformComponent : public Component
 {
+public:
+	friend class Entity;
+
 	explicit TransformComponent( Entity* pEntity );
 
-	Transform m_oTransform;
-};
-
-struct EulerComponent : public Component
-{
-	explicit EulerComponent( Entity* pEntity );
-
-	void		Initialize() override;
 	void		Update( const GameContext& oGameContext ) override;
 
+#ifdef EDITOR
 	void		SetRotationEuler( const glm::vec3& vEuler );
- 	void		SetRotationEuler( const float fX, const float fY, const float fZ );
- 	glm::vec3	GetRotationEuler() const;
+	void		SetRotationEuler( const float fX, const float fY, const float fZ );
+	glm::vec3	GetRotationEuler() const;
+#endif
 
-	using TransformHandle = ComponentHandle< TransformComponent >;
-	TransformHandle	m_hTransformComponent;
-	
-	glm::vec3		m_vRotationEuler;
+private:
+	Transform	m_oTransform;
+
+#ifdef EDITOR
+	glm::vec3	m_vRotationEuler;
+	bool		m_bDirtyRotation;
+#endif
 };
 
 class Entity : public Intrusive
@@ -106,7 +104,6 @@ public:
 	glm::quat				GetRotation() const;
 
 	void					SetTransform( const Transform& oTransform );
-	Transform&				GetTransform();
 	const Transform&		GetTransform() const;
 
 	glm::vec3				GetPosition() const;

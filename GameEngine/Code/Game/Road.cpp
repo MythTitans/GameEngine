@@ -31,14 +31,19 @@ bool RoadComponent::IsInitialized() const
 
 void RoadComponent::Start()
 {
+#ifdef EDITOR
 	GenerateRoad();
+#endif
+
 	m_pRoadNode = g_pRenderer->m_oVisualStructure.AddRoad( GetEntity(), m_xTexture->GetTexture(), m_oMesh );
 }
 
 void RoadComponent::Update( const GameContext& oGameContext )
 {
+#ifdef EDITOR
 	if( m_xSpline.IsValid() && m_xSpline->IsEditing() )
 		GenerateRoad();
+#endif
 
 	m_pRoadNode->m_mMatrix = GetEntity()->GetWorldTransform().GetMatrixTR();
 	m_pRoadNode->m_oMesh = m_oMesh;

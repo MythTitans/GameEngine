@@ -459,12 +459,12 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 		bModified |= EditableVector3( "Position", vPosition );
 		pSelectedEntity->SetPosition( vPosition );
 
-		EulerComponent* pEuler = g_pComponentManager->GetComponent< EulerComponent >( pSelectedEntity );
-		glm::vec3 vEuler = pEuler->GetRotationEuler();
+		TransformComponent* pTransform = g_pComponentManager->GetComponent< TransformComponent >( pSelectedEntity );
+		glm::vec3 vEuler = pTransform->GetRotationEuler();
 		vEuler = glm::vec3( glm::degrees( vEuler.x ), glm::degrees( vEuler.y ), glm::degrees( vEuler.z ) );
 		bModified |= EditableVector3( "Rotation", vEuler );
 		vEuler = glm::vec3( glm::radians( vEuler.x ), glm::radians( vEuler.y ), glm::radians( vEuler.z ) );
-		pEuler->SetRotationEuler( vEuler );
+		pTransform->SetRotationEuler( vEuler );
 
 		glm::vec3 vScale = pSelectedEntity->GetScale();
 		bModified |= EditableVector3( "Scale", vScale );

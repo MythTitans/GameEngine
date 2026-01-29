@@ -18,13 +18,11 @@ Transform::Transform()
 	: m_mMatrix( 1.f )
 	, m_vPosition( 0.f )
 	, m_vScale( 1.f )
-	, m_bDirtyRotation( true )
 	, m_bUniformScale( true )
 {
 }
 
 Transform::Transform( const glm::mat4x3& mTRSMatrix )	
-	: m_bDirtyRotation( true )
 {
 	m_mMatrix[ 0 ] = glm::normalize( mTRSMatrix[ 0 ] );
 	m_mMatrix[ 1 ] = glm::normalize( mTRSMatrix[ 1 ] );
@@ -42,7 +40,6 @@ Transform::Transform( const glm::mat4x3& mTRSMatrix )
 }
 
 Transform::Transform( const glm::mat4x3& mTRMatrix, const glm::vec3& vScale )
-	: m_bDirtyRotation( true )
 {
 	m_mMatrix[ 0 ] = mTRMatrix[ 0 ];
 	m_mMatrix[ 1 ] = mTRMatrix[ 1 ];
@@ -138,8 +135,6 @@ void Transform::SetRotation( const glm::quat& qRotation )
 	m_mMatrix[ 0 ] = glm::vec3( mMatrix[ 0 ] );
 	m_mMatrix[ 1 ] = glm::vec3( mMatrix[ 1 ] );
 	m_mMatrix[ 2 ] = glm::vec3( mMatrix[ 2 ] );
-
-	m_bDirtyRotation = true;
 }
 
 void Transform::SetRotation( const glm::vec3& vAxis, const float fAngle )
@@ -159,64 +154,56 @@ glm::mat4x3 Transform::GetMatrixTRS() const
 
 TransformComponent::TransformComponent( Entity* pEntity )
 	: Component( pEntity )
+#ifdef EDITOR
+	, m_vRotationEuler( 0.f )
+	, m_bDirtyRotation( true )
+#endif
 {
 }
 
-EulerComponent::EulerComponent( Entity* pEntity )
-	: Component( pEntity )
-	, m_vRotationEuler( 0.f, 0.f, 0.f )
+void TransformComponent::Update( const GameContext& oGameContext )
 {
-}
-
-void EulerComponent::Initialize()
-{
-	m_hTransformComponent = GetComponent< TransformComponent >();
-	ASSERT( m_hTransformComponent.IsValid() );
-}
-
-void EulerComponent::Update( const GameContext& oGameContext )
-{
-	Transform& oTransform = m_hTransformComponent->m_oTransform;
-
-	if( oTransform.m_bDirtyRotation )
+#ifdef EDITOR
+	if( m_bDirtyRotation )
 	{
-		const glm::mat4 mMatrix( oTransform.m_mMatrix );
+		const glm::mat4 mMatrix( m_oTransform.m_mMatrix );
 		glm::extractEulerAngleYXZ( mMatrix, m_vRotationEuler.y, m_vRotationEuler.x, m_vRotationEuler.z );
-		oTransform.m_bDirtyRotation = false;
+		m_bDirtyRotation = false;
 	}
+#endif
 }
 
-void EulerComponent::SetRotationEuler( const glm::vec3& vEuler )
+#ifdef EDITOR
+void TransformComponent::SetRotationEuler( const glm::vec3& vEuler )
 {
-	Transform& oTransform = m_hTransformComponent->m_oTransform;
-
 	m_vRotationEuler = vEuler;
 
 	const glm::mat4 mMat = glm::eulerAngleYXZ( vEuler.y, vEuler.x, vEuler.z );
-	oTransform.m_mMatrix[ 0 ] = glm::vec3( mMat[ 0 ] );
-	oTransform.m_mMatrix[ 1 ] = glm::vec3( mMat[ 1 ] );
-	oTransform.m_mMatrix[ 2 ] = glm::vec3( mMat[ 2 ] );
+	m_oTransform.m_mMatrix[ 0 ] = glm::vec3( mMat[ 0 ] );
+	m_oTransform.m_mMatrix[ 1 ] = glm::vec3( mMat[ 1 ] );
+	m_oTransform.m_mMatrix[ 2 ] = glm::vec3( mMat[ 2 ] );
+
+	m_bDirtyRotation = false;
 }
 
-void EulerComponent::SetRotationEuler( const float fX, const float fY, const float fZ )
+void TransformComponent::SetRotationEuler( const float fX, const float fY, const float fZ )
 {
 	SetRotationEuler( glm::vec3( fX, fY, fZ ) );
 }
 
-glm::vec3 EulerComponent::GetRotationEuler() const
+glm::vec3 TransformComponent::GetRotationEuler() const
 {
-	const Transform& oTransform = m_hTransformComponent->m_oTransform;
-
-	if( oTransform.m_bDirtyRotation )
+	if( m_bDirtyRotation )
 	{
 		glm::vec3 vRotationEuler;
-		const glm::mat4 mMatrix( oTransform.m_mMatrix );
+		const glm::mat4 mMatrix( m_oTransform.m_mMatrix );
 		glm::extractEulerAngleYXZ( mMatrix, vRotationEuler.y, vRotationEuler.x, vRotationEuler.z );
 		return vRotationEuler;
 	}
 
 	return m_vRotationEuler;
 }
+#endif
 
 Entity::Entity()
 	: m_uID( UINT64_MAX )
@@ -231,7 +218,6 @@ Entity::Entity( const uint64 uID, const std::string& sName )
 	, m_pParent( nullptr )
 {
 	m_hTransformComponent = g_pComponentManager->CreateComponent< TransformComponent >( this, ComponentManagement::INITIALIZE_THEN_START );
-	g_pComponentManager->CreateComponent< EulerComponent >( this, ComponentManagement::INITIALIZE_THEN_START );
 }
 
 Entity::~Entity()
@@ -316,6 +302,10 @@ void Entity::SetRotation( const glm::quat& qRotation )
 
 	const Transform oParentTransform = m_pParent != nullptr ? m_pParent->GetWorldTransform() : Transform();
 	m_hTransformComponent->m_oTransform.SetRotation( Transform( glm::inverse( oParentTransform.GetMatrixTR() ) * oTransform.GetMatrixTR() ).GetRotation() );
+
+#ifdef EDITOR
+	m_hTransformComponent->m_bDirtyRotation = true;
+#endif
 }
 
 void Entity::SetRotation( const glm::vec3& vAxis, const float fAngle )
@@ -325,6 +315,10 @@ void Entity::SetRotation( const glm::vec3& vAxis, const float fAngle )
 
 	const Transform oParentTransform = m_pParent != nullptr ? m_pParent->GetWorldTransform() : Transform();
 	m_hTransformComponent->m_oTransform.SetRotation( Transform( glm::inverse( oParentTransform.GetMatrixTR() ) * oTransform.GetMatrixTR() ).GetRotation() );
+	
+#ifdef EDITOR
+	m_hTransformComponent->m_bDirtyRotation = true;
+#endif
 }
 
 void Entity::SetRotationX( const float fAngle )
@@ -350,11 +344,10 @@ glm::quat Entity::GetRotation() const
 void Entity::SetTransform( const Transform& oTransform )
 {
 	m_hTransformComponent->m_oTransform = oTransform;
-}
-
-Transform& Entity::GetTransform()
-{
-	return m_hTransformComponent->m_oTransform;
+	
+#ifdef EDITOR
+	m_hTransformComponent->m_bDirtyRotation = true;
+#endif
 }
 
 const Transform& Entity::GetTransform() const
