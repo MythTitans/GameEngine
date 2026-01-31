@@ -40,6 +40,10 @@ void Component::Update( const GameContext& oGameContext )
 {
 }
 
+void Component::Finalize()
+{
+}
+
 void Component::Dispose()
 {
 }

@@ -54,6 +54,7 @@ public:
 	explicit TransformComponent( Entity* pEntity );
 
 	void		Update( const GameContext& oGameContext ) override;
+	void		Finalize() override;
 
 #ifdef EDITOR
 	void		SetRotationEuler( const glm::vec3& vEuler );
@@ -63,6 +64,7 @@ public:
 
 private:
 	Transform	m_oTransform;
+	bool		m_bDirty;
 
 #ifdef EDITOR
 	glm::vec3	m_vRotationEuler;
@@ -113,6 +115,8 @@ public:
 	glm::vec3				GetScale() const;
 	void					SetScale( const glm::vec3& vScale );
 	void					SetScale( const float fX, const float fY, const float fZ );
+
+	bool					IsDirty() const;
 
 private:
 	uint64				m_uID;

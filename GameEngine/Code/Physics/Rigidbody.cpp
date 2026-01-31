@@ -42,15 +42,7 @@ RigidbodyComponent::RigidbodyComponent( Entity* pEntity )
 
 void RigidbodyComponent::Initialize()
 {
-	if( m_bStatic )
-	{
-		m_pRigidActor = g_pPhysics->m_pPhysics->createRigidStatic( PxTransform( PxIdentity ) );
-	}
-	else
-	{
-		m_pRigidActor = g_pPhysics->m_pPhysics->createRigidDynamic( PxTransform( PxIdentity ) );
-		m_pRigidActor->is< PxRigidDynamic >()->setRigidDynamicLockFlags( BuildLockFlags( m_vLockAxis, m_vLockRotation ) );
-	}
+	CreateRigidActor();
 }
 
 void RigidbodyComponent::Start()
@@ -97,21 +89,23 @@ void RigidbodyComponent::Update( const GameContext& oGameContext )
 
 		m_pRigidActor->setGlobalPose( m_oTransform );
 	}
+	else if( m_bStatic == false && m_pRigidActor->is<PxRigidDynamic>()->isSleeping() == false )
+	{
+		m_fTime += oGameContext.m_fLastDeltaTime;
 
-	m_fTime += oGameContext.m_fLastDeltaTime;
+		const float fInterpolationRatio = ( m_fTime + Physics::TICK_STEP ) / Physics::TICK_STEP;
+		const glm::vec3 vLastPosition = glm::vec3( m_oLastTransform.p.x, m_oLastTransform.p.y, m_oLastTransform.p.z );
+		const glm::vec3 vPosition = glm::vec3( m_oTransform.p.x, m_oTransform.p.y, m_oTransform.p.z );
+		const glm::quat qLastRotation = glm::quat( m_oLastTransform.q.w, m_oLastTransform.q.x, m_oLastTransform.q.y, m_oLastTransform.q.z );
+		const glm::quat qRotation = glm::quat( m_oTransform.q.w, m_oTransform.q.x, m_oTransform.q.y, m_oTransform.q.z );
 
-	const float fInterpolationRatio = ( m_fTime + Physics::TICK_STEP ) / Physics::TICK_STEP;
-	const glm::vec3 vLastPosition = glm::vec3( m_oLastTransform.p.x, m_oLastTransform.p.y, m_oLastTransform.p.z );
-	const glm::vec3 vPosition = glm::vec3( m_oTransform.p.x, m_oTransform.p.y, m_oTransform.p.z );
-	const glm::quat qLastRotation = glm::quat( m_oLastTransform.q.w, m_oLastTransform.q.x, m_oLastTransform.q.y, m_oLastTransform.q.z );
-	const glm::quat qRotation = glm::quat( m_oTransform.q.w, m_oTransform.q.x, m_oTransform.q.y, m_oTransform.q.z );
+		Transform oTransfom;
+		oTransfom.SetPosition( glm::lerp( vLastPosition, vPosition, fInterpolationRatio ) );
+		oTransfom.SetRotation( glm::slerp( qLastRotation, qRotation, fInterpolationRatio ) );
+		oTransfom.SetScale( pEntity->GetScale() );
 
-	Transform oTransfom;
-	oTransfom.SetPosition( glm::lerp( vLastPosition, vPosition, fInterpolationRatio ) );
-	oTransfom.SetRotation( glm::slerp( qLastRotation, qRotation, fInterpolationRatio ) );
-	oTransfom.SetScale( pEntity->GetScale() );
-
-	pEntity->SetWorldTransform( oTransfom );
+		pEntity->SetWorldTransform( oTransfom );
+	}
 }
 
 void RigidbodyComponent::Dispose()
@@ -127,15 +121,7 @@ void RigidbodyComponent::OnPropertyChanged( const std::string& sProperty )
 		g_pPhysics->m_pScene->removeActor( *m_pRigidActor );
 		PX_RELEASE( m_pRigidActor );
 
-		if( m_bStatic )
-		{
-			m_pRigidActor = g_pPhysics->m_pPhysics->createRigidStatic( PxTransform( PxIdentity ) );
-		}
-		else
-		{
-			m_pRigidActor = g_pPhysics->m_pPhysics->createRigidDynamic( PxTransform( PxIdentity ) );
-			m_pRigidActor->is< PxRigidDynamic >()->setRigidDynamicLockFlags( BuildLockFlags( m_vLockAxis, m_vLockRotation ) );
-		}
+		CreateRigidActor();
 
 		g_pPhysics->m_pScene->addActor( *m_pRigidActor );
 
@@ -159,9 +145,17 @@ const physx::PxRigidActor* RigidbodyComponent::GetRigidActor() const
 	return m_pRigidActor;
 }
 
-bool RigidbodyComponent::IsStatic() const
+void RigidbodyComponent::CreateRigidActor()
 {
-	return m_bStatic;
+	if( m_bStatic )
+	{
+		m_pRigidActor = g_pPhysics->m_pPhysics->createRigidStatic( PxTransform( PxIdentity ) );
+	}
+	else
+	{
+		m_pRigidActor = g_pPhysics->m_pPhysics->createRigidDynamic( PxTransform( PxIdentity ) );
+		m_pRigidActor->is< PxRigidDynamic >()->setRigidDynamicLockFlags( BuildLockFlags( m_vLockAxis, m_vLockRotation ) );
+	}
 }
 
 ShapeComponentBase::ShapeComponentBase( Entity* pEntity )

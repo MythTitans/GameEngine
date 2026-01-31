@@ -27,6 +27,9 @@ public:
 	const Array< Mesh >&	GetMeshes() const;
 
 private:
+	void					UpdateModel();
+	void					UpdateTransform();
+
 	PROPERTIES( VisualComponent );
 	PROPERTY( "Model", m_sModelFile, std::string );
 
@@ -35,4 +38,6 @@ private:
 
 	VisualNode*			m_pVisualNode;
 	AxisAlignedBox		m_oModelAABB;
+
+	bool				m_bModelDirty;
 };

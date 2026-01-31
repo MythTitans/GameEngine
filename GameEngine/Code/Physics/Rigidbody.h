@@ -24,9 +24,9 @@ public:
 	physx::PxRigidActor*		GetRigidActor();
 	const physx::PxRigidActor*	GetRigidActor() const;
 
-	bool						IsStatic() const;
-
 private:
+	void						CreateRigidActor();
+
 	PROPERTIES( RigidbodyComponent );
 	PROPERTY_DEFAULT( "Lock axis", m_vLockAxis, glm::bvec3, glm::bvec3( false ) );
 	PROPERTY_DEFAULT( "Lock rotation", m_vLockRotation, glm::bvec3, glm::bvec3( false ) );

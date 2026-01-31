@@ -165,6 +165,16 @@ void ComponentManager::UpdateComponents( const GameContext& oGameContext )
 	}
 }
 
+void ComponentManager::FinalizeComponents()
+{
+	for( ComponentsHolderBase* pHolder : m_aPriorityComponentsHolder )
+	{
+		ProfilerBlock oBlock( pHolder->GetConcreteComponentName().c_str() );
+
+		pHolder->FinalizeComponents();
+	}
+}
+
 Array< nlohmann::json > ComponentManager::SerializeComponents( const Entity* pEntity )
 {
 	Array< nlohmann::json > aSerializedComponents;

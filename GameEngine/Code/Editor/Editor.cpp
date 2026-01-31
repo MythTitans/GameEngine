@@ -18,7 +18,7 @@
 #include "Graphics/Renderer.h"
 #include "ImGui/imgui_stdlib.h"
 
-static bool EditableVector3( const char* sName, glm::vec3& vVector )
+static bool EditableVector3( const char* sName, glm::vec3& vVector, bool& bEditing )
 {
 	bool bModified = false;
 
@@ -31,7 +31,7 @@ static bool EditableVector3( const char* sName, glm::vec3& vVector )
 	ImGui::PushStyleColor( ImGuiCol_FrameBgHovered, ImVec4( 0.7f, 0.f, 0.f, 1.f ) );
 	ImGui::PushStyleColor( ImGuiCol_FrameBgActive, ImVec4( 0.8f, 0.f, 0.f, 1.f ) );
 	ImGui::PushItemWidth( fWidth );
-	ImGui::DragFloat( std::format( "##{}X", sName ).c_str(), &vVector.x, 0.1f);
+	bEditing |= ImGui::DragFloat( std::format( "##{}X", sName ).c_str(), &vVector.x, 0.1f);
 	bModified |= ImGui::IsItemDeactivatedAfterEdit();
 	ImGui::PopItemWidth();
 	ImGui::PopStyleColor( 3 );
@@ -42,7 +42,7 @@ static bool EditableVector3( const char* sName, glm::vec3& vVector )
 	ImGui::PushStyleColor( ImGuiCol_FrameBgHovered, ImVec4( 0.f, 0.7f, 0.f, 1.f ) );
 	ImGui::PushStyleColor( ImGuiCol_FrameBgActive, ImVec4( 0.f, 0.8f, 0.f, 1.f ) );
 	ImGui::PushItemWidth( fWidth );
-	ImGui::DragFloat( std::format( "##{}Y", sName ).c_str(), &vVector.y, 0.1f );
+	bEditing |= ImGui::DragFloat( std::format( "##{}Y", sName ).c_str(), &vVector.y, 0.1f );
 	bModified |= ImGui::IsItemDeactivatedAfterEdit();
 	ImGui::PopItemWidth();
 	ImGui::PopStyleColor( 3 );
@@ -53,7 +53,7 @@ static bool EditableVector3( const char* sName, glm::vec3& vVector )
 	ImGui::PushStyleColor( ImGuiCol_FrameBgHovered, ImVec4( 0.f, 0.f, 0.7f, 1.f ) );
 	ImGui::PushStyleColor( ImGuiCol_FrameBgActive, ImVec4( 0.f, 0.f, 0.8f, 1.f ) );
 	ImGui::PushItemWidth( fWidth );
-	ImGui::DragFloat( std::format( "##{}Z", sName ).c_str(), &vVector.z, 0.1f);
+	bEditing |= ImGui::DragFloat( std::format( "##{}Z", sName ).c_str(), &vVector.z, 0.1f);
 	bModified |= ImGui::IsItemDeactivatedAfterEdit();
 	ImGui::PopItemWidth();
 	ImGui::PopStyleColor( 3 );
@@ -455,20 +455,25 @@ void Editor::Update( const InputContext& oInputContext, const RenderContext& oRe
 			bModified |= ImGui::IsItemDeactivatedAfterEdit();
 		}
 
+		bool bEditing = false;
 		glm::vec3 vPosition = pSelectedEntity->GetPosition();
-		bModified |= EditableVector3( "Position", vPosition );
-		pSelectedEntity->SetPosition( vPosition );
+		bModified |= EditableVector3( "Position", vPosition, bEditing );
 
 		TransformComponent* pTransform = g_pComponentManager->GetComponent< TransformComponent >( pSelectedEntity );
 		glm::vec3 vEuler = pTransform->GetRotationEuler();
 		vEuler = glm::vec3( glm::degrees( vEuler.x ), glm::degrees( vEuler.y ), glm::degrees( vEuler.z ) );
-		bModified |= EditableVector3( "Rotation", vEuler );
+		bModified |= EditableVector3( "Rotation", vEuler, bEditing );
 		vEuler = glm::vec3( glm::radians( vEuler.x ), glm::radians( vEuler.y ), glm::radians( vEuler.z ) );
-		pTransform->SetRotationEuler( vEuler );
 
 		glm::vec3 vScale = pSelectedEntity->GetScale();
-		bModified |= EditableVector3( "Scale", vScale );
-		pSelectedEntity->SetScale( vScale );
+		bModified |= EditableVector3( "Scale", vScale, bEditing );
+
+		if( bEditing )
+		{
+			pSelectedEntity->SetPosition( vPosition );
+			pTransform->SetRotationEuler( vEuler );
+			pSelectedEntity->SetScale( vScale );
+		}
 
 		bModified |= g_pComponentManager->DisplayInspector( pSelectedEntity );
 

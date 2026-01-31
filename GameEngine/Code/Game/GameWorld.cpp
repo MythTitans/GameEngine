@@ -159,4 +159,9 @@ void GameWorld::UpdateWorld( const GameContext& oGameContext )
 		ProfilerBlock oBlock( "Logic" );
 		g_pComponentManager->UpdateComponents( oGameContext );
 	}
+
+	{
+		ProfilerBlock oBlock( "Finalize" );
+		g_pComponentManager->FinalizeComponents();
+	}
 }

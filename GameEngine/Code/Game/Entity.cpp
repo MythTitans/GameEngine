@@ -154,6 +154,7 @@ glm::mat4x3 Transform::GetMatrixTRS() const
 
 TransformComponent::TransformComponent( Entity* pEntity )
 	: Component( pEntity )
+	, m_bDirty( true )
 #ifdef EDITOR
 	, m_vRotationEuler( 0.f )
 	, m_bDirtyRotation( true )
@@ -171,6 +172,11 @@ void TransformComponent::Update( const GameContext& oGameContext )
 		m_bDirtyRotation = false;
 	}
 #endif
+}
+
+void TransformComponent::Finalize()
+{
+	m_bDirty = false;
 }
 
 #ifdef EDITOR
@@ -268,6 +274,7 @@ void Entity::SetWorldTransform( const Transform& oTransform )
 {
 	const Transform oParentTransform = m_pParent != nullptr ? m_pParent->GetWorldTransform() : Transform();
 	m_hTransformComponent->m_oTransform = Transform( glm::inverse( oParentTransform.GetMatrixTR() ) * oTransform.GetMatrixTR(), oTransform.GetScale() );
+	m_hTransformComponent->m_bDirty = true;
 }
 
 Transform Entity::GetWorldTransform() const
@@ -283,6 +290,7 @@ void Entity::SetWorldPosition( const glm::vec3& vPosition )
 
 	const Transform oParentTransform = m_pParent != nullptr ? m_pParent->GetWorldTransform() : Transform();
 	m_hTransformComponent->m_oTransform.SetPosition( Transform( glm::inverse( oParentTransform.GetMatrixTR() ) * oTransform.GetMatrixTR() ).GetPosition() );
+	m_hTransformComponent->m_bDirty = true;
 }
 
 void Entity::SetWorldPosition( const float fX, const float fY, const float fZ )
@@ -302,6 +310,7 @@ void Entity::SetRotation( const glm::quat& qRotation )
 
 	const Transform oParentTransform = m_pParent != nullptr ? m_pParent->GetWorldTransform() : Transform();
 	m_hTransformComponent->m_oTransform.SetRotation( Transform( glm::inverse( oParentTransform.GetMatrixTR() ) * oTransform.GetMatrixTR() ).GetRotation() );
+	m_hTransformComponent->m_bDirty = true;
 
 #ifdef EDITOR
 	m_hTransformComponent->m_bDirtyRotation = true;
@@ -315,6 +324,7 @@ void Entity::SetRotation( const glm::vec3& vAxis, const float fAngle )
 
 	const Transform oParentTransform = m_pParent != nullptr ? m_pParent->GetWorldTransform() : Transform();
 	m_hTransformComponent->m_oTransform.SetRotation( Transform( glm::inverse( oParentTransform.GetMatrixTR() ) * oTransform.GetMatrixTR() ).GetRotation() );
+	m_hTransformComponent->m_bDirty = true;
 	
 #ifdef EDITOR
 	m_hTransformComponent->m_bDirtyRotation = true;
@@ -344,6 +354,7 @@ glm::quat Entity::GetRotation() const
 void Entity::SetTransform( const Transform& oTransform )
 {
 	m_hTransformComponent->m_oTransform = oTransform;
+	m_hTransformComponent->m_bDirty = true;
 	
 #ifdef EDITOR
 	m_hTransformComponent->m_bDirtyRotation = true;
@@ -363,6 +374,7 @@ glm::vec3 Entity::GetPosition() const
 void Entity::SetPosition( const glm::vec3& vPosition )
 {
 	m_hTransformComponent->m_oTransform.SetPosition( vPosition );
+	m_hTransformComponent->m_bDirty = true;
 }
 
 void Entity::SetPosition( const float fX, const float fY, const float fZ )
@@ -378,9 +390,19 @@ glm::vec3 Entity::GetScale() const
 void Entity::SetScale( const glm::vec3& vScale )
 {
 	m_hTransformComponent->m_oTransform.SetScale( vScale );
+	m_hTransformComponent->m_bDirty = true;
 }
 
 void Entity::SetScale( const float fX, const float fY, const float fZ )
 {
 	SetScale( glm::vec3( fX, fY, fZ ) );
+}
+
+bool Entity::IsDirty() const
+{
+	bool bDirty = m_hTransformComponent->m_bDirty;
+	if( m_pParent != nullptr )
+		bDirty |= m_pParent->IsDirty();
+
+	return bDirty;
 }

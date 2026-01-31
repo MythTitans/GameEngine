@@ -29,6 +29,7 @@ public:
 	virtual void						BeforePhysics();
 	virtual void						AfterPhysics();
 	virtual void						Update( const GameContext& oGameContext );
+	virtual void						Finalize();
 	virtual void						Dispose();
 
 	virtual void						DisplayGizmos( const bool bSelected );

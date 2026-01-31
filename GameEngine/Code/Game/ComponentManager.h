@@ -165,6 +165,7 @@ public:
 	virtual void				NotifyBeforePhysicsOnComponents() = 0;
 	virtual void				NotifyAfterPhysicsOnComponents() = 0;
 	virtual void				UpdateComponents( const GameContext& oGameContext ) = 0;
+	virtual void				FinalizeComponents() = 0;
 
 	virtual void				SerializeComponent( nlohmann::json& oJsonContent, Array< nlohmann::json >& aSerializedProperties, const Entity* pEntity ) const = 0;
 	virtual void				DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, const Entity* pEntity ) = 0;
@@ -335,6 +336,18 @@ public:
 
 			if( m_aStates[ u ] == ComponentState::STARTED )
 				m_aComponents[ u ].Update( oGameContext );
+		}
+	}
+
+	void FinalizeComponents() override
+	{
+		for( uint u = 0; u < m_aComponents.Count(); ++u )
+		{
+			if( m_aStates[ u ] == ComponentState::DISPOSED )
+				continue;
+
+			if( m_aStates[ u ] == ComponentState::STARTED )
+				m_aComponents[ u ].Finalize();
 		}
 	}
 
@@ -950,6 +963,7 @@ public:
 	void					NotifyBeforePhysicsOnComponents();
 	void					NotifyAfterPhysicsOnComponents();
 	void					UpdateComponents( const GameContext& oGameContext );
+	void					FinalizeComponents();
 
 	Array< nlohmann::json >	SerializeComponents( const Entity* pEntity );
 	void					DeserializeComponent( const std::string& sComponentName, const nlohmann::json& oJsonContent, Entity* pEntity );

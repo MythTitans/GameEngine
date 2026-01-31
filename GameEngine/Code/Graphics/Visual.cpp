@@ -15,6 +15,7 @@ SET_COMPONENT_PRIORITY_AFTER( VisualComponent, RigidbodyComponent );
 VisualComponent::VisualComponent( Entity* pEntity )
 	: Component( pEntity )
 	, m_pVisualNode( nullptr )
+	, m_bModelDirty( false )
 {
 }
 
@@ -39,21 +40,18 @@ void VisualComponent::Start()
 	const Entity* pEntity = GetEntity();
 
 	m_pVisualNode = g_pRenderer->m_oVisualStructure.AddVisual( pEntity, m_xTechnique->GetTechnique() );
-	m_pVisualNode->m_aMeshes = m_xModel->GetMeshes();
 
-	m_oModelAABB = m_xModel->GetAABB();
+	UpdateModel();
+	UpdateTransform();
 }
 
 void VisualComponent::Update( const GameContext& oGameContext )
 {
-	if( oGameContext.m_bEditing && m_xModel->IsLoaded() )
-	{
-		m_pVisualNode->m_aMeshes = m_xModel->GetMeshes();
-		m_oModelAABB = m_xModel->GetAABB();
-	}
+	if( m_bModelDirty && m_xModel->IsLoaded() )
+		UpdateModel();
 
-	m_pVisualNode->m_mMatrix = GetEntity()->GetWorldTransform().GetMatrixTRS();
-	m_pVisualNode->m_oAABB = AxisAlignedBox::FromOrientedBox( OrientedBox::FromAxisAlignedBox( m_oModelAABB, m_pVisualNode->m_mMatrix ) );
+	if( GetEntity()->IsDirty() )
+		UpdateTransform();
 }
 
 void VisualComponent::Stop()
@@ -102,11 +100,28 @@ bool VisualComponent::DisplayInspector()
 void VisualComponent::OnPropertyChanged( const std::string& sProperty )
 {
 	if( sProperty == "Model" )
+	{
 		m_xModel = g_pResourceLoader->LoadModel( m_sModelFile.c_str() );
+		m_bModelDirty = true;
+	}
 }
 #endif
 
 const Array< Mesh >& VisualComponent::GetMeshes() const
 {
 	return m_xModel->GetMeshes();
+}
+
+void VisualComponent::UpdateModel()
+{
+	m_pVisualNode->m_aMeshes = m_xModel->GetMeshes();
+	m_oModelAABB = m_xModel->GetAABB();
+
+	m_bModelDirty = false;
+}
+
+void VisualComponent::UpdateTransform()
+{
+	m_pVisualNode->m_mMatrix = GetEntity()->GetWorldTransform().GetMatrixTRS();
+	m_pVisualNode->m_oAABB = AxisAlignedBox::FromOrientedBox( OrientedBox::FromAxisAlignedBox( m_oModelAABB, m_pVisualNode->m_mMatrix ) );
 }
