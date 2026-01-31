@@ -36,7 +36,7 @@ Transform::Transform( const glm::mat4x3& mTRSMatrix )
 	const float fLength3 = glm::dot( m_mMatrix[ 2 ], mTRSMatrix[ 2 ] );
 	m_vScale = glm::vec3( fLength1, fLength2, fLength3 );
 
-	m_bUniformScale = IsUniformScale( m_vScale );
+	m_bUniformScale = ::IsUniformScale( m_vScale );
 }
 
 Transform::Transform( const glm::mat4x3& mTRMatrix, const glm::vec3& vScale )
@@ -49,7 +49,7 @@ Transform::Transform( const glm::mat4x3& mTRMatrix, const glm::vec3& vScale )
 
 	m_vScale = vScale;
 
-	m_bUniformScale = IsUniformScale( m_vScale );
+	m_bUniformScale = ::IsUniformScale( m_vScale );
 }
 
 glm::vec3& Transform::GetI()
@@ -115,7 +115,7 @@ glm::vec3 Transform::GetScale() const
 void Transform::SetScale( const glm::vec3& vScale )
 {
 	m_vScale = vScale;
-	m_bUniformScale = IsUniformScale( m_vScale );
+	m_bUniformScale = ::IsUniformScale( m_vScale );
 }
 
 void Transform::SetScale( const float fX, const float fY, const float fZ )
@@ -150,6 +150,11 @@ glm::mat4x3 Transform::GetMatrixTR() const
 glm::mat4x3 Transform::GetMatrixTRS() const
 {
 	return glm::mat4x3( m_mMatrix[ 0 ] * m_vScale.x, m_mMatrix[ 1 ] * m_vScale.y, m_mMatrix[ 2 ] * m_vScale.z, m_vPosition );
+}
+
+bool Transform::IsUniformScale() const
+{
+	return m_bUniformScale;
 }
 
 TransformComponent::TransformComponent( Entity* pEntity )

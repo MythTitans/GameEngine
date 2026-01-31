@@ -67,7 +67,8 @@ struct VisualNode
 	VisualNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes );
 
 	uint64					m_uEntityID;
-	glm::mat4x3				m_mMatrix;
+	glm::mat4				m_mMatrix;
+	glm::mat4				m_InverseTransposeMatrix;
 	Array< Mesh >			m_aMeshes;
 	uint					m_uBoneStorageIndex;
 	uint					m_uBoneCount;

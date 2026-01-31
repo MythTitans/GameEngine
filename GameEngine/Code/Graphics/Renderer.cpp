@@ -118,12 +118,12 @@ static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTe
 			if( oParamUseSkinning.IsValid() )
 				oParamUseSkinning.SetValue( pVisualNode->m_uBoneCount > 0 );
 
-			const glm::mat4 mMatrix = ToMat4( pVisualNode->m_mMatrix );
+			const glm::mat4 mMatrix = pVisualNode->m_mMatrix;
 
 			oParamModelViewProjection.SetValue( mViewProjectionMatrix * mMatrix );
 
 			if( oParamModelInverseTranspose.IsValid() )
-				oParamModelInverseTranspose.SetValue( glm::inverseTranspose( mMatrix ) );
+				oParamModelInverseTranspose.SetValue( pVisualNode->m_InverseTransposeMatrix );
 
 			if( oParamModel.IsValid() )
 				oParamModel.SetValue( mMatrix );
@@ -786,8 +786,8 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	Technique& oTechnique = m_xOutline->GetTechnique();
 	SetTechnique( oTechnique );
 
-	m_oOutlineSheet.GetParameter( OutlineParam::MODEL ).SetValue( ToMat4( oVisualNode.m_mMatrix ) );
-	m_oOutlineSheet.GetParameter( OutlineParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
+	m_oOutlineSheet.GetParameter( OutlineParam::MODEL ).SetValue( oVisualNode.m_mMatrix );
+	m_oOutlineSheet.GetParameter( OutlineParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
 	m_oOutlineSheet.GetParameter( OutlineParam::DISPLACEMENT ).SetValue( 0.f );
 	m_oOutlineSheet.GetParameter( OutlineParam::COLOR ).SetValue( glm::vec3( 1.f, 0.8f, 0.f ) );
 	m_oOutlineSheet.GetParameter( OutlineParam::SKINNING_OFFSET ).SetValue( oVisualNode.m_uBoneStorageIndex );
@@ -803,7 +803,7 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	glStencilFunc( GL_NOTEQUAL, 1, 0xFF );
 	glStencilOp( GL_KEEP, GL_KEEP, GL_REPLACE );
 
-	m_oOutlineSheet.GetParameter( OutlineParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * ToMat4( oVisualNode.m_mMatrix ) );
+	m_oOutlineSheet.GetParameter( OutlineParam::MODEL_VIEW_PROJECTION ).SetValue( m_oCamera.GetViewProjectionMatrix() * oVisualNode.m_mMatrix );
 	m_oOutlineSheet.GetParameter( OutlineParam::CAMERA_POSITION ).SetValue( glm::vec3( m_oCamera.GetPosition() ) );
 	m_oOutlineSheet.GetParameter( OutlineParam::DISPLACEMENT ).SetValue( 0.004f );
 

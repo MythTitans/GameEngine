@@ -39,6 +39,8 @@ struct Transform
 	glm::mat4x3			GetMatrixTR() const;
 	glm::mat4x3			GetMatrixTRS() const;
 
+	bool				IsUniformScale() const;
+
 	glm::mat3	m_mMatrix;
 	glm::vec3	m_vPosition;
 	glm::vec3	m_vScale;

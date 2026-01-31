@@ -1,5 +1,7 @@
 #include "Visual.h"
 
+#include <glm/gtc/matrix_inverse.hpp>
+
 #include "Editor/Inspector.h"
 #include "Game/Entity.h"
 #include "Game/GameContext.h"
@@ -122,6 +124,10 @@ void VisualComponent::UpdateModel()
 
 void VisualComponent::UpdateTransform()
 {
-	m_pVisualNode->m_mMatrix = GetEntity()->GetWorldTransform().GetMatrixTRS();
-	m_pVisualNode->m_oAABB = AxisAlignedBox::FromOrientedBox( OrientedBox::FromAxisAlignedBox( m_oModelAABB, m_pVisualNode->m_mMatrix ) );
+	const Transform oWorldTransform = GetEntity()->GetWorldTransform();
+	const glm::mat4x3 mMatrix = oWorldTransform.GetMatrixTRS();
+
+	m_pVisualNode->m_mMatrix = ToMat4( mMatrix );
+	m_pVisualNode->m_InverseTransposeMatrix = oWorldTransform.IsUniformScale() ? glm::transpose( m_pVisualNode->m_mMatrix ) / glm::abs( oWorldTransform.GetScale().x ) : glm::inverseTranspose( m_pVisualNode->m_mMatrix );
+	m_pVisualNode->m_oAABB = AxisAlignedBox::FromOrientedBox( OrientedBox::FromAxisAlignedBox( m_oModelAABB, mMatrix ) );
 }

@@ -76,7 +76,7 @@ uint64 PickingTool::Pick( const RenderContext& oRenderContext, const int iCursor
 		m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( pVisualNode->m_uBoneCount > 0 );
 		m_oPickingSheet.GetParameter( PickingParam::SKINNING_OFFSET ).SetValue( pVisualNode->m_uBoneStorageIndex );
 
-		m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * ToMat4( pVisualNode->m_mMatrix ) );
+		m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * pVisualNode->m_mMatrix );
 		m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( pVisualNode->m_uEntityID ) );
 
 		const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
@@ -88,7 +88,7 @@ uint64 PickingTool::Pick( const RenderContext& oRenderContext, const int iCursor
 	{
 		m_oPickingSheet.GetParameter( PickingParam::USE_SKINNING ).SetValue( false );
 
-		m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * ToMat4( pVisualNode->m_mMatrix ) );
+		m_oPickingSheet.GetParameter( PickingParam::MODEL_VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * pVisualNode->m_mMatrix );
 		m_oPickingSheet.GetParameter( PickingParam::COLOR_ID ).SetValue( BuildColorID( pVisualNode->m_uEntityID ) );
 
 		const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
