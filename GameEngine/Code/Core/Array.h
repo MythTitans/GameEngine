@@ -172,7 +172,10 @@ public:
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount < m_uCapacity );
 
-		::new( &m_pData[ m_uCount++ ] ) T();
+		if constexpr( std::is_trivially_default_constructible_v< T > == false )
+			::new( &m_pData[ m_uCount ] ) T();
+
+		++m_uCount;
 	}
 
 	void PushBack( const T& oElement )
@@ -182,7 +185,12 @@ public:
 		ASSERT( m_pData != nullptr );
 		ASSERT( m_uCount < m_uCapacity );
 
-		::new( &m_pData[ m_uCount++ ] ) T( oElement );
+		if constexpr( std::is_trivially_copy_constructible_v< T > )
+			memcpy( &m_pData[ m_uCount ], &oElement, sizeof( T ) );
+		else
+			::new( &m_pData[ m_uCount ] ) T( oElement );
+
+		++m_uCount;
 	}
 
 	void PushFront( const T& oElement )

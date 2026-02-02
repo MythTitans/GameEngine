@@ -95,6 +95,8 @@ bool Frustum::IsVisible( const AxisAlignedBox& oAxisAlignedBox ) const
 	if( oAxisAlignedBox.IsValid() == false )
 		return false;
 
+	bool bVisible = true;
+
 	for( uint uPlane = LEFT_PLANE; uPlane < FrustumPlane::_COUNT; ++uPlane )
 	{
 		glm::vec3 vPositive;
@@ -102,9 +104,85 @@ bool Frustum::IsVisible( const AxisAlignedBox& oAxisAlignedBox ) const
 		vPositive.y = m_aPlanes[ uPlane ].m_vNormal.y > 0.f ? oAxisAlignedBox.m_vMax.y : oAxisAlignedBox.m_vMin.y;
 		vPositive.z = m_aPlanes[ uPlane ].m_vNormal.z > 0.f ? oAxisAlignedBox.m_vMax.z : oAxisAlignedBox.m_vMin.z;
 
-		if( glm::dot( vPositive, m_aPlanes[ uPlane ].m_vNormal ) + m_aPlanes[ uPlane ].m_fDistance < 0.f )
-			return false;
+		bVisible &= glm::dot( vPositive, m_aPlanes[ uPlane ].m_vNormal ) + m_aPlanes[ uPlane ].m_fDistance >= 0.f;
 	}
 
-	return true;
+	return bVisible;
+}
+
+void Frustum::AreVisible( bool& bVisibleA, bool& bVisibleB, bool& bVisibleC, bool& bVisibleD, const AxisAlignedBox& oAxisAlignedBoxA, const AxisAlignedBox& oAxisAlignedBoxB, const AxisAlignedBox& oAxisAlignedBoxC, const AxisAlignedBox& oAxisAlignedBoxD ) const
+{
+	bVisibleA = true;
+	bVisibleB = true;
+	bVisibleC = true;
+	bVisibleD = true;
+
+	for( uint uPlane = LEFT_PLANE; uPlane < FrustumPlane::_COUNT; ++uPlane )
+	{
+#if 1
+		__m128 _vMinX = _mm_set_ps( oAxisAlignedBoxA.m_vMin.x, oAxisAlignedBoxB.m_vMin.x, oAxisAlignedBoxC.m_vMin.x, oAxisAlignedBoxD.m_vMin.x );
+		__m128 _vMinY = _mm_set_ps( oAxisAlignedBoxA.m_vMin.y, oAxisAlignedBoxB.m_vMin.y, oAxisAlignedBoxC.m_vMin.y, oAxisAlignedBoxD.m_vMin.y );
+		__m128 _vMinZ = _mm_set_ps( oAxisAlignedBoxA.m_vMin.z, oAxisAlignedBoxB.m_vMin.z, oAxisAlignedBoxC.m_vMin.z, oAxisAlignedBoxD.m_vMin.z );
+
+		__m128 _vMaxX = _mm_set_ps( oAxisAlignedBoxA.m_vMax.x, oAxisAlignedBoxB.m_vMax.x, oAxisAlignedBoxC.m_vMax.x, oAxisAlignedBoxD.m_vMax.x );
+		__m128 _vMaxY = _mm_set_ps( oAxisAlignedBoxA.m_vMax.y, oAxisAlignedBoxB.m_vMax.y, oAxisAlignedBoxC.m_vMax.y, oAxisAlignedBoxD.m_vMax.y );
+		__m128 _vMaxZ = _mm_set_ps( oAxisAlignedBoxA.m_vMax.z, oAxisAlignedBoxB.m_vMax.z, oAxisAlignedBoxC.m_vMax.z, oAxisAlignedBoxD.m_vMax.z );
+
+		__m128 _vValidX = _mm_cmple_ps( _vMinX, _vMaxX );
+		__m128 _vValidY = _mm_cmple_ps( _vMinY, _vMaxY );
+		__m128 _vValidZ = _mm_cmple_ps( _vMinZ, _vMaxZ );
+
+		const int iValidityMask = _mm_movemask_ps( _mm_and_ps( _mm_and_ps( _vValidX, _vValidY ), _vValidZ ) );
+
+		__m128 _vNormalX = _mm_set1_ps( m_aPlanes[ uPlane ].m_vNormal.x );
+		__m128 _vNormalY = _mm_set1_ps( m_aPlanes[ uPlane ].m_vNormal.y );
+		__m128 _vNormalZ = _mm_set1_ps( m_aPlanes[ uPlane ].m_vNormal.z );
+		__m128 _vDistance = _mm_set1_ps( -m_aPlanes[ uPlane ].m_fDistance );
+
+		__m128 _vPositiveX = _mm_blendv_ps( _vMaxX, _vMinX, _vNormalX );
+		__m128 _vPositiveY = _mm_blendv_ps( _vMaxY, _vMinY, _vNormalY );
+		__m128 _vPositiveZ = _mm_blendv_ps( _vMaxZ, _vMinZ, _vNormalZ );
+
+		__m128 _vMulX = _mm_mul_ps( _vNormalX, _vPositiveX );
+		__m128 _vMulY = _mm_mul_ps( _vNormalY, _vPositiveY );
+		__m128 _vMulZ = _mm_mul_ps( _vNormalZ, _vPositiveZ );
+
+		__m128 _vDot = _mm_add_ps( _mm_add_ps( _vMulX, _vMulY ), _vMulZ );
+
+		const int iVisibilityMask =_mm_movemask_ps( _mm_cmpge_ps( _vDot, _vDistance ) );
+
+		bVisibleA &= ( iValidityMask & 8 ) != 0 && ( iVisibilityMask & 8 ) != 0;
+		bVisibleB &= ( iValidityMask & 4 ) != 0 && ( iVisibilityMask & 4 ) != 0;
+		bVisibleC &= ( iValidityMask & 2 ) != 0 && ( iVisibilityMask & 2 ) != 0;
+		bVisibleD &= ( iValidityMask & 1 ) != 0 && ( iVisibilityMask & 1 ) != 0;
+#else
+		bVisibleA = oAxisAlignedBoxA.IsValid();
+		bVisibleB = oAxisAlignedBoxB.IsValid();
+		bVisibleC = oAxisAlignedBoxC.IsValid();
+		bVisibleD = oAxisAlignedBoxD.IsValid();
+
+		glm::vec3 vPositiveA, vPositiveB, vPositiveC, vPositiveD;
+
+		vPositiveA.x = m_aPlanes[ uPlane ].m_vNormal.x > 0.f ? oAxisAlignedBoxA.m_vMax.x : oAxisAlignedBoxA.m_vMin.x;
+		vPositiveA.y = m_aPlanes[ uPlane ].m_vNormal.y > 0.f ? oAxisAlignedBoxA.m_vMax.y : oAxisAlignedBoxA.m_vMin.y;
+		vPositiveA.z = m_aPlanes[ uPlane ].m_vNormal.z > 0.f ? oAxisAlignedBoxA.m_vMax.z : oAxisAlignedBoxA.m_vMin.z;
+
+		vPositiveB.x = m_aPlanes[ uPlane ].m_vNormal.x > 0.f ? oAxisAlignedBoxB.m_vMax.x : oAxisAlignedBoxB.m_vMin.x;
+		vPositiveB.y = m_aPlanes[ uPlane ].m_vNormal.y > 0.f ? oAxisAlignedBoxB.m_vMax.y : oAxisAlignedBoxB.m_vMin.y;
+		vPositiveB.z = m_aPlanes[ uPlane ].m_vNormal.z > 0.f ? oAxisAlignedBoxB.m_vMax.z : oAxisAlignedBoxB.m_vMin.z;
+
+		vPositiveC.x = m_aPlanes[ uPlane ].m_vNormal.x > 0.f ? oAxisAlignedBoxC.m_vMax.x : oAxisAlignedBoxC.m_vMin.x;
+		vPositiveC.y = m_aPlanes[ uPlane ].m_vNormal.y > 0.f ? oAxisAlignedBoxC.m_vMax.y : oAxisAlignedBoxC.m_vMin.y;
+		vPositiveC.z = m_aPlanes[ uPlane ].m_vNormal.z > 0.f ? oAxisAlignedBoxC.m_vMax.z : oAxisAlignedBoxC.m_vMin.z;
+
+		vPositiveD.x = m_aPlanes[ uPlane ].m_vNormal.x > 0.f ? oAxisAlignedBoxD.m_vMax.x : oAxisAlignedBoxD.m_vMin.x;
+		vPositiveD.y = m_aPlanes[ uPlane ].m_vNormal.y > 0.f ? oAxisAlignedBoxD.m_vMax.y : oAxisAlignedBoxD.m_vMin.y;
+		vPositiveD.z = m_aPlanes[ uPlane ].m_vNormal.z > 0.f ? oAxisAlignedBoxD.m_vMax.z : oAxisAlignedBoxD.m_vMin.z;
+
+		bVisibleA &= glm::dot( vPositiveA, m_aPlanes[ uPlane ].m_vNormal ) + m_aPlanes[ uPlane ].m_fDistance >= 0.f;
+		bVisibleB &= glm::dot( vPositiveB, m_aPlanes[ uPlane ].m_vNormal ) + m_aPlanes[ uPlane ].m_fDistance >= 0.f;
+		bVisibleC &= glm::dot( vPositiveC, m_aPlanes[ uPlane ].m_vNormal ) + m_aPlanes[ uPlane ].m_fDistance >= 0.f;
+		bVisibleD &= glm::dot( vPositiveD, m_aPlanes[ uPlane ].m_vNormal ) + m_aPlanes[ uPlane ].m_fDistance >= 0.f;
+#endif
+	}
 }

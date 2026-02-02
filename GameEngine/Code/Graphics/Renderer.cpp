@@ -83,34 +83,40 @@ static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTe
 
 	const Frustum oFrustum = Frustum::FromViewProjection( mViewProjectionMatrix );
 
-	Array< VisualNode* > aVisibleNodes;
-
-	if( g_pRenderer->m_bEnableFrustumCulling )
 	{
 		ProfilerBlock oBlock( "FrustumCulling" );
-
-		aVisibleNodes.Reserve( aVisualNodes.Count() );
-		for( VisualNode* pVisualNode : aVisualNodes )
+		
+		if( g_pRenderer->m_bEnableFrustumCulling )
 		{
-			if( oFrustum.IsVisible( pVisualNode->m_oAABB ) )
-				aVisibleNodes.PushBack( pVisualNode );
+			const uint uBatchIterationCount = aVisualNodes.Count() / 4;
+			const uint uSingleIterationCount = aVisualNodes.Count() - 4 * uBatchIterationCount;
+			const uint uSingleIterationStartIndex = 4 * uBatchIterationCount;
+			for( uint u = 0; u < uBatchIterationCount; ++u )
+			{
+				const uint uIndex0 = 4 * u;
+				oFrustum.AreVisible( aVisualNodes[ uIndex0 ]->m_bVisible, aVisualNodes[ uIndex0 + 1 ]->m_bVisible, aVisualNodes[ uIndex0 + 2 ]->m_bVisible, aVisualNodes[ uIndex0 + 3 ]->m_bVisible, aVisualNodes[ uIndex0 ]->m_oAABB, aVisualNodes[ uIndex0 + 1 ]->m_oAABB, aVisualNodes[ uIndex0 + 2 ]->m_oAABB, aVisualNodes[ uIndex0 + 3 ]->m_oAABB );
+			}
+
+			for( uint u = 0; u < uSingleIterationCount; ++u )
+			{
+				const uint uIndex = uSingleIterationStartIndex + u;
+				aVisualNodes[ uIndex ]->m_bVisible = oFrustum.IsVisible( aVisualNodes[ uIndex ]->m_oAABB );
+			}
 		}
-	}
-	else
-	{
-		aVisibleNodes = aVisualNodes;
+		else
+		{
+			for( VisualNode* pVisualNode : aVisualNodes )
+				pVisualNode->m_bVisible = true;
+		}
 	}
 
 	{
 		ProfilerBlock oBlock( "Draw" );
 
-		for( const VisualNode* pVisualNode : aVisibleNodes )
+		for( const VisualNode* pVisualNode : aVisualNodes )
 		{
-			if( g_pRenderer->m_bEnableFrustumCulling )
-			{
-				if( oFrustum.IsVisible( pVisualNode->m_oAABB ) == false )
-					continue;
-			}
+			if( pVisualNode->m_bVisible == false )
+				continue;
 
 			if( oParamSkinningOffset.IsValid() )
 				oParamSkinningOffset.SetValue( pVisualNode->m_uBoneStorageIndex );
@@ -118,7 +124,7 @@ static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTe
 			if( oParamUseSkinning.IsValid() )
 				oParamUseSkinning.SetValue( pVisualNode->m_uBoneCount > 0 );
 
-			const glm::mat4 mMatrix = pVisualNode->m_mMatrix;
+			const glm::mat4& mMatrix = pVisualNode->m_mMatrix;
 
 			oParamModelViewProjection.SetValue( mViewProjectionMatrix * mMatrix );
 

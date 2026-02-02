@@ -15,6 +15,7 @@ VisualNode::VisualNode( const uint64 uEntityID )
 	: m_uEntityID( uEntityID )
 	, m_uBoneStorageIndex( 0 )
 	, m_uBoneCount( 0 )
+	, m_bVisible( true )
 {
 }
 
@@ -24,6 +25,7 @@ VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, cons
 	, m_aMeshes( aMeshes )
 	, m_uBoneStorageIndex( 0 )
 	, m_uBoneCount( 0 )
+	, m_bVisible( true )
 {
 }
 

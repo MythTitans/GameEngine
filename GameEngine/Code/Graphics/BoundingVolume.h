@@ -43,6 +43,7 @@ struct Frustum
 	static Frustum	FromViewProjection( const glm::mat4& mViewProjection );
 
 	bool			IsVisible( const AxisAlignedBox& oAxisAlignedBox ) const;
+	void			AreVisible( bool& bVisibleA, bool& bVisibleB, bool& bVisibleC, bool& bVisibleD, const AxisAlignedBox& oAxisAlignedBoxA, const AxisAlignedBox& oAxisAlignedBoxB, const AxisAlignedBox& oAxisAlignedBoxC, const AxisAlignedBox& oAxisAlignedBoxD ) const;
 
 	enum FrustumPlane
 	{
