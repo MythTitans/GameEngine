@@ -13,14 +13,14 @@ class Entity;
 struct DirectionalLightNode
 {
 	glm::vec3	m_vDirection;
-	glm::vec3	m_vColor;
+	Color		m_oColor;
 	float		m_fIntensity;
 };
 
 struct PointLightNode
 {
 	glm::vec3	m_vPosition;
-	glm::vec3	m_vColor;
+	Color		m_oColor;
 	float		m_fIntensity;
 	float		m_fFalloffMinDistance;
 	float		m_fFalloffMaxDistance;
@@ -30,7 +30,7 @@ struct SpotLightNode
 {
 	glm::vec3	m_vPosition;
 	glm::vec3	m_vDirection;
-	glm::vec3	m_vColor;
+	Color		m_oColor;
 	float		m_fIntensity;
 	float		m_fInnerAngle;
 	float		m_fOuterAngle;

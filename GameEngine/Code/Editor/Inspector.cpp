@@ -9,17 +9,68 @@
 #include "Core/Array.h"
 #include "Game/EntityHolder.h"
 #include "Game/ResourceTypes.h"
+#include "Graphics/Color.h"
 #include "Graphics/Texture.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
 
-bool ColorEdit( const char* sLabel, glm::vec3& vColor )
+bool Vector3Edit( const char* sLabel, glm::vec3& vVector )
+{
+	bool bModified = false;
+
+	ImGui::BeginGroup();
+
+	const float fWidth = ( ImGui::GetContentRegionAvail().x - 100.f ) / 3.f;
+	const float fSpacing = 2.f;
+
+	ImGui::PushStyleColor( ImGuiCol_FrameBg, ImVec4( 0.6f, 0.f, 0.f, 1.f ) );
+	ImGui::PushStyleColor( ImGuiCol_FrameBgHovered, ImVec4( 0.7f, 0.f, 0.f, 1.f ) );
+	ImGui::PushStyleColor( ImGuiCol_FrameBgActive, ImVec4( 0.8f, 0.f, 0.f, 1.f ) );
+	ImGui::PushItemWidth( fWidth );
+	ImGui::DragFloat( std::format( "##{}X", sLabel ).c_str(), &vVector.x, 0.1f );
+	bModified |= ImGui::IsItemDeactivatedAfterEdit();
+	ImGui::PopItemWidth();
+	ImGui::PopStyleColor( 3 );
+
+	ImGui::SameLine( 0, fSpacing );
+
+	ImGui::PushStyleColor( ImGuiCol_FrameBg, ImVec4( 0.f, 0.6f, 0.f, 1.f ) );
+	ImGui::PushStyleColor( ImGuiCol_FrameBgHovered, ImVec4( 0.f, 0.7f, 0.f, 1.f ) );
+	ImGui::PushStyleColor( ImGuiCol_FrameBgActive, ImVec4( 0.f, 0.8f, 0.f, 1.f ) );
+	ImGui::PushItemWidth( fWidth );
+	ImGui::DragFloat( std::format( "##{}Y", sLabel ).c_str(), &vVector.y, 0.1f );
+	bModified |= ImGui::IsItemDeactivatedAfterEdit();
+	ImGui::PopItemWidth();
+	ImGui::PopStyleColor( 3 );
+
+	ImGui::SameLine( 0, fSpacing );
+
+	ImGui::PushStyleColor( ImGuiCol_FrameBg, ImVec4( 0.f, 0.f, 0.6f, 1.f ) );
+	ImGui::PushStyleColor( ImGuiCol_FrameBgHovered, ImVec4( 0.f, 0.f, 0.7f, 1.f ) );
+	ImGui::PushStyleColor( ImGuiCol_FrameBgActive, ImVec4( 0.f, 0.f, 0.8f, 1.f ) );
+	ImGui::PushItemWidth( fWidth );
+	ImGui::DragFloat( std::format( "##{}Z", sLabel ).c_str(), &vVector.z, 0.1f );
+	bModified |= ImGui::IsItemDeactivatedAfterEdit();
+	ImGui::PopItemWidth();
+	ImGui::PopStyleColor( 3 );
+
+	ImGui::SameLine( 0 );
+
+	ImGui::Text( sLabel );
+
+	ImGui::EndGroup();
+
+	return bModified;
+}
+
+bool ColorEdit( const char* sLabel, Color& oColor )
 {
 	bool bEdit = false;
-	glm::vec3 vSRGBColor = glm::convertLinearToSRGB( vColor );
+
+	glm::vec3 vSRGBColor = glm::convertLinearToSRGB( oColor.m_vColor );
 	bEdit = ImGui::ColorEdit3( sLabel, &vSRGBColor.x );
 	if( bEdit )
-		vColor = glm::convertSRGBToLinear( vSRGBColor );
+		oColor.m_vColor = glm::convertSRGBToLinear( vSRGBColor );
 
 	return ImGui::IsItemDeactivatedAfterEdit();
 }
@@ -119,7 +170,13 @@ bool DisplayInspector( const char* sName, glm::bvec3& vVector )
 template <>
 bool DisplayInspector( const char* sName, glm::vec3& vVector )
 {
-	return ColorEdit( sName, vVector );
+	return Vector3Edit( sName, vVector );
+}
+
+template <>
+bool DisplayInspector( const char* sName, Color& oColor )
+{
+	return ColorEdit( sName, oColor );
 }
 
 template <>

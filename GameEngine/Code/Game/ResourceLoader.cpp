@@ -714,15 +714,15 @@ void ResourceLoader::ModelLoadCommand::LoadMaterials()
 
 		aiColor3D oDiffuseColor;
 		pMaterial->Get( AI_MATKEY_COLOR_DIFFUSE, oDiffuseColor );
-		m_aMaterials[ u ].m_vDiffuseColor = glm::vec3( oDiffuseColor.r, oDiffuseColor.g, oDiffuseColor.b );
+		m_aMaterials[ u ].m_oDiffuseColor = Color( oDiffuseColor.r, oDiffuseColor.g, oDiffuseColor.b );
 
 		aiColor3D oSpecularColor;
 		pMaterial->Get( AI_MATKEY_COLOR_SPECULAR, oSpecularColor );
-		m_aMaterials[ u ].m_vSpecularColor = glm::vec3( oSpecularColor.r, oSpecularColor.g, oSpecularColor.b );
+		m_aMaterials[ u ].m_oSpecularColor = Color( oSpecularColor.r, oSpecularColor.g, oSpecularColor.b );
 
 		aiColor3D oEmissiveColor;
 		pMaterial->Get( AI_MATKEY_COLOR_EMISSIVE, oEmissiveColor );
-		m_aMaterials[ u ].m_vEmissiveColor = glm::vec3( oEmissiveColor.r, oEmissiveColor.g, oEmissiveColor.b );
+		m_aMaterials[ u ].m_oEmissiveColor = Color( oEmissiveColor.r, oEmissiveColor.g, oEmissiveColor.b );
 
 		pMaterial->Get( AI_MATKEY_SHININESS, m_aMaterials[ u ].m_fShininess );
 

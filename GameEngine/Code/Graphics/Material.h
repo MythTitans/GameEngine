@@ -4,6 +4,7 @@
 #include <typeindex>
 
 #include "Game/ResourceTypes.h"
+#include "Graphics/Color.h"
 #include "Graphics/Technique.h"
 
 inline constexpr uint MAX_MATERIAL_COUNT = 128;
@@ -50,9 +51,9 @@ struct LitMaterialData
 		_COUNT
 	};
 
-	glm::vec3								m_vDiffuseColor;
-	glm::vec3								m_vSpecularColor;
-	glm::vec3								m_vEmissiveColor;
+	Color									m_oDiffuseColor;
+	Color									m_oSpecularColor;
+	Color									m_oEmissiveColor;
 	float									m_fShininess;
 
 	TextureResPtr							m_xDiffuseTextureResource;
@@ -80,7 +81,7 @@ struct UnlitMaterialData
 		_COUNT
 	};
 
-	glm::vec3									m_vDiffuseColor;
+	Color										m_oDiffuseColor;
 
 	TextureResPtr								m_xDiffuseTextureResource;
 

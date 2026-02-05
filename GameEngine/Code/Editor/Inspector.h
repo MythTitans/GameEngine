@@ -12,8 +12,10 @@ class Array;
 class EntityHolder;
 class Spline;
 class TextureResource;
+struct Color;
 
-bool ColorEdit( const char* sLabel, glm::vec3& vColor );
+bool Vector3Edit( const char* sLable, glm::vec3& vVector );
+bool ColorEdit( const char* sLabel, Color& oColor );
 void TexturePreview( const char* sLabel, const TextureResource* pTexture );
 
 template < typename Type >
@@ -39,6 +41,9 @@ bool DisplayInspector( const char* sName, glm::bvec3& vVector );
 
 template <>
 bool DisplayInspector( const char* sName, glm::vec3& vVector );
+
+template <>
+bool DisplayInspector( const char* sName, Color& oColor );
 
 template <>
 bool DisplayInspector( const char* sName, EntityHolder& oEntityHolder );

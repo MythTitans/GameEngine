@@ -8,6 +8,7 @@
 class Entity;
 class EntityHolder;
 class Spline;
+struct Color;
 
 namespace glm
 {
@@ -34,6 +35,9 @@ void from_json( const nlohmann::json& oJsonContent, Array< glm::vec3 >& aVectors
 
 void to_json( nlohmann::json& oJsonContent, const Spline& oSpline );
 void from_json( const nlohmann::json& oJsonContent, Spline& oSpline );
+
+void to_json( nlohmann::json& oJsonContent, const Color& oColor );
+void from_json( const nlohmann::json& oJsonContent, Color& oColor );
 
 void SerializeComponent( nlohmann::json& oJsonContent, const std::string& sComponentName, const Array< nlohmann::json >& aSerializedProperties );
 
@@ -63,6 +67,9 @@ void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const 
 
 template <>
 void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< glm::vec3 >& aProperties );
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< Color >& aProperties );
 
 template <>
 void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< EntityHolder >& aProperties );
@@ -99,6 +106,9 @@ void DeserializeProperties( Array< glm::bvec3 >& aProperties, const Array< std::
 
 template <>
 void DeserializeProperties( Array< glm::vec3 >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent );
+
+template <>
+void DeserializeProperties( Array< Color >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent );
 
 template <>
 void DeserializeProperties( Array< EntityHolder >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent );

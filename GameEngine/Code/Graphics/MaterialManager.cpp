@@ -46,7 +46,7 @@ uint MaterialManager::GetMeshMaterialID()
 	static MaterialReference oMaterialReference = []()
 	{
 		UnlitMaterialData oMaterialData;
-		oMaterialData.m_vDiffuseColor = glm::vec3( 1.f, 0.f, 0.f );
+		oMaterialData.m_oDiffuseColor = Color::Red();
 		return g_pMaterialManager->CreateMaterial( oMaterialData );
 	}( );
 
@@ -58,7 +58,7 @@ uint MaterialManager::GetRoadMaterialID()
 	static MaterialReference oMaterialReference = []()
 	{
 		UnlitMaterialData oMaterialData;
-		oMaterialData.m_vDiffuseColor = glm::vec3( 1.f );
+		oMaterialData.m_oDiffuseColor = Color::White();
 		return g_pMaterialManager->CreateMaterial( oMaterialData );
 	}();
 

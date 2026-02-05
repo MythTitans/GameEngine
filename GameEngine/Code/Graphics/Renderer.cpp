@@ -39,7 +39,7 @@ static GPULightingDataBlock SetupLighting( const Array< DirectionalLightNode* >&
 	for( uint u = 0; u < aDirectionalLights.Count(); ++u )
 	{
 		oLightingData.m_aDirectionalLights[ u ].m_vDirection = aDirectionalLights[ u ]->m_vDirection;
-		oLightingData.m_aDirectionalLights[ u ].m_vColor = aDirectionalLights[ u ]->m_vColor;
+		oLightingData.m_aDirectionalLights[ u ].m_vColor = aDirectionalLights[ u ]->m_oColor.m_vColor;
 		oLightingData.m_aDirectionalLights[ u ].m_fIntensity = aDirectionalLights[ u ]->m_fIntensity;
 	}
 	oLightingData.m_uDirectionalLightCount = aDirectionalLights.Count();
@@ -47,7 +47,7 @@ static GPULightingDataBlock SetupLighting( const Array< DirectionalLightNode* >&
 	for( uint u = 0; u < aPointLights.Count(); ++u )
 	{
 		oLightingData.m_aPointLights[ u ].m_vPosition = aPointLights[ u ]->m_vPosition;
-		oLightingData.m_aPointLights[ u ].m_vColor = aPointLights[ u ]->m_vColor;
+		oLightingData.m_aPointLights[ u ].m_vColor = aPointLights[ u ]->m_oColor.m_vColor;
 		oLightingData.m_aPointLights[ u ].m_fIntensity = aPointLights[ u ]->m_fIntensity;
 		oLightingData.m_aPointLights[ u ].m_fFalloffMinDistance = aPointLights[ u ]->m_fFalloffMinDistance;
 		oLightingData.m_aPointLights[ u ].m_fFalloffMaxDistance = aPointLights[ u ]->m_fFalloffMaxDistance;
@@ -58,7 +58,7 @@ static GPULightingDataBlock SetupLighting( const Array< DirectionalLightNode* >&
 	{
 		oLightingData.m_aSpotLights[ u ].m_vDirection = aSpotLights[ u ]->m_vDirection;
 		oLightingData.m_aSpotLights[ u ].m_vPosition = aSpotLights[ u ]->m_vPosition;
-		oLightingData.m_aSpotLights[ u ].m_vColor = aSpotLights[ u ]->m_vColor;
+		oLightingData.m_aSpotLights[ u ].m_vColor = aSpotLights[ u ]->m_oColor.m_vColor;
 		oLightingData.m_aSpotLights[ u ].m_fIntensity = aSpotLights[ u ]->m_fIntensity;
 		oLightingData.m_aSpotLights[ u ].m_fInnerRange = glm::cos( glm::radians( aSpotLights[ u ]->m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) );
 		oLightingData.m_aSpotLights[ u ].m_fOuterRange = glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) );

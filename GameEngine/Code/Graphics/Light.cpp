@@ -10,7 +10,7 @@
 #include "Graphics/Mesh.h"
 #include "Graphics/Renderer.h"
 
-static void DisplayLightVisual( const Entity* pEntity, const glm::vec3& vColor )
+static void DisplayLightVisual( const Entity* pEntity, const Color& oColor )
 {
 	static Array< Mesh > s_aLightVisuals;
 	static ModelResPtr s_xLightModel;
@@ -27,7 +27,7 @@ static void DisplayLightVisual( const Entity* pEntity, const glm::vec3& vColor )
 		if( s_xLightModel->IsLoaded() && s_xUnlitTechnique->IsLoaded() )
 		{
 			UnlitMaterialData oMaterialData;
-			oMaterialData.m_vDiffuseColor = vColor;
+			oMaterialData.m_oDiffuseColor = oColor;
 			MaterialReference oMaterial = g_pMaterialManager->CreateMaterial( oMaterialData );
 
 			s_aLightVisuals = s_xLightModel->GetMeshes();
@@ -66,13 +66,13 @@ void DirectionalLightComponent::Update( const GameContext& oGameContext )
 	const Transform oTransform = GetEntity()->GetWorldTransform();
 
 	m_pDirectionalLight->m_vDirection = oTransform.GetK();
-	m_pDirectionalLight->m_vColor = m_vColor;
+	m_pDirectionalLight->m_oColor = m_oColor;
 	m_pDirectionalLight->m_fIntensity = m_fIntensity;
 }
 
 void DirectionalLightComponent::DisplayGizmos( const bool bSelected )
 {
-	DisplayLightVisual( GetEntity(), m_vColor );
+	DisplayLightVisual( GetEntity(), m_oColor );
 
 	if( bSelected )
 	{
@@ -107,7 +107,7 @@ void PointLightComponent::Update( const GameContext& oGameContext )
 	const Transform oTransform = GetEntity()->GetWorldTransform();
 
 	m_pPointLight->m_vPosition = oTransform.GetO();
-	m_pPointLight->m_vColor = m_vColor;
+	m_pPointLight->m_oColor = m_oColor;
 	m_pPointLight->m_fIntensity = m_fIntensity;
 	m_pPointLight->m_fFalloffMinDistance = m_fFalloffMinDistance;
 	m_pPointLight->m_fFalloffMaxDistance = m_fFalloffMaxDistance;
@@ -115,7 +115,7 @@ void PointLightComponent::Update( const GameContext& oGameContext )
 
 void PointLightComponent::DisplayGizmos( const bool bSelected )
 {
-	DisplayLightVisual( GetEntity(), m_vColor );
+	DisplayLightVisual( GetEntity(), m_oColor );
 
 	if( bSelected )
 	{
@@ -151,7 +151,7 @@ void SpotLightComponent::Update( const GameContext& oGameContext )
 
 	m_pSpotLight->m_vPosition = oTransform.GetO();
 	m_pSpotLight->m_vDirection = oTransform.GetK();
-	m_pSpotLight->m_vColor = m_vColor;
+	m_pSpotLight->m_oColor = m_oColor;
 	m_pSpotLight->m_fIntensity = m_fIntensity;
 	m_pSpotLight->m_fInnerAngle = m_fInnerAngle;
 	m_pSpotLight->m_fOuterAngle = m_fOuterAngle;
@@ -161,7 +161,7 @@ void SpotLightComponent::Update( const GameContext& oGameContext )
 
 void SpotLightComponent::DisplayGizmos( const bool bSelected )
 {
-	DisplayLightVisual( GetEntity(), m_vColor );
+	DisplayLightVisual( GetEntity(), m_oColor );
 
 	if( bSelected )
 	{

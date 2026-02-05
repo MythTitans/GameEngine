@@ -8,6 +8,7 @@
 #include "Game/Entity.h"
 #include "Game/EntityHolder.h"
 #include "Game/Spline.h"
+#include "Graphics/Color.h"
 
 template < typename T >
 void TypedSerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< T >& aProperties )
@@ -170,6 +171,18 @@ void from_json( const nlohmann::json& oJsonContent, Spline& oSpline )
 	//oSpline.RebuildCurvatures();
 }
 
+void to_json( nlohmann::json& oJsonContent, const Color& oColor )
+{
+	// TODO #eric could be nice to use rgb instead of xyz at some point
+	to_json( oJsonContent, oColor.m_vColor );
+}
+
+void from_json( const nlohmann::json& oJsonContent, Color& oColor )
+{
+	// TODO #eric could be nice to use rgb instead of xyz at some point
+	from_json( oJsonContent, oColor.m_vColor );
+}
+
 template <>
 void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< bool >& aProperties )
 {
@@ -208,6 +221,12 @@ void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const 
 
 template <>
 void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< glm::vec3 >& aProperties )
+{
+	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
+}
+
+template <>
+void SerializeProperties( Array< nlohmann::json >& aSerializedProperties, const Array< std::string >& aNames, const Array< Color >& aProperties )
 {
 	TypedSerializeProperties( aSerializedProperties, aNames, aProperties );
 }
@@ -274,6 +293,12 @@ void DeserializeProperties( Array< glm::bvec3 >& aProperties, const Array< std::
 
 template <>
 void DeserializeProperties( Array< glm::vec3 >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
+{
+	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
+}
+
+template <>
+void DeserializeProperties( Array< Color >& aProperties, const Array< std::string >& aNames, const nlohmann::json& oJsonContent )
 {
 	TypedDeserializeProperties( aProperties, aNames, oJsonContent );
 }

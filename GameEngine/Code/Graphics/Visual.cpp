@@ -83,9 +83,9 @@ bool VisualComponent::DisplayInspector()
 			if( g_pMaterialManager->IsMaterialType< LitMaterialData >( oMesh.GetMaterial() ) )
 			{
 				LitMaterialData oMaterialData = g_pMaterialManager->GetMaterial< LitMaterialData >( oMesh.GetMaterial() );
-				ColorEdit( "Diffuse color", oMaterialData.m_vDiffuseColor );
-				ColorEdit( "Specular color", oMaterialData.m_vSpecularColor );
-				ColorEdit( "Emissive color", oMaterialData.m_vEmissiveColor );
+				ColorEdit( "Diffuse color", oMaterialData.m_oDiffuseColor );
+				ColorEdit( "Specular color", oMaterialData.m_oSpecularColor );
+				ColorEdit( "Emissive color", oMaterialData.m_oEmissiveColor );
 				ImGui::DragFloat( "Shininess", &oMaterialData.m_fShininess );
 				TexturePreview( "Diffuse map", oMaterialData.m_xDiffuseTextureResource.GetPtr() );
 				TexturePreview( "Normal map", oMaterialData.m_xNormalTextureResource.GetPtr() );

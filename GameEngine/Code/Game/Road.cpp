@@ -20,7 +20,7 @@ void RoadComponent::Initialize()
 	m_xTexture = g_pResourceLoader->LoadTexture( "RoadTest.jpg", true );
 
 	UnlitMaterialData oMaterialData;
-	oMaterialData.m_vDiffuseColor = glm::vec3( 0.6f, 0.6f, 0.6f );
+	oMaterialData.m_oDiffuseColor = Color( 0.6f, 0.6f, 0.6f );
 	oMaterialData.m_xDiffuseTextureResource = m_xTexture;
 }
 

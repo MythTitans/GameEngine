@@ -3,9 +3,9 @@
 #include "Graphics/Renderer.h"
 
 LitMaterialData::LitMaterialData()
-	: m_vDiffuseColor( 1.f, 1.f, 1.f )
-	, m_vSpecularColor( 1.f, 1.f, 1.f )
-	, m_vEmissiveColor( 0.f, 0.f, 0.f )
+	: m_oDiffuseColor( Color::White() )
+	, m_oSpecularColor( Color::White() )
+	, m_oEmissiveColor( Color::Black() )
 	, m_fShininess( 32.f )
 {
 }
@@ -52,16 +52,16 @@ void LitMaterialData::ApplyMaterial( const uint uMaterialID, Technique& oTechniq
 
 void LitMaterialData::ExportToGPU( GPULitMaterialData& oMaterialData ) const
 {
-	oMaterialData.m_vDiffuseColor = m_vDiffuseColor;
-	oMaterialData.m_vSpecularColor = m_vSpecularColor;
-	oMaterialData.m_vEmissiveColor = m_vEmissiveColor;
+	oMaterialData.m_vDiffuseColor = m_oDiffuseColor.m_vColor;
+	oMaterialData.m_vSpecularColor = m_oSpecularColor.m_vColor;
+	oMaterialData.m_vEmissiveColor = m_oEmissiveColor.m_vColor;
 	oMaterialData.m_fShininess = m_fShininess;
 }
 
 PARAM_SHEET( LitMaterialData::LitMaterialParam ) LitMaterialData::s_oMaterialSheet;
 
 UnlitMaterialData::UnlitMaterialData()
-	: m_vDiffuseColor( 1.f, 1.f, 1.f )
+	: m_oDiffuseColor( Color::White() )
 {
 }
 
@@ -89,7 +89,7 @@ void UnlitMaterialData::ApplyMaterial( const uint uMaterialID, Technique& oTechn
 
 void UnlitMaterialData::ExportToGPU( GPUUnlitMaterialData& oMaterialData ) const
 {
-	oMaterialData.m_vDiffuseColor = m_vDiffuseColor;
+	oMaterialData.m_vDiffuseColor = m_oDiffuseColor.m_vColor;
 }
 
 PARAM_SHEET( UnlitMaterialData::UnlitMaterialParam ) UnlitMaterialData::s_oMaterialSheet;

@@ -9,7 +9,7 @@
 #include "Entity.h"
 #include "Math/GLMHelpers.h"
 
-static void DisplayControlPointVisual( const Entity* pEntity, const glm::vec3& vColor )
+static void DisplayControlPointVisual( const Entity* pEntity, const Color& oColor )
 {
 	static Array< Mesh > s_aControlPointVisuals;
 	static ModelResPtr s_xControlPointModel;
@@ -26,7 +26,7 @@ static void DisplayControlPointVisual( const Entity* pEntity, const glm::vec3& v
 		if( s_xControlPointModel->IsLoaded() && s_xUnlitTechnique->IsLoaded() )
 		{
 			UnlitMaterialData oMaterialData;
-			oMaterialData.m_vDiffuseColor = vColor;
+			oMaterialData.m_oDiffuseColor = oColor;
 			MaterialReference oMaterial = g_pMaterialManager->CreateMaterial( oMaterialData );
 
 			s_aControlPointVisuals = s_xControlPointModel->GetMeshes();
@@ -421,7 +421,7 @@ void SplineCPComponent::DisplayGizmos( const bool bSelected )
 		GetEntity()->SetPosition( m_xSpline->m_oSpline.GetControlPoints()[ m_iCPIndex ] );
 	
 
-	DisplayControlPointVisual( GetEntity(), glm::vec3( 0.f, 0.f, 1.f ) );
+	DisplayControlPointVisual( GetEntity(), Color::Blue() );
 }
 
 void SplineCPComponent::SetSplineData( SplineComponent* pSpline, const int iCPIndex )
