@@ -1,5 +1,5 @@
 {
-    "vertexShader": "Shader/skinning.vs|DEFERRED",
+    "vertexShader": "Shader/skinning.vs",
     "pixelShader": "Shader/deferred_maps.ps",
     "parameters": [
         "modelViewProjection",
