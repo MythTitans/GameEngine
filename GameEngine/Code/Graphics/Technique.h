@@ -78,8 +78,7 @@ public:
 	template < typename Binding, uint uCount >
 	friend class TechniqueSheet;
 
-	template < typename Technique >
-	friend void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique );
+	friend void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique );
 
 	Technique();
 

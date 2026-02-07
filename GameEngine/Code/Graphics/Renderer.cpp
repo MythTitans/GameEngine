@@ -70,83 +70,69 @@ static GPULightingDataBlock SetupLighting( const Array< DirectionalLightNode* >&
 	return oLightingData;
 }
 
-template < typename Technique >
-static void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique )
+static void CullNodes( const Array< VisualNode* >& aVisualNodes, const Frustum& oFrustum )
 {
+	ProfilerBlock oBlock( "Cull" );
+
+	const uint uBatchIterationCount = aVisualNodes.Count() / 4;
+	const uint uSingleIterationCount = aVisualNodes.Count() - 4 * uBatchIterationCount;
+	const uint uSingleIterationStartIndex = 4 * uBatchIterationCount;
+	for( uint u = 0; u < uBatchIterationCount; ++u )
+	{
+		const uint uIndex0 = 4 * u;
+		oFrustum.AreVisible( aVisualNodes[ uIndex0 ]->m_bVisible, aVisualNodes[ uIndex0 + 1 ]->m_bVisible, aVisualNodes[ uIndex0 + 2 ]->m_bVisible, aVisualNodes[ uIndex0 + 3 ]->m_bVisible, aVisualNodes[ uIndex0 ]->m_oAABB, aVisualNodes[ uIndex0 + 1 ]->m_oAABB, aVisualNodes[ uIndex0 + 2 ]->m_oAABB, aVisualNodes[ uIndex0 + 3 ]->m_oAABB );
+	}
+
+	for( uint u = 0; u < uSingleIterationCount; ++u )
+	{
+		const uint uIndex = uSingleIterationStartIndex + u;
+		aVisualNodes[ uIndex ]->m_bVisible = oFrustum.IsVisible( aVisualNodes[ uIndex ]->m_oAABB );
+	}
+}
+
+static void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique )
+{
+	ProfilerBlock oBlock( "Draw" );
+
 	TechniqueParameter oParamUseSkinning = oTechnique.GetParameter( PARAM_USE_SKINNING );
 	TechniqueParameter oParamSkinningOffset = oTechnique.GetParameter( PARAM_SKINNING_OFFSET );
 	TechniqueParameter oParamModelViewProjection = oTechnique.GetParameter( PARAM_MODEL_VIEW_PROJECTION );
 	TechniqueParameter oParamModelInverseTranspose = oTechnique.GetParameter( PARAM_MODEL_INVERSE_TRANSPOSE );
 	TechniqueParameter oParamModel = oTechnique.GetParameter( PARAM_MODEL );
 
-	const glm::mat4 mViewProjectionMatrix = g_pRenderer->m_oCamera.GetViewProjectionMatrix();
-
-	const Frustum oFrustum = Frustum::FromViewProjection( mViewProjectionMatrix );
-
+	for( const VisualNode* pVisualNode : aVisualNodes )
 	{
-		ProfilerBlock oBlock( "FrustumCulling" );
-		
-		if( g_pRenderer->m_bEnableFrustumCulling )
+		if( pVisualNode->m_bVisible == false )
+			continue;
+
+		if( oParamSkinningOffset.IsValid() )
+			oParamSkinningOffset.SetValue( pVisualNode->m_uBoneStorageIndex );
+
+		if( oParamUseSkinning.IsValid() )
+			oParamUseSkinning.SetValue( pVisualNode->m_uBoneCount > 0 );
+
+		const glm::mat4& mMatrix = pVisualNode->m_mMatrix;
+
+		oParamModelViewProjection.SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * mMatrix );
+
+		if( oParamModelInverseTranspose.IsValid() )
+			oParamModelInverseTranspose.SetValue( pVisualNode->m_InverseTransposeMatrix );
+
+		if( oParamModel.IsValid() )
+			oParamModel.SetValue( mMatrix );
+
+		const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
+		for( const Mesh& oMesh : aMeshes )
 		{
-			const uint uBatchIterationCount = aVisualNodes.Count() / 4;
-			const uint uSingleIterationCount = aVisualNodes.Count() - 4 * uBatchIterationCount;
-			const uint uSingleIterationStartIndex = 4 * uBatchIterationCount;
-			for( uint u = 0; u < uBatchIterationCount; ++u )
-			{
-				const uint uIndex0 = 4 * u;
-				oFrustum.AreVisible( aVisualNodes[ uIndex0 ]->m_bVisible, aVisualNodes[ uIndex0 + 1 ]->m_bVisible, aVisualNodes[ uIndex0 + 2 ]->m_bVisible, aVisualNodes[ uIndex0 + 3 ]->m_bVisible, aVisualNodes[ uIndex0 ]->m_oAABB, aVisualNodes[ uIndex0 + 1 ]->m_oAABB, aVisualNodes[ uIndex0 + 2 ]->m_oAABB, aVisualNodes[ uIndex0 + 3 ]->m_oAABB );
-			}
+			g_pMaterialManager->ApplyMaterial( oMesh.m_oMaterial, oTechnique );
 
-			for( uint u = 0; u < uSingleIterationCount; ++u )
-			{
-				const uint uIndex = uSingleIterationStartIndex + u;
-				aVisualNodes[ uIndex ]->m_bVisible = oFrustum.IsVisible( aVisualNodes[ uIndex ]->m_oAABB );
-			}
-		}
-		else
-		{
-			for( VisualNode* pVisualNode : aVisualNodes )
-				pVisualNode->m_bVisible = true;
-		}
-	}
+			const Array< const Texture* >& aTextures = oTechnique.m_aTextures;
+			for( uint u = 0; u < aTextures.Count(); ++u )
+				g_pRenderer->SetTextureSlot( *aTextures[ u ], ( int )u );
 
-	{
-		ProfilerBlock oBlock( "Draw" );
+			g_pRenderer->DrawMesh( oMesh );
 
-		for( const VisualNode* pVisualNode : aVisualNodes )
-		{
-			if( pVisualNode->m_bVisible == false )
-				continue;
-
-			if( oParamSkinningOffset.IsValid() )
-				oParamSkinningOffset.SetValue( pVisualNode->m_uBoneStorageIndex );
-
-			if( oParamUseSkinning.IsValid() )
-				oParamUseSkinning.SetValue( pVisualNode->m_uBoneCount > 0 );
-
-			const glm::mat4& mMatrix = pVisualNode->m_mMatrix;
-
-			oParamModelViewProjection.SetValue( mViewProjectionMatrix * mMatrix );
-
-			if( oParamModelInverseTranspose.IsValid() )
-				oParamModelInverseTranspose.SetValue( pVisualNode->m_InverseTransposeMatrix );
-
-			if( oParamModel.IsValid() )
-				oParamModel.SetValue( mMatrix );
-
-			const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
-			for( const Mesh& oMesh : aMeshes )
-			{
-				g_pMaterialManager->ApplyMaterial( oMesh.m_oMaterial, oTechnique );
-
-				const Array< const Texture* >& aTextures = oTechnique.m_aTextures;
-				for( uint u = 0; u < aTextures.Count(); ++u )
-					g_pRenderer->SetTextureSlot( *aTextures[ u ], ( int )u );
-
-				g_pRenderer->DrawMesh( oMesh );
-
-				oTechnique.m_aTextures.Clear();
-			}
+			oTechnique.m_aTextures.Clear();
 		}
 	}
 }
@@ -155,7 +141,10 @@ Array< VisualNode* > BuildTemporaryVisualNodesArray( ArrayView< VisualNode > aVi
 {
 	Array< VisualNode* > aTemporaryVisualNodes( aVisualNodes.Count() );
 	for( uint u = 0; u < aVisualNodes.Count(); ++u )
+	{
 		aTemporaryVisualNodes[ u ] = &aVisualNodes[ u ];
+		aTemporaryVisualNodes[ u ]->m_bVisible = true;
+	}
 
 	return aTemporaryVisualNodes;
 }
@@ -661,7 +650,19 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 			if( oParamViewPosition.IsValid() )
 				oParamViewPosition.SetValue( m_oCamera.m_vPosition );
 
-			DrawMeshes( m_oVisualStructure.m_aVisuals[ u ], oTechnique );
+			const Array< VisualNode* >& aVisualNodes = m_oVisualStructure.m_aVisuals[ u ];
+			if( m_bEnableFrustumCulling )
+			{
+				const Frustum oFrustum = Frustum::FromViewProjection( m_oCamera.GetViewProjectionMatrix() );
+				CullNodes( m_oVisualStructure.m_aVisuals[ u ], oFrustum );
+			}
+			else
+			{
+	 			for( VisualNode* pVisualNode : aVisualNodes )
+	 				pVisualNode->m_bVisible = true;
+			}
+
+			DrawNodes( aVisualNodes, oTechnique );
 		}
 	}
 
@@ -681,7 +682,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 				oParamViewPosition.SetValue( m_oCamera.m_vPosition );
 
 			const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( m_oVisualStructure.m_aTemporaryVisuals[ u ] );
-			DrawMeshes( aTemporaryVisualNodes, oTechnique );
+			DrawNodes( aTemporaryVisualNodes, oTechnique );
 		}
 	}
 
@@ -717,7 +718,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 		GPUProfilerBlock oGPUBlock( "Meshes" );
 
 		for( const Array< VisualNode* >& aVisualNodes : m_oVisualStructure.m_aVisuals )
-			DrawMeshes( aVisualNodes, oMapsTechnique );
+			DrawNodes( aVisualNodes, oMapsTechnique );
 	}
 
 	{
@@ -726,7 +727,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 		for( Array< VisualNode >& aVisualNodes : m_oVisualStructure.m_aTemporaryVisuals )
 		{
 			const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( aVisualNodes );
-			DrawMeshes( aTemporaryVisualNodes, oMapsTechnique );
+			DrawNodes( aTemporaryVisualNodes, oMapsTechnique );
 		}
 	}
 

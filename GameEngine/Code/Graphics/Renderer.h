@@ -104,8 +104,7 @@ class Renderer
 public:
 	friend class Editor;
 
-	template < typename Technique >
-	friend void DrawMeshes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique );
+	friend void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique );
 
 	Renderer();
 	~Renderer();
