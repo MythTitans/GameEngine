@@ -40,6 +40,11 @@ static void GetFormatDetails( const TextureFormat eFormat, const bool bSRGB, GLi
 		iInternalFormat = GL_DEPTH_COMPONENT24;
 		eType = GL_FLOAT;
 		break;
+	case TextureFormat::SHADOW:
+		iFormat = GL_DEPTH_COMPONENT;
+		iInternalFormat = GL_DEPTH_COMPONENT24;
+		eType = GL_FLOAT;
+		break;
 	case TextureFormat::ID8:
 		iFormat = GL_RED_INTEGER;
 		iInternalFormat = GL_R8UI;
@@ -69,6 +74,8 @@ constexpr uint GetFormatBytes( const TextureFormat eFormat )
 		return 3 * sizeof( uint16 );
 	case TextureFormat::DEPTH:
 		return 1 * sizeof( GLfloat );
+	case TextureFormat::SHADOW:
+		return 1 * sizeof( GLfloat );
 	case TextureFormat::ID64:
 		return 4 * sizeof( uint16 );
 	default:
@@ -84,7 +91,11 @@ TextureDesc::TextureDesc( const int iWidth, const int iHeight, const TextureForm
 	, m_eFormat( eFormat )
 	, m_eHorizontalWrapping( TextureWrapping::REPEAT )
 	, m_eVerticalWrapping( TextureWrapping::REPEAT )
+	, m_eMinFiltering( TextureFiltering::LINEAR )
+	, m_eMagFiltering( TextureFiltering::LINEAR )
+	, m_oBorderColor( Color::Black() )
 	, m_iSamples( 1 )
+	, m_iCount( 1 )
 	, m_bSRGB( false )
 	, m_bGenerateMips( false )
 {
@@ -99,6 +110,12 @@ TextureDesc& TextureDesc::Data( const uint8* pData )
 TextureDesc& TextureDesc::Multisample( int8 iSamples )
 {
 	m_iSamples = iSamples;
+	return *this;
+}
+
+TextureDesc& TextureDesc::Array( int8 iCount )
+{
+	m_iCount = iCount;
 	return *this;
 }
 
@@ -118,6 +135,31 @@ TextureDesc& TextureDesc::HorizontalWrapping( const TextureWrapping eWrapping )
 TextureDesc& TextureDesc::VerticalWrapping( const TextureWrapping eWrapping )
 {
 	m_eVerticalWrapping = eWrapping;
+	return *this;
+}
+
+TextureDesc& TextureDesc::Filtering( const TextureFiltering eFiltering )
+{
+	m_eMinFiltering = eFiltering;
+	m_eMagFiltering = eFiltering;
+	return *this;
+}
+
+TextureDesc& TextureDesc::MinFiltering( const TextureFiltering eFiltering )
+{
+	m_eMinFiltering = eFiltering;
+	return *this;
+}
+
+TextureDesc& TextureDesc::MagFiltering( const TextureFiltering eFiltering )
+{
+	m_eMagFiltering = eFiltering;
+	return *this;
+}
+
+TextureDesc& TextureDesc::BorderColor( const Color& oBorderColor )
+{
+	m_oBorderColor = oBorderColor;
 	return *this;
 }
 
@@ -149,10 +191,16 @@ void Texture::Create( const TextureDesc& oDesc )
 
 	glGenTextures( 1, &m_uTextureID );
 
-	if( oDesc.m_iSamples > 1 )
-		glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, m_uTextureID );
-	else
-		glBindTexture( GL_TEXTURE_2D, m_uTextureID );
+	const GLenum eSimpleTextureKind = oDesc.m_iCount > 1 ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
+	const GLenum eFullTextureKind = [&]() -> GLenum
+	{
+		if( oDesc.m_iSamples > 1 )
+			return oDesc.m_iCount > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_MULTISAMPLE;
+
+		return oDesc.m_iCount > 1 ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
+	}();
+
+	glBindTexture( eFullTextureKind, m_uTextureID );
 
 	auto GetWrappingMode = []( const TextureWrapping eTextureWrapping ) {
 		switch( eTextureWrapping )
@@ -165,15 +213,38 @@ void Texture::Create( const TextureDesc& oDesc )
 			return GL_CLAMP_TO_EDGE;
 		case TextureWrapping::CLAMP_MIRROR:
 			return GL_MIRROR_CLAMP_TO_EDGE;
+		case TextureWrapping::BORDER:
+			return GL_CLAMP_TO_BORDER;
 		}
 
 		return GL_REPEAT;
 	};
 
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GetWrappingMode( oDesc.m_eHorizontalWrapping ) );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GetWrappingMode( oDesc.m_eVerticalWrapping ) );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	auto GetFilteringMode = []( const TextureFiltering eTextureFiltering ) {
+		switch( eTextureFiltering )
+		{
+		case TextureFiltering::NEAREST:
+			return GL_NEAREST;
+		case TextureFiltering::LINEAR:
+			return GL_LINEAR;
+		}
+
+		return GL_LINEAR;
+	};
+
+	const GLfloat aBorderColor[ 4 ] = { oDesc.m_oBorderColor.m_vColor.r, oDesc.m_oBorderColor.m_vColor.g , oDesc.m_oBorderColor.m_vColor.b, 1.f };
+	glTexParameterfv( eFullTextureKind, GL_TEXTURE_BORDER_COLOR, aBorderColor );
+	glTexParameteri( eFullTextureKind, GL_TEXTURE_WRAP_S, GetWrappingMode( oDesc.m_eHorizontalWrapping ) );
+	glTexParameteri( eFullTextureKind, GL_TEXTURE_WRAP_T, GetWrappingMode( oDesc.m_eVerticalWrapping ) );
+
+	glTexParameteri( eFullTextureKind, GL_TEXTURE_MIN_FILTER, GetFilteringMode( oDesc.m_eMinFiltering ) );
+	glTexParameteri( eFullTextureKind, GL_TEXTURE_MAG_FILTER, GetFilteringMode( oDesc.m_eMagFiltering ) );
+
+	if( oDesc.m_eFormat == TextureFormat::SHADOW )
+	{
+		glTexParameteri( eFullTextureKind, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE );
+		glTexParameteri( eFullTextureKind, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL );
+	}
 
 	GLint iFormat;
 	GLint iInternalFormat;
@@ -181,17 +252,24 @@ void Texture::Create( const TextureDesc& oDesc )
 	GetFormatDetails( m_eFormat, oDesc.m_bSRGB, iFormat, iInternalFormat, eType );
 
 	if( oDesc.m_iSamples > 1 )
-		glTexImage2DMultisample( GL_TEXTURE_2D_MULTISAMPLE, oDesc.m_iSamples, iInternalFormat, m_iWidth, m_iHeight, GL_TRUE );
+	{
+		if( oDesc.m_iCount > 1 )
+			glTexImage3DMultisample( eFullTextureKind, oDesc.m_iSamples, iInternalFormat, m_iWidth, m_iHeight, oDesc.m_iCount, GL_TRUE );
+		else
+			glTexImage2DMultisample( eFullTextureKind, oDesc.m_iSamples, iInternalFormat, m_iWidth, m_iHeight, GL_TRUE );
+	}
 	else
-		glTexImage2D( GL_TEXTURE_2D, 0, iInternalFormat, m_iWidth, m_iHeight, 0, iFormat, eType, oDesc.m_pData );
+	{
+		if( oDesc.m_iCount > 1 )
+			glTexImage3D( eFullTextureKind, 0, iInternalFormat, m_iWidth, m_iHeight, oDesc.m_iCount, 0, iFormat, eType, oDesc.m_pData );
+		else
+			glTexImage2D( eFullTextureKind, 0, iInternalFormat, m_iWidth, m_iHeight, 0, iFormat, eType, oDesc.m_pData );
+	}
 
 	if( oDesc.m_bGenerateMips )
-		glGenerateMipmap( GL_TEXTURE_2D );
+		glGenerateMipmap( eSimpleTextureKind );
 
-	if( oDesc.m_iSamples > 1 )
-		glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, 0 );
-	else
-		glBindTexture( GL_TEXTURE_2D, 0 );
+	glBindTexture( eFullTextureKind, 0 );
 }
 
 void Texture::Destroy()

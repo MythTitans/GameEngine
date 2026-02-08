@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 
 #include "Core/Array.h"
+#include "Color.h"
 
 enum class TextureFormat : uint8
 {
@@ -13,6 +14,7 @@ enum class TextureFormat : uint8
 	RGB16,
 	NORMAL,
 	DEPTH,
+	SHADOW,
 	ID8,
 	ID64
 };
@@ -23,7 +25,13 @@ enum class TextureWrapping : uint8
 	REPEAT_MIRROR,
 	CLAMP,
 	CLAMP_MIRROR,
-	//BORDER // TODO #eric add support for this
+	BORDER
+};
+
+enum class TextureFiltering : uint8
+{
+	NEAREST,
+	LINEAR
 };
 
 constexpr uint GetFormatBytes( const TextureFormat eFormat );
@@ -34,21 +42,30 @@ struct TextureDesc
 
 	TextureDesc& Data( const uint8* pData );
 	TextureDesc& Multisample( int8 iSamples );
+	TextureDesc& Array( int8 iCount );
 	TextureDesc& Wrapping( const TextureWrapping eWrapping );
 	TextureDesc& HorizontalWrapping( const TextureWrapping eWrapping );
 	TextureDesc& VerticalWrapping( const TextureWrapping eWrapping );
+	TextureDesc& Filtering( const TextureFiltering eFiltering );
+	TextureDesc& MinFiltering( const TextureFiltering eFiltering );
+	TextureDesc& MagFiltering( const TextureFiltering eFiltering );
+	TextureDesc& BorderColor( const Color& oBorderColor );
 	TextureDesc& SRGB( const bool bSRGB = true );
 	TextureDesc& GenerateMips( const bool bGenerateMips = true );
 
-	int				m_iWidth;
-	int				m_iHeight;
-	const uint8*	m_pData;
-	TextureFormat	m_eFormat;
-	TextureWrapping	m_eHorizontalWrapping;
-	TextureWrapping	m_eVerticalWrapping;
-	int8			m_iSamples;
-	bool			m_bSRGB;
-	bool			m_bGenerateMips;
+	int					m_iWidth;
+	int					m_iHeight;
+	const uint8*		m_pData;
+	TextureFormat		m_eFormat;
+	TextureWrapping		m_eHorizontalWrapping;
+	TextureWrapping		m_eVerticalWrapping;
+	TextureFiltering	m_eMinFiltering;
+	TextureFiltering	m_eMagFiltering;
+	Color				m_oBorderColor;
+	int8				m_iSamples;
+	int8				m_iCount;
+	bool				m_bSRGB;
+	bool				m_bGenerateMips;
 };
 
 class Texture

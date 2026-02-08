@@ -1,0 +1,9 @@
+{
+    "vertexShader": "Shader/skinning.vs",
+    "pixelShader": "Shader/depth.ps",
+    "parameters": [
+        "modelViewProjection",
+        "useSkinning",
+        "skinningOffset"
+    ]
+}

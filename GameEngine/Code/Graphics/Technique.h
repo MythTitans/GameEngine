@@ -78,7 +78,8 @@ public:
 	template < typename Binding, uint uCount >
 	friend class TechniqueSheet;
 
-	friend void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique );
+	template < bool bApplyMaterials >
+	friend void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique, const glm::mat4& mViewProjectionMatrix );
 
 	Technique();
 
@@ -86,6 +87,9 @@ public:
 	void						Destroy();
 
 	bool						IsValid() const;
+
+	void						SetUsedTextureCount( const uint uTextureCount );
+	uint						GetUsedTextureCount() const;
 
 	template < typename T >
 	void						SetParameter( const std::string& sParameter, T oValue )

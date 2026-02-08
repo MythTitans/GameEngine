@@ -32,38 +32,67 @@ static const std::string PARAM_NORMAL_MAP( "normalMap" );
 static const std::string PARAM_USE_SKINNING( "useSkinning" );
 static const std::string PARAM_SKINNING_OFFSET( "skinningOffset" );
 
+static const uint SHADOW_MAP_WIDTH = 2048;
+static const uint SHADOW_MAP_HEIGHT = 2048;
+static const float DIRECTIONAL_SHADOW_RANGES[ 4 ] = { 10.f, 20.f, 40.f, 80.f };
+static const std::array < glm::mat4, DIRECTIONAL_SHADOW_CASCADE_COUNT > DIRECTIONAL_SHADOW_PROJECTIONS = []()
+{
+	std::array< glm::mat4, DIRECTIONAL_SHADOW_CASCADE_COUNT > aProjections;
+
+	auto BuildOrtho = []( const float fShadowRange )
+	{
+		return glm::orthoRH( -fShadowRange, fShadowRange, -fShadowRange, fShadowRange, -fShadowRange, fShadowRange );
+	};
+
+	aProjections[ 0 ] = BuildOrtho( DIRECTIONAL_SHADOW_RANGES[ 0 ] );
+	aProjections[ 1 ] = BuildOrtho( DIRECTIONAL_SHADOW_RANGES[ 1 ] );
+	aProjections[ 2 ] = BuildOrtho( DIRECTIONAL_SHADOW_RANGES[ 2 ] );
+	aProjections[ 3 ] = BuildOrtho( DIRECTIONAL_SHADOW_RANGES[ 3 ] );
+
+	return aProjections;
+}();
+
 static GPULightingDataBlock SetupLighting( const Array< DirectionalLightNode* >& aDirectionalLights, const Array< PointLightNode* >& aPointLights, const Array< SpotLightNode* >& aSpotLights )
 {
 	GPULightingDataBlock oLightingData;
 
-	for( uint u = 0; u < aDirectionalLights.Count(); ++u )
+	for( uint uLightIndex = 0; uLightIndex < aDirectionalLights.Count(); ++uLightIndex )
 	{
-		oLightingData.m_aDirectionalLights[ u ].m_vDirection = aDirectionalLights[ u ]->m_vDirection;
-		oLightingData.m_aDirectionalLights[ u ].m_vColor = aDirectionalLights[ u ]->m_oColor.m_vColor;
-		oLightingData.m_aDirectionalLights[ u ].m_fIntensity = aDirectionalLights[ u ]->m_fIntensity;
+		oLightingData.m_aDirectionalLights[ uLightIndex ].m_vDirection = aDirectionalLights[ uLightIndex ]->m_vDirection;
+		oLightingData.m_aDirectionalLights[ uLightIndex ].m_vColor = aDirectionalLights[ uLightIndex ]->m_oColor.m_vColor;
+		oLightingData.m_aDirectionalLights[ uLightIndex ].m_fIntensity = aDirectionalLights[ uLightIndex ]->m_fIntensity;
+		oLightingData.m_aDirectionalLights[ uLightIndex ].m_fBias = aDirectionalLights[ uLightIndex ]->m_fBias;
+
+		const glm::vec3 vCameraPosition = g_pRenderer->m_oCamera.GetPosition();
+		const glm::mat4 mView = glm::lookAt( vCameraPosition, vCameraPosition + aDirectionalLights[ uLightIndex ]->m_vDirection, glm::vec3( 0.f, 1.f, 0.f ) );
+		for( uint uCascadeIndex = 0; uCascadeIndex < DIRECTIONAL_SHADOW_CASCADE_COUNT; ++uCascadeIndex )
+		{
+			oLightingData.m_aDirectionalLights[ uLightIndex ].m_mShadowViewProjection[ uCascadeIndex ] = DIRECTIONAL_SHADOW_PROJECTIONS[ uCascadeIndex ] * mView;
+			oLightingData.m_aDirectionalLights[ uLightIndex ].m_aShadowRange[ uCascadeIndex ] = DIRECTIONAL_SHADOW_RANGES[ uCascadeIndex ];
+		}
 	}
 	oLightingData.m_uDirectionalLightCount = aDirectionalLights.Count();
 
-	for( uint u = 0; u < aPointLights.Count(); ++u )
+	for( uint uLightIndex = 0; uLightIndex < aPointLights.Count(); ++uLightIndex )
 	{
-		oLightingData.m_aPointLights[ u ].m_vPosition = aPointLights[ u ]->m_vPosition;
-		oLightingData.m_aPointLights[ u ].m_vColor = aPointLights[ u ]->m_oColor.m_vColor;
-		oLightingData.m_aPointLights[ u ].m_fIntensity = aPointLights[ u ]->m_fIntensity;
-		oLightingData.m_aPointLights[ u ].m_fFalloffMinDistance = aPointLights[ u ]->m_fFalloffMinDistance;
-		oLightingData.m_aPointLights[ u ].m_fFalloffMaxDistance = aPointLights[ u ]->m_fFalloffMaxDistance;
+		oLightingData.m_aPointLights[ uLightIndex ].m_vPosition = aPointLights[ uLightIndex ]->m_vPosition;
+		oLightingData.m_aPointLights[ uLightIndex ].m_vColor = aPointLights[ uLightIndex ]->m_oColor.m_vColor;
+		oLightingData.m_aPointLights[ uLightIndex ].m_fIntensity = aPointLights[ uLightIndex ]->m_fIntensity;
+		oLightingData.m_aPointLights[ uLightIndex ].m_fFalloffMinDistance = aPointLights[ uLightIndex ]->m_fFalloffMinDistance;
+		oLightingData.m_aPointLights[ uLightIndex ].m_fFalloffMaxDistance = aPointLights[ uLightIndex ]->m_fFalloffMaxDistance;
 	}
 	oLightingData.m_uPointLightCount = aPointLights.Count();
 
-	for( uint u = 0; u < aSpotLights.Count(); ++u )
+	for( uint uLightIndex = 0; uLightIndex < aSpotLights.Count(); ++uLightIndex )
 	{
-		oLightingData.m_aSpotLights[ u ].m_vDirection = aSpotLights[ u ]->m_vDirection;
-		oLightingData.m_aSpotLights[ u ].m_vPosition = aSpotLights[ u ]->m_vPosition;
-		oLightingData.m_aSpotLights[ u ].m_vColor = aSpotLights[ u ]->m_oColor.m_vColor;
-		oLightingData.m_aSpotLights[ u ].m_fIntensity = aSpotLights[ u ]->m_fIntensity;
-		oLightingData.m_aSpotLights[ u ].m_fInnerRange = glm::cos( glm::radians( aSpotLights[ u ]->m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) );
-		oLightingData.m_aSpotLights[ u ].m_fOuterRange = glm::cos( glm::radians( aSpotLights[ u ]->m_fOuterAngle / 2.f ) );
-		oLightingData.m_aSpotLights[ u ].m_fFalloffMinDistance = aSpotLights[ u ]->m_fFalloffMinDistance;
-		oLightingData.m_aSpotLights[ u ].m_fFalloffMaxDistance = aSpotLights[ u ]->m_fFalloffMaxDistance;
+		oLightingData.m_aSpotLights[ uLightIndex ].m_vDirection = aSpotLights[ uLightIndex ]->m_vDirection;
+		oLightingData.m_aSpotLights[ uLightIndex ].m_vPosition = aSpotLights[ uLightIndex ]->m_vPosition;
+		oLightingData.m_aSpotLights[ uLightIndex ].m_vColor = aSpotLights[ uLightIndex ]->m_oColor.m_vColor;
+		oLightingData.m_aSpotLights[ uLightIndex ].m_fIntensity = aSpotLights[ uLightIndex ]->m_fIntensity;
+		oLightingData.m_aSpotLights[ uLightIndex ].m_fInnerRange = glm::cos( glm::radians( aSpotLights[ uLightIndex ]->m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ uLightIndex ]->m_fOuterAngle / 2.f ) );
+		oLightingData.m_aSpotLights[ uLightIndex ].m_fOuterRange = glm::cos( glm::radians( aSpotLights[ uLightIndex ]->m_fOuterAngle / 2.f ) );
+		oLightingData.m_aSpotLights[ uLightIndex ].m_fFalloffMinDistance = aSpotLights[ uLightIndex ]->m_fFalloffMinDistance;
+		oLightingData.m_aSpotLights[ uLightIndex ].m_fFalloffMaxDistance = aSpotLights[ uLightIndex ]->m_fFalloffMaxDistance;
 	}
 	oLightingData.m_uSpotLightCount = aSpotLights.Count();
 
@@ -90,7 +119,8 @@ static void CullNodes( const Array< VisualNode* >& aVisualNodes, const Frustum& 
 	}
 }
 
-static void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique )
+template < bool bApplyMaterials >
+static void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique, const glm::mat4& mViewProjectionMatrix )
 {
 	ProfilerBlock oBlock( "Draw" );
 
@@ -113,7 +143,7 @@ static void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTec
 
 		const glm::mat4& mMatrix = pVisualNode->m_mMatrix;
 
-		oParamModelViewProjection.SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * mMatrix );
+		oParamModelViewProjection.SetValue( mViewProjectionMatrix * mMatrix );
 
 		if( oParamModelInverseTranspose.IsValid() )
 			oParamModelInverseTranspose.SetValue( pVisualNode->m_InverseTransposeMatrix );
@@ -124,15 +154,19 @@ static void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTec
 		const Array< Mesh >& aMeshes = pVisualNode->m_aMeshes;
 		for( const Mesh& oMesh : aMeshes )
 		{
-			g_pMaterialManager->ApplyMaterial( oMesh.m_oMaterial, oTechnique );
+			if constexpr( bApplyMaterials )
+			{
+				g_pMaterialManager->ApplyMaterial( oMesh.m_oMaterial, oTechnique );
 
-			const Array< const Texture* >& aTextures = oTechnique.m_aTextures;
-			for( uint u = 0; u < aTextures.Count(); ++u )
-				g_pRenderer->SetTextureSlot( *aTextures[ u ], ( int )u );
+				const Array< const Texture* >& aTextures = oTechnique.m_aTextures;
+				for( uint u = 0; u < aTextures.Count(); ++u )
+					g_pRenderer->SetTextureSlot( *aTextures[ u ], ( int )u );
+			}
 
 			g_pRenderer->DrawMesh( oMesh );
 
-			oTechnique.m_aTextures.Clear();
+			if constexpr( bApplyMaterials )
+				oTechnique.m_aTextures.Clear();
 		}
 	}
 }
@@ -212,6 +246,7 @@ Renderer::Renderer()
 	, m_xBlend( g_pResourceLoader->LoadTechnique( "Shader/blend.tech" ) )
 	, m_xOutline( g_pResourceLoader->LoadTechnique( "Shader/outline.tech" ) )
 	, m_xGizmo( g_pResourceLoader->LoadTechnique( "Shader/gizmo.tech" ) )
+	, m_xShadowMap( g_pResourceLoader->LoadTechnique( "Shader/shadow_map.tech" ) )
 	, m_eRenderingMode( RenderingMode::FORWARD )
 	, m_eMSAALevel( MSAALevel::MSAA_8X )
 	, m_bSRGB( true )
@@ -244,6 +279,8 @@ Renderer::Renderer()
 
 	m_oFramebuffer.m_uFrameBufferID = 0;
 
+	m_oShadowMapTarget.Create( RenderTargetDesc( SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT ).Depth( TextureFormat::SHADOW, DIRECTIONAL_SHADOW_CASCADE_COUNT ) );
+
 	g_pRenderer = this;
 }
 
@@ -258,9 +295,6 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	GPUProfilerBlock oGPUBlock( "Renderer" );
 
 	glClearColor( 0.f, 0.f, 0.f, 0.f );
-
-	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
-	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 
 	UpdateRenderPipeline( oRenderContext );
 
@@ -278,6 +312,11 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	m_oLightingBuffer.Update( oLightingData );
 	SetShaderBufferSlot( m_oLightingBuffer, 2 );
 
+	RenderShadowMap();
+
+	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
+	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
+
 	switch( m_eRenderingMode )
 	{
 	case RenderingMode::FORWARD:
@@ -291,7 +330,6 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	auto FormatNumber = []( const uint64 uNumber )
 	{
 		std::string sResult;
-
 
 		uint64 uRemaining = uNumber;
 		while( uRemaining != 0 )
@@ -326,7 +364,7 @@ void Renderer::Clear()
 bool Renderer::OnLoading()
 {
 	bool bLoaded = m_xDefaultDiffuseMap->IsLoaded() && m_xDefaultNormalMap->IsLoaded();
-	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xBlend->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded();
+	bLoaded &= m_xDeferredMaps->IsLoaded() && m_xDeferredCompose->IsLoaded() && m_xBlend->IsLoaded() && m_xOutline->IsLoaded() && m_xGizmo->IsLoaded() && m_xShadowMap->IsLoaded();
 	bLoaded &= m_oTextRenderer.OnLoading() && m_oDebugRenderer.OnLoading() && m_oSkybox.OnLoading() && m_oTerrain.OnLoading() && m_oRoad.OnLoading() && m_oBloom.OnLoading();
 
 	return bLoaded;
@@ -466,16 +504,16 @@ void Renderer::ClearTechnique()
 	glUseProgram( 0 );
 }
 
-void Renderer::SetTextureSlot( const Texture& oTexture, const uint uTextureUnit )
+void Renderer::SetTextureSlot( const Texture& oTexture, const uint uTextureUnit, const bool bArray /*= false*/ )
 {
 	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
-	glBindTexture( GL_TEXTURE_2D, oTexture.GetID() );
+	glBindTexture( bArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, oTexture.GetID() );
 }
 
-void Renderer::ClearTextureSlot( const uint uTextureUnit )
+void Renderer::ClearTextureSlot( const uint uTextureUnit, const bool bArray /*= false*/ )
 {
 	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
-	glBindTexture( GL_TEXTURE_2D, 0 );
+	glBindTexture( bArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0 );
 }
 
 void Renderer::SetCubeMapSlot( const CubeMap& oCubeMap, const uint uTextureUnit )
@@ -605,6 +643,7 @@ const RendererStatistics& Renderer::GetStatistics() const
 void Renderer::RenderForward( const RenderContext& oRenderContext )
 {
 	GPUMarker oGPUMarker( "Forward" );
+	ProfilerBlock oBlock( "Forward" );
 
 	SetRenderTarget( m_oForwardMSAATarget );
 
@@ -650,6 +689,11 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 			if( oParamViewPosition.IsValid() )
 				oParamViewPosition.SetValue( m_oCamera.m_vPosition );
 
+			const int uShadowMapSlot = oTechnique.GetUsedTextureCount();
+			oTechnique.GetParameter( "shadowMap" ).SetValue( ( int )uShadowMapSlot );
+
+			g_pRenderer->SetTextureSlot( m_oShadowMapTarget.GetDepthMap(), uShadowMapSlot, true );
+
 			const Array< VisualNode* >& aVisualNodes = m_oVisualStructure.m_aVisuals[ u ];
 			if( m_bEnableFrustumCulling )
 			{
@@ -662,7 +706,9 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 	 				pVisualNode->m_bVisible = true;
 			}
 
-			DrawNodes( aVisualNodes, oTechnique );
+			DrawNodes< true >( aVisualNodes, oTechnique, m_oCamera.GetViewProjectionMatrix() );
+
+			g_pRenderer->ClearTextureSlot( uShadowMapSlot, true );
 		}
 	}
 
@@ -682,7 +728,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 				oParamViewPosition.SetValue( m_oCamera.m_vPosition );
 
 			const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( m_oVisualStructure.m_aTemporaryVisuals[ u ] );
-			DrawNodes( aTemporaryVisualNodes, oTechnique );
+			DrawNodes< true >( aTemporaryVisualNodes, oTechnique, m_oCamera.GetViewProjectionMatrix() );
 		}
 	}
 
@@ -704,6 +750,9 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 
 void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 {
+	GPUMarker oGPUMarker( "Deferred" );
+	ProfilerBlock oBlock( "Deferred" );
+
 	SetRenderTarget( m_oDeferredMapsTarget );
 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -718,7 +767,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 		GPUProfilerBlock oGPUBlock( "Meshes" );
 
 		for( const Array< VisualNode* >& aVisualNodes : m_oVisualStructure.m_aVisuals )
-			DrawNodes( aVisualNodes, oMapsTechnique );
+			DrawNodes< true >( aVisualNodes, oMapsTechnique, m_oCamera.GetViewProjectionMatrix() );
 	}
 
 	{
@@ -727,7 +776,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 		for( Array< VisualNode >& aVisualNodes : m_oVisualStructure.m_aTemporaryVisuals )
 		{
 			const Array< VisualNode* > aTemporaryVisualNodes = BuildTemporaryVisualNodesArray( aVisualNodes );
-			DrawNodes( aTemporaryVisualNodes, oMapsTechnique );
+			DrawNodes< true >( aTemporaryVisualNodes, oMapsTechnique, m_oCamera.GetViewProjectionMatrix() );
 		}
 	}
 
@@ -752,6 +801,9 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	SetTextureSlot( m_oDeferredMapsTarget.GetDepthMap(), 5 );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::DEPTH ).SetValue( 5 );
 
+	oComposeTechnique.GetParameter( "shadowMap" ).SetValue( 6 );
+	g_pRenderer->SetTextureSlot( m_oShadowMapTarget.GetDepthMap(), 6, true );
+
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::VIEW_POSITION ).SetValue( m_oCamera.GetPosition() );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::INVERSE_VIEW_PROJECTION ).SetValue( m_oCamera.GetInverseViewProjectionMatrix() );
 
@@ -770,6 +822,52 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	CopyRenderTargetDepth( m_oDeferredMapsTarget, m_oFramebuffer );
 
 	ClearTextureSlot( 0 );
+	ClearTechnique();
+}
+
+void Renderer::RenderShadowMap()
+{
+	GPUMarker oGPUMarker( "ShadowMap" );
+	ProfilerBlock oBlock( "ShadowMap" );
+
+	if( m_oVisualStructure.m_aDirectionalLights.Empty() )
+		return;
+
+	glViewport( 0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT );
+	glEnable( GL_DEPTH_TEST );
+
+	Technique& oTechnique = m_xShadowMap->GetTechnique();
+	SetTechnique( oTechnique );
+
+	const glm::vec3 vCameraPosition = g_pRenderer->m_oCamera.GetPosition();
+	const glm::mat4 mView = glm::lookAt( vCameraPosition, vCameraPosition + m_oVisualStructure.m_aDirectionalLights[ 0 ]->m_vDirection, glm::vec3( 0.f, 1.f, 0.f ) );
+
+	SetRenderTarget( m_oShadowMapTarget );
+	for( uint uCascadeIndex = 0; uCascadeIndex < DIRECTIONAL_SHADOW_CASCADE_COUNT; ++uCascadeIndex )
+	{
+		glFramebufferTextureLayer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_oShadowMapTarget.GetDepthMap().GetID(), 0, ( int )uCascadeIndex );
+		glClear( GL_DEPTH_BUFFER_BIT );
+
+		const glm::mat4 mViewProjectionMatrix = DIRECTIONAL_SHADOW_PROJECTIONS[ uCascadeIndex ] * mView;
+
+		for( uint u = 0; u < m_oVisualStructure.m_aTechniques.Count(); ++u )
+		{
+			const Array< VisualNode* >& aVisualNodes = m_oVisualStructure.m_aVisuals[ u ];
+			if( m_bEnableFrustumCulling )
+			{
+				const Frustum oFrustum = Frustum::FromViewProjection( mViewProjectionMatrix );
+				CullNodes( m_oVisualStructure.m_aVisuals[ u ], oFrustum );
+			}
+			else
+			{
+				for( VisualNode* pVisualNode : aVisualNodes )
+					pVisualNode->m_bVisible = true;
+			}
+
+			DrawNodes< false >( aVisualNodes, oTechnique, mViewProjectionMatrix );
+		}
+	}
+
 	ClearTechnique();
 }
 

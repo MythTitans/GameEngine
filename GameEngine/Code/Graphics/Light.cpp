@@ -68,6 +68,7 @@ void DirectionalLightComponent::Update( const GameContext& oGameContext )
 	m_pDirectionalLight->m_vDirection = oTransform.GetK();
 	m_pDirectionalLight->m_oColor = m_oColor;
 	m_pDirectionalLight->m_fIntensity = m_fIntensity;
+	m_pDirectionalLight->m_fBias = m_fBias;
 }
 
 void DirectionalLightComponent::DisplayGizmos( const bool bSelected )

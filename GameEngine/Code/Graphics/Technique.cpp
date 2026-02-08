@@ -89,6 +89,7 @@ void TechniqueParameter::SetValue( const glm::uvec4& vValue )
 void TechniqueParameter::SetValue( const Texture* pTexture, Technique& oTechnique )
 {
 	ASSERT( m_iParameterID != -1 );
+	ASSERT( oTechnique.m_aTextures.Count() < oTechnique.m_aTextures.Capacity() );
 	glUniform1i( m_iParameterID, oTechnique.m_aTextures.Count() );
 	oTechnique.m_aTextures.PushBack( pTexture );
 }
@@ -186,6 +187,7 @@ void TechniqueArrayParameter::SetValue( const glm::uvec4& vValue, const uint uIn
 void TechniqueArrayParameter::SetValue( const Texture* pTexture, const uint uIndex, Technique& oTechnique )
 {
 	ASSERT( m_aParametersIDs[ uIndex ] != -1 );
+	ASSERT( oTechnique.m_aTextures.Count() < oTechnique.m_aTextures.Capacity() );
 	glUniform1i( m_aParametersIDs[ uIndex ], oTechnique.m_aTextures.Count() );
 	oTechnique.m_aTextures.PushBack( pTexture );
 }
@@ -238,6 +240,16 @@ void Technique::Destroy()
 bool Technique::IsValid() const
 {
 	return m_uProgramID != 0;
+}
+
+void Technique::SetUsedTextureCount( const uint uTextureCount )
+{
+	m_aTextures.Reserve( uTextureCount );
+}
+
+uint Technique::GetUsedTextureCount() const
+{
+	return m_aTextures.Capacity();
 }
 
 TechniqueParameter& Technique::GetParameter( const std::string& sParameter )

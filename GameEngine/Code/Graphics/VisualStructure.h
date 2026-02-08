@@ -15,6 +15,7 @@ struct DirectionalLightNode
 	glm::vec3	m_vDirection;
 	Color		m_oColor;
 	float		m_fIntensity;
+	float		m_fBias;
 };
 
 struct PointLightNode

@@ -6,7 +6,9 @@ RenderTargetDesc::RenderTargetDesc( const int iWidth, const int iHeight )
 	: m_iWidth( iWidth )
 	, m_iHeight( iHeight )
 	, m_iSamples( 1 )
+	, m_eDepthFormat( TextureFormat::DEPTH )
 	, m_bDepth( false )
+	, m_iDepthCount( 1 )
 {
 }
 
@@ -15,7 +17,9 @@ RenderTargetDesc::RenderTargetDesc( const int iWidth, const int iHeight, const T
 	, m_iHeight( iHeight )
 	, m_aColorFormats( 1, eColorFormat )
 	, m_iSamples( 1 )
+	, m_eDepthFormat( TextureFormat::DEPTH )
 	, m_bDepth( false )
+	, m_iDepthCount( 1 )
 {
 }
 
@@ -31,9 +35,18 @@ RenderTargetDesc& RenderTargetDesc::AddColor( const TextureFormat eFormat )
 	return *this;
 }
 
-RenderTargetDesc& RenderTargetDesc::Depth( const bool bDepth /*= true */ )
+RenderTargetDesc& RenderTargetDesc::Depth( const bool bDepth /*= true */, const int8 iCount /*= 1*/ )
 {
 	m_bDepth = bDepth;
+	m_iDepthCount = iCount;
+	return *this;
+}
+
+RenderTargetDesc& RenderTargetDesc::Depth( const TextureFormat eFormat, const int8 iCount /*= 1*/ )
+{
+	m_eDepthFormat = eFormat;
+	m_bDepth = true;
+	m_iDepthCount = iCount;
 	return *this;
 }
 
@@ -60,7 +73,7 @@ void RenderTarget::Create( const RenderTargetDesc& oDesc )
 	if( m_bDepthMap )
 	{
 		m_aTextures.PushBack();
-		m_aTextures.Back().Create( TextureDesc( m_iWidth, m_iHeight, TextureFormat::DEPTH ).Multisample( oDesc.m_iSamples ).Wrapping( TextureWrapping::CLAMP ) );
+		m_aTextures.Back().Create( TextureDesc( m_iWidth, m_iHeight, oDesc.m_eDepthFormat ).Multisample( oDesc.m_iSamples ).Wrapping( TextureWrapping::BORDER ).BorderColor( Color::White() ).Array( oDesc.m_iDepthCount ) );
 	}
 
 	glGenFramebuffers( 1, &m_uFrameBufferID );

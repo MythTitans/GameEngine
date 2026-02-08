@@ -18,6 +18,7 @@ void LitMaterialData::PrepareMaterial( Technique& oTechnique )
 	s_oMaterialSheet.BindParameter( LitMaterialParam::NORMAL_MAP, "normalMap" );
 	s_oMaterialSheet.BindParameter( LitMaterialParam::SPECULAR_MAP, "specularMap" );
 	s_oMaterialSheet.BindParameter( LitMaterialParam::EMISSIVE_MAP, "emissiveMap" );
+	oTechnique.SetUsedTextureCount( 5 );
 }
 
 void LitMaterialData::ApplyMaterial( const uint uMaterialID, Technique& oTechnique )

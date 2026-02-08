@@ -20,6 +20,7 @@ struct GLFWwindow;
 inline constexpr uint MAX_DIRECTIONAL_LIGHTS = 4;
 inline constexpr uint MAX_POINT_LIGHTS = 128;
 inline constexpr uint MAX_SPOT_LIGHTS = 128;
+inline constexpr uint DIRECTIONAL_SHADOW_CASCADE_COUNT = 4;
 
 struct RenderRect
 {
@@ -56,8 +57,11 @@ public:
 struct GPUDirectionalLight
 {
 	alignas( 16 ) glm::vec3	m_vDirection;
-	alignas( 16 ) glm::vec3	m_vColor;
 	alignas( 4 ) float		m_fIntensity;
+	alignas( 16 ) glm::vec3	m_vColor;
+	alignas( 4 ) float		m_fBias;
+	alignas( 16 ) glm::mat4 m_mShadowViewProjection[ DIRECTIONAL_SHADOW_CASCADE_COUNT ];
+	alignas( 4 ) float		m_aShadowRange[ DIRECTIONAL_SHADOW_CASCADE_COUNT ];
 };
 
 struct GPUPointLight
@@ -104,7 +108,8 @@ class Renderer
 public:
 	friend class Editor;
 
-	friend void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique );
+	template < bool bApplyMaterials >
+	friend void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique, const glm::mat4& mViewProjectionMatrix );
 
 	Renderer();
 	~Renderer();
@@ -122,8 +127,8 @@ public:
 
 	void						SetTechnique( const Technique& oTechnique );
 	void						ClearTechnique();
-	void						SetTextureSlot( const Texture& oTexture, const uint uTextureUnit );
-	void						ClearTextureSlot( const uint uTextureUnit );
+	void						SetTextureSlot( const Texture& oTexture, const uint uTextureUnit, const bool bArray = false );
+	void						ClearTextureSlot( const uint uTextureUnit, const bool bArray = false );
 	void						SetCubeMapSlot( const CubeMap& oCubeMap, const uint uTextureUnit );
 	void						ClearCubeMapSlot( const uint uTextureUnit );
 	void						SetShaderBufferSlot( const ShaderBufferBase& oBuffer, const uint uBinding );
@@ -159,6 +164,8 @@ private:
 
 	void			RenderForward( const RenderContext& oRenderContext );
 	void			RenderDeferred( const RenderContext& oRenderContext );
+	void			RenderShadowMap();
+
 #ifdef EDITOR
 	void			RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode );
 	void			RenderGizmos( const RenderContext& oRenderContext );
@@ -223,6 +230,7 @@ private:
 	RenderTarget							m_oPostProcessTarget;
 	RenderTarget							m_oDeferredMapsTarget;
 	RenderTarget							m_oDeferredComposeTarget;
+	RenderTarget							m_oShadowMapTarget;
 
 	Mesh									m_oRenderMesh;
 
@@ -242,6 +250,7 @@ private:
 	PARAM_SHEET( OutlineParam )				m_oOutlineSheet;
 	TechniqueResPtr							m_xGizmo;
 	PARAM_SHEET( GizmoParam )				m_oGizmoSheet;
+	TechniqueResPtr							m_xShadowMap; // TODO #eric use a param sheet at some point ?
 
 	Skybox									m_oSkybox;
 	Terrain									m_oTerrain;

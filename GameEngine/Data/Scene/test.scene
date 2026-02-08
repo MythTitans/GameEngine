@@ -3,275 +3,6 @@
         {
             "components": [
                 {
-                    "name": "PointLightComponent",
-                    "properties": [
-                        {
-                            "Color": {
-                                "x": 0.9999998807907104,
-                                "y": 0.0,
-                                "z": 0.0
-                            }
-                        },
-                        {
-                            "Intensity": 2.5
-                        },
-                        {
-                            "FalloffMinDistance": 1.0
-                        },
-                        {
-                            "FalloffMaxDistance": 10.0
-                        }
-                    ]
-                }
-            ],
-            "id": 2096130,
-            "name": "Light 2",
-            "position": {
-                "x": 6.151871681213379,
-                "y": 5.0,
-                "z": 2.3311386108398438
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096258,
-            "name": "Sphere4",
-            "parentId": 2096255,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": -1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096176,
-            "name": "Sphere2",
-            "parentId": 2096175,
-            "position": {
-                "x": -1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "TerrainChunkComponent",
-                    "properties": [
-                        {
-                            "Width resolution": 16
-                        },
-                        {
-                            "Height resolution": 16
-                        },
-                        {
-                            "Has collisions": false
-                        },
-                        {
-                            "Chunk index": 45
-                        }
-                    ]
-                }
-            ],
-            "id": 2096575,
-            "name": "Chunk_5_5",
-            "parentId": 2096569,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096191,
-            "name": "Sphere2",
-            "parentId": 2096190,
-            "position": {
-                "x": -1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096319,
-            "name": "Sphere1",
-            "parentId": 2096315,
-            "position": {
-                "x": 1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096149,
-            "name": "Sphere1",
-            "parentId": 2096145,
-            "position": {
-                "x": 1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096244,
-            "name": "Sphere1",
-            "parentId": 2096240,
-            "position": {
-                "x": 1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
                     "name": "TerrainChunkComponent",
                     "properties": [
                         {
@@ -320,13 +51,13 @@
                     ]
                 }
             ],
-            "id": 2096177,
-            "name": "Sphere3",
-            "parentId": 2096175,
+            "id": 2096144,
+            "name": "Sphere1",
+            "parentId": 2096140,
             "position": {
-                "x": 0.0,
+                "x": 1.0,
                 "y": 0.0,
-                "z": 1.0
+                "z": 0.0
             },
             "rotation": {
                 "w": 1.0,
@@ -391,37 +122,6 @@
                     ]
                 }
             ],
-            "id": 2096144,
-            "name": "Sphere1",
-            "parentId": 2096140,
-            "position": {
-                "x": 1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
             "id": 2096287,
             "name": "Sphere3",
             "parentId": 2096285,
@@ -429,37 +129,6 @@
                 "x": 0.0,
                 "y": 0.0,
                 "z": 1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096166,
-            "name": "Sphere2",
-            "parentId": 2096165,
-            "position": {
-                "x": -1.0,
-                "y": 0.0,
-                "z": 0.0
             },
             "rotation": {
                 "w": 1.0,
@@ -516,36 +185,6 @@
         {
             "components": [
                 {
-                    "name": "RigidbodyComponent",
-                    "properties": [
-                        {
-                            "Static": false
-                        },
-                        {
-                            "Lock axis": {
-                                "x": false,
-                                "y": false,
-                                "z": false
-                            }
-                        },
-                        {
-                            "Lock rotation": {
-                                "x": false,
-                                "y": false,
-                                "z": false
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "SphereShapeComponent",
-                    "properties": [
-                        {
-                            "Radius": 1.0
-                        }
-                    ]
-                },
-                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -554,12 +193,13 @@
                     ]
                 }
             ],
-            "id": 2096230,
-            "name": "Sphere_Duplicate_Duplicate",
+            "id": 2096166,
+            "name": "Sphere2",
+            "parentId": 2096165,
             "position": {
-                "x": 6.5643110275268555,
-                "y": 7.300000190734863,
-                "z": -2.4008874893188477
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
             },
             "rotation": {
                 "w": 1.0,
@@ -568,9 +208,9 @@
                 "z": 0.0
             },
             "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
             }
         },
         {
@@ -684,9 +324,154 @@
                     ]
                 }
             ],
-            "id": 2096234,
+            "id": 2096258,
+            "name": "Sphere4",
+            "parentId": 2096255,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "PointLightComponent",
+                    "properties": [
+                        {
+                            "Color": {
+                                "x": 0.9999998807907104,
+                                "y": 0.0,
+                                "z": 0.0
+                            }
+                        },
+                        {
+                            "Intensity": 2.5
+                        },
+                        {
+                            "FalloffMinDistance": 1.0
+                        },
+                        {
+                            "FalloffMaxDistance": 10.0
+                        }
+                    ]
+                }
+            ],
+            "id": 2096130,
+            "name": "Light 2",
+            "position": {
+                "x": 6.151871681213379,
+                "y": 5.0,
+                "z": 2.3311386108398438
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 45
+                        }
+                    ]
+                }
+            ],
+            "id": 2096575,
+            "name": "Chunk_5_5",
+            "parentId": 2096569,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096176,
+            "name": "Sphere2",
+            "parentId": 2096175,
+            "position": {
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096319,
             "name": "Sphere1",
-            "parentId": 2096230,
+            "parentId": 2096315,
             "position": {
                 "x": 1.0,
                 "y": 0.0,
@@ -702,6 +487,230 @@
                 "x": 0.25,
                 "y": 0.25,
                 "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096191,
+            "name": "Sphere2",
+            "parentId": 2096190,
+            "position": {
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096149,
+            "name": "Sphere1",
+            "parentId": 2096145,
+            "position": {
+                "x": 1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096244,
+            "name": "Sphere1",
+            "parentId": 2096240,
+            "position": {
+                "x": 1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096177,
+            "name": "Sphere3",
+            "parentId": 2096175,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": false
+                        },
+                        {
+                            "Lock axis": {
+                                "x": false,
+                                "y": false,
+                                "z": false
+                            }
+                        },
+                        {
+                            "Lock rotation": {
+                                "x": false,
+                                "y": false,
+                                "z": false
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "SphereShapeComponent",
+                    "properties": [
+                        {
+                            "Radius": 1.0
+                        }
+                    ]
+                },
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096230,
+            "name": "Sphere_Duplicate_Duplicate",
+            "position": {
+                "x": 6.5643110275268555,
+                "y": 7.300000190734863,
+                "z": -2.4008874893188477
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "TerrainChunkComponent",
+                    "properties": [
+                        {
+                            "Width resolution": 16
+                        },
+                        {
+                            "Height resolution": 16
+                        },
+                        {
+                            "Has collisions": false
+                        },
+                        {
+                            "Chunk index": 32
+                        }
+                    ]
+                }
+            ],
+            "id": 2096561,
+            "name": "Chunk_0_4",
+            "parentId": 2096560,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
             }
         },
         {
@@ -767,46 +776,6 @@
         {
             "components": [
                 {
-                    "name": "TerrainChunkComponent",
-                    "properties": [
-                        {
-                            "Width resolution": 16
-                        },
-                        {
-                            "Height resolution": 16
-                        },
-                        {
-                            "Has collisions": false
-                        },
-                        {
-                            "Chunk index": 32
-                        }
-                    ]
-                }
-            ],
-            "id": 2096561,
-            "name": "Chunk_0_4",
-            "parentId": 2096560,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
-            "components": [
-                {
                     "name": "VisualComponent",
                     "properties": [
                         {
@@ -815,9 +784,9 @@
                     ]
                 }
             ],
-            "id": 2096249,
+            "id": 2096234,
             "name": "Sphere1",
-            "parentId": 2096245,
+            "parentId": 2096230,
             "position": {
                 "x": 1.0,
                 "y": 0.0,
@@ -893,6 +862,37 @@
                 "x": 1.0,
                 "y": 1.0,
                 "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096249,
+            "name": "Sphere1",
+            "parentId": 2096245,
+            "position": {
+                "x": 1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
             }
         },
         {
@@ -982,8 +982,8 @@
                 "z": 0.0
             },
             "rotation": {
-                "w": 0.7071142196655273,
-                "x": 0.7070992588996887,
+                "w": 0.7071144580841064,
+                "x": 0.7070990204811096,
                 "y": 0.0,
                 "z": 0.0
             },
@@ -1011,37 +1011,6 @@
                 "x": -1.0,
                 "y": 0.0,
                 "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096138,
-            "name": "Sphere4",
-            "parentId": 2096134,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": -1.0
             },
             "rotation": {
                 "w": 1.0,
@@ -1093,6 +1062,37 @@
                 "x": 1.0,
                 "y": 1.0,
                 "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096138,
+            "name": "Sphere4",
+            "parentId": 2096134,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
             }
         },
         {
@@ -1189,6 +1189,58 @@
             }
         },
         {
+            "id": 2096569,
+            "name": "Row_5",
+            "parentId": 2096133,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096178,
+            "name": "Sphere4",
+            "parentId": 2096175,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
             "components": [
                 {
                     "name": "VisualComponent",
@@ -1230,13 +1282,13 @@
                     ]
                 }
             ],
-            "id": 2096178,
-            "name": "Sphere4",
-            "parentId": 2096175,
+            "id": 2096307,
+            "name": "Sphere3",
+            "parentId": 2096305,
             "position": {
                 "x": 0.0,
                 "y": 0.0,
-                "z": -1.0
+                "z": 1.0
             },
             "rotation": {
                 "w": 1.0,
@@ -1251,27 +1303,6 @@
             }
         },
         {
-            "id": 2096569,
-            "name": "Row_5",
-            "parentId": 2096133,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 1.0,
-                "y": 1.0,
-                "z": 1.0
-            }
-        },
-        {
             "components": [
                 {
                     "name": "VisualComponent",
@@ -1282,13 +1313,13 @@
                     ]
                 }
             ],
-            "id": 2096307,
-            "name": "Sphere3",
-            "parentId": 2096305,
+            "id": 2096246,
+            "name": "Sphere2",
+            "parentId": 2096245,
             "position": {
-                "x": 0.0,
+                "x": -1.0,
                 "y": 0.0,
-                "z": 1.0
+                "z": 0.0
             },
             "rotation": {
                 "w": 1.0,
@@ -1373,13 +1404,13 @@
                     ]
                 }
             ],
-            "id": 2096246,
-            "name": "Sphere2",
-            "parentId": 2096245,
+            "id": 2096183,
+            "name": "Sphere4",
+            "parentId": 2096180,
             "position": {
-                "x": -1.0,
+                "x": 0.0,
                 "y": 0.0,
-                "z": 0.0
+                "z": -1.0
             },
             "rotation": {
                 "w": 1.0,
@@ -1435,68 +1466,6 @@
                     ]
                 }
             ],
-            "id": 2096183,
-            "name": "Sphere4",
-            "parentId": 2096180,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": -1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096312,
-            "name": "Sphere3",
-            "parentId": 2096310,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
             "id": 2096184,
             "name": "Sphere1",
             "parentId": 2096180,
@@ -1528,13 +1497,13 @@
                     ]
                 }
             ],
-            "id": 2096229,
-            "name": "Sphere1",
-            "parentId": 2096225,
+            "id": 2096312,
+            "name": "Sphere3",
+            "parentId": 2096310,
             "position": {
-                "x": 1.0,
+                "x": 0.0,
                 "y": 0.0,
-                "z": 0.0
+                "z": 1.0
             },
             "rotation": {
                 "w": 1.0,
@@ -1611,6 +1580,37 @@
         {
             "components": [
                 {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096229,
+            "name": "Sphere1",
+            "parentId": 2096225,
+            "position": {
+                "x": 1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
                     "name": "RigidbodyComponent",
                     "properties": [
                         {
@@ -1671,68 +1671,6 @@
         {
             "components": [
                 {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096236,
-            "name": "Sphere2",
-            "parentId": 2096235,
-            "position": {
-                "x": -1.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096172,
-            "name": "Sphere3",
-            "parentId": 2096170,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": 1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
                     "name": "TerrainChunkComponent",
                     "properties": [
                         {
@@ -1781,13 +1719,44 @@
                     ]
                 }
             ],
-            "id": 2096237,
+            "id": 2096172,
             "name": "Sphere3",
-            "parentId": 2096235,
+            "parentId": 2096170,
             "position": {
                 "x": 0.0,
                 "y": 0.0,
                 "z": 1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096236,
+            "name": "Sphere2",
+            "parentId": 2096235,
+            "position": {
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
             },
             "rotation": {
                 "w": 1.0,
@@ -1843,13 +1812,13 @@
                     ]
                 }
             ],
-            "id": 2096156,
-            "name": "Sphere2",
-            "parentId": 2096155,
+            "id": 2096237,
+            "name": "Sphere3",
+            "parentId": 2096235,
             "position": {
-                "x": -1.0,
+                "x": 0.0,
                 "y": 0.0,
-                "z": 0.0
+                "z": 1.0
             },
             "rotation": {
                 "w": 1.0,
@@ -1901,6 +1870,37 @@
                 "x": 1.0,
                 "y": 1.0,
                 "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096156,
+            "name": "Sphere2",
+            "parentId": 2096155,
+            "position": {
+                "x": -1.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
             }
         },
         {
@@ -1968,37 +1968,6 @@
         {
             "components": [
                 {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "Sphere.obj"
-                        }
-                    ]
-                }
-            ],
-            "id": 2096168,
-            "name": "Sphere4",
-            "parentId": 2096165,
-            "position": {
-                "x": 0.0,
-                "y": 0.0,
-                "z": -1.0
-            },
-            "rotation": {
-                "w": 1.0,
-                "x": 0.0,
-                "y": 0.0,
-                "z": 0.0
-            },
-            "scale": {
-                "x": 0.25,
-                "y": 0.25,
-                "z": 0.25
-            }
-        },
-        {
-            "components": [
-                {
                     "name": "TerrainChunkComponent",
                     "properties": [
                         {
@@ -2034,6 +2003,37 @@
                 "x": 1.0,
                 "y": 1.0,
                 "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "Sphere.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096168,
+            "name": "Sphere4",
+            "parentId": 2096165,
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": -1.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 0.25,
+                "y": 0.25,
+                "z": 0.25
             }
         },
         {
@@ -2623,8 +2623,8 @@
                 "z": 0.0
             },
             "rotation": {
-                "w": 0.7071142196655273,
-                "x": 0.7070992588996887,
+                "w": 0.7071144580841064,
+                "x": 0.7070990204811096,
                 "y": 0.0,
                 "z": 0.0
             },
@@ -2739,6 +2739,26 @@
         {
             "components": [
                 {
+                    "name": "TerrainComponent",
+                    "properties": [
+                        {
+                            "Width": 6200.0
+                        },
+                        {
+                            "Height": 6200.0
+                        },
+                        {
+                            "Intensity": 175.0
+                        },
+                        {
+                            "Width chunks": 8
+                        },
+                        {
+                            "Height chunks": 8
+                        }
+                    ]
+                },
+                {
                     "name": "SkyboxComponent",
                     "properties": [
                         {
@@ -2765,26 +2785,6 @@
                     ]
                 },
                 {
-                    "name": "TerrainComponent",
-                    "properties": [
-                        {
-                            "Width": 6200.0
-                        },
-                        {
-                            "Height": 6200.0
-                        },
-                        {
-                            "Intensity": 175.0
-                        },
-                        {
-                            "Width chunks": 8
-                        },
-                        {
-                            "Height chunks": 8
-                        }
-                    ]
-                },
-                {
                     "name": "RigidbodyComponent",
                     "properties": [
                         {
@@ -2803,28 +2803,6 @@
                                 "y": false,
                                 "z": false
                             }
-                        }
-                    ]
-                },
-                {
-                    "name": "BoxShapeComponent",
-                    "properties": [
-                        {
-                            "HalfWidth": 10.0
-                        },
-                        {
-                            "HalfHeight": 0.0010000000474974513
-                        },
-                        {
-                            "HalfDepth": 10.0
-                        }
-                    ]
-                },
-                {
-                    "name": "VisualComponent",
-                    "properties": [
-                        {
-                            "Model": "plane.obj"
                         }
                     ]
                 }
@@ -4784,6 +4762,9 @@
         {
             "components": [
                 {
+                    "name": "RoadComponent"
+                },
+                {
                     "name": "SplineComponent",
                     "properties": [
                         {
@@ -4945,9 +4926,6 @@
                             }
                         }
                     ]
-                },
-                {
-                    "name": "RoadComponent"
                 },
                 {
                     "name": "RoadTrenchComponent"
@@ -5280,6 +5258,9 @@
         {
             "components": [
                 {
+                    "name": "RoadComponent"
+                },
+                {
                     "name": "SplineComponent",
                     "properties": [
                         {
@@ -5371,9 +5352,6 @@
                             }
                         }
                     ]
-                },
-                {
-                    "name": "RoadComponent"
                 },
                 {
                     "name": "RoadTrenchComponent"
@@ -10319,6 +10297,72 @@
                 "x": 1.0,
                 "y": 1.0,
                 "z": 1.0
+            }
+        },
+        {
+            "components": [
+                {
+                    "name": "RigidbodyComponent",
+                    "properties": [
+                        {
+                            "Static": true
+                        },
+                        {
+                            "Lock axis": {
+                                "x": false,
+                                "y": false,
+                                "z": false
+                            }
+                        },
+                        {
+                            "Lock rotation": {
+                                "x": false,
+                                "y": false,
+                                "z": false
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "BoxShapeComponent",
+                    "properties": [
+                        {
+                            "HalfWidth": 50.0
+                        },
+                        {
+                            "HalfHeight": 0.009999999776482582
+                        },
+                        {
+                            "HalfDepth": 50.0
+                        }
+                    ]
+                },
+                {
+                    "name": "VisualComponent",
+                    "properties": [
+                        {
+                            "Model": "plane.obj"
+                        }
+                    ]
+                }
+            ],
+            "id": 2096600,
+            "name": "Floor",
+            "position": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "w": 1.0,
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "scale": {
+                "x": 10.0,
+                "y": 1.0,
+                "z": 10.0
             }
         }
     ]

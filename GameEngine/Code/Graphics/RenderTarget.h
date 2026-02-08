@@ -12,13 +12,16 @@ struct RenderTargetDesc
 
 	RenderTargetDesc& Multisample( int8 iSamples );
 	RenderTargetDesc& AddColor( const TextureFormat eFormat );
-	RenderTargetDesc& Depth( const bool bDepth = true );
+	RenderTargetDesc& Depth( const bool bDepth = true, const int8 iCount = 1 );
+	RenderTargetDesc& Depth( const TextureFormat eFormat, const int8 iCount = 1 );
 
 	int						m_iWidth;
 	int						m_iHeight;
 	Array< TextureFormat >	m_aColorFormats;
 	int8					m_iSamples;
+	TextureFormat			m_eDepthFormat;
 	bool					m_bDepth;
+	int8					m_iDepthCount;
 };
 
 class RenderTarget

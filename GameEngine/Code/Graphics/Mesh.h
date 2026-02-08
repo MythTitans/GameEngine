@@ -25,7 +25,8 @@ public:
 	friend class Renderer;
 	friend class TextRenderer;
 
-	friend void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique );
+	template < bool bApplyMaterials >
+	friend void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTechnique, const glm::mat4& mViewProjectionMatrix );
 
 	Mesh();
 

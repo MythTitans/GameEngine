@@ -1,6 +1,8 @@
-#define MAX_DIRECTIONAL_LIGHT_COUNT 2
-#define MAX_POINT_LIGHT_COUNT 8
-#define MAX_SPOT_LIGHT_COUNT 6
+#define LIT_MATERIAL_COUNT 128
+#define UNLIT_MATERIAL_COUNT 
+#define MAX_DIRECTIONAL_LIGHT_COUNT 4
+#define MAX_POINT_LIGHT_COUNT 128
+#define MAX_SPOT_LIGHT_COUNT 128
 
 in vec2 texCoord;
 
@@ -29,15 +31,18 @@ struct UnlitMaterialData
 
 layout(std140, binding = 1) uniform MaterialDataBlock
 {
-    LitMaterialData litMaterialData[ 128 ];
-    UnlitMaterialData unlitMaterialData[ 128 ];
+    LitMaterialData litMaterialData[ LIT_MATERIAL_COUNT ];
+    UnlitMaterialData unlitMaterialData[ UNLIT_MATERIAL_COUNT ];
 };
 
 struct DirectionalLightData
 {
 	vec3 direction;
+    float intensity;
 	vec3 color;
-	float intensity;
+    float bias;
+    mat4 shadowViewProjection[ 4 ];
+    vec4 shadowRange; // float shadowRange[ 4 ] would take 64 bytes in std140
 };
 
 struct PointLightData
@@ -63,9 +68,9 @@ struct SpotLightData
 
 layout(std140, binding = 2) uniform LightingDataBlock
 {
-	DirectionalLightData directionalLightData[ 4 ];
-	PointLightData pointLightData[ 128 ];
-	SpotLightData spotLightData[ 128 ];
+	DirectionalLightData directionalLightData[ MAX_DIRECTIONAL_LIGHT_COUNT ];
+	PointLightData pointLightData[ MAX_POINT_LIGHT_COUNT ];
+	SpotLightData spotLightData[ MAX_SPOT_LIGHT_COUNT ];
 	uint directionalLightCount;
 	uint pointLightCount;
 	uint spotLightCount;
@@ -85,6 +90,8 @@ uniform usampler2D materialMap;
 uniform sampler2D depthMap;
 uniform mat4 inverseViewProjection;
 #endif
+
+uniform sampler2DArrayShadow shadowMap;
 
 void main()
 {
@@ -115,20 +122,33 @@ void main()
     vec3 emissiveColor = litMaterialData[ materialID ].emissiveColor;
     float shininess = max( litMaterialData[ materialID ].shininess, 0.001 );
 
-    vec3 pointToViewDirection = normalize( viewPosition - position );
+    vec3 pointToView = viewPosition - position;
+    float pointToViewDistance = length( viewPosition - position );
+    vec3 pointToViewDirection = pointToView / pointToViewDistance;
 
     vec3 diffuseIntensity = vec3( 0.0 );
     vec3 specularIntensity = vec3( 0.0 );
 
     for( int i = 0; i < directionalLightCount; ++i )
-    {
+    {            
+        float cascade = 0;
+        cascade += step( directionalLightData[ i ].shadowRange[ 0 ], pointToViewDistance );
+        cascade += step( directionalLightData[ i ].shadowRange[ 1 ], pointToViewDistance );
+        cascade += step( directionalLightData[ i ].shadowRange[ 2 ], pointToViewDistance );
+
+        vec4 shadowMapPosition = directionalLightData[ i ].shadowViewProjection[ int( cascade ) ] * vec4( position, 1.0 );
+        shadowMapPosition /= shadowMapPosition.w;
+        shadowMapPosition.xyz = shadowMapPosition.xyz * 0.5 + vec3( 0.5, 0.5, 0.5 );
+
+        float lightFactor = texture( shadowMap, vec4( shadowMapPosition.xy, cascade, shadowMapPosition.z - directionalLightData[ i ].bias ) );
+        
         float surfaceExposure = max( dot( -normalize( directionalLightData[ i ].direction ), worldSpaceNormal ), 0.0 );
-        diffuseIntensity += directionalLightData[ i ].intensity * surfaceExposure * directionalLightData[ i ].color;
+        diffuseIntensity += lightFactor * directionalLightData[ i ].intensity * surfaceExposure * directionalLightData[ i ].color;
 
         vec3 halfVector = normalize( -directionalLightData[ i ].direction + pointToViewDirection );
         float surfaceHighlight = pow( max( dot( halfVector, worldSpaceNormal ), 0.0 ), shininess );
         float highlightIntensity = texture( specularMap, texCoord ).r;
-        specularIntensity += directionalLightData[ i ].intensity * surfaceHighlight * highlightIntensity * directionalLightData[ i ].color;
+        specularIntensity += lightFactor * directionalLightData[ i ].intensity * surfaceHighlight * highlightIntensity * directionalLightData[ i ].color;
     }
 
     for( int i = 0; i < pointLightCount; ++i )

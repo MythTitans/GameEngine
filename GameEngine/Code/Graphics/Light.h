@@ -21,6 +21,7 @@ private:
 	PROPERTIES( DirectionalLightComponent );
 	PROPERTY_DEFAULT( "Color", m_oColor, Color, Color::White() );
 	PROPERTY_DEFAULT( "Intensity", m_fIntensity, float, 1.f );
+	PROPERTY_DEFAULT( "Bias", m_fBias, float, 0.001f );
 };
 
 class PointLightComponent : public Component

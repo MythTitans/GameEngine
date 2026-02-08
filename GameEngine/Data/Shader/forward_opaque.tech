@@ -12,6 +12,7 @@
         "specularMap",
         "emissiveMap",
         "useSkinning",
-        "skinningOffset"
+        "skinningOffset",
+        "shadowMap"
     ]
 }
