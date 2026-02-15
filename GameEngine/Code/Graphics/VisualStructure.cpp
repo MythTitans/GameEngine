@@ -1,7 +1,10 @@
 #include "VisualStructure.h"
 
+#include <glm/gtc/matrix_inverse.hpp>
+
 #include "Core/ArrayUtils.h"
 #include "Game/Entity.h"
+#include "Math/GLMHelpers.h"
 
 RoadNode::RoadNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Texture& oDiffuse, const Mesh& oMesh )
 	: m_uEntityID( uEntityID )
@@ -67,6 +70,7 @@ void VisualStructure::AddTemporaryVisual( const Entity* pEntity, const glm::mat4
 	}
 
 	m_aTemporaryVisuals[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, aMeshes ) );
+	m_aTemporaryVisuals[ iIndex ].Back().m_mInverseTransposeMatrix = glm::inverseTranspose( ToMat4( mMatrix ) );
 }
 
 void VisualStructure::RemoveVisual( VisualNode*& pNode )

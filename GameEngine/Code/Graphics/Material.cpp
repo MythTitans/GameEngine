@@ -71,6 +71,11 @@ void UnlitMaterialData::PrepareMaterial( Technique& oTechnique )
 	s_oMaterialSheet.Init( oTechnique );
 	s_oMaterialSheet.BindParameter( UnlitMaterialParam::MATERIAL_ID, "materialID" );
 	s_oMaterialSheet.BindParameter( UnlitMaterialParam::DIFFUSE_MAP, "diffuseMap" );
+	// TODO #eric find a better way to make deferred renderer happy
+	s_oMaterialSheet.BindParameter( UnlitMaterialParam::UNUSED_NORMAL_MAP, "normalMap" );
+	s_oMaterialSheet.BindParameter( UnlitMaterialParam::UNUSED_SPECULAR_MAP, "specularMap" );
+	s_oMaterialSheet.BindParameter( UnlitMaterialParam::UNUSED_EMISSIVE_MAP, "emissiveMap" );
+	oTechnique.SetUsedTextureCount( 5 );
 }
 
 void UnlitMaterialData::ApplyMaterial( const uint uMaterialID, Technique& oTechnique )
@@ -86,6 +91,19 @@ void UnlitMaterialData::ApplyMaterial( const uint uMaterialID, Technique& oTechn
 		s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_MAP ).SetValue( &m_xDiffuseTextureResource->GetTexture(), oTechnique );
 	else
 		s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_MAP ).SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
+
+	// TODO #eric find a better way to make deferred renderer happy
+	TechniqueParameter& oUnusedParameter = s_oMaterialSheet.GetParameter( UnlitMaterialParam::UNUSED_NORMAL_MAP );
+	if( oUnusedParameter.IsValid() )
+		oUnusedParameter.SetValue( g_pRenderer->GetDefaultNormalMap(), oTechnique );
+
+	oUnusedParameter = s_oMaterialSheet.GetParameter( UnlitMaterialParam::UNUSED_SPECULAR_MAP );
+	if( oUnusedParameter.IsValid() )
+		oUnusedParameter.SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
+
+	oUnusedParameter = s_oMaterialSheet.GetParameter( UnlitMaterialParam::UNUSED_EMISSIVE_MAP );
+	if( oUnusedParameter.IsValid() )
+		oUnusedParameter.SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
 }
 
 void UnlitMaterialData::ExportToGPU( GPUUnlitMaterialData& oMaterialData ) const

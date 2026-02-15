@@ -69,7 +69,7 @@ uint64 PickingTool::Pick( const RenderContext& oRenderContext, const int iCursor
 	g_pRenderer->m_oVisualStructure.GetVisualNodes( aVisualNodes, aTemporaryVisualNodes );
 
 	m_oSkinningBuffer.Update( g_pRenderer->m_oGPUSkinningStorage.GetSkinningData() );
-	g_pRenderer->SetShaderBufferSlot( m_oSkinningBuffer, 0 );
+	const ShaderBufferSlot oSkinningSlot( m_oSkinningBuffer, 0 );
 
 	for( const VisualNode* pVisualNode : aVisualNodes )
 	{

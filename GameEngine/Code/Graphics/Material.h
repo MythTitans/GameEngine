@@ -78,6 +78,9 @@ struct UnlitMaterialData
 	{
 		MATERIAL_ID,
 		DIFFUSE_MAP,
+		UNUSED_NORMAL_MAP,
+		UNUSED_SPECULAR_MAP,
+		UNUSED_EMISSIVE_MAP,
 		_COUNT
 	};
 

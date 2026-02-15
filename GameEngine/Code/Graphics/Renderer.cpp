@@ -148,7 +148,7 @@ static void DrawNodes( const Array< VisualNode* >& aVisualNodes, Technique& oTec
 		oParamModelViewProjection.SetValue( mViewProjectionMatrix * mMatrix );
 
 		if( oParamModelInverseTranspose.IsValid() )
-			oParamModelInverseTranspose.SetValue( pVisualNode->m_InverseTransposeMatrix );
+			oParamModelInverseTranspose.SetValue( pVisualNode->m_mInverseTransposeMatrix );
 
 		if( oParamModel.IsValid() )
 			oParamModel.SetValue( mMatrix );
@@ -238,35 +238,43 @@ RendererStatistics::RendererStatistics()
 {
 }
 
-TextureSlot::TextureSlot( const Texture& oTexture, const uint uSlot, const bool bArray /*= false*/ )
-	: m_uSlot( uSlot )
-	, m_bArray( bArray )
-{
-	SetSlot( oTexture, m_uSlot, bArray );
-}
-
 TextureSlot::TextureSlot()
 	: m_uSlot( UINT_MAX )
 	, m_bArray( false )
 {
 }
 
+TextureSlot::TextureSlot( const Texture& oTexture, const uint uSlot, const bool bArray /*= false*/ )
+	: m_uSlot( uSlot )
+	, m_bArray( bArray )
+{
+	SetSlot( oTexture, m_uSlot, m_bArray );
+}
+
 TextureSlot::~TextureSlot()
 {
+	ClearSlot();
+}
+
+void TextureSlot::SetSlot( const Texture& oTexture, const uint uSlot, const bool bArray /*= false */ )
+{
+	m_uSlot = uSlot;
+	m_bArray = bArray;
+
+	glActiveTexture( GL_TEXTURE0 + m_uSlot );
+	glBindTexture( m_bArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, oTexture.GetID() );
+}
+
+void TextureSlot::ClearSlot()
+{
 	if( m_uSlot != UINT_MAX )
-		ClearSlot( m_uSlot, m_bArray );
-}
+	{
+		glActiveTexture( GL_TEXTURE0 + m_uSlot );
+		glBindTexture( m_bArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0 );
 
-void TextureSlot::SetSlot( const Texture& oTexture, const uint uTextureUnit, const bool bArray /*= false */ )
-{
-	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
-	glBindTexture( bArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, oTexture.GetID() );
-}
-
-void TextureSlot::ClearSlot( const uint uTextureUnit, const bool bArray /*= false */ )
-{
-	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
-	glBindTexture( bArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0 );
+		m_uSlot = UINT_MAX;
+		m_bArray = false;
+	}
 }
 
 CubeMapSlot::CubeMapSlot()
@@ -282,20 +290,59 @@ CubeMapSlot::CubeMapSlot( const CubeMap& oCubeMap, const uint uSlot )
 
 CubeMapSlot::~CubeMapSlot()
 {
-	if( m_uSlot != UINT_MAX )
-		ClearSlot( m_uSlot );
+	ClearSlot();
 }
 
-void CubeMapSlot::SetSlot( const CubeMap& oCubeMap, const uint uTextureUnit )
+void CubeMapSlot::SetSlot( const CubeMap& oCubeMap, const uint uSlot )
 {
-	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
+	m_uSlot = uSlot;
+
+	glActiveTexture( GL_TEXTURE0 + m_uSlot );
 	glBindTexture( GL_TEXTURE_CUBE_MAP, oCubeMap.GetID() );
 }
 
-void CubeMapSlot::ClearSlot( const uint uTextureUnit )
+void CubeMapSlot::ClearSlot()
 {
-	glActiveTexture( GL_TEXTURE0 + uTextureUnit );
-	glBindTexture( GL_TEXTURE_CUBE_MAP, 0 );
+	if( m_uSlot != UINT_MAX )
+	{
+		glActiveTexture( GL_TEXTURE0 + m_uSlot );
+		glBindTexture( GL_TEXTURE_CUBE_MAP, 0 );
+
+		m_uSlot = UINT_MAX;
+	}
+}
+
+ShaderBufferSlot::ShaderBufferSlot()
+	: m_uSlot( UINT_MAX )
+{
+}
+
+ShaderBufferSlot::ShaderBufferSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot )
+	: m_uSlot( uSlot )
+{
+	SetSlot( oShaderBuffer, m_uSlot );
+}
+
+ShaderBufferSlot::~ShaderBufferSlot()
+{
+	ClearSlot();
+}
+
+void ShaderBufferSlot::SetSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot )
+{
+	m_uSlot = uSlot;
+
+	glBindBufferBase( GL_UNIFORM_BUFFER, m_uSlot, oShaderBuffer.GetID() );
+}
+
+void ShaderBufferSlot::ClearSlot()
+{
+	if( m_uSlot != UINT_MAX )
+	{
+		glBindBufferBase( GL_UNIFORM_BUFFER, m_uSlot, 0 );
+
+		m_uSlot = UINT_MAX;
+	}
 }
 
 Renderer* g_pRenderer = nullptr;
@@ -365,14 +412,14 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	g_pMaterialManager->ExportMaterialsToGPU< UnlitMaterialData >( oMaterialData.m_aUnlitMaterialData );
 
 	m_oSkinningBuffer.Update( m_oGPUSkinningStorage.GetSkinningData() );
-	SetShaderBufferSlot( m_oSkinningBuffer, 0 );
+	const ShaderBufferSlot oSkinningSlot( m_oSkinningBuffer, 0 );
 
 	m_oMaterialBuffer.Update( oMaterialData );
-	SetShaderBufferSlot( m_oMaterialBuffer, 1 );
+	const ShaderBufferSlot oMaterialSlot( m_oMaterialBuffer, 1 );
 
 	GPULightingDataBlock oLightingData = SetupLighting( m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 	m_oLightingBuffer.Update( oLightingData );
-	SetShaderBufferSlot( m_oLightingBuffer, 2 );
+	const ShaderBufferSlot oLightingSlot( m_oLightingBuffer, 2 );
 
 	RenderShadowMap();
 
@@ -564,11 +611,6 @@ void Renderer::SetTechnique( const Technique& oTechnique )
 void Renderer::ClearTechnique()
 {
 	glUseProgram( 0 );
-}
-
-void Renderer::SetShaderBufferSlot( const ShaderBufferBase& oBuffer, const uint uBinding )
-{
-	glBindBufferBase( GL_UNIFORM_BUFFER, uBinding, oBuffer.GetID() );
 }
 
 void Renderer::SetRenderTarget( const RenderTarget& oRenderTarget )
@@ -926,6 +968,8 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	m_oOutlineSheet.GetParameter( OutlineParam::DISPLACEMENT ).SetValue( 0.f );
 	m_oOutlineSheet.GetParameter( OutlineParam::COLOR ).SetValue( glm::vec3( 1.f, 0.8f, 0.f ) );
 	m_oOutlineSheet.GetParameter( OutlineParam::SKINNING_OFFSET ).SetValue( oVisualNode.m_uBoneStorageIndex );
+
+	const ShaderBufferSlot oSkinningSlot( m_oSkinningBuffer, 0 );
 
 	const Array< Mesh >& aMeshes = oVisualNode.m_aMeshes;
 	for( const Mesh& oMesh : aMeshes )

@@ -128,6 +128,6 @@ void VisualComponent::UpdateTransform()
 	const glm::mat4x3 mMatrix = oWorldTransform.GetMatrixTRS();
 
 	m_pVisualNode->m_mMatrix = ToMat4( mMatrix );
-	m_pVisualNode->m_InverseTransposeMatrix = oWorldTransform.IsUniformScale() ? glm::transpose( m_pVisualNode->m_mMatrix ) / glm::abs( oWorldTransform.GetScale().x ) : glm::inverseTranspose( m_pVisualNode->m_mMatrix );
+	m_pVisualNode->m_mInverseTransposeMatrix = oWorldTransform.IsUniformScale() ? glm::transpose( m_pVisualNode->m_mMatrix ) / glm::abs( oWorldTransform.GetScale().x ) : glm::inverseTranspose( m_pVisualNode->m_mMatrix );
 	m_pVisualNode->m_oAABB = AxisAlignedBox::FromOrientedBox( OrientedBox::FromAxisAlignedBox( m_oModelAABB, mMatrix ) );
 }

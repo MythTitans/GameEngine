@@ -110,8 +110,8 @@ public:
 	TextureSlot( const Texture& oTexture, const uint uSlot, const bool bArray = false );
 	~TextureSlot();
 
-	void SetSlot( const Texture& oTexture, const uint uTextureUnit, const bool bArray = false );
-	void ClearSlot( const uint uTextureUnit, const bool bArray = false );
+	void SetSlot( const Texture& oTexture, const uint uSlot, const bool bArray = false );
+	void ClearSlot();
 
 private:
 	uint m_uSlot;
@@ -125,8 +125,22 @@ public:
 	CubeMapSlot( const CubeMap& oCubeMap, const uint uSlot );
 	~CubeMapSlot();
 
-	void SetSlot( const CubeMap& oCubeMap, const uint uTextureUnit );
-	void ClearSlot( const uint uTextureUnit );
+	void SetSlot( const CubeMap& oCubeMap, const uint uSlot );
+	void ClearSlot();
+
+private:
+	uint m_uSlot;
+};
+
+class ShaderBufferSlot
+{
+public:
+	ShaderBufferSlot();
+	ShaderBufferSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot );
+	~ShaderBufferSlot();
+
+	void SetSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot );
+	void ClearSlot();
 
 private:
 	uint m_uSlot;
@@ -156,7 +170,6 @@ public:
 
 	void						SetTechnique( const Technique& oTechnique );
 	void						ClearTechnique();
-	void						SetShaderBufferSlot( const ShaderBufferBase& oBuffer, const uint uBinding );
 	void						SetRenderTarget( const RenderTarget& oRenderTarget );
 	void						ClearRenderTarget();
 	void						DrawMesh( const Mesh& oMesh );
@@ -187,16 +200,16 @@ private:
 		_COUNT
 	};
 
-	void			RenderForward( const RenderContext& oRenderContext );
-	void			RenderDeferred( const RenderContext& oRenderContext );
-	void			RenderShadowMap();
+	void						RenderForward( const RenderContext& oRenderContext );
+	void						RenderDeferred( const RenderContext& oRenderContext );
+	void						RenderShadowMap();
 
 #ifdef EDITOR
-	void			RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode );
-	void			RenderGizmos( const RenderContext& oRenderContext );
+	void						RenderOutline( const RenderContext& oRenderContext, const VisualNode& oVisualNode );
+	void						RenderGizmos( const RenderContext& oRenderContext );
 #endif
 
-	void			UpdateRenderPipeline( const RenderContext& oRenderContext );
+	void						UpdateRenderPipeline( const RenderContext& oRenderContext );
 
 public:
 	TextRenderer		m_oTextRenderer;
