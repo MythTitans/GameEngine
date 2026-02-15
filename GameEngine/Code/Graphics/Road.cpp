@@ -18,16 +18,16 @@ void Road::Render( const Array<RoadNode*>& aRoads, const RenderContext& oRenderC
 	oTechnique.GetParameter( "materialID" ).SetValue( MaterialManager::GetRoadMaterialID() );
 	oTechnique.GetParameter( "diffuseMap" ).SetValue( 0 );
 
+	TextureSlot oDiffuseSlot;
+
 	for( const RoadNode* pRoad : aRoads )
 	{
 		oTechnique.GetParameter( "modelViewProjection" ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * ToMat4( pRoad->m_mMatrix ) );
 
-		g_pRenderer->SetTextureSlot( pRoad->m_oDiffuse, 0 );
+		oDiffuseSlot.SetSlot( pRoad->m_oDiffuse, 0 );
 
 		g_pRenderer->DrawMesh( pRoad->m_oMesh );
 	}
-
-	g_pRenderer->ClearTextureSlot( 0 );
 }
 
 bool Road::OnLoading()

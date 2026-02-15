@@ -103,6 +103,35 @@ struct RendererStatistics
 	uint64	m_uDrawCallCount;
 };
 
+class TextureSlot
+{
+public:
+	TextureSlot();
+	TextureSlot( const Texture& oTexture, const uint uSlot, const bool bArray = false );
+	~TextureSlot();
+
+	void SetSlot( const Texture& oTexture, const uint uTextureUnit, const bool bArray = false );
+	void ClearSlot( const uint uTextureUnit, const bool bArray = false );
+
+private:
+	uint m_uSlot;
+	bool m_bArray;
+};
+
+class CubeMapSlot
+{
+public:
+	CubeMapSlot();
+	CubeMapSlot( const CubeMap& oCubeMap, const uint uSlot );
+	~CubeMapSlot();
+
+	void SetSlot( const CubeMap& oCubeMap, const uint uTextureUnit );
+	void ClearSlot( const uint uTextureUnit );
+
+private:
+	uint m_uSlot;
+};
+
 class Renderer
 {
 public:
@@ -127,10 +156,6 @@ public:
 
 	void						SetTechnique( const Technique& oTechnique );
 	void						ClearTechnique();
-	void						SetTextureSlot( const Texture& oTexture, const uint uTextureUnit, const bool bArray = false );
-	void						ClearTextureSlot( const uint uTextureUnit, const bool bArray = false );
-	void						SetCubeMapSlot( const CubeMap& oCubeMap, const uint uTextureUnit );
-	void						ClearCubeMapSlot( const uint uTextureUnit );
 	void						SetShaderBufferSlot( const ShaderBufferBase& oBuffer, const uint uBinding );
 	void						SetRenderTarget( const RenderTarget& oRenderTarget );
 	void						ClearRenderTarget();

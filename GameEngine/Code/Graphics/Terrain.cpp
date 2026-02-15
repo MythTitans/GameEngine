@@ -17,13 +17,11 @@ void Terrain::Render( const TerrainNode* pTerrain, const RenderContext& oRenderC
 	oTechnique.GetParameter( "modelViewProjection" ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() * ToMat4( pTerrain->m_mMatrix ) );
 	oTechnique.GetParameter( "diffuseColor" ).SetValue( glm::vec3( 1.f, 1.f, 1.f ) );
 
-	g_pRenderer->SetTextureSlot( pTerrain->m_oDiffuse, 0 );
+	const TextureSlot oDiffuseSlot( pTerrain->m_oDiffuse, 0 );
 	oTechnique.GetParameter( "diffuseMap" ).SetValue( 0 );
 
 	for( const Mesh& oMesh : pTerrain->m_aMeshes )
 		g_pRenderer->DrawMesh( oMesh );
-
-	g_pRenderer->ClearTextureSlot( 0 );
 }
 
 bool Terrain::OnLoading()

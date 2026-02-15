@@ -44,12 +44,10 @@ void Skybox::Render( const SkyNode* pSky, const RenderContext& /*oRenderContext*
 	const glm::mat4 mViewProjection = g_pRenderer->m_oCamera.GetProjectionMatrix() * ToMat4( glm::mat3( g_pRenderer->m_oCamera.GetViewMatrix() ) );
 	m_oSkyboxSheet.GetParameter( SkyboxParam::VIEW_PROJECTION ).SetValue( mViewProjection );
 
-	g_pRenderer->SetCubeMapSlot( pSky->m_oCubeMap, 0 );
+	const CubeMapSlot oCubeMapSlot( pSky->m_oCubeMap, 0 );
 	m_oSkyboxSheet.GetParameter( SkyboxParam::CUBE_MAP ).SetValue( 0 );
 
 	g_pRenderer->DrawMesh( m_oMesh );
-
-	g_pRenderer->ClearCubeMapSlot( 0 );
 
 	glDepthMask( GL_TRUE );
 }

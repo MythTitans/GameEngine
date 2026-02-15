@@ -127,8 +127,6 @@ struct CubeMapDesc
 class CubeMap
 {
 public:
-	friend class Renderer;
-
 	CubeMap();
 
 	void			Create( const CubeMapDesc& oDesc );

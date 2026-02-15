@@ -64,6 +64,8 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 
 	bool bVertical = false;
 
+	TextureSlot oInputSlot;
+
 	for( int i = 0; i < 2 * m_iIterations; ++i )
 	{
 		if( bVertical )
@@ -75,7 +77,7 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 			m_oBlurSheet.GetParameter( BlurParam::VERTICAL ).SetValue( true );
 			m_oBlurSheet.GetParameter( BlurParam::DELTA ).SetValue( 1.f / m_oBloomRT[ 0 ].GetHeight() );
 
-			g_pRenderer->SetTextureSlot( m_oBloomRT[ 1 ].GetColorMap( 0 ), 0 );
+			oInputSlot.SetSlot( m_oBloomRT[ 1 ].GetColorMap( 0 ), 0 );
 			m_oBlurSheet.GetParameter( BlurParam::INPUT_TEXTURE ).SetValue( 0 );
 		}
 		else
@@ -87,7 +89,7 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 			m_oBlurSheet.GetParameter( BlurParam::VERTICAL ).SetValue( false );
 			m_oBlurSheet.GetParameter( BlurParam::DELTA ).SetValue( 1.f / m_oBloomRT[ 0 ].GetWidth() );
 
-			g_pRenderer->SetTextureSlot( m_oBloomRT[ 0 ].GetColorMap( 0 ), 0 );
+			oInputSlot.SetSlot( m_oBloomRT[ 0 ].GetColorMap( 0 ), 0 );
 			m_oBlurSheet.GetParameter( BlurParam::INPUT_TEXTURE ).SetValue( 0 );
 		}
 
@@ -95,8 +97,6 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 
 		bVertical = !bVertical;
 	}
-
-	g_pRenderer->ClearTextureSlot( 0 );
 
 	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
 

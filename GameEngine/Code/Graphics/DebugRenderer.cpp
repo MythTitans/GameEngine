@@ -459,7 +459,7 @@ void DebugRenderer::RenderWireMeshes( const Array< WireMesh >& aMeshes, const Re
 	Technique& oTechnique = m_xUnlit->GetTechnique();
 	glUseProgram( oTechnique.m_uProgramID );
 
-	g_pRenderer->SetTextureSlot( *g_pRenderer->GetDefaultDiffuseMap(), 0 );
+	const TextureSlot oDiffuseSlot( *g_pRenderer->GetDefaultDiffuseMap(), 0 );
 	m_oUnlitSheet.GetParameter( UnlitParam::DIFFUSE_MAP ).SetValue( 0 );
 
 	for( const WireMesh& oMesh : aMeshes )
@@ -474,8 +474,6 @@ void DebugRenderer::RenderWireMeshes( const Array< WireMesh >& aMeshes, const Re
 
 		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	}
-
-	g_pRenderer->ClearTextureSlot( 0 );
 
 	glUseProgram( 0 );
 }
