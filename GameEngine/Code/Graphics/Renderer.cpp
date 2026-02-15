@@ -233,9 +233,10 @@ GPUMarker::~GPUMarker()
 }
 
 RendererStatistics::RendererStatistics()
-	: m_uTriangleCount( 0 )
-	, m_uDrawCallCount( 0 )
+	: m_uStepIndex( 0 )
 {
+	memset( &m_aStepTriangleCount[ 0 ], 0, sizeof( m_aStepTriangleCount[ 0 ] ) * TOTAL_STEP_COUNT );
+	memset( &m_aStepDrawCallCount[ 0 ], 0, sizeof( m_aStepDrawCallCount[ 0 ] ) * TOTAL_STEP_COUNT );
 }
 
 TextureSlot::TextureSlot()
@@ -436,8 +437,11 @@ void Renderer::Render( const RenderContext& oRenderContext )
 		break;
 	}
 
-	auto FormatNumber = []( const uint64 uNumber )
+	auto FormatNumber = []( const uint64 uNumber ) -> std::string
 	{
+		if( uNumber == 0 )
+			return "0";
+
 		std::string sResult;
 
 		uint64 uRemaining = uNumber;
@@ -459,7 +463,17 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	};
 
 	const RendererStatistics& oRendererStatistics = g_pRenderer->GetStatistics();
-	g_pDebugDisplay->DisplayText( std::format( "Renderer statistics : {} triangles, {} draw calls", FormatNumber( oRendererStatistics.m_uTriangleCount ), FormatNumber( oRendererStatistics.m_uDrawCallCount ) ) );
+
+	uint64 uShadowTriangleCount = 0;
+	uint64 uShadowDrawCallCount = 0;
+	for( uint u = RendererStatistics::DIRECTIONAL_SHADOW_CASCADE_STEP; u < RendererStatistics::VISUAL_STEP; ++u )
+	{
+		uShadowTriangleCount += oRendererStatistics.m_aStepTriangleCount[ u ];
+		uShadowDrawCallCount += oRendererStatistics.m_aStepDrawCallCount[ u ];
+	}
+
+	g_pDebugDisplay->DisplayText( std::format( "Shadow statistics : {} triangles, {} draw calls", FormatNumber( uShadowTriangleCount ), FormatNumber( uShadowDrawCallCount ) ) );
+	g_pDebugDisplay->DisplayText( std::format( "Visual statistics : {} triangles, {} draw calls", FormatNumber( oRendererStatistics.m_aStepTriangleCount[ RendererStatistics::VISUAL_STEP ] ), FormatNumber( oRendererStatistics.m_aStepDrawCallCount[ RendererStatistics::VISUAL_STEP ] ) ) );
 }
 
 void Renderer::Clear()
@@ -625,8 +639,10 @@ void Renderer::ClearRenderTarget()
 
 void Renderer::DrawMesh( const Mesh& oMesh )
 {
-	m_oStatistics.m_uTriangleCount += oMesh.m_iIndexCount / 3;
-	m_oStatistics.m_uDrawCallCount += 1;
+	m_oStatistics.m_aStepTriangleCount[ m_oStatistics.m_uStepIndex ] += oMesh.m_iIndexCount / 3;
+	m_oStatistics.m_aStepDrawCallCount[ m_oStatistics.m_uStepIndex ] += 1;
+// 	m_oStatistics.m_uTriangleCount += oMesh.m_iIndexCount / 3;
+// 	m_oStatistics.m_uDrawCallCount += 1;
 
 	glBindVertexArray( oMesh.m_uVertexArrayID );
 	glDrawElements( GL_TRIANGLES, oMesh.m_iIndexCount, GL_UNSIGNED_INT, nullptr );
@@ -774,7 +790,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 			if( m_bEnableFrustumCulling )
 			{
 				const Frustum oFrustum = Frustum::FromViewProjection( m_oCamera.GetViewProjectionMatrix() );
-				CullNodes( m_oVisualStructure.m_aVisuals[ u ], oFrustum );
+				CullNodes( aVisualNodes, oFrustum );
 			}
 			else
 			{
@@ -840,7 +856,20 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 		GPUProfilerBlock oGPUBlock( "Meshes" );
 
 		for( const Array< VisualNode* >& aVisualNodes : m_oVisualStructure.m_aVisuals )
+		{
+			if( m_bEnableFrustumCulling )
+			{
+				const Frustum oFrustum = Frustum::FromViewProjection( m_oCamera.GetViewProjectionMatrix() );
+				CullNodes( aVisualNodes, oFrustum );
+			}
+			else
+			{
+				for( VisualNode* pVisualNode : aVisualNodes )
+					pVisualNode->m_bVisible = true;
+			}
+
 			DrawNodes< true >( aVisualNodes, oMapsTechnique, m_oCamera.GetViewProjectionMatrix() );
+		}
 	}
 
 	{
@@ -928,7 +957,7 @@ void Renderer::RenderShadowMap()
 			if( m_bEnableFrustumCulling )
 			{
 				const Frustum oFrustum = Frustum::FromViewProjection( mViewProjectionMatrix );
-				CullNodes( m_oVisualStructure.m_aVisuals[ u ], oFrustum );
+				CullNodes( aVisualNodes, oFrustum );
 			}
 			else
 			{
@@ -938,6 +967,8 @@ void Renderer::RenderShadowMap()
 
 			DrawNodes< false >( aVisualNodes, oTechnique, mViewProjectionMatrix );
 		}
+
+		++m_oStatistics.m_uStepIndex;
 	}
 
 	ClearTechnique();

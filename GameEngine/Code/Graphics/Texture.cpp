@@ -237,8 +237,17 @@ void Texture::Create( const TextureDesc& oDesc )
 	glTexParameteri( eFullTextureKind, GL_TEXTURE_WRAP_S, GetWrappingMode( oDesc.m_eHorizontalWrapping ) );
 	glTexParameteri( eFullTextureKind, GL_TEXTURE_WRAP_T, GetWrappingMode( oDesc.m_eVerticalWrapping ) );
 
-	glTexParameteri( eFullTextureKind, GL_TEXTURE_MIN_FILTER, GetFilteringMode( oDesc.m_eMinFiltering ) );
-	glTexParameteri( eFullTextureKind, GL_TEXTURE_MAG_FILTER, GetFilteringMode( oDesc.m_eMagFiltering ) );
+	const bool bIntegerFormat = m_eFormat == TextureFormat::ID8 || m_eFormat == TextureFormat::ID64;
+	if( bIntegerFormat )
+	{
+		glTexParameteri( eFullTextureKind, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+		glTexParameteri( eFullTextureKind, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	}
+	else
+	{
+		glTexParameteri( eFullTextureKind, GL_TEXTURE_MIN_FILTER, GetFilteringMode( oDesc.m_eMinFiltering ) );
+		glTexParameteri( eFullTextureKind, GL_TEXTURE_MAG_FILTER, GetFilteringMode( oDesc.m_eMagFiltering ) );
+	}
 
 	if( oDesc.m_eFormat == TextureFormat::SHADOW )
 	{

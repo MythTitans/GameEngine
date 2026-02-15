@@ -99,8 +99,14 @@ struct RendererStatistics
 {
 	RendererStatistics();
 
-	uint64	m_uTriangleCount;
-	uint64	m_uDrawCallCount;
+	static const uint DIRECTIONAL_SHADOW_CASCADE_STEP = 0;
+	static const uint VISUAL_STEP = DIRECTIONAL_SHADOW_CASCADE_STEP + DIRECTIONAL_SHADOW_CASCADE_COUNT;
+	static const uint TOTAL_STEP_COUNT = VISUAL_STEP + 1;
+
+	uint64	m_aStepTriangleCount[ TOTAL_STEP_COUNT ];
+	uint64	m_aStepDrawCallCount[ TOTAL_STEP_COUNT ];
+
+	uint	m_uStepIndex;
 };
 
 class TextureSlot
