@@ -22,14 +22,21 @@ VisualNode::VisualNode( const uint64 uEntityID )
 {
 }
 
-VisualNode::VisualNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes )
+VisualNode::VisualNode( const uint64 uEntityID, const Transform& oTransform, const Array< Mesh >& aMeshes, const AxisAlignedBox& oAABB /*= AxisAlignedBox()*/ )
 	: m_uEntityID( uEntityID )
-	, m_mMatrix( mMatrix )
 	, m_aMeshes( aMeshes )
 	, m_uBoneStorageIndex( 0 )
 	, m_uBoneCount( 0 )
 	, m_bVisible( true )
 {
+	UpdateTransformAndAABB( oTransform, oAABB );
+}
+
+void VisualNode::UpdateTransformAndAABB( const Transform& oTransform, const AxisAlignedBox& oAABB )
+{
+	m_mMatrix = ToMat4( oTransform.GetMatrixTRS() );
+	m_mInverseTransposeMatrix = oTransform.IsUniformScale() ? glm::transpose( m_mMatrix ) / glm::abs( oTransform.GetScale().x ) : glm::inverseTranspose( m_mMatrix );
+	m_oAABB = AxisAlignedBox::FromOrientedBox( OrientedBox::FromAxisAlignedBox( oAABB, m_mMatrix ) );
 }
 
 VisualStructure::VisualStructure()
@@ -55,7 +62,7 @@ VisualNode* VisualStructure::AddVisual( const Entity* pEntity, Technique& oTechn
 	return m_aVisuals[ iIndex ].Back();
 }
 
-void VisualStructure::AddTemporaryVisual( const Entity* pEntity, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique )
+void VisualStructure::AddTemporaryVisual( const Entity* pEntity, const Transform& oTransform, const Array< Mesh >& aMeshes, Technique& oTechnique )
 {
 	ASSERT( aMeshes.Empty() == false );
 
@@ -69,8 +76,7 @@ void VisualStructure::AddTemporaryVisual( const Entity* pEntity, const glm::mat4
 			m_aTemporaryVisuals.PushBack( Array< VisualNode >() );
 	}
 
-	m_aTemporaryVisuals[ iIndex ].PushBack( VisualNode( pEntity->GetID(), mMatrix, aMeshes ) );
-	m_aTemporaryVisuals[ iIndex ].Back().m_mInverseTransposeMatrix = glm::inverseTranspose( ToMat4( mMatrix ) );
+	m_aTemporaryVisuals[ iIndex ].PushBack( VisualNode( pEntity->GetID(), oTransform, aMeshes ) );
 }
 
 void VisualStructure::RemoveVisual( VisualNode*& pNode )

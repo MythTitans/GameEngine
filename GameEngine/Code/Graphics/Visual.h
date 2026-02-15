@@ -28,7 +28,6 @@ public:
 
 private:
 	void					UpdateModel();
-	void					UpdateTransform();
 
 	PROPERTIES( VisualComponent );
 	PROPERTY( "Model", m_sModelFile, std::string );

@@ -44,16 +44,18 @@ void VisualComponent::Start()
 	m_pVisualNode = g_pRenderer->m_oVisualStructure.AddVisual( pEntity, m_xTechnique->GetTechnique() );
 
 	UpdateModel();
-	UpdateTransform();
+	m_pVisualNode->UpdateTransformAndAABB( pEntity->GetWorldTransform(), m_oModelAABB );
 }
 
 void VisualComponent::Update( const GameContext& oGameContext )
 {
+	const Entity* pEntity = GetEntity();
+
 	if( m_bModelDirty && m_xModel->IsLoaded() )
 		UpdateModel();
 
-	if( GetEntity()->IsDirty() )
-		UpdateTransform();
+	if( pEntity->IsDirty() )
+		m_pVisualNode->UpdateTransformAndAABB( pEntity->GetWorldTransform(), m_oModelAABB );
 }
 
 void VisualComponent::Stop()
@@ -120,14 +122,4 @@ void VisualComponent::UpdateModel()
 	m_oModelAABB = m_xModel->GetAABB();
 
 	m_bModelDirty = false;
-}
-
-void VisualComponent::UpdateTransform()
-{
-	const Transform oWorldTransform = GetEntity()->GetWorldTransform();
-	const glm::mat4x3 mMatrix = oWorldTransform.GetMatrixTRS();
-
-	m_pVisualNode->m_mMatrix = ToMat4( mMatrix );
-	m_pVisualNode->m_mInverseTransposeMatrix = oWorldTransform.IsUniformScale() ? glm::transpose( m_pVisualNode->m_mMatrix ) / glm::abs( oWorldTransform.GetScale().x ) : glm::inverseTranspose( m_pVisualNode->m_mMatrix );
-	m_pVisualNode->m_oAABB = AxisAlignedBox::FromOrientedBox( OrientedBox::FromAxisAlignedBox( m_oModelAABB, mMatrix ) );
 }

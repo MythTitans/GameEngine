@@ -9,6 +9,7 @@
 #include "Texture.h"
 
 class Entity;
+struct Transform;
 
 struct DirectionalLightNode
 {
@@ -65,7 +66,9 @@ struct RoadNode
 struct VisualNode
 {
 	explicit VisualNode( const uint64 uEntityID );
-	VisualNode( const uint64 uEntityID, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes );
+	VisualNode( const uint64 uEntityID, const Transform& oTransform, const Array< Mesh >& aMeshes, const AxisAlignedBox& oAABB = AxisAlignedBox() );
+
+	void UpdateTransformAndAABB( const Transform& oTransform, const AxisAlignedBox& oAABB );
 
 	uint64			m_uEntityID;
 	glm::mat4		m_mMatrix;
@@ -85,7 +88,7 @@ public:
 	VisualStructure();
 
 	VisualNode*				AddVisual( const Entity* pEntity, Technique& oTechnique );
-	void					AddTemporaryVisual( const Entity* pEntity, const glm::mat4x3& mMatrix, const Array< Mesh >& aMeshes, Technique& oTechnique );
+	void					AddTemporaryVisual( const Entity* pEntity, const Transform& oTransform, const Array< Mesh >& aMeshes, Technique& oTechnique );
 	void					RemoveVisual( VisualNode*& pNode );
 
 	Array< VisualNode* >	FindVisuals( const Entity* pEntity );
