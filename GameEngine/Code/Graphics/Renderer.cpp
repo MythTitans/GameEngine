@@ -35,7 +35,7 @@ static const std::string PARAM_SKINNING_OFFSET( "skinningOffset" );
 static const uint SHADOW_MAP_WIDTH = 2048;
 static const uint SHADOW_MAP_HEIGHT = 2048;
 static const float DIRECTIONAL_SHADOW_RANGES[ 4 ] = { 10.f, 20.f, 40.f, 80.f };
-static const std::array < glm::mat4, DIRECTIONAL_SHADOW_CASCADE_COUNT > DIRECTIONAL_SHADOW_PROJECTIONS = []()
+static const std::array< glm::mat4, DIRECTIONAL_SHADOW_CASCADE_COUNT > DIRECTIONAL_SHADOW_PROJECTIONS = []()
 {
 	std::array< glm::mat4, DIRECTIONAL_SHADOW_CASCADE_COUNT > aProjections;
 
@@ -404,8 +404,6 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	ProfilerBlock oBlock( "Renderer" );
 	GPUProfilerBlock oGPUBlock( "Renderer" );
 
-	glClearColor( 0.f, 0.f, 0.f, 0.f );
-
 	UpdateRenderPipeline( oRenderContext );
 
 	GPUMaterialDataBlock oMaterialData;
@@ -423,9 +421,6 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	const ShaderBufferSlot oLightingSlot( m_oLightingBuffer, 2 );
 
 	RenderShadowMap();
-
-	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
-	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
 
 	switch( m_eRenderingMode )
 	{
@@ -641,8 +636,6 @@ void Renderer::DrawMesh( const Mesh& oMesh )
 {
 	m_oStatistics.m_aStepTriangleCount[ m_oStatistics.m_uStepIndex ] += oMesh.m_iIndexCount / 3;
 	m_oStatistics.m_aStepDrawCallCount[ m_oStatistics.m_uStepIndex ] += 1;
-// 	m_oStatistics.m_uTriangleCount += oMesh.m_iIndexCount / 3;
-// 	m_oStatistics.m_uDrawCallCount += 1;
 
 	glBindVertexArray( oMesh.m_uVertexArrayID );
 	glDrawElements( GL_TRIANGLES, oMesh.m_iIndexCount, GL_UNSIGNED_INT, nullptr );
@@ -740,6 +733,10 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 
 	SetRenderTarget( m_oForwardMSAATarget );
 
+	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
+
+	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
+	glClearColor( 0.f, 0.f, 0.f, 0.f );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
 
@@ -844,6 +841,10 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 
 	SetRenderTarget( m_oDeferredMapsTarget );
 
+	const RenderRect& oRenderRect = oRenderContext.GetRenderRect();
+
+	glViewport( oRenderRect.m_uX, oRenderRect.m_uY, oRenderRect.m_uWidth, oRenderRect.m_uHeight );
+	glClearColor( 0.f, 0.f, 0.f, 0.f );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
 
@@ -934,16 +935,17 @@ void Renderer::RenderShadowMap()
 	if( m_oVisualStructure.m_aDirectionalLights.Empty() )
 		return;
 
-	glViewport( 0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT );
-	glEnable( GL_DEPTH_TEST );
-
 	Technique& oTechnique = m_xShadowMap->GetTechnique();
 	SetTechnique( oTechnique );
 
-	const glm::vec3 vCameraPosition = g_pRenderer->m_oCamera.GetPosition();
+	const glm::vec3& vCameraPosition = m_oCamera.GetPosition();
 	const glm::mat4 mView = glm::lookAt( vCameraPosition, vCameraPosition + m_oVisualStructure.m_aDirectionalLights[ 0 ]->m_vDirection, glm::vec3( 0.f, 1.f, 0.f ) );
 
 	SetRenderTarget( m_oShadowMapTarget );
+
+	glViewport( 0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT );
+	glEnable( GL_DEPTH_TEST );
+
 	for( uint uCascadeIndex = 0; uCascadeIndex < DIRECTIONAL_SHADOW_CASCADE_COUNT; ++uCascadeIndex )
 	{
 		glFramebufferTextureLayer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_oShadowMapTarget.GetDepthMap().GetID(), 0, ( int )uCascadeIndex );
@@ -1081,21 +1083,21 @@ void Renderer::UpdateRenderPipeline( const RenderContext& oRenderContext )
 
 		m_oForwardMSAATarget.Destroy();
 		m_oForwardMSAATarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
-									 .AddColor( TextureFormat::RGB16 )
-									 .AddColor( TextureFormat::RGB16 )
+									 .AddColor( TextureFormat::RGB16F )
+									 .AddColor( TextureFormat::RGB16F )
 									 .Depth()
 									 .Multisample( GetMSAALEvelSamples( m_eMSAALevel ) ) );
 
 		m_oForwardTarget.Destroy();
 		m_oForwardTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
-								 .AddColor( TextureFormat::RGB16 )
-								 .AddColor( TextureFormat::RGB16 )
+								 .AddColor( TextureFormat::RGB16F )
+								 .AddColor( TextureFormat::RGB16F )
 								 .Depth() );
 
 		m_oPostProcessTarget.Destroy();
 		m_oPostProcessTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
-									 .AddColor( TextureFormat::RGB16 )
-									 .AddColor( TextureFormat::RGB16 )
+									 .AddColor( TextureFormat::RGB16F )
+									 .AddColor( TextureFormat::RGB16F )
 									 .Depth() );
 
 		m_oDeferredMapsTarget.Destroy();
@@ -1109,8 +1111,8 @@ void Renderer::UpdateRenderPipeline( const RenderContext& oRenderContext )
 
 		m_oDeferredComposeTarget.Destroy();
 		m_oDeferredComposeTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
-										 .AddColor( TextureFormat::RGB16 )
-										 .AddColor( TextureFormat::RGB16 ) );
+										 .AddColor( TextureFormat::RGB16F )
+										 .AddColor( TextureFormat::RGB16F ) );
 
 		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
 

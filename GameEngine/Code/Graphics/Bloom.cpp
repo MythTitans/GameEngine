@@ -47,7 +47,7 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 		if( oBloomRenderRect.m_uWidth != m_oBloomRT[ i ].GetWidth() || oBloomRenderRect.m_uHeight != m_oBloomRT[ i ].GetHeight() )
 		{
 			m_oBloomRT[ i ].Destroy();
-			m_oBloomRT[ i ].Create( RenderTargetDesc( oBloomRenderRect.m_uWidth, oBloomRenderRect.m_uHeight, TextureFormat::RGB16 ) );
+			m_oBloomRT[ i ].Create( RenderTargetDesc( oBloomRenderRect.m_uWidth, oBloomRenderRect.m_uHeight, TextureFormat::RGB16F ) );
 		}
 	}
 

@@ -9,9 +9,10 @@ enum class TextureFormat : uint8
 {
 	R,
 	R16,
+	R32F,
 	RGB,
 	RGBA,
-	RGB16,
+	RGB16F,
 	NORMAL,
 	DEPTH,
 	SHADOW,

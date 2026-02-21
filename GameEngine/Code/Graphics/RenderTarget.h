@@ -11,13 +11,14 @@ struct RenderTargetDesc
 	RenderTargetDesc( const int iWidth, const int iHeight, const TextureFormat eColorFormat );
 
 	RenderTargetDesc& Multisample( int8 iSamples );
-	RenderTargetDesc& AddColor( const TextureFormat eFormat );
+	RenderTargetDesc& AddColor( const TextureFormat eFormat, const int8 iCount = 1 );
 	RenderTargetDesc& Depth( const bool bDepth = true, const int8 iCount = 1 );
 	RenderTargetDesc& Depth( const TextureFormat eFormat, const int8 iCount = 1 );
 
 	int						m_iWidth;
 	int						m_iHeight;
 	Array< TextureFormat >	m_aColorFormats;
+	Array< int8 >			m_aColorCounts;
 	int8					m_iSamples;
 	TextureFormat			m_eDepthFormat;
 	bool					m_bDepth;
@@ -39,6 +40,8 @@ public:
 
 	const Texture&	GetColorMap( const uint uIndex ) const;
 	const Texture&	GetDepthMap() const;
+
+	GLuint			GetID() const;
 
 private:
 	Array< Texture >	m_aTextures;

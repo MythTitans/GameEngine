@@ -5,7 +5,7 @@
 static void GetFormatDetails( const TextureFormat eFormat, const bool bSRGB, GLint& iFormat, GLint& iInternalFormat, GLenum& eType )
 {
 	iFormat = GL_RGBA;
-	iInternalFormat = GL_RGBA;
+	iInternalFormat = GL_RGBA8;
 	eType = GL_UNSIGNED_BYTE;
 
 	switch( eFormat )
@@ -19,30 +19,37 @@ static void GetFormatDetails( const TextureFormat eFormat, const bool bSRGB, GLi
 		iInternalFormat = GL_R16;
 		eType = GL_UNSIGNED_SHORT;
 		break;
+	case TextureFormat::R32F:
+		iFormat = GL_RED;
+		iInternalFormat = GL_R32F;
+		eType = GL_FLOAT;
+		break;
 	case TextureFormat::RGB:
 		iFormat = GL_RGB;
-		iInternalFormat = bSRGB ? GL_SRGB8 : GL_RGB;
+		iInternalFormat = bSRGB ? GL_SRGB8 : GL_RGB8;
 		break;
 	case TextureFormat::RGBA:
 		iFormat = GL_RGBA;
-		iInternalFormat = bSRGB ? GL_SRGB8_ALPHA8 : GL_RGBA;
+		iInternalFormat = bSRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
 		break;
-	case TextureFormat::RGB16:
+	case TextureFormat::RGB16F:
 		iFormat = GL_RGB;
-		iInternalFormat = GL_RGB16F; // TODO #eric check if type shouldn't be GL_FLOAT here
+		iInternalFormat = GL_RGB16F;
+		eType = GL_FLOAT;
 		break;
 	case TextureFormat::NORMAL:
 		iFormat = GL_RGB;
-		iInternalFormat = GL_RGB16F; // TODO #eric check if type shouldn't be GL_FLOAT here
+		iInternalFormat = GL_RGB16F;
+		eType = GL_FLOAT;
 		break;
 	case TextureFormat::DEPTH:
 		iFormat = GL_DEPTH_COMPONENT;
-		iInternalFormat = GL_DEPTH_COMPONENT24;
+		iInternalFormat = GL_DEPTH_COMPONENT32F;
 		eType = GL_FLOAT;
 		break;
 	case TextureFormat::SHADOW:
 		iFormat = GL_DEPTH_COMPONENT;
-		iInternalFormat = GL_DEPTH_COMPONENT24;
+		iInternalFormat = GL_DEPTH_COMPONENT32F;
 		eType = GL_FLOAT;
 		break;
 	case TextureFormat::ID8:
@@ -68,7 +75,7 @@ constexpr uint GetFormatBytes( const TextureFormat eFormat )
 		return 3 * sizeof( uint8 );
 	case TextureFormat::RGBA:
 		return 4 * sizeof( uint8 );
-	case TextureFormat::RGB16:
+	case TextureFormat::RGB16F:
 		return 3 * sizeof( uint16 );
 	case TextureFormat::NORMAL:
 		return 3 * sizeof( uint16 );

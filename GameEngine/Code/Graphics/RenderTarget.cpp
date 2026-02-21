@@ -16,6 +16,7 @@ RenderTargetDesc::RenderTargetDesc( const int iWidth, const int iHeight, const T
 	: m_iWidth( iWidth )
 	, m_iHeight( iHeight )
 	, m_aColorFormats( 1, eColorFormat )
+	, m_aColorCounts( 1, 1 )
 	, m_iSamples( 1 )
 	, m_eDepthFormat( TextureFormat::DEPTH )
 	, m_bDepth( false )
@@ -29,9 +30,10 @@ RenderTargetDesc& RenderTargetDesc::Multisample( int8 iSamples )
 	return *this;
 }
 
-RenderTargetDesc& RenderTargetDesc::AddColor( const TextureFormat eFormat )
+RenderTargetDesc& RenderTargetDesc::AddColor( const TextureFormat eFormat, const int8 iCount /*= 1*/ )
 {
 	m_aColorFormats.PushBack( eFormat );
+	m_aColorCounts.PushBack( iCount );
 	return *this;
 }
 
@@ -68,7 +70,7 @@ void RenderTarget::Create( const RenderTargetDesc& oDesc )
 
 	m_aTextures.Resize( m_uColorMapCount );
 	for( uint u = 0; u < m_uColorMapCount; ++u )
-		m_aTextures[ u ].Create( TextureDesc( m_iWidth, m_iHeight, oDesc.m_aColorFormats[ u ] ).Multisample( oDesc.m_iSamples ).Wrapping( TextureWrapping::CLAMP ) );
+		m_aTextures[ u ].Create( TextureDesc( m_iWidth, m_iHeight, oDesc.m_aColorFormats[ u ] ).Multisample( oDesc.m_iSamples ).Wrapping( TextureWrapping::CLAMP ).Array( oDesc.m_aColorCounts[ u ] ) );
 
 	if( m_bDepthMap )
 	{
@@ -83,7 +85,17 @@ void RenderTarget::Create( const RenderTargetDesc& oDesc )
 	glBindFramebuffer( GL_FRAMEBUFFER, m_uFrameBufferID );
 
 	for( uint u = 0; u < oDesc.m_aColorFormats.Count(); ++u )
-		glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + u, eTextureType, m_aTextures[ u ].GetID(), 0 );
+	{
+		if( oDesc.m_aColorCounts[ u ] > 1 )
+		{
+			for( int i = 0; i < oDesc.m_aColorCounts[ u ]; ++i )
+				glFramebufferTextureLayer( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + u, m_aTextures[ u ].GetID(), 0, i );
+		}
+		else
+		{
+			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + u, eTextureType, m_aTextures[ u ].GetID(), 0 );
+		}
+	}
 
 	if( m_bDepthMap )
 	{
@@ -104,7 +116,8 @@ void RenderTarget::Create( const RenderTargetDesc& oDesc )
 
 	glDrawBuffers( m_uColorMapCount, aDrawBuffers.Data() );
 
-	if( glCheckFramebufferStatus( GL_FRAMEBUFFER ) != GL_FRAMEBUFFER_COMPLETE )
+	const GLenum eStatus = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+	if( eStatus != GL_FRAMEBUFFER_COMPLETE )
 		LOG_ERROR( "Failed to initialize frame buffer" );
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
@@ -138,4 +151,9 @@ const Texture& RenderTarget::GetDepthMap() const
 {
 	ASSERT( m_bDepthMap );
 	return m_aTextures[ m_uColorMapCount ];
+}
+
+GLuint RenderTarget::GetID() const
+{
+	return m_uFrameBufferID;
 }
