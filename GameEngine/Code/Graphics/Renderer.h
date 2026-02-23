@@ -59,7 +59,6 @@ struct GPUDirectionalLight
 	alignas( 16 ) glm::vec3	m_vDirection;
 	alignas( 4 ) float		m_fIntensity;
 	alignas( 16 ) glm::vec3	m_vColor;
-	alignas( 4 ) float		m_fBias;
 	alignas( 16 ) glm::mat4 m_mShadowViewProjection[ DIRECTIONAL_SHADOW_CASCADE_COUNT ];
 	alignas( 4 ) float		m_aShadowRange[ DIRECTIONAL_SHADOW_CASCADE_COUNT ];
 };

@@ -37,6 +37,7 @@ RigidbodyComponent::RigidbodyComponent( Entity* pEntity )
 	: Component( pEntity )
 	, m_pRigidActor( nullptr )
 	, m_fTime( 0.f )
+	, m_bIsSleeping( false )
 {
 }
 
@@ -72,7 +73,11 @@ void RigidbodyComponent::AfterPhysics()
 	m_oLastTransform = m_oTransform;
 	m_oTransform = m_pRigidActor->getGlobalPose();
 
-	m_fTime -= Physics::TICK_STEP;
+	const PxRigidDynamic* pRigidDynamic = m_pRigidActor->is< PxRigidDynamic >();
+	m_bIsSleeping = pRigidDynamic != nullptr ? pRigidDynamic->isSleeping() : true;
+
+	if( m_bIsSleeping == false )
+		m_fTime -= Physics::TICK_STEP;
 }
 
 void RigidbodyComponent::Update( const GameContext& oGameContext )
@@ -89,7 +94,7 @@ void RigidbodyComponent::Update( const GameContext& oGameContext )
 
 		m_pRigidActor->setGlobalPose( m_oTransform );
 	}
-	else if( m_bStatic == false && m_pRigidActor->is<PxRigidDynamic>()->isSleeping() == false )
+	else if( m_bStatic == false && m_bIsSleeping == false )
 	{
 		m_fTime += oGameContext.m_fLastDeltaTime;
 

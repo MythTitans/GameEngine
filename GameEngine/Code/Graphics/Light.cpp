@@ -69,6 +69,7 @@ void DirectionalLightComponent::Update( const GameContext& oGameContext )
 	m_pDirectionalLight->m_oColor = m_oColor;
 	m_pDirectionalLight->m_fIntensity = m_fIntensity;
 	m_pDirectionalLight->m_fBias = m_fBias;
+	m_pDirectionalLight->m_fSlopeBiasFactor = m_fSlopeBiasFactor;
 }
 
 void DirectionalLightComponent::DisplayGizmos( const bool bSelected )

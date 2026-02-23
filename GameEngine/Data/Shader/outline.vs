@@ -27,6 +27,6 @@ void main()
 
     transformedNormal = normalize( transformedNormal );
 
-    float factor = length( (model * transformedPosition).xyz - cameraPosition );
+    float factor = distance( (model * transformedPosition).xyz, cameraPosition );
     gl_Position = modelViewProjection * vec4( transformedPosition.xyz + factor * displacement * normalize( transformedNormal ), 1.0 );
 }

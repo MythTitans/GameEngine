@@ -1,3 +1,10 @@
+in float viewDistance;
+
+uniform float bias;
+uniform float slopeBiasFactor;
+
 void main()
 {
+    float normalizedDistance = ( viewDistance + 1 ) * 0.5;
+    gl_FragDepth = normalizedDistance + fwidth( normalizedDistance ) * slopeBiasFactor + bias;
 }

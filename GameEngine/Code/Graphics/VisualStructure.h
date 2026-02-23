@@ -17,6 +17,7 @@ struct DirectionalLightNode
 	Color		m_oColor;
 	float		m_fIntensity;
 	float		m_fBias;
+	float		m_fSlopeBiasFactor;
 };
 
 struct PointLightNode

@@ -10,6 +10,7 @@ out vec3 position;
 out vec3 normal;
 out vec3 tangent;
 out vec3 bitangent;
+out float viewDistance;
 
 layout(std140, binding = 0) uniform SkinningDataBlock
 {
@@ -55,6 +56,9 @@ void main()
     normal = ( modelInverseTranspose * vec4( transformedNormal, 0.0 ) ).xyz;
     tangent = ( modelInverseTranspose * vec4( transformedTangent, 0.0 ) ).xyz;
     bitangent = cross( normal, tangent );
+
+    vec4 projectedPosition = modelViewProjection * transformedPosition;
+    viewDistance = projectedPosition.z;
 
     gl_Position = modelViewProjection * transformedPosition;
 }

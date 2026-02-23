@@ -4,6 +4,8 @@
     "parameters": [
         "modelViewProjection",
         "useSkinning",
-        "skinningOffset"
+        "skinningOffset",
+        "bias",
+        "slopeBiasFactor"
     ]
 }

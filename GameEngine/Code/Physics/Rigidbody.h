@@ -38,6 +38,7 @@ private:
 	physx::PxTransform	m_oTransform;
 
 	float				m_fTime;
+	bool				m_bIsSleeping;
 };
 
 class ShapeComponentBase : public Component

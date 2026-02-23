@@ -61,7 +61,6 @@ static GPULightingDataBlock SetupLighting( const Array< DirectionalLightNode* >&
 		oLightingData.m_aDirectionalLights[ uLightIndex ].m_vDirection = aDirectionalLights[ uLightIndex ]->m_vDirection;
 		oLightingData.m_aDirectionalLights[ uLightIndex ].m_vColor = aDirectionalLights[ uLightIndex ]->m_oColor.m_vColor;
 		oLightingData.m_aDirectionalLights[ uLightIndex ].m_fIntensity = aDirectionalLights[ uLightIndex ]->m_fIntensity;
-		oLightingData.m_aDirectionalLights[ uLightIndex ].m_fBias = aDirectionalLights[ uLightIndex ]->m_fBias;
 
 		const glm::vec3 vCameraPosition = g_pRenderer->m_oCamera.GetPosition();
 		const glm::mat4 mView = glm::lookAt( vCameraPosition, vCameraPosition + aDirectionalLights[ uLightIndex ]->m_vDirection, glm::vec3( 0.f, 1.f, 0.f ) );
@@ -940,6 +939,9 @@ void Renderer::RenderShadowMap()
 
 	const glm::vec3& vCameraPosition = m_oCamera.GetPosition();
 	const glm::mat4 mView = glm::lookAt( vCameraPosition, vCameraPosition + m_oVisualStructure.m_aDirectionalLights[ 0 ]->m_vDirection, glm::vec3( 0.f, 1.f, 0.f ) );
+
+	oTechnique.GetParameter( "bias" ).SetValue( m_oVisualStructure.m_aDirectionalLights[ 0 ]->m_fBias );
+	oTechnique.GetParameter( "slopeBiasFactor" ).SetValue( m_oVisualStructure.m_aDirectionalLights[ 0 ]->m_fSlopeBiasFactor );
 
 	SetRenderTarget( m_oShadowMapTarget );
 

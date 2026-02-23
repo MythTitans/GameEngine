@@ -35,7 +35,12 @@ VisualNode::VisualNode( const uint64 uEntityID, const Transform& oTransform, con
 void VisualNode::UpdateTransformAndAABB( const Transform& oTransform, const AxisAlignedBox& oAABB )
 {
 	m_mMatrix = ToMat4( oTransform.GetMatrixTRS() );
-	m_mInverseTransposeMatrix = oTransform.IsUniformScale() ? glm::transpose( m_mMatrix ) / glm::abs( oTransform.GetScale().x ) : glm::inverseTranspose( m_mMatrix );
+
+	if( oTransform.IsUniformScale() )
+		m_mInverseTransposeMatrix = glm::mat3( m_mMatrix ) / glm::abs( oTransform.GetScale().x );
+	else
+		m_mInverseTransposeMatrix = glm::inverseTranspose( m_mMatrix );
+
 	m_oAABB = AxisAlignedBox::FromOrientedBox( OrientedBox::FromAxisAlignedBox( oAABB, m_mMatrix ) );
 }
 

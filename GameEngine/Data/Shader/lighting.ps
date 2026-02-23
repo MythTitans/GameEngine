@@ -40,7 +40,6 @@ struct DirectionalLightData
 	vec3 direction;
     float intensity;
 	vec3 color;
-    float bias;
     mat4 shadowViewProjection[ 4 ];
     vec4 shadowRange; // float shadowRange[ 4 ] would take 64 bytes in std140
 };
@@ -123,7 +122,7 @@ void main()
     float shininess = max( litMaterialData[ materialID ].shininess, 0.001 );
 
     vec3 pointToView = viewPosition - position;
-    float pointToViewDistance = length( viewPosition - position );
+    float pointToViewDistance = distance( viewPosition, position );
     vec3 pointToViewDirection = pointToView / pointToViewDistance;
 
     vec3 diffuseIntensity = vec3( 0.0 );
@@ -140,7 +139,7 @@ void main()
         shadowMapPosition /= shadowMapPosition.w;
         shadowMapPosition.xyz = shadowMapPosition.xyz * 0.5 + vec3( 0.5, 0.5, 0.5 );
 
-        float lightFactor = texture( shadowMap, vec4( shadowMapPosition.xy, cascade, shadowMapPosition.z - directionalLightData[ i ].bias ) );
+        float lightFactor = texture( shadowMap, vec4( shadowMapPosition.xy, cascade, shadowMapPosition.z ) );
         
         float surfaceExposure = max( dot( -normalize( directionalLightData[ i ].direction ), worldSpaceNormal ), 0.0 );
         diffuseIntensity += lightFactor * directionalLightData[ i ].intensity * surfaceExposure * directionalLightData[ i ].color;
