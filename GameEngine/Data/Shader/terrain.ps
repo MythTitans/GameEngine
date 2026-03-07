@@ -4,7 +4,7 @@ layout(location = 0) out vec4 finalColor;
 layout(location = 1) out vec4 finalEmissive;
 
 uniform vec3 diffuseColor;
-uniform sampler2D diffuseMap;
+layout(binding = 0) uniform sampler2D diffuseMap;
 
 void main()
 {

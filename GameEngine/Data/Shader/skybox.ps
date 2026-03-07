@@ -3,7 +3,7 @@ in vec3 texCoords;
 layout(location = 0) out vec4 finalColor;
 layout(location = 1) out vec4 finalEmissive;
 
-uniform samplerCube cubeMap;
+layout(binding = 0) uniform samplerCube cubeMap;
 
 void main()
 {    

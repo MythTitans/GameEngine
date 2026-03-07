@@ -21,7 +21,6 @@ private:
 	enum class SkyboxParam
 	{
 		VIEW_PROJECTION,
-		CUBE_MAP,
 		_COUNT
 	};
 

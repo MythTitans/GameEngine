@@ -6,10 +6,6 @@
         "modelInverseTranspose",
         "useSkinning",
         "skinningOffset",
-        "materialID",
-        "diffuseMap",
-        "normalMap",
-        "specularMap",
-        "emissiveMap"
+        "materialID"
     ]
 }

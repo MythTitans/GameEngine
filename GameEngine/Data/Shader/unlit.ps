@@ -23,7 +23,7 @@ layout(std140, binding = 1) uniform MaterialDataBlock
 };
 
 uniform uint materialID;
-uniform sampler2D diffuseMap;
+layout(binding = 0) uniform sampler2D diffuseMap;
 
 void main()
 {    

@@ -33,7 +33,6 @@ public:
 	void SetValue( const glm::uvec4& vValue );
 	void SetValue( const glm::mat3& mValue );
 	void SetValue( const glm::mat4& mValue );
-	void SetValue( const Texture* pTexture, Technique& oTechnique );
 
 private:
 	GLint m_iParameterID;
@@ -58,7 +57,6 @@ public:
 	void SetValue( const glm::uvec4& vValue, const uint uIndex );
 	void SetValue( const glm::mat3& mValue, const uint uIndex );
 	void SetValue( const glm::mat4& mValue, const uint uIndex );
-	void SetValue( const Texture* pTexture, const uint uIndex, Technique& oTechnique );
 
 private:
 	Array< GLint >	m_aParametersIDs;
@@ -71,8 +69,6 @@ public:
 	friend class DebugRenderer;
 	friend class GizmoRenderer;
 	friend class Renderer;
-	friend class TechniqueArrayParameter;
-	friend class TechniqueParameter;
 	friend class TextRenderer;
 
 	template < typename Binding, uint uCount >
@@ -88,6 +84,7 @@ public:
 
 	bool						IsValid() const;
 
+	void						AddUsedTexture( const Texture* pTexture );
 	void						SetUsedTextureCount( const uint uTextureCount );
 	uint						GetUsedTextureCount() const;
 
@@ -95,12 +92,6 @@ public:
 	void						SetParameter( const std::string& sParameter, T oValue )
 	{
 		GetParameter( sParameter ).SetValue( oValue );
-	}
-
-	template <>
-	void						SetParameter( const std::string& sParameter, const Texture* pTexture )
-	{
-		GetParameter( sParameter ).SetValue( pTexture, *this );
 	}
 
 	TechniqueParameter&			GetParameter( const std::string& sParameter );

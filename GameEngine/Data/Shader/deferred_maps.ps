@@ -10,10 +10,10 @@ layout(location = 3) out vec3 finalEmissive;
 layout(location = 4) out uint finalMaterialID;
 
 uniform uint materialID;
-uniform sampler2D diffuseMap;
-uniform sampler2D normalMap;
-uniform sampler2D specularMap;
-uniform sampler2D emissiveMap;
+layout(binding = 0) uniform sampler2D diffuseMap;
+layout(binding = 1) uniform sampler2D normalMap;
+layout(binding = 2) uniform sampler2D specularMap;
+layout(binding = 3) uniform sampler2D emissiveMap;
 
 void main()
 {

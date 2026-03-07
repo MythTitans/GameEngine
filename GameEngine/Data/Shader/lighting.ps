@@ -75,22 +75,22 @@ layout(std140, binding = 2) uniform LightingDataBlock
 	uint spotLightCount;
 };
 
-uniform sampler2D diffuseMap;
-uniform sampler2D normalMap;
-uniform sampler2D specularMap;
-uniform sampler2D emissiveMap;
+layout(binding = 0) uniform sampler2D diffuseMap;
+layout(binding = 1) uniform sampler2D normalMap;
+layout(binding = 2) uniform sampler2D specularMap;
+layout(binding = 3) uniform sampler2D emissiveMap;
 
 uniform vec3 viewPosition;
 
 #ifdef FORWARD
 uniform uint materialID;
 #else
-uniform usampler2D materialMap;
-uniform sampler2D depthMap;
+layout(binding = 4) uniform usampler2D materialMap;
+layout(binding = 5) uniform sampler2D depthMap;
 uniform mat4 inverseViewProjection;
 #endif
 
-uniform sampler2DArrayShadow shadowMap;
+layout(binding = 6) uniform sampler2DArrayShadow shadowMap;
 
 void main()
 {

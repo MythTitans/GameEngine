@@ -460,7 +460,6 @@ void DebugRenderer::RenderWireMeshes( const Array< WireMesh >& aMeshes, const Re
 	glUseProgram( oTechnique.m_uProgramID );
 
 	const TextureSlot oDiffuseSlot( *g_pRenderer->GetDefaultDiffuseMap(), 0 );
-	m_oUnlitSheet.GetParameter( UnlitParam::DIFFUSE_MAP ).SetValue( 0 );
 
 	for( const WireMesh& oMesh : aMeshes )
 	{
@@ -501,7 +500,6 @@ void DebugRenderer::OnLoaded()
 
 	m_oUnlitSheet.BindParameter( UnlitParam::MODEL_VIEW_PROJECTION, "modelViewProjection" );
 	m_oUnlitSheet.BindParameter( UnlitParam::MATERIAL_ID, "materialID" );
-	m_oUnlitSheet.BindParameter( UnlitParam::DIFFUSE_MAP, "diffuseMap" );
 }
 
 Array< GLfloat > DebugRenderer::GenerateSphereEquator()

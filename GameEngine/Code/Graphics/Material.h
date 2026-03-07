@@ -44,10 +44,6 @@ struct LitMaterialData
 	enum class LitMaterialParam
 	{
 		MATERIAL_ID,
-		DIFFUSE_MAP,
-		NORMAL_MAP,
-		SPECULAR_MAP,
-		EMISSIVE_MAP,
 		_COUNT
 	};
 
@@ -77,10 +73,6 @@ struct UnlitMaterialData
 	enum class UnlitMaterialParam
 	{
 		MATERIAL_ID,
-		DIFFUSE_MAP,
-		UNUSED_NORMAL_MAP,
-		UNUSED_SPECULAR_MAP,
-		UNUSED_EMISSIVE_MAP,
 		_COUNT
 	};
 

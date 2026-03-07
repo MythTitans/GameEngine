@@ -135,7 +135,6 @@ private:
 	{
 		MODEL_VIEW_PROJECTION,
 		MATERIAL_ID,
-		DIFFUSE_MAP,
 		_COUNT
 	};
 

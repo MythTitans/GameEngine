@@ -2,8 +2,8 @@ in vec2 texCoord;
 
 out vec4 finalColor;
 
-uniform sampler2D textureA;
-uniform sampler2D textureB;
+layout(binding = 0) uniform sampler2D textureA;
+layout(binding = 1) uniform sampler2D textureB;
 
 void main()
 {

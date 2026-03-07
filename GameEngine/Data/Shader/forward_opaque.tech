@@ -7,12 +7,7 @@
         "modelInverseTranspose",
         "viewPosition",
         "materialID",
-        "diffuseMap",
-        "normalMap",
-        "specularMap",
-        "emissiveMap",
         "useSkinning",
-        "skinningOffset",
-        "shadowMap"
+        "skinningOffset"
     ]
 }

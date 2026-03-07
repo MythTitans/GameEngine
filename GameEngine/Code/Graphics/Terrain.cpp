@@ -18,7 +18,6 @@ void Terrain::Render( const TerrainNode* pTerrain, const RenderContext& oRenderC
 	oTechnique.GetParameter( "diffuseColor" ).SetValue( glm::vec3( 1.f, 1.f, 1.f ) );
 
 	const TextureSlot oDiffuseSlot( pTerrain->m_oDiffuse, 0 );
-	oTechnique.GetParameter( "diffuseMap" ).SetValue( 0 );
 
 	for( const Mesh& oMesh : pTerrain->m_aMeshes )
 		g_pRenderer->DrawMesh( oMesh );

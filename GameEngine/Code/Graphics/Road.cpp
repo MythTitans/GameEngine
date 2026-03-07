@@ -16,7 +16,6 @@ void Road::Render( const Array<RoadNode*>& aRoads, const RenderContext& oRenderC
 	g_pRenderer->SetTechnique( oTechnique );
 
 	oTechnique.GetParameter( "materialID" ).SetValue( MaterialManager::GetRoadMaterialID() );
-	oTechnique.GetParameter( "diffuseMap" ).SetValue( 0 );
 
 	TextureSlot oDiffuseSlot;
 

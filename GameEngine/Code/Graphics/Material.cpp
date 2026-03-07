@@ -14,10 +14,6 @@ void LitMaterialData::PrepareMaterial( Technique& oTechnique )
 {
 	s_oMaterialSheet.Init( oTechnique );
 	s_oMaterialSheet.BindParameter( LitMaterialParam::MATERIAL_ID, "materialID" );
-	s_oMaterialSheet.BindParameter( LitMaterialParam::DIFFUSE_MAP, "diffuseMap" );
-	s_oMaterialSheet.BindParameter( LitMaterialParam::NORMAL_MAP, "normalMap" );
-	s_oMaterialSheet.BindParameter( LitMaterialParam::SPECULAR_MAP, "specularMap" );
-	s_oMaterialSheet.BindParameter( LitMaterialParam::EMISSIVE_MAP, "emissiveMap" );
 	oTechnique.SetUsedTextureCount( 5 );
 }
 
@@ -31,24 +27,24 @@ void LitMaterialData::ApplyMaterial( const uint uMaterialID, Technique& oTechniq
 		s_oMaterialSheet.GetParameter( LitMaterialParam::MATERIAL_ID ).SetValue( 0u );
 
 	if( m_xDiffuseTextureResource != nullptr )
-		s_oMaterialSheet.GetParameter( LitMaterialParam::DIFFUSE_MAP ).SetValue( &m_xDiffuseTextureResource->GetTexture(), oTechnique );
+		oTechnique.AddUsedTexture( &m_xDiffuseTextureResource->GetTexture() );
 	else
-		s_oMaterialSheet.GetParameter( LitMaterialParam::DIFFUSE_MAP ).SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
+		oTechnique.AddUsedTexture( g_pRenderer->GetDefaultDiffuseMap() );
 
 	if( m_xNormalTextureResource != nullptr )
-		s_oMaterialSheet.GetParameter( LitMaterialParam::NORMAL_MAP ).SetValue( &m_xNormalTextureResource->GetTexture(), oTechnique );
+		oTechnique.AddUsedTexture( &m_xNormalTextureResource->GetTexture() );
 	else
-		s_oMaterialSheet.GetParameter( LitMaterialParam::NORMAL_MAP ).SetValue( g_pRenderer->GetDefaultNormalMap(), oTechnique );
+		oTechnique.AddUsedTexture( g_pRenderer->GetDefaultNormalMap() );
 
 	if( m_xSpecularTextureResource != nullptr )
-		s_oMaterialSheet.GetParameter( LitMaterialParam::SPECULAR_MAP ).SetValue( &m_xSpecularTextureResource->GetTexture(), oTechnique );
+		oTechnique.AddUsedTexture( &m_xSpecularTextureResource->GetTexture() );
 	else
-		s_oMaterialSheet.GetParameter( LitMaterialParam::SPECULAR_MAP ).SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
+		oTechnique.AddUsedTexture( g_pRenderer->GetDefaultDiffuseMap() );
 
 	if( m_xEmissiveTextureResource != nullptr )
-		s_oMaterialSheet.GetParameter( LitMaterialParam::EMISSIVE_MAP ).SetValue( &m_xEmissiveTextureResource->GetTexture(), oTechnique );
+		oTechnique.AddUsedTexture( &m_xEmissiveTextureResource->GetTexture() );
 	else
-		s_oMaterialSheet.GetParameter( LitMaterialParam::EMISSIVE_MAP ).SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
+		oTechnique.AddUsedTexture( g_pRenderer->GetDefaultDiffuseMap() );
 }
 
 void LitMaterialData::ExportToGPU( GPULitMaterialData& oMaterialData ) const
@@ -70,11 +66,6 @@ void UnlitMaterialData::PrepareMaterial( Technique& oTechnique )
 {
 	s_oMaterialSheet.Init( oTechnique );
 	s_oMaterialSheet.BindParameter( UnlitMaterialParam::MATERIAL_ID, "materialID" );
-	s_oMaterialSheet.BindParameter( UnlitMaterialParam::DIFFUSE_MAP, "diffuseMap" );
-	// TODO #eric find a better way to make deferred renderer happy
-	s_oMaterialSheet.BindParameter( UnlitMaterialParam::UNUSED_NORMAL_MAP, "normalMap" );
-	s_oMaterialSheet.BindParameter( UnlitMaterialParam::UNUSED_SPECULAR_MAP, "specularMap" );
-	s_oMaterialSheet.BindParameter( UnlitMaterialParam::UNUSED_EMISSIVE_MAP, "emissiveMap" );
 	oTechnique.SetUsedTextureCount( 5 );
 }
 
@@ -88,22 +79,14 @@ void UnlitMaterialData::ApplyMaterial( const uint uMaterialID, Technique& oTechn
 		s_oMaterialSheet.GetParameter( UnlitMaterialParam::MATERIAL_ID ).SetValue( 0u );
 	
 	if( m_xDiffuseTextureResource != nullptr )
-		s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_MAP ).SetValue( &m_xDiffuseTextureResource->GetTexture(), oTechnique );
+		oTechnique.AddUsedTexture( &m_xDiffuseTextureResource->GetTexture() );
 	else
-		s_oMaterialSheet.GetParameter( UnlitMaterialParam::DIFFUSE_MAP ).SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
+		oTechnique.AddUsedTexture( g_pRenderer->GetDefaultDiffuseMap() );
 
 	// TODO #eric find a better way to make deferred renderer happy
-	TechniqueParameter& oUnusedParameter = s_oMaterialSheet.GetParameter( UnlitMaterialParam::UNUSED_NORMAL_MAP );
-	if( oUnusedParameter.IsValid() )
-		oUnusedParameter.SetValue( g_pRenderer->GetDefaultNormalMap(), oTechnique );
-
-	oUnusedParameter = s_oMaterialSheet.GetParameter( UnlitMaterialParam::UNUSED_SPECULAR_MAP );
-	if( oUnusedParameter.IsValid() )
-		oUnusedParameter.SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
-
-	oUnusedParameter = s_oMaterialSheet.GetParameter( UnlitMaterialParam::UNUSED_EMISSIVE_MAP );
-	if( oUnusedParameter.IsValid() )
-		oUnusedParameter.SetValue( g_pRenderer->GetDefaultDiffuseMap(), oTechnique );
+	oTechnique.AddUsedTexture( g_pRenderer->GetDefaultNormalMap() );
+	oTechnique.AddUsedTexture( g_pRenderer->GetDefaultDiffuseMap() );
+	oTechnique.AddUsedTexture( g_pRenderer->GetDefaultDiffuseMap() );
 }
 
 void UnlitMaterialData::ExportToGPU( GPUUnlitMaterialData& oMaterialData ) const

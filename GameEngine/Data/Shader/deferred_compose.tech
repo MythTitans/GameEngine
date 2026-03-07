@@ -3,14 +3,7 @@
     "pixelShader": "Shader/lighting.ps|DEFERRED",
     "parameters":
     [
-        "diffuseMap",
-        "normalMap",
-        "specularMap",
-        "emissiveMap",
         "viewPosition",
-        "materialMap",
-        "depthMap",
-        "shadowMap",
         "inverseViewProjection"
     ]
 }

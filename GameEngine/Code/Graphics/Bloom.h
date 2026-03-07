@@ -25,7 +25,6 @@ private:
 		KERNEL,
 		VERTICAL,
 		DELTA,
-		INPUT_TEXTURE,
 		_COUNT
 	};
 

@@ -3,7 +3,6 @@
     "pixelShader": "Shader/unlit.ps",
     "parameters": [
         "modelViewProjection",
-        "materialID",
-        "diffuseMap"
+        "materialID"
     ]
 }

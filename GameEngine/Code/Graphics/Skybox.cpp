@@ -45,7 +45,6 @@ void Skybox::Render( const SkyNode* pSky, const RenderContext& /*oRenderContext*
 	m_oSkyboxSheet.GetParameter( SkyboxParam::VIEW_PROJECTION ).SetValue( mViewProjection );
 
 	const CubeMapSlot oCubeMapSlot( pSky->m_oCubeMap, 0 );
-	m_oSkyboxSheet.GetParameter( SkyboxParam::CUBE_MAP ).SetValue( 0 );
 
 	g_pRenderer->DrawMesh( m_oMesh );
 
@@ -61,5 +60,4 @@ void Skybox::OnLoaded()
 {
 	m_oSkyboxSheet.Init( m_xSkybox->GetTechnique() );
 	m_oSkyboxSheet.BindParameter( SkyboxParam::VIEW_PROJECTION, "viewProjection" );
-	m_oSkyboxSheet.BindParameter( SkyboxParam::CUBE_MAP, "cubeMap" );
 }

@@ -230,21 +230,8 @@ public:
 private:
 	enum class DeferredComposeParam : uint8
 	{
-		DIFFUSE,
-		NORMAL,
-		SPECULAR,
-		EMISSIVE,
-		MATERIAL_ID,
-		DEPTH,
 		VIEW_POSITION,
 		INVERSE_VIEW_PROJECTION,
-		_COUNT
-	};
-
-	enum class BlendParam : uint8
-	{
-		TEXTURE_A,
-		TEXTURE_B,
 		_COUNT
 	};
 
@@ -287,7 +274,6 @@ private:
 	TechniqueResPtr							m_xDeferredCompose;
 	PARAM_SHEET( DeferredComposeParam )		m_oDeferredComposeSheet;
 	TechniqueResPtr							m_xBlend;
-	PARAM_SHEET( BlendParam )				m_oBlendSheet;
 	TechniqueResPtr							m_xOutline;
 	PARAM_SHEET( OutlineParam )				m_oOutlineSheet;
 	TechniqueResPtr							m_xGizmo;

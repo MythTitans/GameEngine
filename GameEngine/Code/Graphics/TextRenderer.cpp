@@ -63,14 +63,10 @@ void TextRenderer::RenderText( const Array< Text >& aTexts, const RenderContext&
 
 	glUseProgram( oTechnique.m_uProgramID );
 
-	glActiveTexture( GL_TEXTURE0 );
-	glBindTexture( GL_TEXTURE_2D, m_xFont->GetAtlas().GetID() );
+	const TextureSlot oAtlasSlot( m_xFont->GetAtlas(), 0 );
 
  	for( const Text& oText : aTexts )
  		DrawText( oText, oRenderContext );
-
-	glBindVertexArray( 0 );
-	glBindTexture( GL_TEXTURE_2D, 0 );
 
 	glUseProgram( 0 );
 
@@ -91,7 +87,6 @@ void TextRenderer::OnLoaded()
 	m_oTextSheet.BindParameter( TextParam::GLYPH_OFFSET, "glyphOffset" );
 	m_oTextSheet.BindParameter( TextParam::GLYPH_SIZE, "glyphSize" );
 	m_oTextSheet.BindParameter( TextParam::GLYPH_COLOR, "glyphColor" );
-	m_oTextSheet.BindParameter( TextParam::ATLAS_TEXTURE, "atlasTexture" );
 }
 
 void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderContext )
@@ -106,7 +101,6 @@ void TextRenderer::DrawText( const Text& oText, const RenderContext& oRenderCont
 	float fY = oText.m_vPosition.y + FontResource::FONT_HEIGHT;
 
 	m_oTextSheet.GetParameter( TextParam::GLYPH_COLOR ).SetValue( oText.m_vColor );
-	m_oTextSheet.GetParameter( TextParam::ATLAS_TEXTURE ).SetValue( 0 );
 
 	for( const char cCharacter : oText.m_sText )
 	{

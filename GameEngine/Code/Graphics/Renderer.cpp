@@ -26,9 +26,6 @@ static const std::string PARAM_MODEL_INVERSE_TRANSPOSE( "modelInverseTranspose" 
 static const std::string PARAM_MODEL( "model" );
 static const std::string PARAM_VIEW_POSITION( "viewPosition" );
 
-static const std::string PARAM_DIFFUSE_MAP( "diffuseMap" );
-static const std::string PARAM_NORMAL_MAP( "normalMap" );
-
 static const std::string PARAM_USE_SKINNING( "useSkinning" );
 static const std::string PARAM_SKINNING_OFFSET( "skinningOffset" );
 
@@ -483,16 +480,6 @@ void Renderer::OnLoaded()
 	m_oDeferredComposeSheet.Init( m_xDeferredCompose->GetTechnique() );
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::VIEW_POSITION, "viewPosition" );
 	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::INVERSE_VIEW_PROJECTION, "inverseViewProjection" );
-	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::DIFFUSE, "diffuseMap" );
-	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::NORMAL, "normalMap" );
-	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::SPECULAR, "specularMap" );
-	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::EMISSIVE, "emissiveMap" );
-	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::MATERIAL_ID, "materialMap" );
-	m_oDeferredComposeSheet.BindParameter( DeferredComposeParam::DEPTH, "depthMap" );
-
-	m_oBlendSheet.Init( m_xBlend->GetTechnique() );
-	m_oBlendSheet.BindParameter( BlendParam::TEXTURE_A, "textureA" );
-	m_oBlendSheet.BindParameter( BlendParam::TEXTURE_B, "textureB" );
 
 	m_oOutlineSheet.Init( m_xOutline->GetTechnique() );
 	m_oOutlineSheet.BindParameter( OutlineParam::MODEL, "model" );
@@ -640,9 +627,7 @@ void Renderer::BlendTextures( const Texture& oTextureA, const Texture& oTextureB
 	g_pRenderer->SetTechnique( oBlendTechnique );
 
 	const TextureSlot oASlot( oTextureA, 0 );
-	m_oBlendSheet.GetParameter( BlendParam::TEXTURE_A ).SetValue( 0 );
 	const TextureSlot oBSlot( oTextureB, 1 );
-	m_oBlendSheet.GetParameter( BlendParam::TEXTURE_B ).SetValue( 1 );
 
 	RenderQuad();
 }
@@ -766,9 +751,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 			if( oParamViewPosition.IsValid() )
 				oParamViewPosition.SetValue( m_oCamera.m_vPosition );
 
-			const int uShadowMapSlot = oTechnique.GetUsedTextureCount();
-			const TextureSlot oShadowMapSlot( m_oShadowMapTarget.GetDepthMap(), uShadowMapSlot );
-			oTechnique.GetParameter( "shadowMap" ).SetValue( ( int )uShadowMapSlot );
+			const TextureSlot oShadowMapSlot( m_oShadowMapTarget.GetDepthMap(), 6 );
 
 			const Array< VisualNode* >& aVisualNodes = m_oVisualStructure.m_aVisuals[ u ];
 			if( m_bEnableFrustumCulling )
@@ -879,19 +862,12 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	SetTechnique( oComposeTechnique );
 
 	const TextureSlot oDiffuseSlot( m_oDeferredMapsTarget.GetColorMap( 0 ), 0 );
-	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::DIFFUSE ).SetValue( 0 );
 	const TextureSlot oNormalSlot( m_oDeferredMapsTarget.GetColorMap( 1 ), 1 );
-	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::NORMAL ).SetValue( 1 );
 	const TextureSlot oSpecularSlot( m_oDeferredMapsTarget.GetColorMap( 2 ), 2 );
-	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::SPECULAR ).SetValue( 2 );
 	const TextureSlot oEmissiveSlot( m_oDeferredMapsTarget.GetColorMap( 3 ), 3 );
-	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::EMISSIVE ).SetValue( 3 );
 	const TextureSlot oMaterialIDSlot( m_oDeferredMapsTarget.GetColorMap( 4 ), 4 );
-	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::MATERIAL_ID ).SetValue( 4 );
 	const TextureSlot oDepthSlot( m_oDeferredMapsTarget.GetDepthMap(), 5 );
-	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::DEPTH ).SetValue( 5 );
 	const TextureSlot oShadowMapSlot( m_oShadowMapTarget.GetDepthMap(), 6 );
-	oComposeTechnique.GetParameter( "shadowMap" ).SetValue( 6 );
 
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::VIEW_POSITION ).SetValue( m_oCamera.GetPosition() );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::INVERSE_VIEW_PROJECTION ).SetValue( m_oCamera.GetInverseViewProjectionMatrix() );

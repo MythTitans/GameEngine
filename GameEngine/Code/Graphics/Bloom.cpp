@@ -78,7 +78,6 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 			m_oBlurSheet.GetParameter( BlurParam::DELTA ).SetValue( 1.f / m_oBloomRT[ 0 ].GetHeight() );
 
 			oInputSlot.SetSlot( m_oBloomRT[ 1 ].GetColorMap( 0 ), 0 );
-			m_oBlurSheet.GetParameter( BlurParam::INPUT_TEXTURE ).SetValue( 0 );
 		}
 		else
 		{
@@ -90,7 +89,6 @@ void Bloom::Render( const RenderTarget& oInput, const RenderTarget& oOutput, con
 			m_oBlurSheet.GetParameter( BlurParam::DELTA ).SetValue( 1.f / m_oBloomRT[ 0 ].GetWidth() );
 
 			oInputSlot.SetSlot( m_oBloomRT[ 0 ].GetColorMap( 0 ), 0 );
-			m_oBlurSheet.GetParameter( BlurParam::INPUT_TEXTURE ).SetValue( 0 );
 		}
 
 		g_pRenderer->RenderQuad();
@@ -119,5 +117,4 @@ void Bloom::OnLoaded()
 	m_oBlurSheet.BindArrayParameter( BlurParam::KERNEL, "kernel" );
 	m_oBlurSheet.BindParameter( BlurParam::VERTICAL, "vertical" );
 	m_oBlurSheet.BindParameter( BlurParam::DELTA, "delta" );
-	m_oBlurSheet.BindParameter( BlurParam::INPUT_TEXTURE, "inputTexture" );
 }

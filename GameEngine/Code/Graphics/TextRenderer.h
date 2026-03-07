@@ -39,7 +39,6 @@ private:
 		GLYPH_OFFSET,
 		GLYPH_SIZE,
 		GLYPH_COLOR,
-		ATLAS_TEXTURE,
 		_COUNT
 	};
 
