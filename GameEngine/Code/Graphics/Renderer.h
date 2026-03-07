@@ -112,15 +112,14 @@ class TextureSlot
 {
 public:
 	TextureSlot();
-	TextureSlot( const Texture& oTexture, const uint uSlot, const bool bArray = false );
+	TextureSlot( const Texture& oTexture, const uint uSlot );
 	~TextureSlot();
 
-	void SetSlot( const Texture& oTexture, const uint uSlot, const bool bArray = false );
+	void SetSlot( const Texture& oTexture, const uint uSlot );
 	void ClearSlot();
 
 private:
 	uint m_uSlot;
-	bool m_bArray;
 };
 
 class CubeMapSlot

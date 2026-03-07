@@ -240,15 +240,13 @@ RendererStatistics::RendererStatistics()
 
 TextureSlot::TextureSlot()
 	: m_uSlot( UINT_MAX )
-	, m_bArray( false )
 {
 }
 
-TextureSlot::TextureSlot( const Texture& oTexture, const uint uSlot, const bool bArray /*= false*/ )
+TextureSlot::TextureSlot( const Texture& oTexture, const uint uSlot )
 	: m_uSlot( uSlot )
-	, m_bArray( bArray )
 {
-	SetSlot( oTexture, m_uSlot, m_bArray );
+	SetSlot( oTexture, m_uSlot );
 }
 
 TextureSlot::~TextureSlot()
@@ -256,24 +254,18 @@ TextureSlot::~TextureSlot()
 	ClearSlot();
 }
 
-void TextureSlot::SetSlot( const Texture& oTexture, const uint uSlot, const bool bArray /*= false */ )
+void TextureSlot::SetSlot( const Texture& oTexture, const uint uSlot )
 {
 	m_uSlot = uSlot;
-	m_bArray = bArray;
-
-	glActiveTexture( GL_TEXTURE0 + m_uSlot );
-	glBindTexture( m_bArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, oTexture.GetID() );
+	glBindTextureUnit( m_uSlot, oTexture.GetID() );
 }
 
 void TextureSlot::ClearSlot()
 {
 	if( m_uSlot != UINT_MAX )
 	{
-		glActiveTexture( GL_TEXTURE0 + m_uSlot );
-		glBindTexture( m_bArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D, 0 );
-
+		glBindTextureUnit( m_uSlot, 0 );
 		m_uSlot = UINT_MAX;
-		m_bArray = false;
 	}
 }
 
@@ -296,18 +288,14 @@ CubeMapSlot::~CubeMapSlot()
 void CubeMapSlot::SetSlot( const CubeMap& oCubeMap, const uint uSlot )
 {
 	m_uSlot = uSlot;
-
-	glActiveTexture( GL_TEXTURE0 + m_uSlot );
-	glBindTexture( GL_TEXTURE_CUBE_MAP, oCubeMap.GetID() );
+	glBindTextureUnit( m_uSlot, oCubeMap.GetID() );
 }
 
 void CubeMapSlot::ClearSlot()
 {
 	if( m_uSlot != UINT_MAX )
 	{
-		glActiveTexture( GL_TEXTURE0 + m_uSlot );
-		glBindTexture( GL_TEXTURE_CUBE_MAP, 0 );
-
+		glBindTextureUnit( m_uSlot, 0 );
 		m_uSlot = UINT_MAX;
 	}
 }
@@ -779,7 +767,7 @@ void Renderer::RenderForward( const RenderContext& oRenderContext )
 				oParamViewPosition.SetValue( m_oCamera.m_vPosition );
 
 			const int uShadowMapSlot = oTechnique.GetUsedTextureCount();
-			const TextureSlot oShadowMapSlot( m_oShadowMapTarget.GetDepthMap(), uShadowMapSlot, true );
+			const TextureSlot oShadowMapSlot( m_oShadowMapTarget.GetDepthMap(), uShadowMapSlot );
 			oTechnique.GetParameter( "shadowMap" ).SetValue( ( int )uShadowMapSlot );
 
 			const Array< VisualNode* >& aVisualNodes = m_oVisualStructure.m_aVisuals[ u ];
@@ -902,8 +890,7 @@ void Renderer::RenderDeferred( const RenderContext& oRenderContext )
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::MATERIAL_ID ).SetValue( 4 );
 	const TextureSlot oDepthSlot( m_oDeferredMapsTarget.GetDepthMap(), 5 );
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::DEPTH ).SetValue( 5 );
-
-	const TextureSlot oShadowMapSlot( m_oShadowMapTarget.GetDepthMap(), 6, true );
+	const TextureSlot oShadowMapSlot( m_oShadowMapTarget.GetDepthMap(), 6 );
 	oComposeTechnique.GetParameter( "shadowMap" ).SetValue( 6 );
 
 	m_oDeferredComposeSheet.GetParameter( DeferredComposeParam::VIEW_POSITION ).SetValue( m_oCamera.GetPosition() );

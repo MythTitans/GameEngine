@@ -960,6 +960,8 @@ ResourceLoader::ShaderLoadCommand::ShaderLoadCommand( const char* sFilePath, con
 		m_eShaderType = ShaderType::VERTEX_SHADER;
 	else if( oFilePath.extension() == ".ps" )
 		m_eShaderType = ShaderType::PIXEL_SHADER;
+	else if( oFilePath.extension() == ".cs" )
+		m_eShaderType = ShaderType::COMPUTE_SHADER;
 }
 
 void ResourceLoader::ShaderLoadCommand::Load( std::unique_lock< std::mutex >& oLock )
@@ -1004,6 +1006,7 @@ void ResourceLoader::TechniqueLoadCommand::Load( std::unique_lock< std::mutex >&
 
 	std::string sVertexShader;
 	std::string sPixelShader;
+	std::string sComputeShader;
 	Array< std::string > aParameters;
 	Array< std::pair< std::string, uint > > aArrayParameters;
 	Array< std::string > aFlags;
@@ -1014,8 +1017,15 @@ void ResourceLoader::TechniqueLoadCommand::Load( std::unique_lock< std::mutex >&
 	{
 		const nlohmann::json oJsonContent = nlohmann::json::parse( sContent );
 
-		sVertexShader = oJsonContent.at( "vertexShader" );
-		sPixelShader = oJsonContent.at( "pixelShader" );
+		if( oJsonContent.contains( "computeShader" ) )
+		{
+			sComputeShader = oJsonContent.at( "computeShader" );
+		}
+		else
+		{
+			sVertexShader = oJsonContent.at( "vertexShader" );
+			sPixelShader = oJsonContent.at( "pixelShader" );
+		}
 
 		if( oJsonContent.contains( "parameters" ) )
 		{
@@ -1056,8 +1066,16 @@ void ResourceLoader::TechniqueLoadCommand::Load( std::unique_lock< std::mutex >&
 		m_eStatus = LoadCommandStatus::LOADED;
 		m_aParameters = std::move( aParameters );
 		m_aArrayParameters = std::move( aArrayParameters );
-		m_aShaders.PushBack( sVertexShader );
-		m_aShaders.PushBack( sPixelShader );
+
+		if( sComputeShader.empty() == false )
+		{
+			m_aShaders.PushBack( sComputeShader );
+		}
+		else
+		{
+			m_aShaders.PushBack( sVertexShader );
+			m_aShaders.PushBack( sPixelShader );
+		}
 	}
 	else
 	{

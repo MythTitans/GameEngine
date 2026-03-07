@@ -11,7 +11,8 @@ enum class ShaderType
 {
 	UNDEFINED,
 	VERTEX_SHADER,
-	PIXEL_SHADER
+	PIXEL_SHADER,
+	COMPUTE_SHADER
 };
 
 class Shader

@@ -12,7 +12,7 @@ void Shader::Create( const std::string& sShaderCode, const ShaderType eShaderTyp
 {
 	m_uShaderID = glCreateShader( GetGLShaderType( eShaderType ) );
 
-	const std::string sVersion = "#version 420 core\n";
+	const std::string sVersion = "#version 430 core\n";
 
 	std::string sFlags;
 	for( const std::string& sFlag : aFlags )
@@ -68,6 +68,8 @@ GLenum Shader::GetGLShaderType( const ShaderType eShaderType )
 		return GL_VERTEX_SHADER;
 	case ShaderType::PIXEL_SHADER:
 		return GL_FRAGMENT_SHADER;
+	case ShaderType::COMPUTE_SHADER:
+		return GL_COMPUTE_SHADER;
 	case ShaderType::UNDEFINED:
 		return GL_INVALID_VALUE;
 	}
