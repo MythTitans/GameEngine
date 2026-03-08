@@ -78,22 +78,18 @@ void RenderTarget::Create( const RenderTargetDesc& oDesc )
 		m_aTextures.Back().Create( TextureDesc( m_iWidth, m_iHeight, oDesc.m_eDepthFormat ).Multisample( oDesc.m_iSamples ).Wrapping( TextureWrapping::BORDER ).BorderColor( Color::White() ).Array( oDesc.m_iDepthCount ) );
 	}
 
-	const GLenum eTextureType = oDesc.m_iSamples > 1 ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
-
-	glGenFramebuffers( 1, &m_uFrameBufferID );
-
-	glBindFramebuffer( GL_FRAMEBUFFER, m_uFrameBufferID );
+	glCreateFramebuffers( 1, &m_uFrameBufferID );
 
 	for( uint u = 0; u < oDesc.m_aColorFormats.Count(); ++u )
 	{
 		if( oDesc.m_aColorCounts[ u ] > 1 )
 		{
 			for( int i = 0; i < oDesc.m_aColorCounts[ u ]; ++i )
-				glFramebufferTextureLayer( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + u, m_aTextures[ u ].GetID(), 0, i );
+				glNamedFramebufferTextureLayer( m_uFrameBufferID, GL_COLOR_ATTACHMENT0 + u, m_aTextures[ u ].GetID(), 0, i );
 		}
 		else
 		{
-			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + u, eTextureType, m_aTextures[ u ].GetID(), 0 );
+			glNamedFramebufferTexture( m_uFrameBufferID, GL_COLOR_ATTACHMENT0 + u, m_aTextures[ u ].GetID(), 0 );
 		}
 	}
 
@@ -102,11 +98,11 @@ void RenderTarget::Create( const RenderTargetDesc& oDesc )
 		if( oDesc.m_iDepthCount > 1 )
 		{
 			for( int i = 0; i < oDesc.m_iDepthCount; ++i )
-				glFramebufferTextureLayer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_aTextures[ m_uColorMapCount ].GetID(), 0, i );
+				glNamedFramebufferTextureLayer( m_uFrameBufferID, GL_DEPTH_ATTACHMENT, m_aTextures[ m_uColorMapCount ].GetID(), 0, i );
 		}
 		else
 		{
-			glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, eTextureType, m_aTextures[ m_uColorMapCount ].GetID(), 0 );
+			glNamedFramebufferTexture( m_uFrameBufferID, GL_DEPTH_ATTACHMENT, m_aTextures[ m_uColorMapCount ].GetID(), 0 );
 		}
 	}
 
@@ -114,13 +110,11 @@ void RenderTarget::Create( const RenderTargetDesc& oDesc )
 	for( uint u = 0; u < aDrawBuffers.Count(); ++u )
 		aDrawBuffers[ u ] = GL_COLOR_ATTACHMENT0 + u;
 
-	glDrawBuffers( m_uColorMapCount, aDrawBuffers.Data() );
+	glNamedFramebufferDrawBuffers( m_uFrameBufferID, m_uColorMapCount, aDrawBuffers.Data() );
 
-	const GLenum eStatus = glCheckFramebufferStatus( GL_FRAMEBUFFER );
+	const GLenum eStatus = glCheckNamedFramebufferStatus( m_uFrameBufferID, GL_FRAMEBUFFER );
 	if( eStatus != GL_FRAMEBUFFER_COMPLETE )
 		LOG_ERROR( "Failed to initialize frame buffer" );
-
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
 
 void RenderTarget::Destroy()
