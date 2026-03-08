@@ -36,20 +36,16 @@ class ShaderBuffer : public ShaderBufferBase
 public:
 	void Create( const ShaderBufferDesc& oDesc )
 	{
-		glGenBuffers( 1, &m_uShaderBufferId );
-		glBindBuffer( GL_UNIFORM_BUFFER, m_uShaderBufferId );
-		glBufferData( GL_UNIFORM_BUFFER, sizeof( ShaderData ), nullptr, oDesc.m_bStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW );
-		glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+		glCreateBuffers( 1, &m_uShaderBufferId );
+		glNamedBufferData( m_uShaderBufferId, sizeof( ShaderData ), nullptr, oDesc.m_bStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW );
 
 		m_bAllowUpdate = oDesc.m_bAllowUpdate;
 	}
 
 	void Create( const ShaderBufferDesc& oDesc, const ShaderData& oShaderData )
 	{
-		glGenBuffers( 1, &m_uShaderBufferId );
-		glBindBuffer( GL_UNIFORM_BUFFER, m_uShaderBufferId );
-		glBufferData( GL_UNIFORM_BUFFER, sizeof( ShaderData ), &oShaderData, oDesc.m_bStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW );
-		glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+		glCreateBuffers( 1, &m_uShaderBufferId );
+		glNamedBufferData( m_uShaderBufferId, sizeof( ShaderData ), &oShaderData, oDesc.m_bStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW );
 
 		m_bAllowUpdate = oDesc.m_bAllowUpdate;
 	}
@@ -58,10 +54,6 @@ public:
 	{
 		ASSERT( m_bAllowUpdate );
 		if( m_bAllowUpdate )
-		{
-			glBindBuffer( GL_UNIFORM_BUFFER, m_uShaderBufferId );
-			glBufferSubData( GL_UNIFORM_BUFFER, 0, sizeof( ShaderData ), &oShaderData );
-			glBindBuffer( GL_UNIFORM_BUFFER, 0 );
-		}
+			glNamedBufferSubData( m_uShaderBufferId, 0, sizeof( ShaderData ), &oShaderData );
 	}
 };
