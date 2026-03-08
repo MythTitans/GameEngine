@@ -316,7 +316,6 @@ ShaderBufferSlot::~ShaderBufferSlot()
 void ShaderBufferSlot::SetSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot )
 {
 	m_uSlot = uSlot;
-
 	glBindBufferBase( GL_UNIFORM_BUFFER, m_uSlot, oShaderBuffer.GetID() );
 }
 
@@ -325,7 +324,6 @@ void ShaderBufferSlot::ClearSlot()
 	if( m_uSlot != UINT_MAX )
 	{
 		glBindBufferBase( GL_UNIFORM_BUFFER, m_uSlot, 0 );
-
 		m_uSlot = UINT_MAX;
 	}
 }

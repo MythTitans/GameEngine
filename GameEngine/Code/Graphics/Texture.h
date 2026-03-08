@@ -116,7 +116,7 @@ struct CubeMapDesc
 
 	int				m_iWidth;
 	int				m_iHeight;
-	const uint8*	m_pData[ Side::_COUNT ];
+	const uint8*	m_aData[ Side::_COUNT ];
 	TextureFormat	m_eFormat;
 	TextureWrapping	m_eHorizontalWrapping;
 	TextureWrapping	m_eVerticalWrapping;

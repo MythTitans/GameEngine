@@ -196,10 +196,8 @@ void Texture::Create( const TextureDesc& oDesc )
 	m_iHeight = oDesc.m_iHeight;
 	m_eFormat = oDesc.m_eFormat;
 
-	glGenTextures( 1, &m_uTextureID );
-
 	const GLenum eSimpleTextureKind = oDesc.m_iCount > 1 ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
-	const GLenum eFullTextureKind = [&]() -> GLenum
+	const GLenum eFullTextureKind = [ & ]() -> GLenum
 	{
 		if( oDesc.m_iSamples > 1 )
 			return oDesc.m_iCount > 1 ? GL_TEXTURE_2D_MULTISAMPLE_ARRAY : GL_TEXTURE_2D_MULTISAMPLE;
@@ -207,9 +205,8 @@ void Texture::Create( const TextureDesc& oDesc )
 		return oDesc.m_iCount > 1 ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
 	}();
 
-	glBindTexture( eFullTextureKind, m_uTextureID );
-
-	auto GetWrappingMode = []( const TextureWrapping eTextureWrapping ) {
+	auto GetWrappingMode = []( const TextureWrapping eTextureWrapping )
+	{
 		switch( eTextureWrapping )
 		{
 		case TextureWrapping::REPEAT:
@@ -227,7 +224,8 @@ void Texture::Create( const TextureDesc& oDesc )
 		return GL_REPEAT;
 	};
 
-	auto GetFilteringMode = []( const TextureFiltering eTextureFiltering ) {
+	auto GetFilteringMode = []( const TextureFiltering eTextureFiltering )
+	{
 		switch( eTextureFiltering )
 		{
 		case TextureFiltering::NEAREST:
@@ -239,27 +237,29 @@ void Texture::Create( const TextureDesc& oDesc )
 		return GL_LINEAR;
 	};
 
+	glCreateTextures( eFullTextureKind, 1, &m_uTextureID );
+
 	const GLfloat aBorderColor[ 4 ] = { oDesc.m_oBorderColor.m_vColor.r, oDesc.m_oBorderColor.m_vColor.g , oDesc.m_oBorderColor.m_vColor.b, 1.f };
-	glTexParameterfv( eFullTextureKind, GL_TEXTURE_BORDER_COLOR, aBorderColor );
-	glTexParameteri( eFullTextureKind, GL_TEXTURE_WRAP_S, GetWrappingMode( oDesc.m_eHorizontalWrapping ) );
-	glTexParameteri( eFullTextureKind, GL_TEXTURE_WRAP_T, GetWrappingMode( oDesc.m_eVerticalWrapping ) );
+	glTextureParameterfv( m_uTextureID, GL_TEXTURE_BORDER_COLOR, aBorderColor );
+	glTextureParameteri( m_uTextureID, GL_TEXTURE_WRAP_S, GetWrappingMode( oDesc.m_eHorizontalWrapping ) );
+	glTextureParameteri( m_uTextureID, GL_TEXTURE_WRAP_T, GetWrappingMode( oDesc.m_eVerticalWrapping ) );
 
 	const bool bIntegerFormat = m_eFormat == TextureFormat::ID8 || m_eFormat == TextureFormat::ID64;
 	if( bIntegerFormat )
 	{
-		glTexParameteri( eFullTextureKind, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-		glTexParameteri( eFullTextureKind, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		glTextureParameteri( m_uTextureID, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+		glTextureParameteri( m_uTextureID, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 	}
 	else
 	{
-		glTexParameteri( eFullTextureKind, GL_TEXTURE_MIN_FILTER, GetFilteringMode( oDesc.m_eMinFiltering ) );
-		glTexParameteri( eFullTextureKind, GL_TEXTURE_MAG_FILTER, GetFilteringMode( oDesc.m_eMagFiltering ) );
+		glTextureParameteri( m_uTextureID, GL_TEXTURE_MIN_FILTER, GetFilteringMode( oDesc.m_eMinFiltering ) );
+		glTextureParameteri( m_uTextureID, GL_TEXTURE_MAG_FILTER, GetFilteringMode( oDesc.m_eMagFiltering ) );
 	}
 
 	if( oDesc.m_eFormat == TextureFormat::SHADOW )
 	{
-		glTexParameteri( eFullTextureKind, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE );
-		glTexParameteri( eFullTextureKind, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL );
+		glTextureParameteri( m_uTextureID, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE );
+		glTextureParameteri( m_uTextureID, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL );
 	}
 
 	GLint iFormat;
@@ -270,22 +270,32 @@ void Texture::Create( const TextureDesc& oDesc )
 	if( oDesc.m_iSamples > 1 )
 	{
 		if( oDesc.m_iCount > 1 )
-			glTexImage3DMultisample( eFullTextureKind, oDesc.m_iSamples, iInternalFormat, m_iWidth, m_iHeight, oDesc.m_iCount, GL_TRUE );
+			glTextureStorage3DMultisample( m_uTextureID, oDesc.m_iSamples, iInternalFormat, m_iWidth, m_iHeight, oDesc.m_iCount, GL_TRUE );
 		else
-			glTexImage2DMultisample( eFullTextureKind, oDesc.m_iSamples, iInternalFormat, m_iWidth, m_iHeight, GL_TRUE );
+			glTextureStorage2DMultisample( m_uTextureID, oDesc.m_iSamples, iInternalFormat, m_iWidth, m_iHeight, GL_TRUE );
 	}
 	else
 	{
+		const int iMipLevels = oDesc.m_bGenerateMips ? ( int )glm::floor( glm::log2( ( float )glm::max( m_iWidth, m_iHeight ) ) ) + 1 : 1;
+
 		if( oDesc.m_iCount > 1 )
-			glTexImage3D( eFullTextureKind, 0, iInternalFormat, m_iWidth, m_iHeight, oDesc.m_iCount, 0, iFormat, eType, oDesc.m_pData );
+		{
+			glTextureStorage3D( m_uTextureID, iMipLevels, iInternalFormat, m_iWidth, m_iHeight, oDesc.m_iCount );
+
+			if( oDesc.m_pData != nullptr )
+				glTextureSubImage3D( m_uTextureID, 0, 0, 0, 0, m_iWidth, m_iHeight, oDesc.m_iCount, iFormat, eType, oDesc.m_pData );
+		}
 		else
-			glTexImage2D( eFullTextureKind, 0, iInternalFormat, m_iWidth, m_iHeight, 0, iFormat, eType, oDesc.m_pData );
+		{
+			glTextureStorage2D( m_uTextureID, iMipLevels, iInternalFormat, m_iWidth, m_iHeight );
+
+			if( oDesc.m_pData != nullptr )
+				glTextureSubImage2D( m_uTextureID, 0, 0, 0, m_iWidth, m_iHeight, iFormat, eType, oDesc.m_pData );
+		}
 	}
 
 	if( oDesc.m_bGenerateMips )
-		glGenerateMipmap( eSimpleTextureKind );
-
-	glBindTexture( eFullTextureKind, 0 );
+		glGenerateTextureMipmap( m_uTextureID );
 }
 
 void Texture::Destroy()
@@ -321,22 +331,19 @@ TextureFormat Texture::GetFormat() const
 void Texture::FetchData( Array< uint8 >& aData, const bool bSRGB /*= false */ ) const
 {
 	aData.Resize( m_iWidth * m_iHeight * GetFormatBytes( m_eFormat ) );
-	glBindTexture( GL_TEXTURE_2D, m_uTextureID );
 
 	GLint iFormat;
 	GLint iInternalFormat;
 	GLenum eType;
 	GetFormatDetails( m_eFormat, bSRGB, iFormat, iInternalFormat, eType );
 
-	glGetTexImage( GL_TEXTURE_2D, 0, iFormat, eType, aData.Data() );
-
-	glBindTexture( GL_TEXTURE_2D, 0 );
+	glGetTextureImage( m_uTextureID, 0, iFormat, eType, aData.Count(), aData.Data() );
 }
 
 CubeMapDesc::CubeMapDesc( const int iWidth, const int iHeight, const TextureFormat eFormat )
 	: m_iWidth( iWidth )
 	, m_iHeight( iHeight )
-	, m_pData( nullptr )
+	, m_aData( nullptr )
 	, m_eFormat( eFormat )
 	, m_eHorizontalWrapping( TextureWrapping::REPEAT )
 	, m_eVerticalWrapping( TextureWrapping::REPEAT )
@@ -350,11 +357,11 @@ CubeMapDesc& CubeMapDesc::Data( const uint8* pData, const Side eSide )
 	if( eSide == Side::_COUNT )
 	{
 		for( uint u = 0; u < Side::_COUNT; ++u )
-			m_pData[ u ] = pData;
+			m_aData[ u ] = pData;
 	}
 	else
 	{
-		m_pData[ eSide ] = pData;
+		m_aData[ eSide ] = pData;
 	}
 
 	return *this;
@@ -412,10 +419,6 @@ void CubeMap::Create( const CubeMapDesc& oDesc )
 	m_iHeight = oDesc.m_iHeight;
 	m_eFormat = oDesc.m_eFormat;
 
-	glGenTextures( 1, &m_uTextureID );
-
-	glBindTexture( GL_TEXTURE_CUBE_MAP, m_uTextureID );
-
 	auto GetWrappingMode = []( const TextureWrapping eTextureWrapping ) {
 		switch( eTextureWrapping )
 		{
@@ -432,24 +435,31 @@ void CubeMap::Create( const CubeMapDesc& oDesc )
 		return GL_REPEAT;
 	};
 
-	glTexParameteri( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GetWrappingMode( oDesc.m_eHorizontalWrapping ) );
-	glTexParameteri( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GetWrappingMode( oDesc.m_eVerticalWrapping ) );
-	glTexParameteri( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GetWrappingMode( oDesc.m_eDepthWrapping ) );
-	glTexParameteri( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameteri( GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	glCreateTextures( GL_TEXTURE_CUBE_MAP, 1, &m_uTextureID );
+
+	glTextureParameteri( m_uTextureID, GL_TEXTURE_WRAP_S, GetWrappingMode( oDesc.m_eHorizontalWrapping ) );
+	glTextureParameteri( m_uTextureID, GL_TEXTURE_WRAP_T, GetWrappingMode( oDesc.m_eVerticalWrapping ) );
+	glTextureParameteri( m_uTextureID, GL_TEXTURE_WRAP_R, GetWrappingMode( oDesc.m_eDepthWrapping ) );
+	glTextureParameteri( m_uTextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTextureParameteri( m_uTextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
 	GLint iFormat;
 	GLint iInternalFormat;
 	GLenum eType;
 	GetFormatDetails( m_eFormat, oDesc.m_bSRGB, iFormat, iInternalFormat, eType );
 
+	const int iMipLevels = oDesc.m_bGenerateMips ? ( int )glm::floor( glm::log2( ( float )glm::max( m_iWidth, m_iHeight ) ) ) + 1 : 1;
+
+	glTextureStorage2D( m_uTextureID, iMipLevels, iInternalFormat, m_iWidth, m_iHeight );
+
 	for( uint u = 0; u < CubeMapDesc::_COUNT; ++u )
-		glTexImage2D( GL_TEXTURE_CUBE_MAP_POSITIVE_X + u, 0, iInternalFormat, m_iWidth, m_iHeight, 0, iFormat, eType, oDesc.m_pData[ u ] );
+	{
+		if( oDesc.m_aData[ u ] != nullptr )
+			glTextureSubImage3D( m_uTextureID, 0, 0, 0, u, m_iWidth, m_iHeight, 1, iFormat, eType, oDesc.m_aData[ u ] );
+	}
 
 	if( oDesc.m_bGenerateMips )
-		glGenerateMipmap( GL_TEXTURE_CUBE_MAP );
-
-	glBindTexture( GL_TEXTURE_CUBE_MAP, 0 );
+		glGenerateTextureMipmap( m_uTextureID );
 }
 
 void CubeMap::Destroy()
