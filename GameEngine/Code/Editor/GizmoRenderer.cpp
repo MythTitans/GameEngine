@@ -27,17 +27,13 @@ static const Array< glm::vec2 > CIRCLE_POINTS = []() {
 
 GizmoRenderer::GizmoRenderer()
 {
-	glGenVertexArrays( 1, &m_uVertexArrayID );
-	glGenBuffers( 1, &m_uVertexBufferID );
+	glCreateVertexArrays( 1, &m_uVertexArrayID );
+	glCreateBuffers( 1, &m_uVertexBufferID );
 
-	glBindVertexArray( m_uVertexArrayID );
-	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-
-	glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof( GLfloat ), nullptr );
-	glEnableVertexAttribArray( 0 );
-
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
-	glBindVertexArray( 0 );
+	glVertexArrayVertexBuffer( m_uVertexArrayID, 0, m_uVertexBufferID, 0, 3 * sizeof( GLfloat ) );
+	glVertexArrayAttribFormat( m_uVertexArrayID, 0, 3, GL_FLOAT, GL_FALSE, 0 );
+	glVertexArrayAttribBinding( m_uVertexArrayID, 0, 0 );
+	glEnableVertexArrayAttrib( m_uVertexArrayID, 0 );
 }
 
 GizmoRenderer::~GizmoRenderer()
@@ -74,14 +70,12 @@ void GizmoRenderer::RenderTranslationGizmo( const GizmoAxis eGizmoAxis, const Re
 	{
 		Array< GLfloat > aVertices = GenerateArrow( eGizmoAxis );
 
+		glNamedBufferData( m_uVertexBufferID, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+
 		glBindVertexArray( m_uVertexArrayID );
-		glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-		glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
-
 		glDrawArrays( GL_TRIANGLE_STRIP, 0, ARROW_VERTEX_COUNT );
-
-		glBindBuffer( GL_ARRAY_BUFFER, 0 );
 		glBindVertexArray( 0 );
+
 		break;
 	}
 	case GizmoAxis::XY:
@@ -92,13 +86,10 @@ void GizmoRenderer::RenderTranslationGizmo( const GizmoAxis eGizmoAxis, const Re
 
 		Array< GLfloat > aVertices = GenerateQuad( eGizmoAxis );
 
+		glNamedBufferData( m_uVertexBufferID, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+
 		glBindVertexArray( m_uVertexArrayID );
-		glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-		glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
-
 		glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
-
-		glBindBuffer( GL_ARRAY_BUFFER, 0 );
 		glBindVertexArray( 0 );
 
 		glEnable( GL_CULL_FACE );
@@ -113,13 +104,10 @@ void GizmoRenderer::RenderRotationGizmo( const GizmoAxis eGizmoAxis, const Rende
 
 	Array< GLfloat > aVertices = GenerateGiro( eGizmoAxis );
 
+	glNamedBufferData( m_uVertexBufferID, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+
 	glBindVertexArray( m_uVertexArrayID );
-	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
-
 	glDrawArrays( GL_TRIANGLE_STRIP, 0, GIRO_VERTEX_COUNT );
-
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindVertexArray( 0 );
 
 	glEnable( GL_CULL_FACE );

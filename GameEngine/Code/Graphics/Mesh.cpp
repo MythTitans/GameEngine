@@ -97,62 +97,63 @@ void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >
 
 	m_iIndexCount = ( int )aIndices.Count();
 
-	glGenVertexArrays( 1, &m_uVertexArrayID );
-	glBindVertexArray( m_uVertexArrayID );
+	glCreateVertexArrays( 1, &m_uVertexArrayID );
+	glCreateBuffers( 1, &m_uVertexBufferID );
+	glNamedBufferData( m_uVertexBufferID, sizeof( aPackedVertices[ 0 ] ) * aPackedVertices.Count(), aPackedVertices.Data(), GL_STATIC_DRAW );
 
-	glGenBuffers( 1, &m_uVertexBufferID );
-	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( aPackedVertices[ 0 ] ) * aPackedVertices.Count(), aPackedVertices.Data(), GL_STATIC_DRAW );
+	glVertexArrayVertexBuffer( m_uVertexArrayID, 0, m_uVertexBufferID, 0, sizeof( aPackedVertices[ 0 ] ) * uVertexSize );
+
+	auto SetupFloatAttribute = [ this, uVertexSize = ( uint )sizeof( aPackedVertices[ 0 ] ) ]( const uint uAttributeIndex, const uint uCount, const uint uOffset )
+	{
+		glVertexArrayAttribFormat( m_uVertexArrayID, uAttributeIndex, uCount, GL_FLOAT, GL_FALSE, uVertexSize * uOffset );
+		glVertexArrayAttribBinding( m_uVertexArrayID, uAttributeIndex, 0 );
+		glEnableVertexArrayAttrib( m_uVertexArrayID, uAttributeIndex );
+	};
+	auto SetupIntAttribute = [ this, uVertexSize = ( uint )sizeof( aPackedVertices[ 0 ] ) ]( const uint uAttributeIndex, const uint uCount, const uint uOffset )
+	{
+		glVertexArrayAttribIFormat( m_uVertexArrayID, uAttributeIndex, uCount, GL_UNSIGNED_INT, uVertexSize * uOffset );
+		glVertexArrayAttribBinding( m_uVertexArrayID, uAttributeIndex, 0 );
+		glEnableVertexArrayAttrib( m_uVertexArrayID, uAttributeIndex );
+	};
 
 	uint uAttributeIndex = 0;
-
-	glVertexAttribPointer( uAttributeIndex, uVerticesSize, GL_FLOAT, GL_FALSE, sizeof( aPackedVertices[ 0 ] ) * uVertexSize, nullptr );
-	glEnableVertexAttribArray( uAttributeIndex );
+	SetupFloatAttribute( uAttributeIndex, uVerticesSize, 0 );
 	++uAttributeIndex;
 
 	if( uUVsSize != 0 )
 	{
-		glVertexAttribPointer( uAttributeIndex, uUVsSize, GL_FLOAT, GL_FALSE, sizeof( aPackedVertices[ 0 ] ) * uVertexSize, ( void* )( sizeof( aPackedVertices[ 0 ] ) * uUVsOffset ) );
-		glEnableVertexAttribArray( uAttributeIndex );
+		SetupFloatAttribute( uAttributeIndex, uUVsSize, uUVsOffset );
 		++uAttributeIndex;
 	}
 	
 	if( uNormalsSize != 0 )
 	{
-		glVertexAttribPointer( uAttributeIndex, uNormalsSize, GL_FLOAT, GL_FALSE, sizeof( aPackedVertices[ 0 ] ) * uVertexSize, ( void* )( sizeof( aPackedVertices[ 0 ] ) * uNormalsOffset ) );
-		glEnableVertexAttribArray( uAttributeIndex );
+		SetupFloatAttribute( uAttributeIndex, uNormalsSize, uNormalsOffset );
 		++uAttributeIndex;
 	}
 	
 	if( uTangentsSize != 0 )
 	{
-		glVertexAttribPointer( uAttributeIndex, uTangentsSize, GL_FLOAT, GL_FALSE, sizeof( aPackedVertices[ 0 ] ) * uVertexSize, ( void* )( sizeof( aPackedVertices[ 0 ] ) * uTangentsOffset ) );
-		glEnableVertexAttribArray( uAttributeIndex );
+		SetupFloatAttribute( uAttributeIndex, uTangentsSize, uTangentsOffset );
 		++uAttributeIndex;
 	}
 
 	if( uBonesSize != 0 )
 	{
-		glVertexAttribIPointer( uAttributeIndex, uBonesSize, GL_UNSIGNED_INT, sizeof( aPackedVertices[ 0 ] ) * uVertexSize, ( void* )( sizeof( aPackedVertices[ 0 ] ) * uBonesOffset ) );
-		glEnableVertexAttribArray( uAttributeIndex );
+		SetupIntAttribute( uAttributeIndex, uBonesSize, uBonesOffset );
 		++uAttributeIndex;
 	}
 
 	if( uWeightsSize != 0 )
 	{
-		glVertexAttribPointer( uAttributeIndex, uWeightsSize, GL_FLOAT, GL_FALSE, sizeof( aPackedVertices[ 0 ] ) * uVertexSize, ( void* )( sizeof( aPackedVertices[ 0 ] ) * uWeightsOffset ) );
-		glEnableVertexAttribArray( uAttributeIndex );
+		SetupFloatAttribute( uAttributeIndex, uWeightsSize, uWeightsOffset );
 		++uAttributeIndex;
 	}
 
 	// TODO #eric could generate both buffers at once
-	glGenBuffers( 1, &m_uIndexBufferID );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_uIndexBufferID );
-	glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof( aIndices[ 0 ] ) * m_iIndexCount, aIndices.Data(), GL_STATIC_DRAW );
-
-	glBindVertexArray( 0 );
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+	glCreateBuffers( 1, &m_uIndexBufferID );
+	glNamedBufferData( m_uIndexBufferID, sizeof( aIndices[ 0 ] )* m_iIndexCount, aIndices.Data(), GL_STATIC_DRAW );
+	glVertexArrayElementBuffer( m_uVertexArrayID, m_uIndexBufferID );
 
 	m_oMaterial = oMaterial;
 }

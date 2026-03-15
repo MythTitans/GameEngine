@@ -120,17 +120,13 @@ DebugRenderer::DebugRenderer()
 	, m_xSphere( g_pResourceLoader->LoadTechnique( "Shader/sphere.tech" ) )
 	, m_xUnlit( g_pResourceLoader->LoadTechnique( "Shader/unlit.tech" ) )
 {
-	glGenVertexArrays( 1, &m_uVertexArrayID );
-	glGenBuffers( 1, &m_uVertexBufferID );
+	glCreateVertexArrays( 1, &m_uVertexArrayID );
+	glCreateBuffers( 1, &m_uVertexBufferID );
 
-	glBindVertexArray( m_uVertexArrayID );
-	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-
-	glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof( GLfloat ), nullptr );
-	glEnableVertexAttribArray( 0 );
-
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
-	glBindVertexArray( 0 );
+	glVertexArrayVertexBuffer( m_uVertexArrayID, 0, m_uVertexBufferID, 0, 3 * sizeof( GLfloat ) );
+	glVertexArrayAttribFormat( m_uVertexArrayID, 0, 3, GL_FLOAT, GL_FALSE, 0 );
+	glVertexArrayAttribBinding( m_uVertexArrayID, 0, 0 );
+	glEnableVertexArrayAttrib( m_uVertexArrayID, 0 );
 }
 
 DebugRenderer::~DebugRenderer()
@@ -154,17 +150,14 @@ void DebugRenderer::RenderLines( const Array< Line >& aLines, const RenderContex
 		PushVertex( aVertices, oLine.m_vTo );
 	}
 
-	glBindVertexArray( m_uVertexArrayID );
-	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+	glNamedBufferData( m_uVertexBufferID, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
 
+	glBindVertexArray( m_uVertexArrayID );
 	for( uint u = 0; u < aLines.Count(); ++u )
 	{
 		m_oLineSheet.GetParameter( LineParam::COLOR ).SetValue( aLines[ u ].m_vColor );
 		glDrawArrays( GL_LINES, 2 * u, 2 );
 	}
-
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindVertexArray( 0 );
 
 	glUseProgram( 0 );
@@ -177,10 +170,9 @@ void DebugRenderer::RenderSpheres( const Array< Sphere >& aSpheres, const Render
 
 	m_oSphereSheet.GetParameter( SphereParam::VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
 
-	glBindVertexArray( m_uVertexArrayID );
-	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( SPHERE_VERTICES[ 0 ] ) * SPHERE_VERTICES.Count(), SPHERE_VERTICES.Data(), GL_STATIC_DRAW );
+	glNamedBufferData( m_uVertexBufferID, sizeof( SPHERE_VERTICES[ 0 ] ) * SPHERE_VERTICES.Count(), SPHERE_VERTICES.Data(), GL_STATIC_DRAW );
 
+	glBindVertexArray( m_uVertexArrayID );
 	for( const Sphere& oSphere : aSpheres )
 	{
 		m_oSphereSheet.GetParameter( SphereParam::POSITION ).SetValue( oSphere.m_vPosition );
@@ -188,8 +180,6 @@ void DebugRenderer::RenderSpheres( const Array< Sphere >& aSpheres, const Render
 		m_oSphereSheet.GetParameter( SphereParam::COLOR ).SetValue( oSphere.m_vColor );
 		glDrawArrays( GL_TRIANGLE_STRIP, 0, SPHERE_VERTEX_COUNT );
 	}
-
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindVertexArray( 0 );
 
 	glUseProgram( 0 );
@@ -205,10 +195,9 @@ void DebugRenderer::RenderWireSpheres( const Array< Sphere >& aSpheres, const Re
 
 	m_oSphereSheet.GetParameter( SphereParam::VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
 
-	glBindVertexArray( m_uVertexArrayID );
-	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( aEquatorVertices[ 0 ] ) * aEquatorVertices.Count(), aEquatorVertices.Data(), GL_STATIC_DRAW );
+	glNamedBufferData( m_uVertexBufferID, sizeof( aEquatorVertices[ 0 ] ) * aEquatorVertices.Count(), aEquatorVertices.Data(), GL_STATIC_DRAW );
 
+	glBindVertexArray( m_uVertexArrayID );
 	for( const Sphere& oSphere : aSpheres )
 	{
 		m_oSphereSheet.GetParameter( SphereParam::POSITION ).SetValue( oSphere.m_vPosition );
@@ -217,7 +206,7 @@ void DebugRenderer::RenderWireSpheres( const Array< Sphere >& aSpheres, const Re
 		glDrawArrays( GL_LINE_STRIP, 0, WIRE_SPHERE_EQUATOR_VERTEX_COUNT );
 	}
 
-	glBufferData( GL_ARRAY_BUFFER, sizeof( aMeridiansVertices[ 0 ] ) * aMeridiansVertices.Count(), aMeridiansVertices.Data(), GL_STATIC_DRAW );
+	glNamedBufferData( m_uVertexBufferID, sizeof( aMeridiansVertices[ 0 ] ) * aMeridiansVertices.Count(), aMeridiansVertices.Data(), GL_STATIC_DRAW );
 
 	for( const Sphere& oSphere : aSpheres )
 	{
@@ -226,8 +215,6 @@ void DebugRenderer::RenderWireSpheres( const Array< Sphere >& aSpheres, const Re
 		m_oSphereSheet.GetParameter( SphereParam::COLOR ).SetValue( oSphere.m_vColor );
 		glDrawArrays( GL_LINE_STRIP, 0, WIRE_SPHERE_MERIDIANS_VERTEX_COUNT );
 	}
-
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindVertexArray( 0 );
 
 	glUseProgram( 0 );
@@ -242,12 +229,10 @@ void DebugRenderer::RenderWireCylinders( const Array< Cylinder >& aCylinders, co
 	m_oLineSheet.GetParameter( LineParam::VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
 
 	glBindVertexArray( m_uVertexArrayID );
-	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-
 	for( const Cylinder& oCylinder : aCylinders )
 	{
 		const Array< GLfloat > aCircleVertices = GenerateCylinderEquator( glm::normalize( oCylinder.m_vTo - oCylinder.m_vFrom ), oCylinder.m_fRadius );
-		glBufferData( GL_ARRAY_BUFFER, sizeof( aCircleVertices[ 0 ] ) * aCircleVertices.Count(), aCircleVertices.Data(), GL_STATIC_DRAW );
+		glNamedBufferData( m_uVertexBufferID, sizeof( aCircleVertices[ 0 ] ) * aCircleVertices.Count(), aCircleVertices.Data(), GL_STATIC_DRAW );
 
 		m_oSphereSheet.GetParameter( SphereParam::POSITION ).SetValue( oCylinder.m_vFrom );
 		m_oSphereSheet.GetParameter( SphereParam::RADIUS ).SetValue( 1.f );
@@ -276,12 +261,10 @@ void DebugRenderer::RenderWireCylinders( const Array< Cylinder >& aCylinders, co
 			PushVertex( aVertices, vCircleVertex + oCylinder.m_vTo );
 		}
 
-		glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+		glNamedBufferData( m_uVertexBufferID, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
 
 		glDrawArrays( GL_LINES, 0, 8 );
 	}
-
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindVertexArray( 0 );
 
 	glUseProgram( 0 );
@@ -296,8 +279,6 @@ void DebugRenderer::RenderWireCones( const Array< Cylinder >& aCylinders, const 
 	m_oLineSheet.GetParameter( LineParam::VIEW_PROJECTION ).SetValue( g_pRenderer->m_oCamera.GetViewProjectionMatrix() );
 
 	glBindVertexArray( m_uVertexArrayID );
-	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-
 	for( const Cylinder& oCylinder : aCylinders )
 	{
 		glUseProgram( oSphereTechnique.m_uProgramID );
@@ -306,13 +287,13 @@ void DebugRenderer::RenderWireCones( const Array< Cylinder >& aCylinders, const 
 		m_oSphereSheet.GetParameter( SphereParam::COLOR ).SetValue( oCylinder.m_vColor );
 
 		Array< GLfloat > aCircleVertices = GenerateCylinderEquator( glm::normalize( oCylinder.m_vTo - oCylinder.m_vFrom ), 0.5f * oCylinder.m_fRadius );
-		glBufferData( GL_ARRAY_BUFFER, sizeof( aCircleVertices[ 0 ] ) * aCircleVertices.Count(), aCircleVertices.Data(), GL_STATIC_DRAW );
+		glNamedBufferData( m_uVertexBufferID, sizeof( aCircleVertices[ 0 ] ) * aCircleVertices.Count(), aCircleVertices.Data(), GL_STATIC_DRAW );
 
 		m_oSphereSheet.GetParameter( SphereParam::POSITION ).SetValue( 0.5f * ( oCylinder.m_vFrom + oCylinder.m_vTo ) );
 		glDrawArrays( GL_LINE_STRIP, 0, CIRCLE_SEGMENT_VERTEX_COUNT );
 
 		aCircleVertices = GenerateCylinderEquator( glm::normalize( oCylinder.m_vTo - oCylinder.m_vFrom ), oCylinder.m_fRadius );
-		glBufferData( GL_ARRAY_BUFFER, sizeof( aCircleVertices[ 0 ] ) * aCircleVertices.Count(), aCircleVertices.Data(), GL_STATIC_DRAW );
+		glNamedBufferData( m_uVertexBufferID, sizeof( aCircleVertices[ 0 ] ) * aCircleVertices.Count(), aCircleVertices.Data(), GL_STATIC_DRAW );
 
 		m_oSphereSheet.GetParameter( SphereParam::POSITION ).SetValue( oCylinder.m_vTo );
 		glDrawArrays( GL_LINE_STRIP, 0, CIRCLE_SEGMENT_VERTEX_COUNT );
@@ -333,12 +314,10 @@ void DebugRenderer::RenderWireCones( const Array< Cylinder >& aCylinders, const 
 			PushVertex( aVertices, vCircleVertex + oCylinder.m_vTo );
 		}
 
-		glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+		glNamedBufferData( m_uVertexBufferID, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
 
 		glDrawArrays( GL_LINES, 0, 8 );
 	}
-
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindVertexArray( 0 );
 
 	glUseProgram( 0 );
@@ -381,10 +360,9 @@ void DebugRenderer::RenderWireAxisBoxes( const Array< AxisBox >& aBoxes, const R
 		PushVertex( aVertices, vP4 + vVerticalOffset );
 	}
 
-	glBindVertexArray( m_uVertexArrayID );
-	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+	glNamedBufferData( m_uVertexBufferID, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
 
+	glBindVertexArray( m_uVertexArrayID );
 	for( uint u = 0; u < aBoxes.Count(); ++u )
 	{
 		m_oLineSheet.GetParameter( LineParam::COLOR ).SetValue( aBoxes[ u ].m_vColor );
@@ -392,8 +370,6 @@ void DebugRenderer::RenderWireAxisBoxes( const Array< AxisBox >& aBoxes, const R
 		glDrawArrays( GL_LINE_LOOP, 4 * u + 4, 4 );
 		glDrawArrays( GL_LINES, 4 * u + 8, 8 );
 	}
-
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindVertexArray( 0 );
 
 	glUseProgram( 0 );
@@ -436,10 +412,9 @@ void DebugRenderer::RenderWireBoxes( const Array< Box >& aBoxes, const RenderCon
 		PushVertex( aVertices, vP4 + vVerticalOffset );
 	}
 
-	glBindVertexArray( m_uVertexArrayID );
-	glBindBuffer( GL_ARRAY_BUFFER, m_uVertexBufferID );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
+	glNamedBufferData( m_uVertexBufferID, sizeof( aVertices[ 0 ] ) * aVertices.Count(), aVertices.Data(), GL_STATIC_DRAW );
 
+	glBindVertexArray( m_uVertexArrayID );
 	for( uint u = 0; u < aBoxes.Count(); ++u )
 	{
 		m_oLineSheet.GetParameter( LineParam::COLOR ).SetValue( aBoxes[ u ].m_vColor );
@@ -447,8 +422,6 @@ void DebugRenderer::RenderWireBoxes( const Array< Box >& aBoxes, const RenderCon
  		glDrawArrays( GL_LINE_LOOP, 4 * u + 4, 4 );
  		glDrawArrays( GL_LINES, 4 * u + 8, 8 );
 	}
-
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindVertexArray( 0 );
 
 	glUseProgram( 0 );
