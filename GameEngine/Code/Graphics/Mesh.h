@@ -37,9 +37,15 @@ public:
 	const MaterialReference&	GetMaterial() const;
 
 private:
+	enum BufferType : uint8
+	{
+		VERTEX_BUFFER,
+		INDEX_BUFFER,
+		_COUNT
+	};
+
 	GLuint				m_uVertexArrayID;
-	GLuint				m_uVertexBufferID;
-	GLuint				m_uIndexBufferID;
+	GLuint				m_aBuffers[ BufferType::_COUNT ];
 	GLsizei				m_iIndexCount;
 
 	MaterialReference	m_oMaterial;
