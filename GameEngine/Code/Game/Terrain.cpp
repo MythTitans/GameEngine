@@ -270,10 +270,7 @@ void TerrainChunkComponent::Initialize()
 	}
 	ASSERT( m_hTerrain.IsValid() );
 
-	TerrainComponent* pTerrain = m_hTerrain;
-
-	// TODO #eric not safe until we have a priority system
-	pTerrain->RegisterChunk( this );
+	m_hTerrain->RegisterChunk( this );
 }
 
 bool TerrainChunkComponent::IsInitialized() const

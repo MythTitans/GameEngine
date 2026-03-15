@@ -16,10 +16,10 @@ SkinData::SkinData()
 
 Mesh::Mesh()
 	: m_uVertexArrayID( GL_INVALID_VALUE )
-	, m_uVertexBufferID( GL_INVALID_VALUE )
-	, m_uIndexBufferID( GL_INVALID_VALUE )
 	, m_iIndexCount( 0 )
 {
+	for( uint u = 0; u < BufferType::_COUNT; ++u )
+		m_aBuffers[ u ] = GL_INVALID_VALUE;
 }
 
 void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >& aUVs, const Array< glm::vec3 >& aNormals, const Array< glm::vec3 >& aTangents, const Array< SkinData >& aSkinData, const Array< GLuint >& aIndices, const MaterialReference& oMaterial )
@@ -98,10 +98,13 @@ void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >
 	m_iIndexCount = ( int )aIndices.Count();
 
 	glCreateVertexArrays( 1, &m_uVertexArrayID );
-	glCreateBuffers( 1, &m_uVertexBufferID );
-	glNamedBufferData( m_uVertexBufferID, sizeof( aPackedVertices[ 0 ] ) * aPackedVertices.Count(), aPackedVertices.Data(), GL_STATIC_DRAW );
+	glCreateBuffers( BufferType::_COUNT, m_aBuffers );
 
-	glVertexArrayVertexBuffer( m_uVertexArrayID, 0, m_uVertexBufferID, 0, sizeof( aPackedVertices[ 0 ] ) * uVertexSize );
+	glNamedBufferData( m_aBuffers[ BufferType::VERTEX_BUFFER ], sizeof( aPackedVertices[ 0 ] ) * aPackedVertices.Count(), aPackedVertices.Data(), GL_STATIC_DRAW );
+	glVertexArrayVertexBuffer( m_uVertexArrayID, 0, m_aBuffers[ BufferType::VERTEX_BUFFER ], 0, sizeof( aPackedVertices[ 0 ] ) * uVertexSize );
+
+	glNamedBufferData( m_aBuffers[ BufferType::INDEX_BUFFER ], sizeof(aIndices[0]) * m_iIndexCount, aIndices.Data(), GL_STATIC_DRAW);
+	glVertexArrayElementBuffer( m_uVertexArrayID, m_aBuffers[ BufferType::INDEX_BUFFER ] );
 
 	auto SetupFloatAttribute = [ this, uVertexSize = ( uint )sizeof( aPackedVertices[ 0 ] ) ]( const uint uAttributeIndex, const uint uCount, const uint uOffset )
 	{
@@ -150,24 +153,19 @@ void Mesh::Create( const Array< glm::vec3 >& aVertices, const Array< glm::vec2 >
 		++uAttributeIndex;
 	}
 
-	// TODO #eric could generate both buffers at once
-	glCreateBuffers( 1, &m_uIndexBufferID );
-	glNamedBufferData( m_uIndexBufferID, sizeof( aIndices[ 0 ] )* m_iIndexCount, aIndices.Data(), GL_STATIC_DRAW );
-	glVertexArrayElementBuffer( m_uVertexArrayID, m_uIndexBufferID );
-
 	m_oMaterial = oMaterial;
 }
 
 void Mesh::Destroy()
 {
-	// TODO #eric could destroy both buffers at once
-	glDeleteBuffers( 1, &m_uIndexBufferID );
-	glDeleteBuffers( 1, &m_uVertexBufferID );
+	glDeleteBuffers( BufferType::_COUNT, m_aBuffers );
 	glDeleteVertexArrays( 1, &m_uVertexArrayID );
 
 	m_uVertexArrayID = GL_INVALID_VALUE;
-	m_uVertexBufferID = GL_INVALID_VALUE;
-	m_uIndexBufferID = GL_INVALID_VALUE;
+
+	for( uint u = 0; u < BufferType::_COUNT; ++u )
+		m_aBuffers[ u ] = GL_INVALID_VALUE;
+
 	m_iIndexCount = 0;
 }
 

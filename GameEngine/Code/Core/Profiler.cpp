@@ -176,7 +176,7 @@ Profiler::Profiler()
 	, m_bDisplayProfiler( false )
 	, m_bPauseProfiler( false )
 {
-	glGenQueries( GPU_QUERY_COUNT, m_aGPUQueries );
+	glCreateQueries( GL_TIMESTAMP, GPU_QUERY_COUNT, m_aGPUQueries );
 	m_aAvailableGPUQueries.Resize( GPU_QUERY_COUNT );
 	for( uint u = 0; u < GPU_QUERY_COUNT; ++u )
 		m_aAvailableGPUQueries[ u ] = m_aGPUQueries[ u ];
