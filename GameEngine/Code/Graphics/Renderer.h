@@ -136,12 +136,26 @@ private:
 	uint m_uSlot;
 };
 
-class ShaderBufferSlot
+class UniformBufferSlot
 {
 public:
-	ShaderBufferSlot();
-	ShaderBufferSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot );
-	~ShaderBufferSlot();
+	UniformBufferSlot();
+	UniformBufferSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot );
+	~UniformBufferSlot();
+
+	void SetSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot );
+	void ClearSlot();
+
+private:
+	uint m_uSlot;
+};
+
+class StorageBufferSlot
+{
+public:
+	StorageBufferSlot();
+	StorageBufferSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot );
+	~StorageBufferSlot();
 
 	void SetSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot );
 	void ClearSlot();

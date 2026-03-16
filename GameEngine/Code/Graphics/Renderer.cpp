@@ -297,33 +297,64 @@ void CubeMapSlot::ClearSlot()
 	}
 }
 
-ShaderBufferSlot::ShaderBufferSlot()
+UniformBufferSlot::UniformBufferSlot()
 	: m_uSlot( UINT_MAX )
 {
 }
 
-ShaderBufferSlot::ShaderBufferSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot )
+UniformBufferSlot::UniformBufferSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot )
 	: m_uSlot( uSlot )
 {
 	SetSlot( oShaderBuffer, m_uSlot );
 }
 
-ShaderBufferSlot::~ShaderBufferSlot()
+UniformBufferSlot::~UniformBufferSlot()
 {
 	ClearSlot();
 }
 
-void ShaderBufferSlot::SetSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot )
+void UniformBufferSlot::SetSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot )
 {
 	m_uSlot = uSlot;
 	glBindBufferBase( GL_UNIFORM_BUFFER, m_uSlot, oShaderBuffer.GetID() );
 }
 
-void ShaderBufferSlot::ClearSlot()
+void UniformBufferSlot::ClearSlot()
 {
 	if( m_uSlot != UINT_MAX )
 	{
 		glBindBufferBase( GL_UNIFORM_BUFFER, m_uSlot, 0 );
+		m_uSlot = UINT_MAX;
+	}
+}
+
+StorageBufferSlot::StorageBufferSlot()
+	: m_uSlot( UINT_MAX )
+{
+}
+
+StorageBufferSlot::StorageBufferSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot )
+	: m_uSlot( uSlot )
+{
+	SetSlot( oShaderBuffer, m_uSlot );
+}
+
+StorageBufferSlot::~StorageBufferSlot()
+{
+	ClearSlot();
+}
+
+void StorageBufferSlot::SetSlot( const ShaderBufferBase& oShaderBuffer, const uint uSlot )
+{
+	m_uSlot = uSlot;
+	glBindBufferBase( GL_SHADER_STORAGE_BUFFER, m_uSlot, oShaderBuffer.GetID() );
+}
+
+void StorageBufferSlot::ClearSlot()
+{
+	if( m_uSlot != UINT_MAX )
+	{
+		glBindBufferBase( GL_SHADER_STORAGE_BUFFER, m_uSlot, 0 );
 		m_uSlot = UINT_MAX;
 	}
 }
@@ -393,14 +424,14 @@ void Renderer::Render( const RenderContext& oRenderContext )
 	g_pMaterialManager->ExportMaterialsToGPU< UnlitMaterialData >( oMaterialData.m_aUnlitMaterialData );
 
 	m_oSkinningBuffer.Update( m_oGPUSkinningStorage.GetSkinningData() );
-	const ShaderBufferSlot oSkinningSlot( m_oSkinningBuffer, 0 );
+	const UniformBufferSlot oSkinningSlot( m_oSkinningBuffer, 0 );
 
 	m_oMaterialBuffer.Update( oMaterialData );
-	const ShaderBufferSlot oMaterialSlot( m_oMaterialBuffer, 1 );
+	const UniformBufferSlot oMaterialSlot( m_oMaterialBuffer, 1 );
 
 	GPULightingDataBlock oLightingData = SetupLighting( m_oVisualStructure.m_aDirectionalLights, m_oVisualStructure.m_aPointLights, m_oVisualStructure.m_aSpotLights );
 	m_oLightingBuffer.Update( oLightingData );
-	const ShaderBufferSlot oLightingSlot( m_oLightingBuffer, 2 );
+	const UniformBufferSlot oLightingSlot( m_oLightingBuffer, 2 );
 
 	RenderShadowMap();
 
@@ -525,7 +556,10 @@ void Renderer::DisplayDebug()
 		{
 			RenderingMode eRenderingMode = RenderingMode( u );
 			if( ImGui::Selectable( GetRenderingModeName( eRenderingMode ), eRenderingMode == m_eRenderingMode ) )
+			{
 				m_eRenderingMode = eRenderingMode;
+				m_bUpdateRenderPipeline = true;
+			}
 		}
 		ImGui::EndCombo();
 	}
@@ -965,7 +999,7 @@ void Renderer::RenderOutline( const RenderContext& oRenderContext, const VisualN
 	m_oOutlineSheet.GetParameter( OutlineParam::COLOR ).SetValue( glm::vec3( 1.f, 0.8f, 0.f ) );
 	m_oOutlineSheet.GetParameter( OutlineParam::SKINNING_OFFSET ).SetValue( oVisualNode.m_uBoneStorageIndex );
 
-	const ShaderBufferSlot oSkinningSlot( m_oSkinningBuffer, 0 );
+	const UniformBufferSlot oSkinningSlot( m_oSkinningBuffer, 0 );
 
 	const Array< Mesh >& aMeshes = oVisualNode.m_aMeshes;
 	for( const Mesh& oMesh : aMeshes )
@@ -1045,37 +1079,46 @@ void Renderer::UpdateRenderPipeline( const RenderContext& oRenderContext )
 		};
 
 		m_oForwardMSAATarget.Destroy();
-		m_oForwardMSAATarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
-									 .AddColor( TextureFormat::RGB16F )
-									 .AddColor( TextureFormat::RGB16F )
-									 .Depth()
-									 .Multisample( GetMSAALEvelSamples( m_eMSAALevel ) ) );
-
 		m_oForwardTarget.Destroy();
-		m_oForwardTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
-								 .AddColor( TextureFormat::RGB16F )
-								 .AddColor( TextureFormat::RGB16F )
-								 .Depth() );
-
 		m_oPostProcessTarget.Destroy();
+		m_oDeferredMapsTarget.Destroy();
+		m_oDeferredComposeTarget.Destroy();
+
+		switch( m_eRenderingMode )
+		{
+		case RenderingMode::FORWARD:
+			m_oForwardMSAATarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
+										 .AddColor( TextureFormat::RGB16F )
+										 .AddColor( TextureFormat::RGB16F )
+										 .Depth()
+										 .Multisample( GetMSAALEvelSamples( m_eMSAALevel ) ) );
+
+
+			m_oForwardTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
+									 .AddColor( TextureFormat::RGB16F )
+									 .AddColor( TextureFormat::RGB16F )
+									 .Depth() );
+			break;
+		case RenderingMode::DEFERRED:
+			m_oDeferredMapsTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
+										  .AddColor( TextureFormat::RGB )
+										  .AddColor( TextureFormat::NORMAL )
+										  .AddColor( TextureFormat::RGB )
+										  .AddColor( TextureFormat::RGB )
+										  .AddColor( TextureFormat::ID8 ) // TODO #eric switch to 16 bits at some point
+										  .Depth() );
+
+
+			m_oDeferredComposeTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
+											 .AddColor( TextureFormat::RGB16F )
+											 .AddColor( TextureFormat::RGB16F ) );
+			break;
+		}
+
 		m_oPostProcessTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
 									 .AddColor( TextureFormat::RGB16F )
 									 .AddColor( TextureFormat::RGB16F )
 									 .Depth() );
-
-		m_oDeferredMapsTarget.Destroy();
-		m_oDeferredMapsTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
-									  .AddColor( TextureFormat::RGB )
-									  .AddColor( TextureFormat::NORMAL )
-									  .AddColor( TextureFormat::RGB )
-									  .AddColor( TextureFormat::RGB )
-									  .AddColor( TextureFormat::ID8 ) // TODO #eric switch to 16 bits at some point
-									  .Depth() );
-
-		m_oDeferredComposeTarget.Destroy();
-		m_oDeferredComposeTarget.Create( RenderTargetDesc( oRenderRect.m_uWidth, oRenderRect.m_uHeight )
-										 .AddColor( TextureFormat::RGB16F )
-										 .AddColor( TextureFormat::RGB16F ) );
 
 		m_oCamera.SetAspectRatio( oRenderContext.ComputeAspectRatio() );
 

@@ -529,7 +529,7 @@ void Profiler::EndAsyncBlock( const uint uBlockID )
 void Profiler::DrawGrid( const float fReferenceWidth )
 {
 	const ImVec2 oSize = ImVec2( ImGui::GetContentRegionAvail().x + ImGui::GetScrollMaxX(), ImGui::GetContentRegionAvail().y ) ;
-	const float fBucketWidth = std::floorf( fReferenceWidth );
+	const float fBucketWidth = glm::floor( fReferenceWidth );
 	const int iLines = ( int )( oSize.x / fBucketWidth );
 	for( int i = 1; i <= iLines; ++i )
 	{
@@ -551,11 +551,11 @@ void Profiler::DrawGrid( const float fReferenceWidth )
 
 ImVec2 Profiler::DrawBlock( const char* sName, const char* sTooltip, const float fStart, const float fEnd, const int iDepth )
 {
-	const float fWidth = std::floorf( fEnd ) - std::floorf( fStart );
+	const float fWidth = glm::floor( fEnd ) - glm::floor( fStart );
 	const float fHeight = 20.f;
 
 	const ImVec2 vCursorPos = ImGui::GetCursorScreenPos();
-	const ImVec2 vFrom( std::floorf( fStart ) + vCursorPos.x, iDepth * fHeight + vCursorPos.y );
+	const ImVec2 vFrom( glm::floor( fStart ) + vCursorPos.x, iDepth * fHeight + vCursorPos.y );
 	const ImVec2 vTo( fWidth + vFrom.x, fHeight + vFrom.y );
 	const ImVec2 vTextSize = ImGui::CalcTextSize( sName );
 	const ImVec2 vTextPos( vFrom.x + ( fWidth - vTextSize.x ) / 2.f, vFrom.y + ( fHeight - vTextSize.y ) / 2.f );
