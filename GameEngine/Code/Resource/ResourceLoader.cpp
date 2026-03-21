@@ -18,10 +18,10 @@
 #include "Core/stb_image.h"
 #include "Core/stb_truetype.h"
 #include "Core/StringUtils.h"
+#include "Game/InputHandler.h"
 #include "Graphics/BoundingVolume.h"
 #include "Graphics/DebugDisplay.h"
 #include "Graphics/MaterialManager.h"
-#include "InputHandler.h"
 
 template < typename T >
 auto AssimpToGLM( const T& oAssimp )

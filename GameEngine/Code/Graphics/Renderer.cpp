@@ -15,11 +15,11 @@
 #include "DebugDisplay.h"
 #include "Game/Entity.h"
 #include "Game/InputHandler.h"
-#include "Game/ResourceLoader.h"
 #include "Editor/Gizmo.h"
 #include "ImGui/imgui.h"
 #include "MaterialManager.h"
 #include "Math/GLMHelpers.h"
+#include "Resource/ResourceLoader.h"
 
 static const std::string PARAM_MODEL_VIEW_PROJECTION( "modelViewProjection" );
 static const std::string PARAM_MODEL_INVERSE_TRANSPOSE( "modelInverseTranspose" );
@@ -470,18 +470,16 @@ void Renderer::Render( const RenderContext& oRenderContext )
 		return sResult;
 	};
 
-	const RendererStatistics& oRendererStatistics = g_pRenderer->GetStatistics();
-
 	uint64 uShadowTriangleCount = 0;
 	uint64 uShadowDrawCallCount = 0;
 	for( uint u = RendererStatistics::DIRECTIONAL_SHADOW_CASCADE_STEP; u < RendererStatistics::VISUAL_STEP; ++u )
 	{
-		uShadowTriangleCount += oRendererStatistics.m_aStepTriangleCount[ u ];
-		uShadowDrawCallCount += oRendererStatistics.m_aStepDrawCallCount[ u ];
+		uShadowTriangleCount += m_oStatistics.m_aStepTriangleCount[ u ];
+		uShadowDrawCallCount += m_oStatistics.m_aStepDrawCallCount[ u ];
 	}
 
 	g_pDebugDisplay->DisplayText( std::format( "Shadow statistics : {} triangles, {} draw calls", FormatNumber( uShadowTriangleCount ), FormatNumber( uShadowDrawCallCount ) ) );
-	g_pDebugDisplay->DisplayText( std::format( "Visual statistics : {} triangles, {} draw calls", FormatNumber( oRendererStatistics.m_aStepTriangleCount[ RendererStatistics::VISUAL_STEP ] ), FormatNumber( oRendererStatistics.m_aStepDrawCallCount[ RendererStatistics::VISUAL_STEP ] ) ) );
+	g_pDebugDisplay->DisplayText( std::format( "Visual statistics : {} triangles, {} draw calls", FormatNumber( m_oStatistics.m_aStepTriangleCount[ RendererStatistics::VISUAL_STEP ] ), FormatNumber( m_oStatistics.m_aStepDrawCallCount[ RendererStatistics::VISUAL_STEP ] ) ) );
 }
 
 void Renderer::Clear()

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Game/Component.h"
-#include "Game/ResourceTypes.h"
 #include "Graphics/Texture.h"
+#include "Resource/ResourceTypes.h"
 
 struct SkyNode;
 

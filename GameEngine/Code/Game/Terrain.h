@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Game/Component.h"
-#include "Game/ResourceTypes.h"
 #include "Graphics/Mesh.h"
 #include "PxPhysicsAPI.h"
+#include "Resource/ResourceTypes.h"
 
 struct TerrainNode;
 

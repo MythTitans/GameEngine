@@ -2,8 +2,8 @@
 
 #ifdef EDITOR
 
-#include "Game/ResourceTypes.h"
 #include "Graphics/RenderTarget.h"
+#include "Resource/ResourceTypes.h"
 
 class TerrainComponent;
 

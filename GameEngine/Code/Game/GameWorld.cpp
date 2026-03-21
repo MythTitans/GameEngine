@@ -4,8 +4,8 @@
 #include "Core/Profiler.h"
 #include "Entity.h"
 #include "GameContext.h"
-#include "ResourceLoader.h"
 #include "Physics/Physics.h"
+#include "Resource/ResourceLoader.h"
 
 GameWorld* g_pGameWorld = nullptr;
 

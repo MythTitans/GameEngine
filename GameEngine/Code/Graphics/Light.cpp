@@ -5,10 +5,10 @@
 #include "DebugDisplay.h"
 #include "Core/Intrusive.h"
 #include "Game/Entity.h"
-#include "Game/ResourceLoader.h"
 #include "Graphics/MaterialManager.h"
 #include "Graphics/Mesh.h"
 #include "Graphics/Renderer.h"
+#include "Resource/ResourceLoader.h"
 
 static void DisplayLightVisual( const Entity* pEntity, const Color& oColor )
 {

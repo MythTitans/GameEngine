@@ -1,10 +1,10 @@
 #include "Road.h"
 
 #include "Game/Entity.h"
-#include "Game/ResourceLoader.h"
 #include "Game/Spline.h"
 #include "Graphics/DebugDisplay.h"
 #include "Graphics/Renderer.h"
+#include "Resource/ResourceLoader.h"
 
 REGISTER_COMPONENT( RoadComponent, SplineComponent );
 

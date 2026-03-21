@@ -1,8 +1,8 @@
 #include "Skybox.h"
 
-#include "Game/ResourceLoader.h"
 #include "Math/GLMHelpers.h"
 #include "Renderer.h"
+#include "Resource/ResourceLoader.h"
 
 Skybox::Skybox()
 	: m_xSkybox( g_pResourceLoader->LoadTechnique( "Shader/skybox.tech" ) )

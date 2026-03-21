@@ -194,7 +194,7 @@
     <ClCompile Include="Code\Game\ComponentManager.cpp" />
     <ClCompile Include="Code\Game\EntityHolder.cpp" />
     <ClCompile Include="Code\Game\GameWorld.cpp" />
-    <ClCompile Include="Code\Game\ResourceTypes.cpp" />
+    <ClCompile Include="Code\Resource\ResourceTypes.cpp" />
     <ClCompile Include="Code\Game\Road.cpp" />
     <ClCompile Include="Code\Game\Skybox.cpp" />
     <ClCompile Include="Code\Game\Terrain.cpp" />
@@ -211,7 +211,7 @@
     <ClCompile Include="Code\Graphics\Light.cpp" />
     <ClCompile Include="Code\Graphics\Material.cpp" />
     <ClCompile Include="Code\Graphics\MaterialManager.cpp" />
-    <ClCompile Include="Code\Game\ResourceLoader.cpp" />
+    <ClCompile Include="Code\Resource\ResourceLoader.cpp" />
     <ClCompile Include="Code\Graphics\ShaderBuffer.cpp" />
     <ClCompile Include="Code\Graphics\Skinning.cpp" />
     <ClCompile Include="Code\Graphics\Skybox.cpp" />
@@ -276,7 +276,7 @@
     <ClInclude Include="Code\Game\EntityHolder.h" />
     <ClInclude Include="Code\Game\GameContext.h" />
     <ClInclude Include="Code\Game\GameWorld.h" />
-    <ClInclude Include="Code\Game\ResourceTypes.h" />
+    <ClInclude Include="Code\Resource\ResourceTypes.h" />
     <ClInclude Include="Code\Game\Road.h" />
     <ClInclude Include="Code\Game\Skybox.h" />
     <ClInclude Include="Code\Game\Terrain.h" />
@@ -294,7 +294,7 @@
     <ClInclude Include="Code\Graphics\Light.h" />
     <ClInclude Include="Code\Graphics\Material.h" />
     <ClInclude Include="Code\Graphics\MaterialManager.h" />
-    <ClInclude Include="Code\Game\ResourceLoader.h" />
+    <ClInclude Include="Code\Resource\ResourceLoader.h" />
     <ClInclude Include="Code\Graphics\Skinning.h" />
     <ClInclude Include="Code\Graphics\Skybox.h" />
     <ClInclude Include="Code\Graphics\Terrain.h" />

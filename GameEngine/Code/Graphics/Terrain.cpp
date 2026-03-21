@@ -1,8 +1,8 @@
 #include "Terrain.h"
 
-#include "Game/ResourceLoader.h"
 #include "Math/GLMHelpers.h"
 #include "Renderer.h"
+#include "Resource/ResourceLoader.h"
 
 Terrain::Terrain()
 	: m_xTerrain( g_pResourceLoader->LoadTechnique( "Shader/terrain.tech" ) )

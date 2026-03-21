@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Game/Component.h"
-#include "Game/ResourceLoader.h"
+#include "Resource/ResourceLoader.h"
 
 class AnimatorComponent;
 

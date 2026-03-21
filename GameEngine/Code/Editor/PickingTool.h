@@ -3,11 +3,11 @@
 #ifdef EDITOR
 
 #include "Core/Types.h"
-#include "Game/ResourceTypes.h"
 #include "Graphics/RenderTarget.h"
 #include "Graphics/ShaderBuffer.h"
 #include "Graphics/Skinning.h"
 #include "Graphics/Technique.h"
+#include "Resource/ResourceTypes.h"
 
 class RenderContext;
 

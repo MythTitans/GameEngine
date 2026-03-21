@@ -2,9 +2,9 @@
 
 #include "Game/GameContext.h"
 #include "Game/Entity.h"
-#include "Game/ResourceLoader.h"
 #include "Graphics/Renderer.h"
 #include "Math/GLMHelpers.h"
+#include "Resource/ResourceLoader.h"
 
 REGISTER_COMPONENT( SkyboxComponent );
 

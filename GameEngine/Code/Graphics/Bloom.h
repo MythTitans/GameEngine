@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Game/ResourceTypes.h"
-#include "Technique.h"
 #include "RenderTarget.h"
+#include "Resource/ResourceTypes.h"
+#include "Technique.h"
 
 class RenderContext;
 class Texture;

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Animation.h"
 #include "Core/Array.h"
 #include "Core/Intrusive.h"
 #include "Core/stb_truetype.h"
+#include "Game/Animation.h"
 #include "Graphics/BoundingVolume.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Technique.h"

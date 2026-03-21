@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Game/Component.h"
-#include "Game/ResourceTypes.h"
 #include "Graphics/Mesh.h"
+#include "Resource/ResourceTypes.h"
 
 class RenderContext;
 class SplineComponent;

@@ -13,7 +13,7 @@
 #include "Graphics/Renderer.h"
 #include "InputHandler.h"
 #include "Physics/Physics.h"
-#include "ResourceLoader.h"
+#include "Resource/ResourceLoader.h"
 
 class Renderer;
 

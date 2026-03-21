@@ -1,8 +1,8 @@
 #include "Bloom.h"
 
 #include "Core/Profiler.h"
-#include "Game/ResourceLoader.h"
 #include "Renderer.h"
+#include "Resource/ResourceLoader.h"
 
 Array< float > ComputeBlurKernel( const uint uRadius )
 {

@@ -1,6 +1,5 @@
 #include "Spline.h"
 
-#include "Game/ResourceLoader.h"
 #include "GameWorld.h"
 #include "Graphics/DebugDisplay.h"
 #include "Graphics/MaterialManager.h"
@@ -8,6 +7,7 @@
 #include "Graphics/Renderer.h"
 #include "Entity.h"
 #include "Math/GLMHelpers.h"
+#include "Resource/ResourceLoader.h"
 
 static void DisplayControlPointVisual( const Entity* pEntity, const Color& oColor )
 {

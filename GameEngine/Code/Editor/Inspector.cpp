@@ -8,11 +8,11 @@
 
 #include "Core/Array.h"
 #include "Game/EntityHolder.h"
-#include "Game/ResourceTypes.h"
 #include "Graphics/Color.h"
 #include "Graphics/Texture.h"
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
+#include "Resource/ResourceTypes.h"
 
 bool Vector3Edit( const char* sLabel, glm::vec3& vVector )
 {

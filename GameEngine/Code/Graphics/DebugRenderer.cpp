@@ -5,10 +5,10 @@
 #include <glm/gtx/vector_query.hpp>
 
 #include "Core/Array.h"
-#include "Game/ResourceLoader.h"
 #include "MaterialManager.h"
 #include "Math/GLMHelpers.h"
 #include "Renderer.h"
+#include "Resource/ResourceLoader.h"
 
 static constexpr uint SPHERE_SEGMENT_COUNT = 32;
 static constexpr uint SPHERE_RING_COUNT = 16;

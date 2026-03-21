@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Game/ResourceTypes.h"
+#include "Resource/ResourceTypes.h"
 
 class RenderContext;
 struct RoadNode;

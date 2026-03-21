@@ -99,7 +99,7 @@
     <ClCompile Include="Code\Graphics\RenderTarget.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Game\ResourceLoader.cpp">
+    <ClCompile Include="Code\Resource\ResourceLoader.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Code\Game\Component.cpp">
@@ -204,7 +204,7 @@
     <ClCompile Include="Code\Graphics\Road.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Game\ResourceTypes.cpp">
+    <ClCompile Include="Code\Resource\ResourceTypes.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="Code\Editor\TrenchTool.cpp">
@@ -341,7 +341,7 @@
     <ClInclude Include="Code\Graphics\RenderTarget.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Game\ResourceLoader.h">
+    <ClInclude Include="Code\Resource\ResourceLoader.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Code\Game\Component.h">
@@ -443,7 +443,7 @@
     <ClInclude Include="Code\Graphics\Road.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Game\ResourceTypes.h">
+    <ClInclude Include="Code\Resource\ResourceTypes.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="Code\Editor\TrenchTool.h">

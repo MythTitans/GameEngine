@@ -1,9 +1,9 @@
 #include "Road.h"
 
-#include "Game/ResourceLoader.h"
 #include "Graphics/Renderer.h"
 #include "MaterialManager.h"
 #include "Math/GLMHelpers.h"
+#include "Resource/ResourceLoader.h"
 
 Road::Road()
 	: m_xRoad( g_pResourceLoader->LoadTechnique( "Shader/unlit.tech" ) )

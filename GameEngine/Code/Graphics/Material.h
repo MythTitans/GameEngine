@@ -3,9 +3,9 @@
 #include <glm/glm.hpp>
 #include <typeindex>
 
-#include "Game/ResourceTypes.h"
 #include "Graphics/Color.h"
 #include "Graphics/Technique.h"
+#include "Resource/ResourceTypes.h"
 
 inline constexpr uint MAX_MATERIAL_COUNT = 128;
 

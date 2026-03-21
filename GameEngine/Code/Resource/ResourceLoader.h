@@ -8,10 +8,10 @@
 
 #include <assimp/Importer.hpp>
 
-#include "Animation.h"
 #include "Core/Array.h"
 #include "Core/Intrusive.h"
 #include "Core/stb_truetype.h"
+#include "Game/Animation.h"
 #include "Graphics/Material.h"
 #include "Graphics/Shader.h"
 #include "ResourceTypes.h"

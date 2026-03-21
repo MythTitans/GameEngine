@@ -4,10 +4,10 @@
 
 #include "Core/Profiler.h"
 #include "Game/Entity.h"
-#include "Game/ResourceLoader.h"
 #include "Gizmo.h"
 #include "Graphics/Renderer.h"
 #include "Math/GLMHelpers.h"
+#include "Resource/ResourceLoader.h"
 
 PickingTool::PickingTool()
 	: m_xPicking( g_pResourceLoader->LoadTechnique( "Shader/picking.tech" ) )
