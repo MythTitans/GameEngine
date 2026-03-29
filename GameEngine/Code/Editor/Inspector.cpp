@@ -67,10 +67,10 @@ bool ColorEdit( const char* sLabel, Color& oColor )
 {
 	bool bEdit = false;
 
-	glm::vec3 vSRGBColor = glm::convertLinearToSRGB( oColor.m_vColor );
+	glm::vec3 vSRGBColor = glm::convertLinearToSRGB( ( glm::vec3 )oColor );
 	bEdit = ImGui::ColorEdit3( sLabel, &vSRGBColor.x );
 	if( bEdit )
-		oColor.m_vColor = glm::convertSRGBToLinear( vSRGBColor );
+		oColor = ( Color )glm::convertSRGBToLinear( vSRGBColor );
 
 	return ImGui::IsItemDeactivatedAfterEdit();
 }

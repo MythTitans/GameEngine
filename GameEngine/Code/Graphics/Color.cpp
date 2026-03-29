@@ -1,18 +1,29 @@
 #include "Color.h"
 
+#include <glm/glm.hpp>
+
 Color::Color()
 	: Color( 1.f, 1.f, 1.f )
 {
 }
 
 Color::Color( const glm::vec3& vColor )
-	: m_vColor( vColor )
+	: m_fR( vColor.r )
+	, m_fG( vColor.g )
+	, m_fB( vColor.b )
 {
 }
 
 Color::Color( const float fR, const float fG, const float fB )
-	: m_vColor( fR, fG, fB )
+	: m_fR( fR )
+	, m_fG( fG )
+	, m_fB( fB )
 {
+}
+
+Color::operator glm::vec3() const
+{
+	return glm::vec3( m_fR, m_fG, m_fB );
 }
 
 Color Color::White()

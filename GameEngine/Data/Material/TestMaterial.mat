@@ -1,0 +1,29 @@
+{
+    "type": "Lit",
+    "data":
+    {
+        "diffuseColor":
+        {
+            "r": 1.0,
+            "g": 0.0,
+            "b": 0.0
+        },
+        "specularColor":
+        {
+            "r": 0.0,
+            "g": 1.0,
+            "b": 0.0
+        },
+        "emissiveColor":
+        {
+            "r": 0.0,
+            "g": 0.0,
+            "b": 1.0
+        },
+        "shininess": 500.0,
+        "diffuseTexture": "Default_diffuse.png",
+        "normalTexture": "Default_normal.png",
+        "specularTexture": "Default_diffuse.png",
+        "emissiveTexture": "Default_diffuse.png"
+    }
+}

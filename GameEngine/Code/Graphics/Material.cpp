@@ -49,9 +49,9 @@ void LitMaterialData::ApplyMaterial( const uint uMaterialID, Technique& oTechniq
 
 void LitMaterialData::ExportToGPU( GPULitMaterialData& oMaterialData ) const
 {
-	oMaterialData.m_vDiffuseColor = m_oDiffuseColor.m_vColor;
-	oMaterialData.m_vSpecularColor = m_oSpecularColor.m_vColor;
-	oMaterialData.m_vEmissiveColor = m_oEmissiveColor.m_vColor;
+	oMaterialData.m_vDiffuseColor = ( glm::vec3 )m_oDiffuseColor;
+	oMaterialData.m_vSpecularColor = ( glm::vec3 )m_oSpecularColor;
+	oMaterialData.m_vEmissiveColor = ( glm::vec3 )m_oEmissiveColor;
 	oMaterialData.m_fShininess = m_fShininess;
 }
 
@@ -91,7 +91,7 @@ void UnlitMaterialData::ApplyMaterial( const uint uMaterialID, Technique& oTechn
 
 void UnlitMaterialData::ExportToGPU( GPUUnlitMaterialData& oMaterialData ) const
 {
-	oMaterialData.m_vDiffuseColor = m_oDiffuseColor.m_vColor;
+	oMaterialData.m_vDiffuseColor = ( glm::vec3 )m_oDiffuseColor;
 }
 
 PARAM_SHEET( UnlitMaterialData::UnlitMaterialParam ) UnlitMaterialData::s_oMaterialSheet;

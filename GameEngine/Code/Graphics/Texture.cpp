@@ -1,5 +1,7 @@
 #include "Texture.h"
 
+#include <glm/glm.hpp>
+
 #include "Core/Profiler.h"
 
 static void GetFormatDetails( const TextureFormat eFormat, const bool bSRGB, GLint& iFormat, GLint& iInternalFormat, GLenum& eType )
@@ -239,7 +241,7 @@ void Texture::Create( const TextureDesc& oDesc )
 
 	glCreateTextures( eFullTextureKind, 1, &m_uTextureID );
 
-	const GLfloat aBorderColor[ 4 ] = { oDesc.m_oBorderColor.m_vColor.r, oDesc.m_oBorderColor.m_vColor.g , oDesc.m_oBorderColor.m_vColor.b, 1.f };
+	const GLfloat aBorderColor[ 4 ] = { oDesc.m_oBorderColor.m_fR, oDesc.m_oBorderColor.m_fG, oDesc.m_oBorderColor.m_fB, 1.f };
 	glTextureParameterfv( m_uTextureID, GL_TEXTURE_BORDER_COLOR, aBorderColor );
 	glTextureParameteri( m_uTextureID, GL_TEXTURE_WRAP_S, GetWrappingMode( oDesc.m_eHorizontalWrapping ) );
 	glTextureParameteri( m_uTextureID, GL_TEXTURE_WRAP_T, GetWrappingMode( oDesc.m_eVerticalWrapping ) );

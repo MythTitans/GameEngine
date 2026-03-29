@@ -173,14 +173,16 @@ void from_json( const nlohmann::json& oJsonContent, Spline& oSpline )
 
 void to_json( nlohmann::json& oJsonContent, const Color& oColor )
 {
-	// TODO #eric could be nice to use rgb instead of xyz at some point
-	to_json( oJsonContent, oColor.m_vColor );
+	oJsonContent[ "r" ] = oColor.m_fR;
+	oJsonContent[ "g" ] = oColor.m_fG;
+	oJsonContent[ "b" ] = oColor.m_fB;
 }
 
 void from_json( const nlohmann::json& oJsonContent, Color& oColor )
 {
-	// TODO #eric could be nice to use rgb instead of xyz at some point
-	from_json( oJsonContent, oColor.m_vColor );
+	oColor.m_fR = oJsonContent[ "r" ];
+	oColor.m_fG = oJsonContent[ "g" ];
+	oColor.m_fB = oJsonContent[ "b" ];
 }
 
 template <>

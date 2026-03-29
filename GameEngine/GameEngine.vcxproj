@@ -194,6 +194,7 @@
     <ClCompile Include="Code\Game\ComponentManager.cpp" />
     <ClCompile Include="Code\Game\EntityHolder.cpp" />
     <ClCompile Include="Code\Game\GameWorld.cpp" />
+    <ClCompile Include="Code\Resource\LoadCommand.cpp" />
     <ClCompile Include="Code\Resource\ResourceTypes.cpp" />
     <ClCompile Include="Code\Game\Road.cpp" />
     <ClCompile Include="Code\Game\Skybox.cpp" />
@@ -276,6 +277,7 @@
     <ClInclude Include="Code\Game\EntityHolder.h" />
     <ClInclude Include="Code\Game\GameContext.h" />
     <ClInclude Include="Code\Game\GameWorld.h" />
+    <ClInclude Include="Code\Resource\LoadCommand.h" />
     <ClInclude Include="Code\Resource\ResourceTypes.h" />
     <ClInclude Include="Code\Game\Road.h" />
     <ClInclude Include="Code\Game\Skybox.h" />

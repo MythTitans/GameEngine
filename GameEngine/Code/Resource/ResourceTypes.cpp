@@ -141,3 +141,18 @@ const Technique& TechniqueResource::GetTechnique() const
 {
 	return m_oTechnique;
 }
+
+uint64 MaterialResource::GetSize() const
+{
+	return sizeof( MaterialResource );
+}
+
+void MaterialResource::Destroy()
+{
+	// TODO #eric
+}
+
+MaterialReference MaterialResource::GetMaterial() const
+{
+	return m_oMaterial;
+}

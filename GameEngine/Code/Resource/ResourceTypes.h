@@ -5,6 +5,7 @@
 #include "Core/stb_truetype.h"
 #include "Game/Animation.h"
 #include "Graphics/BoundingVolume.h"
+#include "Graphics/MaterialManager.h"
 #include "Graphics/Shader.h"
 #include "Graphics/Technique.h"
 #include "Graphics/Texture.h"
@@ -40,7 +41,7 @@ protected:
 class FontResource : public Resource
 {
 public:
-	friend class ResourceLoader;
+	friend struct FontLoadCommand;
 
 	uint64							GetSize() const override;
 	void							Destroy() override;
@@ -62,7 +63,8 @@ private:
 class ShaderResource : public Resource
 {
 public:
-	friend class ResourceLoader;
+	friend struct ShaderLoadCommand;
+	friend struct TechniqueLoadCommand;
 
 	uint64			GetSize() const override;
 	void			Destroy() override;
@@ -76,7 +78,7 @@ private:
 class TechniqueResource : public Resource
 {
 public:
-	friend class ResourceLoader;
+	friend struct TechniqueLoadCommand;
 
 	uint64				GetSize() const override;
 	void				Destroy() override;
@@ -93,7 +95,7 @@ private:
 class TextureResource : public Resource
 {
 public:
-	friend class ResourceLoader;
+	friend struct TextureLoadCommand;
 
 	uint64			GetSize() const override;
 	void			Destroy() override;
@@ -107,7 +109,7 @@ private:
 class ModelResource : public Resource
 {
 public:
-	friend class ResourceLoader;
+	friend struct ModelLoadCommand;
 
 	uint64						GetSize() const override;
 	void						Destroy() override;
@@ -130,8 +132,24 @@ private:
 	Array < glm::mat4x3 >	m_aSkinMatrices;
 };
 
+class MaterialResource : public Resource
+{
+public:
+	friend struct MaterialLoadCommand;
+
+	uint64				GetSize() const override;
+	void				Destroy() override;
+
+	MaterialReference	GetMaterial() const;
+
+private:
+	Array< StrongPtr< Resource > >	m_aTextureResources;
+	MaterialReference				m_oMaterial;
+};
+
 using FontResPtr = StrongPtr< FontResource >;
 using ShaderResPtr = StrongPtr< ShaderResource >;
 using TechniqueResPtr = StrongPtr< TechniqueResource >;
 using TextureResPtr = StrongPtr< TextureResource >;
 using ModelResPtr = StrongPtr< ModelResource >;
+using MaterialResPtr = StrongPtr< MaterialResource >;

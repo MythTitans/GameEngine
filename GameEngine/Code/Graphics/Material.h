@@ -4,10 +4,9 @@
 #include <typeindex>
 
 #include "Graphics/Color.h"
+#include "Graphics/MaterialManager.h"
 #include "Graphics/Technique.h"
 #include "Resource/ResourceTypes.h"
-
-inline constexpr uint MAX_MATERIAL_COUNT = 128;
 
 class Technique;
 class TextureResource;
@@ -81,25 +80,4 @@ struct UnlitMaterialData
 	TextureResPtr								m_xDiffuseTextureResource;
 
 	static PARAM_SHEET( UnlitMaterialParam )	s_oMaterialSheet;
-};
-
-// TODO #eric may be intrusive and stored in material manager for lifetime management
-class MaterialReference
-{
-public:
-	friend class MaterialManager;
-	friend class Road; // TODO #eric temporary
-
-	MaterialReference();
-
-	template < typename MaterialData >
-	MaterialReference( const MaterialData& /*oMaterialData*/, const uint uMaterialID )
-		: m_oTypeIndex( typeid( MaterialData ) )
-		, m_iMaterialID( uMaterialID )
-	{
-	}
-
-private:
-	std::type_index m_oTypeIndex;
-	int				m_iMaterialID;
 };

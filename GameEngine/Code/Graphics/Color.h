@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include <glm/fwd.hpp>
 
 struct Color
 {
@@ -8,7 +8,11 @@ struct Color
 	explicit Color( const glm::vec3& vColor );
 	Color( const float fR, const float fG, const float fB );
 
-	glm::vec3 m_vColor;
+	explicit operator glm::vec3() const;
+
+	float m_fR;
+	float m_fG;
+	float m_fB;
 
 	static Color White();
 	static Color Black();

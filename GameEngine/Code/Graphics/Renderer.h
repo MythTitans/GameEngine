@@ -5,6 +5,7 @@
 #include "Core/Types.h"
 #include "DebugRenderer.h"
 #include "Editor/GizmoRenderer.h"
+#include "Material.h"
 #include "RenderTarget.h"
 #include "Road.h"
 #include "ShaderBuffer.h"

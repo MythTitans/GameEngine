@@ -56,7 +56,7 @@ static GPULightingDataBlock SetupLighting( const Array< DirectionalLightNode* >&
 	for( uint uLightIndex = 0; uLightIndex < aDirectionalLights.Count(); ++uLightIndex )
 	{
 		oLightingData.m_aDirectionalLights[ uLightIndex ].m_vDirection = aDirectionalLights[ uLightIndex ]->m_vDirection;
-		oLightingData.m_aDirectionalLights[ uLightIndex ].m_vColor = aDirectionalLights[ uLightIndex ]->m_oColor.m_vColor;
+		oLightingData.m_aDirectionalLights[ uLightIndex ].m_vColor = ( glm::vec3 )aDirectionalLights[ uLightIndex ]->m_oColor;
 		oLightingData.m_aDirectionalLights[ uLightIndex ].m_fIntensity = aDirectionalLights[ uLightIndex ]->m_fIntensity;
 
 		const glm::vec3 vCameraPosition = g_pRenderer->m_oCamera.GetPosition();
@@ -72,7 +72,7 @@ static GPULightingDataBlock SetupLighting( const Array< DirectionalLightNode* >&
 	for( uint uLightIndex = 0; uLightIndex < aPointLights.Count(); ++uLightIndex )
 	{
 		oLightingData.m_aPointLights[ uLightIndex ].m_vPosition = aPointLights[ uLightIndex ]->m_vPosition;
-		oLightingData.m_aPointLights[ uLightIndex ].m_vColor = aPointLights[ uLightIndex ]->m_oColor.m_vColor;
+		oLightingData.m_aPointLights[ uLightIndex ].m_vColor = ( glm::vec3 )aPointLights[ uLightIndex ]->m_oColor;
 		oLightingData.m_aPointLights[ uLightIndex ].m_fIntensity = aPointLights[ uLightIndex ]->m_fIntensity;
 		oLightingData.m_aPointLights[ uLightIndex ].m_fFalloffMinDistance = aPointLights[ uLightIndex ]->m_fFalloffMinDistance;
 		oLightingData.m_aPointLights[ uLightIndex ].m_fFalloffMaxDistance = aPointLights[ uLightIndex ]->m_fFalloffMaxDistance;
@@ -83,7 +83,7 @@ static GPULightingDataBlock SetupLighting( const Array< DirectionalLightNode* >&
 	{
 		oLightingData.m_aSpotLights[ uLightIndex ].m_vDirection = aSpotLights[ uLightIndex ]->m_vDirection;
 		oLightingData.m_aSpotLights[ uLightIndex ].m_vPosition = aSpotLights[ uLightIndex ]->m_vPosition;
-		oLightingData.m_aSpotLights[ uLightIndex ].m_vColor = aSpotLights[ uLightIndex ]->m_oColor.m_vColor;
+		oLightingData.m_aSpotLights[ uLightIndex ].m_vColor = ( glm::vec3 )aSpotLights[ uLightIndex ]->m_oColor;
 		oLightingData.m_aSpotLights[ uLightIndex ].m_fIntensity = aSpotLights[ uLightIndex ]->m_fIntensity;
 		oLightingData.m_aSpotLights[ uLightIndex ].m_fInnerRange = glm::cos( glm::radians( aSpotLights[ uLightIndex ]->m_fInnerAngle / 2.f ) ) - glm::cos( glm::radians( aSpotLights[ uLightIndex ]->m_fOuterAngle / 2.f ) );
 		oLightingData.m_aSpotLights[ uLightIndex ].m_fOuterRange = glm::cos( glm::radians( aSpotLights[ uLightIndex ]->m_fOuterAngle / 2.f ) );

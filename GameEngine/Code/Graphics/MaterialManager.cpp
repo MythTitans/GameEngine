@@ -1,5 +1,7 @@
 #include "MaterialManager.h"
 
+#include "Material.h"
+
 MaterialManager* g_pMaterialManager = nullptr;
 
 MaterialsHolderBase::MaterialsHolderBase()
