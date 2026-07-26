@@ -28,15 +28,19 @@ public:
 
 private:
 	void					UpdateModel();
+	void					UpdateMaterial();
 
 	PROPERTIES( VisualComponent );
 	PROPERTY( "Model", m_sModelFile, std::string );
+	PROPERTY( "Material", m_sMaterialFile, std::string );
 
 	ModelResPtr			m_xModel;
+	MaterialResPtr		m_xMaterial;
 	TechniqueResPtr		m_xTechnique;
 
 	VisualNode*			m_pVisualNode;
 	AxisAlignedBox		m_oModelAABB;
 
 	bool				m_bModelDirty;
+	bool				m_bMaterialDirty;
 };

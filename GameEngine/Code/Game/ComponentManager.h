@@ -153,7 +153,7 @@ public:
 	virtual ~ComponentsHolderBase();
 
 	virtual void				InitializeComponents() = 0;
-	virtual void				InitializeComponent( Entity* pEntity, const bool bThenStart = false ) = 0;
+	virtual void				InitializeComponent( Entity* pEntity ) = 0;
 	virtual bool				AreComponentsInitialized() const = 0;
 	virtual void				StartPendingComponents() = 0;
 	virtual void				StartComponents() = 0;
@@ -206,7 +206,7 @@ public:
 			InitializeComponentFromIndex( u );
 	}
 
-	void InitializeComponent( Entity* pEntity, const bool bThenStart /*= false*/ ) override
+	void InitializeComponent( Entity* pEntity ) override
 	{
 		for( uint u = 0; u < m_aComponents.Count(); ++u )
 		{
@@ -812,13 +812,13 @@ public:
 	}
 
 	template < typename ComponentType >
-	void InitializeComponent( Entity* pEntity, const bool bStartWhenInitialized = false )
+	void InitializeComponent( Entity* pEntity )
 	{
 		ComponentsHolder< ComponentType >* pComponentsHolder = ComponentsHolder< ComponentType >::s_pHolder;
 		if( pComponentsHolder == nullptr )
 			return;
 
-		pComponentsHolder->InitializeComponent( pEntity, bStartWhenInitialized );
+		pComponentsHolder->InitializeComponent( pEntity );
 	}
 
 	template < typename ComponentType >

@@ -18,23 +18,26 @@ VisualComponent::VisualComponent( Entity* pEntity )
 	: Component( pEntity )
 	, m_pVisualNode( nullptr )
 	, m_bModelDirty( false )
+	, m_bMaterialDirty( false )
 {
 }
 
 void VisualComponent::Setup( const char* sModelFile )
 {
 	m_sModelFile = sModelFile;
+	m_sMaterialFile = "";
 }
 
 void VisualComponent::Initialize()
 {
 	m_xModel = g_pResourceLoader->LoadModel( m_sModelFile.c_str() );
+	m_xMaterial = m_sMaterialFile.empty() ? nullptr : g_pResourceLoader->LoadMaterial( m_sMaterialFile.c_str() );
 	m_xTechnique = g_pResourceLoader->LoadTechnique( "Shader/forward_opaque.tech" );
 }
 
 bool VisualComponent::IsInitialized() const
 {
-	return m_xModel->IsLoading() == false && m_xTechnique->IsLoaded();
+	return m_xModel->IsLoading() == false && m_xTechnique->IsLoaded() && ( m_xMaterial == nullptr || m_xMaterial->IsLoaded() );
 }
 
 void VisualComponent::Start()
@@ -53,6 +56,9 @@ void VisualComponent::Update( const GameContext& oGameContext )
 
 	if( m_bModelDirty && m_xModel->IsLoaded() )
 		UpdateModel();
+
+	if( m_bMaterialDirty && m_xMaterial != nullptr && m_xMaterial->IsLoaded() )
+		UpdateMaterial();
 
 	if( pEntity->IsDirty() )
 		m_pVisualNode->UpdateTransformAndAABB( pEntity->GetWorldTransform(), m_oModelAABB );
@@ -80,11 +86,12 @@ bool VisualComponent::DisplayInspector()
 {
 	if( ImGui::CollapsingHeader( "Material" ) )
 	{
-		for( const Mesh& oMesh : GetMeshes() )
+		if( m_xMaterial != nullptr && m_xMaterial->IsLoaded() )
 		{
-			if( g_pMaterialManager->IsMaterialType< LitMaterialData >( oMesh.GetMaterial() ) )
+			MaterialReference oMaterial = m_xMaterial->GetMaterial();
+			if( g_pMaterialManager->IsMaterialType< LitMaterialData >( m_xMaterial->GetMaterial() ) )
 			{
-				LitMaterialData oMaterialData = g_pMaterialManager->GetMaterial< LitMaterialData >( oMesh.GetMaterial() );
+				LitMaterialData oMaterialData = g_pMaterialManager->GetMaterial< LitMaterialData >( oMaterial );
 				ColorEdit( "Diffuse color", oMaterialData.m_oDiffuseColor );
 				ColorEdit( "Specular color", oMaterialData.m_oSpecularColor );
 				ColorEdit( "Emissive color", oMaterialData.m_oEmissiveColor );
@@ -93,7 +100,27 @@ bool VisualComponent::DisplayInspector()
 				TexturePreview( "Normal map", oMaterialData.m_xNormalTextureResource.GetPtr() );
 				TexturePreview( "Specular map", oMaterialData.m_xSpecularTextureResource.GetPtr() );
 				TexturePreview( "Emissive map", oMaterialData.m_xEmissiveTextureResource.GetPtr() );
-				g_pMaterialManager->UpdateMaterial( oMesh.GetMaterial(), oMaterialData );
+				g_pMaterialManager->UpdateMaterial( oMaterial, oMaterialData );
+			}
+		}
+		else
+		{
+			for( const Mesh& oMesh : GetMeshes() )
+			{
+				MaterialReference oMaterial = oMesh.GetMaterial();
+				if( g_pMaterialManager->IsMaterialType< LitMaterialData >( oMaterial ) )
+				{
+					LitMaterialData oMaterialData = g_pMaterialManager->GetMaterial< LitMaterialData >( oMaterial );
+					ColorEdit( "Diffuse color", oMaterialData.m_oDiffuseColor );
+					ColorEdit( "Specular color", oMaterialData.m_oSpecularColor );
+					ColorEdit( "Emissive color", oMaterialData.m_oEmissiveColor );
+					ImGui::DragFloat( "Shininess", &oMaterialData.m_fShininess );
+					TexturePreview( "Diffuse map", oMaterialData.m_xDiffuseTextureResource.GetPtr() );
+					TexturePreview( "Normal map", oMaterialData.m_xNormalTextureResource.GetPtr() );
+					TexturePreview( "Specular map", oMaterialData.m_xSpecularTextureResource.GetPtr() );
+					TexturePreview( "Emissive map", oMaterialData.m_xEmissiveTextureResource.GetPtr() );
+					g_pMaterialManager->UpdateMaterial( oMaterial, oMaterialData );
+				}
 			}
 		}
 	}
@@ -107,6 +134,11 @@ void VisualComponent::OnPropertyChanged( const std::string& sProperty )
 	{
 		m_xModel = g_pResourceLoader->LoadModel( m_sModelFile.c_str() );
 		m_bModelDirty = true;
+	}
+	else if( sProperty == "Material" )
+	{
+		m_xMaterial = m_sMaterialFile.empty() ? nullptr : g_pResourceLoader->LoadMaterial( m_sMaterialFile.c_str() );
+		m_bMaterialDirty = true;
 	}
 }
 #endif
@@ -122,4 +154,12 @@ void VisualComponent::UpdateModel()
 	m_oModelAABB = m_xModel->GetAABB();
 
 	m_bModelDirty = false;
+}
+
+void VisualComponent::UpdateMaterial()
+{
+	for( Mesh& oMesh : m_pVisualNode->m_aMeshes )
+		oMesh.SetMaterial( m_xMaterial->GetMaterial() );
+
+	m_bMaterialDirty = false;
 }

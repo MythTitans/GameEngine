@@ -209,7 +209,7 @@ bool TerrainComponent::DisplayInspector()
 					pChunk->m_iChunkIndex = uChunkIndex;
 					pChunk->m_uWidthResolution = iChunksResolution[ 0 ];
 					pChunk->m_uHeightResolution = iChunksResolution[ 1 ];
-					g_pComponentManager->InitializeComponent< TerrainChunkComponent >( pEntity, true );
+					g_pComponentManager->InitializeComponent< TerrainChunkComponent >( pEntity );
 				}
 			}
 

@@ -57,7 +57,7 @@ void ProceduralGridGenerator::Generate()
 
 			VisualComponent* pVisual = g_pComponentManager->CreateComponent< VisualComponent >( pEntity, ComponentManagement::NONE );
 			pVisual->Setup( "sphere.obj" );
-			g_pComponentManager->InitializeComponent< VisualComponent >( pEntity, true );
+			g_pComponentManager->InitializeComponent< VisualComponent >( pEntity );
 		}
 	}
 }
