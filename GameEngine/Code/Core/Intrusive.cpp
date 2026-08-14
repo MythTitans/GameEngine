@@ -1,5 +1,7 @@
 #include "Intrusive.h"
 
+#include "New.h"
+
 #ifdef TRACK_MEMORY
 #include "MemoryTracker.h"
 #endif
@@ -139,7 +141,7 @@ void StrongPtrBase::RemoveReference()
 	{
 		ASSERT( m_pPtr->m_uReferenceCount > 0 );
 		if( --( m_pPtr->m_uReferenceCount ) == 0 )
-			delete m_pPtr;;
+			Delete( m_pPtr );
 	}
 }
 

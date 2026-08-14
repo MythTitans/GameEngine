@@ -5,6 +5,7 @@
 #include <type_traits>
 
 #include "Common.h"
+#include "SimpleAllocator.h"
 #include "Types.h"
 
 #ifdef TRACK_MEMORY
@@ -42,7 +43,7 @@ public:
 
 	explicit Array( const uint uCount )
 		: ArrayBase( uCount, uCount )
-		, m_pData( ( T* )malloc( uCount * sizeof( T ) ) )
+		, m_pData( SimpleAllocator::Allocate< T >( uCount ) )
 	{
 		if constexpr( std::is_trivially_default_constructible_v< T > == false )
 		{
@@ -55,7 +56,7 @@ public:
 
 	Array( const uint uCount, const T& oValue )
 		: ArrayBase( uCount, uCount )
-		, m_pData( ( T* )malloc( uCount * sizeof( T ) ) )
+		, m_pData( SimpleAllocator::Allocate< T >( uCount ) )
 	{
 		if constexpr( std::is_trivially_copy_constructible_v< T > )
 		{
@@ -82,7 +83,7 @@ public:
 
 	Array( const Array& aArray )
 		: ArrayBase( aArray.m_uCount, aArray.m_uCapacity )
-		, m_pData( ( T* )malloc( aArray.m_uCount * sizeof( T ) ) )
+		, m_pData( SimpleAllocator::Allocate< T >( aArray.m_uCount ) )
 	{
 		if constexpr( std::is_trivially_copy_constructible_v< T > )
 		{
@@ -104,7 +105,7 @@ public:
 
 		Destroy();
 
-		m_pData = ( T* )malloc( aArray.m_uCount * sizeof( T ) );
+		m_pData = SimpleAllocator::Allocate< T >( aArray.m_uCount );
 		m_uCount = aArray.m_uCount;
 		m_uCapacity = aArray.m_uCapacity;
 
@@ -373,7 +374,7 @@ public:
 	{
 		if( m_uCapacity < uCount )
 		{
-			T* pData = ( T* )malloc( uCount * sizeof( T ) );
+			T* pData = SimpleAllocator::Allocate< T >( uCount );
 
 			if constexpr( std::is_trivially_copy_constructible_v< T > )
 			{
@@ -407,7 +408,7 @@ public:
 		if( m_uCapacity == m_uCount )
 			return;
 
-		m_pData = ( T* )realloc( m_pData, m_uCount * sizeof( T ) );
+		m_pData = ( T* )realloc( m_pData, m_uCount * sizeof( T ) ); // TODO #eric from SimpleAllocator ?
 
 		m_uCapacity = m_uCount;
 	}
@@ -495,14 +496,14 @@ private:
 	{
 		if constexpr( std::is_trivially_destructible_v< T > )
 		{
-			free( m_pData );
+			SimpleAllocator::Deallocate( m_pData );
 		}
 		else
 		{
 			for( uint u = 0; u < m_uCount; ++u )
 				m_pData[ u ].~T();
 
-			free( m_pData );
+			SimpleAllocator::Deallocate( m_pData );
 		}
 	}
 

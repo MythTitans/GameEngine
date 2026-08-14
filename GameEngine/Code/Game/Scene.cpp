@@ -101,7 +101,7 @@ Entity* Scene::CreateEntity( const std::string& sName, const uint64 uID )
 	UpdateID( uID );
 
 	StrongPtr< Entity >& xEntity = m_mEntities[ uID ];
-	xEntity = new Entity( uID, sName );
+	xEntity = New< Entity >( uID, sName );
 
 	return xEntity.GetPtr();
 }

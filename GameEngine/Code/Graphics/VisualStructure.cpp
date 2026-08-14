@@ -62,7 +62,7 @@ VisualNode* VisualStructure::AddVisual( const Entity* pEntity, Technique& oTechn
 			m_aVisuals.PushBack( Array< VisualNode* >() );
 	}
 
-	m_aVisuals[ iIndex ].PushBack( new VisualNode( pEntity->GetID() ) );
+	m_aVisuals[ iIndex ].PushBack( New< VisualNode >( pEntity->GetID() ) );
 
 	return m_aVisuals[ iIndex ].Back();
 }
@@ -94,8 +94,7 @@ void VisualStructure::RemoveVisual( VisualNode*& pNode )
 		if( iIndex != -1 )
 		{
 			aNodes.Remove( iIndex );
-			delete pNode;
-			pNode = nullptr;
+			Delete( pNode );
 
 			if( aNodes.Empty() )
 			{
@@ -145,21 +144,21 @@ Array< VisualNode* > VisualStructure::FindVisuals( const uint64 uEntityID )
 
 DirectionalLightNode* VisualStructure::AddDirectionalLight()
 {
-	m_aDirectionalLights.PushBack( new DirectionalLightNode );
+	m_aDirectionalLights.PushBack( New< DirectionalLightNode >() );
 
 	return m_aDirectionalLights.Back();
 }
 
 PointLightNode* VisualStructure::AddPointLight()
 {
-	m_aPointLights.PushBack( new PointLightNode );
+	m_aPointLights.PushBack( New< PointLightNode >() );
 
 	return m_aPointLights.Back();
 }
 
 SpotLightNode* VisualStructure::AddSpotLight()
 {
-	m_aSpotLights.PushBack( new SpotLightNode );
+	m_aSpotLights.PushBack( New< SpotLightNode >() );
 
 	return m_aSpotLights.Back();
 }
@@ -170,8 +169,7 @@ void VisualStructure::RemoveDirectionalLight( DirectionalLightNode*& pDirectiona
 	if( iIndex != -1 )
 	{
 		m_aDirectionalLights.Remove( iIndex );
-		delete pDirectionalLight;
-		pDirectionalLight = nullptr;
+		Delete( pDirectionalLight );
 	}
 }
 
@@ -181,8 +179,7 @@ void VisualStructure::RemovePointLight( PointLightNode*& pPointLight )
 	if( iIndex != -1 )
 	{
 		m_aPointLights.Remove( iIndex );
-		delete pPointLight;
-		pPointLight = nullptr;
+		Delete( pPointLight);
 	}
 }
 
@@ -192,14 +189,13 @@ void VisualStructure::RemoveSpotLight( SpotLightNode*& pSpotLight )
 	if( iIndex != -1 )
 	{
 		m_aSpotLights.Remove( iIndex );
-		delete pSpotLight;
-		pSpotLight = nullptr;
+		Delete( pSpotLight );
 	}
 }
 
 SkyNode* VisualStructure::AddSky()
 {
-	m_aSkies.PushBack( new SkyNode );
+	m_aSkies.PushBack( New< SkyNode >() );
 
 	return m_aSkies.Back();
 }
@@ -210,8 +206,7 @@ void VisualStructure::RemoveSky( SkyNode*& pSky )
 	if( iIndex != -1 )
 	{
 		m_aSkies.Remove( iIndex );
-		delete pSky;
-		pSky = nullptr;
+		Delete( pSky );
 
 		if( iIndex == m_iActiveSkyIndex )
 			m_iActiveSkyIndex = -1;
@@ -244,14 +239,13 @@ const SkyNode* VisualStructure::GetActiveSky() const
 
 TerrainNode* VisualStructure::AddTerrain()
 {
-	m_pTerrain = new TerrainNode;
+	m_pTerrain = New< TerrainNode >();
 	return m_pTerrain;
 }
 
 void VisualStructure::RemoveTerrain( TerrainNode*& pTerrain )
 {
-	delete m_pTerrain;
-	m_pTerrain = nullptr;
+	Delete( m_pTerrain );
 	pTerrain = nullptr;
 }
 
@@ -262,7 +256,7 @@ TerrainNode* VisualStructure::GetTerrain() const
 
 RoadNode* VisualStructure::AddRoad( const Entity* pEntity, const Texture& oTexture, const Mesh& oMesh )
 {
-	m_aRoads.PushBack( new RoadNode( pEntity->GetID(), pEntity->GetWorldTransform().GetMatrixTR(), oTexture, oMesh ) );
+	m_aRoads.PushBack( New< RoadNode >( pEntity->GetID(), pEntity->GetWorldTransform().GetMatrixTR(), oTexture, oMesh ) );
 	return m_aRoads.Back();
 }
 
@@ -272,8 +266,7 @@ void VisualStructure::RemoveRoad( RoadNode*& pRoad )
 	if( iIndex != -1 )
 	{
 		m_aRoads.Remove( iIndex );
-		delete pRoad;
-		pRoad = nullptr;
+		Delete( pRoad );
 	}
 }
 

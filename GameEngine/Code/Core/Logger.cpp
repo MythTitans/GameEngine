@@ -18,7 +18,7 @@ static FileLogger sFileLogger( "GameEngine.log" );
 Logger::Logger()
 {
 	if( s_pLogBuffer == nullptr )
-		s_pLogBuffer = new char[ LOG_BUFFER_SIZE ];
+		s_pLogBuffer = SimpleAllocator::Allocate< char >( LOG_BUFFER_SIZE );
 
 	RegisterLogger( this );
 }
@@ -26,10 +26,7 @@ Logger::Logger()
 Logger::~Logger()
 {
 	if( s_aLoggers.Empty() && s_pLogBuffer != nullptr )
-	{
-		delete[] s_pLogBuffer;
-		s_pLogBuffer = nullptr;
-	}
+		SimpleAllocator::Deallocate( s_pLogBuffer );
 
 	UnRegisterLogger( this );
 }

@@ -6,6 +6,7 @@
 
 #include "Core/ArrayUtils.h"
 #include "Core/MemoryTracker.h"
+#include "Core/New.h"
 #include "Core/Serialization.h"
 #include "Editor/Inspector.h"
 #include "ImGui/imgui.h"
@@ -749,7 +750,7 @@ void RegisterProperty( const char* sName, PropertyType PropertyClass::* pPropert
 {
 	PropertiesHolderBase*& pPropertiesHolderBase = ComponentsHolder< PropertyClass >::s_mProperties[ typeid( PropertyType ) ];
 	if( pPropertiesHolderBase == nullptr )
-		pPropertiesHolderBase = new PropertiesHolder< PropertyType, PropertyClass >;
+		pPropertiesHolderBase = New< PropertiesHolder< PropertyType, PropertyClass > >();
 
 	PropertiesHolder< PropertyType, PropertyClass >* pPropertiesHolder = static_cast< PropertiesHolder< PropertyType, PropertyClass >* >( pPropertiesHolderBase );
 	pPropertiesHolder->m_aNames.PushBack( sName );
@@ -790,7 +791,7 @@ public:
 		ComponentsHolderBase*& pComponentsHolderBase = m_mComponentsHolders[ typeid( ComponentType ) ];
 		if( pComponentsHolderBase == nullptr )
 		{
-			pComponentsHolderBase = new ComponentsHolder< ComponentType >;
+			pComponentsHolderBase = New< ComponentsHolder< ComponentType > >();
 			m_aPriorityComponentsHolder.PushBack( pComponentsHolderBase );
 			Sort( m_aPriorityComponentsHolder, []( const ComponentsHolderBase* pHolderA, const ComponentsHolderBase* pHolderB ) { return pHolderA->GetConcreteComponentPriority() < pHolderB->GetConcreteComponentPriority(); } );
 		}
@@ -802,7 +803,7 @@ public:
 		ComponentsHolderBase*& pComponentsHolderBase = m_mComponentsHolders[ typeid( ComponentType ) ];
 		if( pComponentsHolderBase == nullptr )
 		{
-			pComponentsHolderBase = new ComponentsHolder< ComponentType >;
+			pComponentsHolderBase = New< ComponentsHolder< ComponentType > >();
 			m_aPriorityComponentsHolder.PushBack( pComponentsHolderBase );
 			Sort( m_aPriorityComponentsHolder, []( const ComponentsHolderBase* pHolderA, const ComponentsHolderBase* pHolderB ) { return pHolderA->GetConcreteComponentPriority() < pHolderB->GetConcreteComponentPriority(); } );
 		}

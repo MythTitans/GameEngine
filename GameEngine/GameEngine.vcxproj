@@ -176,8 +176,10 @@
     <ClCompile Include="Code\Core\Intrusive.cpp" />
     <ClCompile Include="Code\Core\Logger.cpp" />
     <ClCompile Include="Code\Core\MemoryTracker.cpp" />
+    <ClCompile Include="Code\Core\New.cpp" />
     <ClCompile Include="Code\Core\Profiler.cpp" />
     <ClCompile Include="Code\Core\Serialization.cpp" />
+    <ClCompile Include="Code\Core\SimpleAllocator.cpp" />
     <ClCompile Include="Code\Core\StringUtils.cpp" />
     <ClCompile Include="Code\Core\TaskScheduler.cpp" />
     <ClCompile Include="Code\Core\FileUtils.cpp" />
@@ -253,8 +255,10 @@
     <ClInclude Include="Code\Core\LockLessMultiReadPipe.h" />
     <ClInclude Include="Code\Core\Logger.h" />
     <ClInclude Include="Code\Core\MemoryTracker.h" />
+    <ClInclude Include="Code\Core\New.h" />
     <ClInclude Include="Code\Core\Profiler.h" />
     <ClInclude Include="Code\Core\Serialization.h" />
+    <ClInclude Include="Code\Core\SimpleAllocator.h" />
     <ClInclude Include="Code\Core\stb_image.h" />
     <ClInclude Include="Code\Core\stb_image_write.h" />
     <ClInclude Include="Code\Core\stb_truetype.h" />

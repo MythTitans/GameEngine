@@ -5,6 +5,7 @@
 
 #include "Core/Common.h"
 #include "Core/Logger.h"
+#include "Core/New.h"
 #include "Core/Profiler.h"
 #include "Core/stb_image.h"
 #include "Core/StringUtils.h"
@@ -42,7 +43,7 @@ FontResPtr ResourceLoader::LoadFont( const char* sFilePath )
 	if( xFontPtr != nullptr )
 		return xFontPtr;
 
-	xFontPtr = new FontResource();
+	xFontPtr = New< FontResource >();
 
 	LOG_INFO( "Loading {}", sFilePath );
 	m_oPendingLoadCommands.m_aFontLoadCommands.PushBack( FontLoadCommand( sFilePath, xFontPtr ) );
@@ -56,7 +57,7 @@ TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath, const bool bSR
 	if( xTexturePtr != nullptr )
 		return xTexturePtr;
 
-	xTexturePtr = new TextureResource();
+	xTexturePtr = New< TextureResource >();
 
 	LOG_INFO( "Loading {}", sFilePath );
 	m_oPendingLoadCommands.m_aTextureLoadCommands.PushBack( TextureLoadCommand( sFilePath, xTexturePtr, bSRGB, bUse16Bits ) );
@@ -70,7 +71,7 @@ TextureResPtr ResourceLoader::LoadTexture( const char* sFilePath, const uint8* p
 	if( xTexturePtr != nullptr )
 		return xTexturePtr;
 
-	xTexturePtr = new TextureResource();
+	xTexturePtr = New< TextureResource >();
 
 	LOG_INFO( "Loading {}", sFilePath );
 
@@ -97,7 +98,7 @@ ModelResPtr ResourceLoader::LoadModel( const char* sFilePath )
 	if( xModelPtr != nullptr )
 		return xModelPtr;
 
-	xModelPtr = new ModelResource();
+	xModelPtr = New< ModelResource >();
 
 	LOG_INFO( "Loading {}", sFilePath );
 	m_oPendingLoadCommands.m_aModelLoadCommands.PushBack( ModelLoadCommand( sFilePath, xModelPtr ) );
@@ -111,7 +112,7 @@ ShaderResPtr ResourceLoader::LoadShader( const char* sFilePath )
 	if( xShaderPtr != nullptr )
 		return xShaderPtr;
 
-	xShaderPtr = new ShaderResource();
+	xShaderPtr = New< ShaderResource >();
 
 	Array< std::string > aFlags = Split( sFilePath, "|" );
 	const std::string sRealFilePath = aFlags.Front();
@@ -129,7 +130,7 @@ TechniqueResPtr ResourceLoader::LoadTechnique( const char* sFilePath )
 	if( xTechniquePtr != nullptr )
 		return xTechniquePtr;
 
-	xTechniquePtr = new TechniqueResource();
+	xTechniquePtr = New< TechniqueResource >();
 
 	LOG_INFO( "Loading {}", sFilePath );
 	m_oPendingLoadCommands.m_aTechniqueLoadCommands.PushBack( TechniqueLoadCommand( sFilePath, xTechniquePtr ) );
@@ -143,7 +144,7 @@ MaterialResPtr ResourceLoader::LoadMaterial( const char* sFilePath )
 	if( xMaterialPtr != nullptr )
 		return xMaterialPtr;
 
-	xMaterialPtr = new MaterialResource();
+	xMaterialPtr = New< MaterialResource >();
 
 	LOG_INFO( "Loading {}", sFilePath );
 	m_oPendingLoadCommands.m_aMaterialLoadCommands.PushBack( MaterialLoadCommand( sFilePath, xMaterialPtr ) );

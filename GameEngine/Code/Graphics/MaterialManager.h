@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "Core/Array.h"
+#include "Core/New.h"
 
 inline constexpr uint MAX_MATERIAL_COUNT = 128;
 
@@ -73,7 +74,7 @@ public:
 	{
 		MaterialsHolderBase*& pMaterialsHolderBase = m_mMaterialsHolders[ typeid( MaterialData ) ];
 		if( pMaterialsHolderBase == nullptr )
-			pMaterialsHolderBase = new MaterialsHolder< MaterialData >;
+			pMaterialsHolderBase = New< MaterialsHolder< MaterialData > >();
 
 		MaterialsHolder< MaterialData >* pMaterialsHolder = static_cast< MaterialsHolder< MaterialData >* >( pMaterialsHolderBase );
 		pMaterialsHolder->m_aMaterialData.PushBack( oMaterialData );

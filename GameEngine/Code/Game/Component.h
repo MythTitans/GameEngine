@@ -213,7 +213,7 @@ public:
 	template < typename RealComponentType >
 	void SetComponentSubType()
 	{
-		m_pComponentSubTypeHandleImpl.reset( new ComponentHandleImpl< ComponentType, RealComponentType > );
+		m_pComponentSubTypeHandleImpl.reset( New< ComponentHandleImpl< ComponentType, RealComponentType > >() );
 	}
 
 	ComponentType* operator->()
